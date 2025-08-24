@@ -158,22 +158,20 @@ public class AssociationConfiguration : IEntityTypeConfiguration<Association>
         builder.HasIndex(a => new { a.IsActive, a.IsDeleted })
             .HasDatabaseName("IX_Association_IsActive_IsDeleted");
 
-        // Future foreign key relationships (commented out until related entities are created)
-        /*
+        // Foreign key relationships
         builder.HasOne(a => a.LegalForm)
-            .WithMany()
+            .WithMany(l => l.Associations)
             .HasForeignKey(a => a.LegalFormId)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(a => a.MainAddress)
-            .WithMany()
+            .WithMany(addr => addr.AssociationsAsMainAddress)
             .HasForeignKey(a => a.MainAddressId)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(a => a.MainBankAccount)
-            .WithMany()
+            .WithMany(ba => ba.AssociationsAsMainBankAccount)
             .HasForeignKey(a => a.MainBankAccountId)
             .OnDelete(DeleteBehavior.SetNull);
-        */
     }
 }

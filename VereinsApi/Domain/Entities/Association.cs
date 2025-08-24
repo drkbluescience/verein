@@ -171,9 +171,24 @@ public class Association : BaseEntity
     [MaxLength(100)]
     public string? ElectronicSignatureKey { get; set; }
 
-    // Navigation properties will be added later when related entities are created
-    // public virtual LegalForm? LegalForm { get; set; }
-    // public virtual Address? MainAddress { get; set; }
-    // public virtual BankAccount? MainBankAccount { get; set; }
-    // public virtual ICollection<Member> Members { get; set; } = new List<Member>();
+    // Navigation properties
+    /// <summary>
+    /// Legal form of the association
+    /// </summary>
+    public virtual LegalForm? LegalForm { get; set; }
+
+    /// <summary>
+    /// Main address of the association
+    /// </summary>
+    public virtual Address? MainAddress { get; set; }
+
+    /// <summary>
+    /// Main bank account of the association
+    /// </summary>
+    public virtual BankAccount? MainBankAccount { get; set; }
+
+    /// <summary>
+    /// Association members (many-to-many relationship)
+    /// </summary>
+    public virtual ICollection<AssociationMember> AssociationMembers { get; set; } = new List<AssociationMember>();
 }

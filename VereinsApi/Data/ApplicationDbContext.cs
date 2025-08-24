@@ -21,6 +21,31 @@ public class ApplicationDbContext : DbContext
     /// </summary>
     public DbSet<Association> Associations { get; set; }
 
+    /// <summary>
+    /// Members table
+    /// </summary>
+    public DbSet<Member> Members { get; set; }
+
+    /// <summary>
+    /// Addresses table
+    /// </summary>
+    public DbSet<Address> Addresses { get; set; }
+
+    /// <summary>
+    /// Bank accounts table
+    /// </summary>
+    public DbSet<BankAccount> BankAccounts { get; set; }
+
+    /// <summary>
+    /// Legal forms table
+    /// </summary>
+    public DbSet<LegalForm> LegalForms { get; set; }
+
+    /// <summary>
+    /// Association members junction table
+    /// </summary>
+    public DbSet<AssociationMember> AssociationMembers { get; set; }
+
     #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +54,11 @@ public class ApplicationDbContext : DbContext
 
         // Apply entity configurations
         modelBuilder.ApplyConfiguration(new AssociationConfiguration());
+        modelBuilder.ApplyConfiguration(new MemberConfiguration());
+        modelBuilder.ApplyConfiguration(new AddressConfiguration());
+        modelBuilder.ApplyConfiguration(new BankAccountConfiguration());
+        modelBuilder.ApplyConfiguration(new LegalFormConfiguration());
+        modelBuilder.ApplyConfiguration(new AssociationMemberConfiguration());
 
         // Apply global query filters for soft delete
         ApplyGlobalQueryFilters(modelBuilder);
@@ -42,7 +72,7 @@ public class ApplicationDbContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             // This will be overridden by DI configuration in Program.cs
-            optionsBuilder.UseSqlServer("Server=localhost;Database=VEREIN;Trusted_Connection=true;TrustServerCertificate=true;");
+            optionsBuilder.UseSqlite("Data Source=verein.db");
         }
     }
 
