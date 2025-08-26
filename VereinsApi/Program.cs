@@ -3,12 +3,13 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Serilog;
 using VereinsApi.Data;
-using VereinsApi.Data.Repositories;
+// using VereinsApi.Data.Repositories;
 using VereinsApi.Domain.Interfaces;
-using VereinsApi.Services;
-using VereinsApi.Mapping;
-using VereinsApi.Validators;
-using VereinsApi.DTOs.Association;
+// using VereinsApi.Services;
+// using VereinsApi.Services.Interfaces;
+// using VereinsApi.Mapping;
+// using VereinsApi.Validators;
+using VereinsApi.DTOs.Verein;
 using VereinsApi.Common.Extensions;
 using System.Reflection;
 
@@ -50,20 +51,34 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
 });
 
-// AutoMapper Configuration
-builder.Services.AddAutoMapper(typeof(AssociationMappingProfile));
 
-// FluentValidation Configuration
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateAssociationDtoValidator>();
 
-// Repository Registration
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IAssociationRepository, AssociationRepository>();
+// AutoMapper Configuration - TEMPORARILY DISABLED FOR MIGRATION
+// builder.Services.AddAutoMapper(typeof(VereinMappingProfile), typeof(AdresseMappingProfile), typeof(BankkontoMappingProfile), typeof(VeranstaltungMappingProfile), typeof(VeranstaltungAnmeldungMappingProfile), typeof(VeranstaltungBildMappingProfile));
 
-// Service Registration
-builder.Services.AddScoped<IAssociationService, AssociationService>();
+// FluentValidation Configuration - TEMPORARILY DISABLED FOR MIGRATION
+// builder.Services.AddFluentValidationAutoValidation();
+// builder.Services.AddFluentValidationClientsideAdapters();
+// builder.Services.AddValidatorsFromAssemblyContaining<CreateVereinDtoValidator>();
+
+// Repository Registration - TEMPORARILY COMMENTED FOR MIGRATION
+builder.Services.AddScoped(typeof(IRepository<>), typeof(VereinsApi.Data.Repositories.Repository<>));
+// builder.Services.AddScoped<IVereinRepository, VereinRepository>();
+// builder.Services.AddScoped<IAdresseRepository, AdresseRepository>();
+// builder.Services.AddScoped<IBankkontoRepository, BankkontoRepository>();
+
+// builder.Services.AddScoped<IVeranstaltungRepository, VeranstaltungRepository>();
+// builder.Services.AddScoped<IVeranstaltungAnmeldungRepository, VeranstaltungAnmeldungRepository>();
+// builder.Services.AddScoped<IVeranstaltungBildRepository, VeranstaltungBildRepository>();
+
+// Service Registration - TEMPORARILY COMMENTED FOR MIGRATION
+// builder.Services.AddScoped<IVereinService, VereinService>();
+// builder.Services.AddScoped<IAdresseService, AdresseService>();
+// builder.Services.AddScoped<IBankkontoService, BankkontoService>();
+
+// builder.Services.AddScoped<IVeranstaltungService, VeranstaltungService>();
+// builder.Services.AddScoped<IVeranstaltungAnmeldungService, VeranstaltungAnmeldungService>();
+// builder.Services.AddScoped<IVeranstaltungBildService, VeranstaltungBildService>();
 
 // API Documentation
 builder.Services.AddEndpointsApiExplorer();

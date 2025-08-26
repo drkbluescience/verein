@@ -1,0 +1,10 @@
+{
+  "vereinId": 1,
+  "strasse": "Musterstraße",
+  "hausnummer": "123",
+  "plz": "12345",
+  "ort": "Berlin",
+  "land": "Deutschland",
+  "telefonnummer": "+49 30 12345678",
+  "eMail": "test@verein.de"
+}

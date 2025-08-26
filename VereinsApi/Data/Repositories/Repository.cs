@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using VereinsApi.Common.Models;
 using VereinsApi.Domain.Entities;
 using VereinsApi.Domain.Interfaces;
 
@@ -8,8 +9,8 @@ namespace VereinsApi.Data.Repositories;
 /// <summary>
 /// Generic repository implementation for basic CRUD operations
 /// </summary>
-/// <typeparam name="T">Entity type that inherits from BaseEntity</typeparam>
-public class Repository<T> : IRepository<T> where T : BaseEntity
+/// <typeparam name="T">Entity type that inherits from AuditableEntity</typeparam>
+public class Repository<T> : IRepository<T> where T : AuditableEntity
 {
     protected readonly ApplicationDbContext _context;
     protected readonly DbSet<T> _dbSet;
@@ -74,8 +75,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
             throw new ArgumentNullException(nameof(entity));
 
         entity.Created = DateTime.UtcNow;
-        entity.IsDeleted = false;
-        entity.IsActive = true;
+        entity.DeletedFlag = false;
 
         var result = await _dbSet.AddAsync(entity, cancellationToken);
         return result.Entity;
@@ -92,8 +92,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         foreach (var entity in entitiesList)
         {
             entity.Created = now;
-            entity.IsDeleted = false;
-            entity.IsActive = true;
+            entity.DeletedFlag = false;
         }
 
         await _dbSet.AddRangeAsync(entitiesList, cancellationToken);
@@ -125,7 +124,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
             throw new ArgumentNullException(nameof(entity));
 
         // Soft delete
-        entity.IsDeleted = true;
+        entity.DeletedFlag = true;
         entity.Modified = DateTime.UtcNow;
         
         _dbSet.Update(entity);
@@ -175,5 +174,29 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public virtual async Task<PagedResult<T>> GetPagedAsync(int pageNumber = 1, int pageSize = 10, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (includeDeleted)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<T>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
     }
 }

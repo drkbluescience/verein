@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using VereinsApi.Common.Models;
 using VereinsApi.Domain.Entities;
 
 namespace VereinsApi.Domain.Interfaces;
@@ -6,8 +7,8 @@ namespace VereinsApi.Domain.Interfaces;
 /// <summary>
 /// Generic repository interface for basic CRUD operations
 /// </summary>
-/// <typeparam name="T">Entity type that inherits from BaseEntity</typeparam>
-public interface IRepository<T> where T : BaseEntity
+/// <typeparam name="T">Entity type that inherits from AuditableEntity</typeparam>
+public interface IRepository<T> where T : AuditableEntity
 {
     /// <summary>
     /// Gets all entities
@@ -116,4 +117,14 @@ public interface IRepository<T> where T : BaseEntity
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Number of affected rows</returns>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets entities with pagination
+    /// </summary>
+    /// <param name="pageNumber">Page number (1-based)</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <param name="includeDeleted">Whether to include soft-deleted entities</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Paginated result</returns>
+    Task<PagedResult<T>> GetPagedAsync(int pageNumber = 1, int pageSize = 10, bool includeDeleted = false, CancellationToken cancellationToken = default);
 }

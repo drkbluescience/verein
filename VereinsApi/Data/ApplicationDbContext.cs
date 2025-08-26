@@ -17,34 +17,34 @@ public class ApplicationDbContext : DbContext
     #region DbSets
 
     /// <summary>
-    /// Associations (Vereine) table
+    /// Vereine table
     /// </summary>
-    public DbSet<Association> Associations { get; set; }
+    public DbSet<Verein> Vereine { get; set; }
 
     /// <summary>
-    /// Members table
+    /// Adressen table
     /// </summary>
-    public DbSet<Member> Members { get; set; }
+    public DbSet<Adresse> Adressen { get; set; }
 
     /// <summary>
-    /// Addresses table
+    /// Bankkonten table
     /// </summary>
-    public DbSet<Address> Addresses { get; set; }
+    public DbSet<Bankkonto> Bankkonten { get; set; }
 
     /// <summary>
-    /// Bank accounts table
+    /// Veranstaltungen table
     /// </summary>
-    public DbSet<BankAccount> BankAccounts { get; set; }
+    public DbSet<Veranstaltung> Veranstaltungen { get; set; }
 
     /// <summary>
-    /// Legal forms table
+    /// Veranstaltung Anmeldungen table
     /// </summary>
-    public DbSet<LegalForm> LegalForms { get; set; }
+    public DbSet<VeranstaltungAnmeldung> VeranstaltungAnmeldungen { get; set; }
 
     /// <summary>
-    /// Association members junction table
+    /// Veranstaltung Bilder table
     /// </summary>
-    public DbSet<AssociationMember> AssociationMembers { get; set; }
+    public DbSet<VeranstaltungBild> VeranstaltungBilder { get; set; }
 
     #endregion
 
@@ -53,12 +53,12 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         // Apply entity configurations
-        modelBuilder.ApplyConfiguration(new AssociationConfiguration());
-        modelBuilder.ApplyConfiguration(new MemberConfiguration());
-        modelBuilder.ApplyConfiguration(new AddressConfiguration());
-        modelBuilder.ApplyConfiguration(new BankAccountConfiguration());
-        modelBuilder.ApplyConfiguration(new LegalFormConfiguration());
-        modelBuilder.ApplyConfiguration(new AssociationMemberConfiguration());
+        modelBuilder.ApplyConfiguration(new VereinConfiguration());
+        modelBuilder.ApplyConfiguration(new AdresseConfiguration());
+        modelBuilder.ApplyConfiguration(new BankkontoConfiguration());
+        modelBuilder.ApplyConfiguration(new VeranstaltungConfiguration());
+        modelBuilder.ApplyConfiguration(new VeranstaltungAnmeldungConfiguration());
+        modelBuilder.ApplyConfiguration(new VeranstaltungBildConfiguration());
 
         // Apply global query filters for soft delete
         ApplyGlobalQueryFilters(modelBuilder);
@@ -74,6 +74,10 @@ public class ApplicationDbContext : DbContext
             // This will be overridden by DI configuration in Program.cs
             optionsBuilder.UseSqlite("Data Source=verein.db");
         }
+
+        // Suppress migration warnings for development
+        optionsBuilder.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -94,7 +98,7 @@ public class ApplicationDbContext : DbContext
 
     private void UpdateAuditFields()
     {
-        var entries = ChangeTracker.Entries<BaseEntity>();
+        var entries = ChangeTracker.Entries<AuditableEntity>();
 
         foreach (var entry in entries)
         {
@@ -102,15 +106,14 @@ public class ApplicationDbContext : DbContext
             {
                 case EntityState.Added:
                     entry.Entity.Created = DateTime.UtcNow;
-                    entry.Entity.IsDeleted = false;
-                    entry.Entity.IsActive = true;
+                    entry.Entity.DeletedFlag = false;
+                    entry.Entity.Aktiv = true;
                     break;
 
                 case EntityState.Modified:
                     entry.Entity.Modified = DateTime.UtcNow;
-                    // Prevent modification of Created and CreatedBy fields
+                    // Prevent modification of Created field
                     entry.Property(e => e.Created).IsModified = false;
-                    entry.Property(e => e.CreatedBy).IsModified = false;
                     break;
             }
         }
@@ -121,12 +124,12 @@ public class ApplicationDbContext : DbContext
         // Apply global query filter to exclude soft-deleted entities by default
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+            if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
             {
                 var parameter = Expression.Parameter(entityType.ClrType, "e");
-                var property = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
-                var filter = Expression.Lambda(Expression.Equal(property, Expression.Constant(false)), parameter);
-                
+                var property = Expression.Property(parameter, nameof(AuditableEntity.DeletedFlag));
+                var filter = Expression.Lambda(Expression.Equal(property, Expression.Constant(false, typeof(bool?))), parameter);
+
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
             }
         }
@@ -145,12 +148,12 @@ public class ApplicationDbContext : DbContext
             property.SetColumnType("decimal(18,2)");
         }
 
-        // Configure datetime2 for DateTime properties
+        // Configure datetime for DateTime properties (Almanca SQL dosyasına uygun)
         foreach (var property in modelBuilder.Model.GetEntityTypes()
             .SelectMany(t => t.GetProperties())
             .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
         {
-            property.SetColumnType("datetime2");
+            property.SetColumnType("datetime");
         }
     }
 }
