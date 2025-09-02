@@ -33,7 +33,7 @@ public class VeranstaltungConfiguration : IEntityTypeConfiguration<Veranstaltung
         builder.Property(v => v.Startdatum)
             .IsRequired()
             .HasColumnType("datetime")
-            .HasColumnName("Startdatum");
+            .HasColumnName("Beginn");
 
         // Optional string fields with specific lengths - Almanca kolon isimleri
         builder.Property(v => v.Beschreibung)
@@ -51,7 +51,7 @@ public class VeranstaltungConfiguration : IEntityTypeConfiguration<Veranstaltung
         // Date fields - Almanca kolon isimleri
         builder.Property(v => v.Enddatum)
             .HasColumnType("datetime")
-            .HasColumnName("Enddatum");
+            .HasColumnName("Ende");
 
         // Decimal fields
         builder.Property(v => v.Preis)
@@ -123,3 +123,4 @@ public class VeranstaltungConfiguration : IEntityTypeConfiguration<Veranstaltung
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+

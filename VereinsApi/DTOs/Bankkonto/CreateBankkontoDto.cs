@@ -52,4 +52,8 @@ public class CreateBankkontoDto
 
     [JsonPropertyName("istStandard")]
     public bool? IstStandard { get; set; }
+
+    [JsonPropertyName("aktiv")]
+    public bool? Aktiv { get; set; }
 }
+

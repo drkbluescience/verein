@@ -4,24 +4,22 @@ using System.Text.Json.Serialization;
 namespace VereinsApi.DTOs.Veranstaltung;
 
 /// <summary>
-/// Data Transfer Object for creating a new Veranstaltung
+/// Data Transfer Object for updating an existing Veranstaltung
 /// </summary>
-public class CreateVeranstaltungDto
+public class UpdateVeranstaltungDto
 {
     /// <summary>
     /// Verein identifier
     /// </summary>
-    [Required(ErrorMessage = "Verein ID is required")]
     [JsonPropertyName("vereinId")]
-    public int VereinId { get; set; }
+    public int? VereinId { get; set; }
 
     /// <summary>
     /// Event title
     /// </summary>
-    [Required(ErrorMessage = "Event title is required")]
     [MaxLength(200, ErrorMessage = "Title cannot exceed 200 characters")]
     [JsonPropertyName("titel")]
-    public string Titel { get; set; } = string.Empty;
+    public string? Titel { get; set; }
 
     /// <summary>
     /// Event description
@@ -33,9 +31,8 @@ public class CreateVeranstaltungDto
     /// <summary>
     /// Event start date and time
     /// </summary>
-    [Required(ErrorMessage = "Start date is required")]
     [JsonPropertyName("startdatum")]
-    public DateTime Startdatum { get; set; }
+    public DateTime? Startdatum { get; set; }
 
     /// <summary>
     /// Event end date and time
@@ -67,7 +64,7 @@ public class CreateVeranstaltungDto
     /// Only for members flag
     /// </summary>
     [JsonPropertyName("nurFuerMitglieder")]
-    public bool NurFuerMitglieder { get; set; } = true;
+    public bool? NurFuerMitglieder { get; set; }
 
     /// <summary>
     /// Maximum participants
@@ -80,6 +77,11 @@ public class CreateVeranstaltungDto
     /// Registration required flag
     /// </summary>
     [JsonPropertyName("anmeldeErforderlich")]
-    public bool AnmeldeErforderlich { get; set; } = false;
-}
+    public bool? AnmeldeErforderlich { get; set; }
 
+    /// <summary>
+    /// Active status
+    /// </summary>
+    [JsonPropertyName("aktiv")]
+    public bool? Aktiv { get; set; }
+}

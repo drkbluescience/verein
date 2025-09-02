@@ -8,15 +8,17 @@ namespace VereinsApi.DTOs.Adresse;
 /// </summary>
 public class CreateAdresseDto
 {
+    [Required(ErrorMessage = "VereinId is required")]
     [JsonPropertyName("vereinId")]
-    public int? VereinId { get; set; }
+    public int VereinId { get; set; }
 
     [JsonPropertyName("adresseTypId")]
     public int? AdresseTypId { get; set; }
 
+    [Required(ErrorMessage = "Strasse is required")]
     [MaxLength(100)]
     [JsonPropertyName("strasse")]
-    public string? Strasse { get; set; }
+    public string Strasse { get; set; } = string.Empty;
 
     [MaxLength(10)]
     [JsonPropertyName("hausnummer")]
@@ -26,13 +28,15 @@ public class CreateAdresseDto
     [JsonPropertyName("adresszusatz")]
     public string? Adresszusatz { get; set; }
 
+    [Required(ErrorMessage = "PLZ is required")]
     [MaxLength(10)]
     [JsonPropertyName("plz")]
-    public string? PLZ { get; set; }
+    public string PLZ { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Ort is required")]
     [MaxLength(100)]
     [JsonPropertyName("ort")]
-    public string? Ort { get; set; }
+    public string Ort { get; set; } = string.Empty;
 
     [MaxLength(50)]
     [JsonPropertyName("stadtteil")]
@@ -71,9 +75,11 @@ public class CreateAdresseDto
     [JsonPropertyName("hinweis")]
     public string? Hinweis { get; set; }
 
+    [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90")]
     [JsonPropertyName("latitude")]
     public double? Latitude { get; set; }
 
+    [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180")]
     [JsonPropertyName("longitude")]
     public double? Longitude { get; set; }
 
@@ -86,3 +92,4 @@ public class CreateAdresseDto
     [JsonPropertyName("istStandard")]
     public bool? IstStandard { get; set; }
 }
+

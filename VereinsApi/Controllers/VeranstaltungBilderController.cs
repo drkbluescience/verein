@@ -234,7 +234,7 @@ public class VeranstaltungBilderController : ControllerBase
     [ProducesResponseType(typeof(VeranstaltungBildDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VeranstaltungBildDto>> Update(int id, [FromBody] CreateVeranstaltungBildDto updateDto)
+    public async Task<ActionResult<VeranstaltungBildDto>> Update(int id, [FromBody] UpdateVeranstaltungBildDto updateDto)
     {
         try
         {
@@ -249,7 +249,7 @@ public class VeranstaltungBilderController : ControllerBase
                 return NotFound($"VeranstaltungBild with ID {id} not found");
             }
 
-            MapFromCreateDto(updateDto, bild);
+            MapFromUpdateDto(updateDto, bild);
 
             await _bildRepository.UpdateAsync(bild);
             await _bildRepository.SaveChangesAsync();
@@ -398,6 +398,22 @@ public class VeranstaltungBilderController : ControllerBase
         bild.BildPfad = updateDto.BildPfad;
         bild.Reihenfolge = updateDto.Reihenfolge;
         bild.Titel = updateDto.Titel;
+        // Audit fields set automatically by system
+        bild.Modified = DateTime.UtcNow;
+        bild.ModifiedBy = GetCurrentUserId();
+    }
+
+    private void MapFromUpdateDto(UpdateVeranstaltungBildDto updateDto, VeranstaltungBild bild)
+    {
+        if (!string.IsNullOrEmpty(updateDto.BildPfad))
+            bild.BildPfad = updateDto.BildPfad;
+
+        if (updateDto.Reihenfolge.HasValue)
+            bild.Reihenfolge = updateDto.Reihenfolge.Value;
+
+        if (updateDto.Titel != null)
+            bild.Titel = updateDto.Titel;
+
         // Audit fields set automatically by system
         bild.Modified = DateTime.UtcNow;
         bild.ModifiedBy = GetCurrentUserId();

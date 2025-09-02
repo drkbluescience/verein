@@ -8,9 +8,10 @@ namespace VereinsApi.Controllers;
 /// <summary>
 /// Controller for managing Adressen (Addresses)
 /// </summary>
-[ApiController]
-[Route("api/[controller]")]
-[Produces("application/json")]
+[ApiController] // API controller özelliklerini aktifleştirir
+[Route("api/[controller]")] // base route
+[Produces("application/json")] // JSON response döner
+// ControllerBase - API controller base class
 public class AdressenController : ControllerBase
 {
     private readonly IRepository<Adresse> _adresseRepository;
