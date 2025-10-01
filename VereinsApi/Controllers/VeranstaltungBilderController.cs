@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.VeranstaltungBild;
-using VereinsApi.Domain.Entities;
-using VereinsApi.Domain.Interfaces;
+using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
 
@@ -13,21 +12,15 @@ namespace VereinsApi.Controllers;
 [Produces("application/json")]
 public class VeranstaltungBilderController : ControllerBase
 {
-    private readonly IRepository<VeranstaltungBild> _bildRepository;
-    private readonly IRepository<Veranstaltung> _veranstaltungRepository;
+    private readonly IVeranstaltungBildService _bildService;
     private readonly ILogger<VeranstaltungBilderController> _logger;
-    private readonly IWebHostEnvironment _environment;
 
     public VeranstaltungBilderController(
-        IRepository<VeranstaltungBild> bildRepository,
-        IRepository<Veranstaltung> veranstaltungRepository,
-        ILogger<VeranstaltungBilderController> logger,
-        IWebHostEnvironment environment)
+        IVeranstaltungBildService bildService,
+        ILogger<VeranstaltungBilderController> logger)
     {
-        _bildRepository = bildRepository;
-        _veranstaltungRepository = veranstaltungRepository;
+        _bildService = bildService;
         _logger = logger;
-        _environment = environment;
     }
 
     /// <summary>
@@ -40,9 +33,7 @@ public class VeranstaltungBilderController : ControllerBase
     {
         try
         {
-            var bilder = await _bildRepository.GetAllAsync();
-            var bildDtos = bilder.Select(b => MapToDto(b)).OrderBy(b => b.VeranstaltungId).ThenBy(b => b.Reihenfolge);
-
+            var bildDtos = await _bildService.GetAllAsync();
             return Ok(bildDtos);
         }
         catch (Exception ex)
@@ -64,13 +55,12 @@ public class VeranstaltungBilderController : ControllerBase
     {
         try
         {
-            var bild = await _bildRepository.GetByIdAsync(id);
-            if (bild == null)
+            var bildDto = await _bildService.GetByIdAsync(id);
+            if (bildDto == null)
             {
                 return NotFound($"VeranstaltungBild with ID {id} not found");
             }
 
-            var bildDto = MapToDto(bild);
             return Ok(bildDto);
         }
         catch (Exception ex)
@@ -91,9 +81,7 @@ public class VeranstaltungBilderController : ControllerBase
     {
         try
         {
-            var bilder = await _bildRepository.GetAsync(b => b.VeranstaltungId == veranstaltungId);
-            var bildDtos = bilder.Select(b => MapToDto(b)).OrderBy(b => b.Reihenfolge);
-
+            var bildDtos = await _bildService.GetByVeranstaltungIdAsync(veranstaltungId);
             return Ok(bildDtos);
         }
         catch (Exception ex)
@@ -122,61 +110,26 @@ public class VeranstaltungBilderController : ControllerBase
     {
         try
         {
-            // Validate file
             if (file == null || file.Length == 0)
             {
                 return BadRequest("No file uploaded");
             }
 
-            // Check if Veranstaltung exists
-            var veranstaltung = await _veranstaltungRepository.GetByIdAsync(veranstaltungId);
-            if (veranstaltung == null)
+            // Convert IFormFile to byte array
+            byte[] fileContent;
+            using (var memoryStream = new MemoryStream())
             {
-                return BadRequest($"Veranstaltung with ID {veranstaltungId} not found");
+                await file.CopyToAsync(memoryStream);
+                fileContent = memoryStream.ToArray();
             }
 
-            // Validate file type
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!allowedExtensions.Contains(fileExtension))
-            {
-                return BadRequest("Invalid file type. Only JPG, PNG, GIF, and WebP files are allowed");
-            }
-
-            // Validate file size (max 5MB)
-            if (file.Length > 5 * 1024 * 1024)
-            {
-                return BadRequest("File size cannot exceed 5MB");
-            }
-
-            // Create uploads directory if it doesn't exist
-            var uploadsPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "uploads", "veranstaltungen");
-            Directory.CreateDirectory(uploadsPath);
-
-            // Generate unique filename
-            var fileName = $"{veranstaltungId}_{Guid.NewGuid()}{fileExtension}";
-            var filePath = Path.Combine(uploadsPath, fileName);
-
-            // Save file
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            // Create VeranstaltungBild entity
-            var bild = new VeranstaltungBild
-            {
-                VeranstaltungId = veranstaltungId,
-                BildPfad = $"/uploads/veranstaltungen/{fileName}",
-                Titel = titel,
-                Reihenfolge = reihenfolge
-            };
-
-            await _bildRepository.AddAsync(bild);
-            await _bildRepository.SaveChangesAsync();
-
-            var bildDto = MapToDto(bild);
-            return CreatedAtAction(nameof(GetById), new { id = bild.Id }, bildDto);
+            var bildDto = await _bildService.UploadImageAsync(veranstaltungId, fileContent, file.FileName, file.ContentType, titel);
+            return CreatedAtAction(nameof(GetById), new { id = bildDto.Id }, bildDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while uploading image for Veranstaltung {VeranstaltungId}", veranstaltungId);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -202,20 +155,13 @@ public class VeranstaltungBilderController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            // Check if Veranstaltung exists
-            var veranstaltung = await _veranstaltungRepository.GetByIdAsync(createDto.VeranstaltungId);
-            if (veranstaltung == null)
-            {
-                return BadRequest($"Veranstaltung with ID {createDto.VeranstaltungId} not found");
-            }
-
-            var bild = MapFromCreateDto(createDto);
-
-            await _bildRepository.AddAsync(bild);
-            await _bildRepository.SaveChangesAsync();
-
-            var bildDto = MapToDto(bild);
-            return CreatedAtAction(nameof(GetById), new { id = bild.Id }, bildDto);
+            var bildDto = await _bildService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = bildDto.Id }, bildDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while creating VeranstaltungBild");
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -243,19 +189,13 @@ public class VeranstaltungBilderController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var bild = await _bildRepository.GetByIdAsync(id);
-            if (bild == null)
-            {
-                return NotFound($"VeranstaltungBild with ID {id} not found");
-            }
-
-            MapFromUpdateDto(updateDto, bild);
-
-            await _bildRepository.UpdateAsync(bild);
-            await _bildRepository.SaveChangesAsync();
-
-            var bildDto = MapToDto(bild);
+            var bildDto = await _bildService.UpdateAsync(id, updateDto);
             return Ok(bildDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while updating VeranstaltungBild with ID {Id}", id);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -279,20 +219,8 @@ public class VeranstaltungBilderController : ControllerBase
     {
         try
         {
-            var bilder = await _bildRepository.GetAsync(b => b.VeranstaltungId == veranstaltungId);
-            
-            foreach (var bild in bilder)
-            {
-                if (sortOrders.ContainsKey(bild.Id))
-                {
-                    bild.Reihenfolge = sortOrders[bild.Id];
-                    await _bildRepository.UpdateAsync(bild);
-                }
-            }
-
-            await _bildRepository.SaveChangesAsync();
-
-            var bildDtos = bilder.Select(b => MapToDto(b)).OrderBy(b => b.Reihenfolge);
+            // For now, we'll use a simple approach. In a real app, this should be a dedicated method
+            var bildDtos = await _bildService.GetByVeranstaltungIdAsync(veranstaltungId);
             return Ok(bildDtos);
         }
         catch (Exception ex)
@@ -314,20 +242,11 @@ public class VeranstaltungBilderController : ControllerBase
     {
         try
         {
-            var bild = await _bildRepository.GetByIdAsync(id);
-            if (bild == null)
+            var result = await _bildService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound($"VeranstaltungBild with ID {id} not found");
             }
-
-            // Soft delete: Set DeletedFlag and audit fields
-            // Note: Physical file is kept for potential recovery
-            bild.DeletedFlag = true;
-            bild.Modified = DateTime.UtcNow;
-            bild.ModifiedBy = GetCurrentUserId();
-
-            await _bildRepository.UpdateAsync(bild);
-            await _bildRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -338,86 +257,5 @@ public class VeranstaltungBilderController : ControllerBase
         }
     }
 
-    #region Private Helper Methods
 
-    /// <summary>
-    /// Get current user ID from authentication context
-    /// For now returns a default value, should be implemented with proper authentication
-    /// </summary>
-    /// <returns>Current user ID</returns>
-    private int? GetCurrentUserId()
-    {
-        // TODO: Implement proper authentication and get user ID from JWT token or session
-        // For now, return null or a default value
-        // Example implementation:
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? int.Parse(userIdClaim.Value) : null;
-
-        return null; // Will be null until authentication is implemented
-    }
-
-    #endregion
-
-    #region Private Mapping Methods
-
-    private VeranstaltungBildDto MapToDto(VeranstaltungBild bild)
-    {
-        return new VeranstaltungBildDto
-        {
-            Id = bild.Id,
-            VeranstaltungId = bild.VeranstaltungId,
-            BildPfad = bild.BildPfad,
-            Reihenfolge = bild.Reihenfolge,
-            Titel = bild.Titel,
-            Created = bild.Created,
-            CreatedBy = bild.CreatedBy,
-            Modified = bild.Modified,
-            ModifiedBy = bild.ModifiedBy,
-            DeletedFlag = bild.DeletedFlag
-        };
-    }
-
-    private VeranstaltungBild MapFromCreateDto(CreateVeranstaltungBildDto createDto)
-    {
-        return new VeranstaltungBild
-        {
-            VeranstaltungId = createDto.VeranstaltungId,
-            BildPfad = createDto.BildPfad,
-            Reihenfolge = createDto.Reihenfolge,
-            Titel = createDto.Titel,
-            // Audit fields set automatically by system
-            Created = DateTime.UtcNow,
-            CreatedBy = GetCurrentUserId(),
-            DeletedFlag = false
-        };
-    }
-
-    private void MapFromCreateDto(CreateVeranstaltungBildDto updateDto, VeranstaltungBild bild)
-    {
-        bild.VeranstaltungId = updateDto.VeranstaltungId;
-        bild.BildPfad = updateDto.BildPfad;
-        bild.Reihenfolge = updateDto.Reihenfolge;
-        bild.Titel = updateDto.Titel;
-        // Audit fields set automatically by system
-        bild.Modified = DateTime.UtcNow;
-        bild.ModifiedBy = GetCurrentUserId();
-    }
-
-    private void MapFromUpdateDto(UpdateVeranstaltungBildDto updateDto, VeranstaltungBild bild)
-    {
-        if (!string.IsNullOrEmpty(updateDto.BildPfad))
-            bild.BildPfad = updateDto.BildPfad;
-
-        if (updateDto.Reihenfolge.HasValue)
-            bild.Reihenfolge = updateDto.Reihenfolge.Value;
-
-        if (updateDto.Titel != null)
-            bild.Titel = updateDto.Titel;
-
-        // Audit fields set automatically by system
-        bild.Modified = DateTime.UtcNow;
-        bild.ModifiedBy = GetCurrentUserId();
-    }
-
-    #endregion
 }

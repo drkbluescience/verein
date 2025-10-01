@@ -52,7 +52,89 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
             .HasColumnType("nvarchar(200)")
             .HasColumnName("Webseite");
 
+        builder.Property(a => a.Kurzname)
+            .HasMaxLength(50)
+            .HasColumnType("nvarchar(50)")
+            .HasColumnName("Kurzname");
 
+        builder.Property(a => a.Vereinsnummer)
+            .HasMaxLength(30)
+            .HasColumnType("nvarchar(30)")
+            .HasColumnName("Vereinsnummer");
+
+        builder.Property(a => a.Steuernummer)
+            .HasMaxLength(30)
+            .HasColumnType("nvarchar(30)")
+            .HasColumnName("Steuernummer");
+
+        builder.Property(a => a.SocialMediaLinks)
+            .HasMaxLength(500)
+            .HasColumnType("nvarchar(500)")
+            .HasColumnName("SocialMediaLinks");
+
+        builder.Property(a => a.Vorstandsvorsitzender)
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
+            .HasColumnName("Vorstandsvorsitzender");
+
+        builder.Property(a => a.Geschaeftsfuehrer)
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
+            .HasColumnName("Geschaeftsfuehrer");
+
+        builder.Property(a => a.VertreterEmail)
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
+            .HasColumnName("VertreterEmail");
+
+        builder.Property(a => a.Kontaktperson)
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
+            .HasColumnName("Kontaktperson");
+
+        builder.Property(a => a.SatzungPfad)
+            .HasMaxLength(200)
+            .HasColumnType("nvarchar(200)")
+            .HasColumnName("SatzungPfad");
+
+        builder.Property(a => a.LogoPfad)
+            .HasMaxLength(200)
+            .HasColumnType("nvarchar(200)")
+            .HasColumnName("LogoPfad");
+
+        builder.Property(a => a.ExterneReferenzId)
+            .HasMaxLength(50)
+            .HasColumnType("nvarchar(50)")
+            .HasColumnName("ExterneReferenzId");
+
+        builder.Property(a => a.Mandantencode)
+            .HasMaxLength(50)
+            .HasColumnType("nvarchar(50)")
+            .HasColumnName("Mandantencode");
+
+        builder.Property(a => a.EPostEmpfangAdresse)
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
+            .HasColumnName("EPostEmpfangAdresse");
+
+        builder.Property(a => a.SEPA_GlaeubigerID)
+            .HasMaxLength(50)
+            .HasColumnType("nvarchar(50)")
+            .HasColumnName("SEPA_GlaeubigerID");
+
+        builder.Property(a => a.UstIdNr)
+            .HasMaxLength(30)
+            .HasColumnType("nvarchar(30)")
+            .HasColumnName("UstIdNr");
+
+        builder.Property(a => a.ElektronischeSignaturKey)
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
+            .HasColumnName("ElektronischeSignaturKey");
+
+        // Integer fields
+        builder.Property(a => a.Mitgliederzahl)
+            .HasColumnName("Mitgliederzahl");
 
         // Date fields - Almanca kolon isimleri
         builder.Property(a => a.Gruendungsdatum)

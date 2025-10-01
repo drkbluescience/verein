@@ -89,9 +89,9 @@ public interface IVeranstaltungBildRepository : IRepository<VeranstaltungBild>
     Task<IEnumerable<VeranstaltungBild>> GetAllMainImagesAsync(bool includeDeleted = false, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Searches images by title or description
+    /// Searches images by title
     /// </summary>
-    /// <param name="searchTerm">Search term to match against title and description</param>
+    /// <param name="searchTerm">Search term to match against title</param>
     /// <param name="eventId">Optional event ID filter</param>
     /// <param name="includeDeleted">Whether to include soft-deleted images</param>
     /// <param name="cancellationToken">Cancellation token</param>

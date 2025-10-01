@@ -17,14 +17,7 @@ public interface IVeranstaltungRepository : IRepository<Veranstaltung>
     /// <returns>Collection of events</returns>
     Task<IEnumerable<Veranstaltung>> GetByVereinIdAsync(int vereinId, bool includeDeleted = false, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Gets events by category ID
-    /// </summary>
-    /// <param name="categoryId">Category identifier</param>
-    /// <param name="includeDeleted">Whether to include soft-deleted events</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of events</returns>
-    Task<IEnumerable<Veranstaltung>> GetByCategoryIdAsync(int categoryId, bool includeDeleted = false, CancellationToken cancellationToken = default);
+
 
     /// <summary>
     /// Gets upcoming events
@@ -92,13 +85,13 @@ public interface IVeranstaltungRepository : IRepository<Veranstaltung>
     /// </summary>
     /// <param name="searchTerm">Search term to match against title, description, location, etc.</param>
     /// <param name="vereinId">Optional verein ID filter</param>
-    /// <param name="categoryId">Optional category ID filter</param>
+
     /// <param name="startDate">Optional start date filter</param>
     /// <param name="endDate">Optional end date filter</param>
     /// <param name="includeDeleted">Whether to include soft-deleted events</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Collection of matching events</returns>
-    Task<IEnumerable<Veranstaltung>> SearchEventsAsync(string searchTerm, int? vereinId = null, int? categoryId = null, DateTime? startDate = null, DateTime? endDate = null, bool includeDeleted = false, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Veranstaltung>> SearchEventsAsync(string searchTerm, int? vereinId = null, DateTime? startDate = null, DateTime? endDate = null, bool includeDeleted = false, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets events by price range
@@ -110,14 +103,7 @@ public interface IVeranstaltungRepository : IRepository<Veranstaltung>
     /// <returns>Collection of events within the price range</returns>
     Task<IEnumerable<Veranstaltung>> GetEventsByPriceRangeAsync(decimal? minPrice = null, decimal? maxPrice = null, bool includeDeleted = false, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Gets events by organizer
-    /// </summary>
-    /// <param name="organizerName">Organizer name</param>
-    /// <param name="includeDeleted">Whether to include soft-deleted events</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of events by the specified organizer</returns>
-    Task<IEnumerable<Veranstaltung>> GetByOrganizerAsync(string organizerName, bool includeDeleted = false, CancellationToken cancellationToken = default);
+
 
     /// <summary>
     /// Gets popular events (by registration count)

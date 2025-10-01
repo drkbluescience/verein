@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.Bankkonto;
-using VereinsApi.Domain.Entities;
-using VereinsApi.Domain.Interfaces;
+using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
 
@@ -13,14 +12,14 @@ namespace VereinsApi.Controllers;
 [Produces("application/json")]
 public class BankkontenController : ControllerBase
 {
-    private readonly IRepository<Bankkonto> _bankkontoRepository;
+    private readonly IBankkontoService _bankkontoService;
     private readonly ILogger<BankkontenController> _logger;
 
     public BankkontenController(
-        IRepository<Bankkonto> bankkontoRepository,
+        IBankkontoService bankkontoService,
         ILogger<BankkontenController> logger)
     {
-        _bankkontoRepository = bankkontoRepository;
+        _bankkontoService = bankkontoService;
         _logger = logger;
     }
 
@@ -34,9 +33,7 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var bankkonten = await _bankkontoRepository.GetAllAsync();
-            var bankkontoDtos = bankkonten.Select(b => MapToDto(b));
-
+            var bankkontoDtos = await _bankkontoService.GetAllAsync();
             return Ok(bankkontoDtos);
         }
         catch (Exception ex)
@@ -58,13 +55,12 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var bankkonto = await _bankkontoRepository.GetByIdAsync(id);
-            if (bankkonto == null)
+            var bankkontoDto = await _bankkontoService.GetByIdAsync(id);
+            if (bankkontoDto == null)
             {
                 return NotFound($"Bankkonto with ID {id} not found");
             }
 
-            var bankkontoDto = MapToDto(bankkonto);
             return Ok(bankkontoDto);
         }
         catch (Exception ex)
@@ -85,9 +81,7 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var bankkonten = await _bankkontoRepository.GetAsync(b => b.VereinId == vereinId);
-            var bankkontoDtos = bankkonten.Select(b => MapToDto(b));
-
+            var bankkontoDtos = await _bankkontoService.GetByVereinIdAsync(vereinId);
             return Ok(bankkontoDtos);
         }
         catch (Exception ex)
@@ -109,13 +103,12 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var bankkonto = await _bankkontoRepository.GetFirstOrDefaultAsync(b => b.IBAN == iban);
-            if (bankkonto == null)
+            var bankkontoDto = await _bankkontoService.GetByIbanAsync(iban);
+            if (bankkontoDto == null)
             {
                 return NotFound($"Bankkonto with IBAN {iban} not found");
             }
 
-            var bankkontoDto = MapToDto(bankkonto);
             return Ok(bankkontoDto);
         }
         catch (Exception ex)
@@ -142,26 +135,13 @@ public class BankkontenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            // Validate IBAN format (basic validation)
-            if (!IsValidIban(createDto.IBAN))
-            {
-                return BadRequest("Invalid IBAN format");
-            }
-
-            // Check if IBAN already exists
-            var existingBankkonto = await _bankkontoRepository.GetFirstOrDefaultAsync(b => b.IBAN == createDto.IBAN);
-            if (existingBankkonto != null)
-            {
-                return BadRequest($"Bankkonto with IBAN {createDto.IBAN} already exists");
-            }
-
-            var bankkonto = MapFromCreateDto(createDto);
-
-            await _bankkontoRepository.AddAsync(bankkonto);
-            await _bankkontoRepository.SaveChangesAsync();
-
-            var bankkontoDto = MapToDto(bankkonto);
-            return CreatedAtAction(nameof(GetById), new { id = bankkonto.Id }, bankkontoDto);
+            var bankkontoDto = await _bankkontoService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = bankkontoDto.Id }, bankkontoDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while creating Bankkonto");
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -189,35 +169,13 @@ public class BankkontenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var bankkonto = await _bankkontoRepository.GetByIdAsync(id);
-            if (bankkonto == null)
-            {
-                return NotFound($"Bankkonto with ID {id} not found");
-            }
-
-            // Validate IBAN format if changed
-            if (bankkonto.IBAN != updateDto.IBAN && !IsValidIban(updateDto.IBAN))
-            {
-                return BadRequest("Invalid IBAN format");
-            }
-
-            // Check if new IBAN already exists (if changed)
-            if (bankkonto.IBAN != updateDto.IBAN)
-            {
-                var existingBankkonto = await _bankkontoRepository.GetFirstOrDefaultAsync(b => b.IBAN == updateDto.IBAN);
-                if (existingBankkonto != null)
-                {
-                    return BadRequest($"Bankkonto with IBAN {updateDto.IBAN} already exists");
-                }
-            }
-
-            MapFromUpdateDto(updateDto, bankkonto);
-
-            await _bankkontoRepository.UpdateAsync(bankkonto);
-            await _bankkontoRepository.SaveChangesAsync();
-
-            var bankkontoDto = MapToDto(bankkonto);
+            var bankkontoDto = await _bankkontoService.UpdateAsync(id, updateDto);
             return Ok(bankkontoDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while updating Bankkonto with ID {Id}", id);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -238,20 +196,11 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var bankkonto = await _bankkontoRepository.GetByIdAsync(id);
-            if (bankkonto == null)
+            var result = await _bankkontoService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound($"Bankkonto with ID {id} not found");
             }
-
-            // Soft delete: Set DeletedFlag and audit fields
-            bankkonto.DeletedFlag = true;
-            bankkonto.Aktiv = false;
-            bankkonto.Modified = DateTime.UtcNow;
-            bankkonto.ModifiedBy = GetCurrentUserId();
-
-            await _bankkontoRepository.UpdateAsync(bankkonto);
-            await _bankkontoRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -274,33 +223,20 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var bankkonto = await _bankkontoRepository.GetByIdAsync(id);
-            if (bankkonto == null)
+            var bankkontoDto = await _bankkontoService.GetByIdAsync(id);
+            if (bankkontoDto == null)
             {
                 return NotFound($"Bankkonto with ID {id} not found");
             }
 
-            // First, unset all other bank accounts for this Verein as default
-            var otherBankkonten = await _bankkontoRepository.GetAsync(b => 
-                b.VereinId == bankkonto.VereinId && b.Id != id && b.IstStandard == true);
-            
-            foreach (var otherBankkonto in otherBankkonten)
+            var result = await _bankkontoService.SetAsStandardAccountAsync(bankkontoDto.VereinId, id);
+            if (!result)
             {
-                otherBankkonto.IstStandard = false;
-                otherBankkonto.Modified = DateTime.UtcNow;
-                otherBankkonto.ModifiedBy = GetCurrentUserId();
-                await _bankkontoRepository.UpdateAsync(otherBankkonto);
+                return BadRequest("Failed to set bankkonto as standard");
             }
 
-            // Set this bank account as default
-            bankkonto.IstStandard = true;
-            bankkonto.Modified = DateTime.UtcNow;
-            bankkonto.ModifiedBy = GetCurrentUserId();
-            await _bankkontoRepository.UpdateAsync(bankkonto);
-            await _bankkontoRepository.SaveChangesAsync();
-
-            var bankkontoDto = MapToDto(bankkonto);
-            return Ok(bankkontoDto);
+            var updatedBankkontoDto = await _bankkontoService.GetByIdAsync(id);
+            return Ok(updatedBankkontoDto);
         }
         catch (Exception ex)
         {
@@ -320,7 +256,7 @@ public class BankkontenController : ControllerBase
     {
         try
         {
-            var isValid = IsValidIban(iban);
+            var isValid = _bankkontoService.IsValidIban(iban);
             return Ok(new { iban, isValid, message = isValid ? "Valid IBAN format" : "Invalid IBAN format" });
         }
         catch (Exception ex)
@@ -330,121 +266,5 @@ public class BankkontenController : ControllerBase
         }
     }
 
-    #region Private Helper Methods
 
-    /// <summary>
-    /// Get current user ID from authentication context
-    /// For now returns a default value, should be implemented with proper authentication
-    /// </summary>
-    /// <returns>Current user ID</returns>
-    private int? GetCurrentUserId()
-    {
-        // TODO: Implement proper authentication and get user ID from JWT token or session
-        // For now, return null or a default value
-        // Example implementation:
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? int.Parse(userIdClaim.Value) : null;
-
-        return null; // Will be null until authentication is implemented
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    private BankkontoDto MapToDto(Bankkonto bankkonto)
-    {
-        return new BankkontoDto
-        {
-            Id = bankkonto.Id,
-            VereinId = bankkonto.VereinId,
-            KontotypId = bankkonto.KontotypId,
-            IBAN = bankkonto.IBAN,
-            BIC = bankkonto.BIC,
-            Kontoinhaber = bankkonto.Kontoinhaber,
-            Bankname = bankkonto.Bankname,
-            KontoNr = bankkonto.KontoNr,
-            BLZ = bankkonto.BLZ,
-            Beschreibung = bankkonto.Beschreibung,
-            GueltigVon = bankkonto.GueltigVon,
-            GueltigBis = bankkonto.GueltigBis,
-            IstStandard = bankkonto.IstStandard,
-            Aktiv = bankkonto.Aktiv,
-            Created = bankkonto.Created,
-            CreatedBy = bankkonto.CreatedBy,
-            Modified = bankkonto.Modified,
-            ModifiedBy = bankkonto.ModifiedBy,
-            DeletedFlag = bankkonto.DeletedFlag
-        };
-    }
-
-    private Bankkonto MapFromCreateDto(CreateBankkontoDto createDto)
-    {
-        return new Bankkonto
-        {
-            VereinId = createDto.VereinId,
-            KontotypId = createDto.KontotypId,
-            IBAN = createDto.IBAN,
-            BIC = createDto.BIC,
-            Kontoinhaber = createDto.Kontoinhaber,
-            Bankname = createDto.Bankname,
-            KontoNr = createDto.KontoNr,
-            BLZ = createDto.BLZ,
-            Beschreibung = createDto.Beschreibung,
-            GueltigVon = createDto.GueltigVon,
-            GueltigBis = createDto.GueltigBis,
-            IstStandard = createDto.IstStandard,
-            // Audit fields set automatically by system
-            Created = DateTime.UtcNow,
-            CreatedBy = GetCurrentUserId(),
-            DeletedFlag = false,
-            Aktiv = true
-        };
-    }
-
-    private void MapFromUpdateDto(UpdateBankkontoDto updateDto, Bankkonto bankkonto)
-    {
-        bankkonto.VereinId = updateDto.VereinId;
-        bankkonto.KontotypId = updateDto.KontotypId;
-        bankkonto.IBAN = updateDto.IBAN;
-        bankkonto.BIC = updateDto.BIC;
-        bankkonto.Kontoinhaber = updateDto.Kontoinhaber;
-        bankkonto.Bankname = updateDto.Bankname;
-        bankkonto.KontoNr = updateDto.KontoNr;
-        bankkonto.BLZ = updateDto.BLZ;
-        bankkonto.Beschreibung = updateDto.Beschreibung;
-        bankkonto.GueltigVon = updateDto.GueltigVon;
-        bankkonto.GueltigBis = updateDto.GueltigBis;
-        bankkonto.IstStandard = updateDto.IstStandard;
-        bankkonto.Aktiv = updateDto.Aktiv;
-        // Audit fields set automatically by system
-        bankkonto.Modified = DateTime.UtcNow;
-        bankkonto.ModifiedBy = GetCurrentUserId();
-    }
-
-    private static bool IsValidIban(string iban)
-    {
-        if (string.IsNullOrWhiteSpace(iban))
-            return false;
-
-        // Remove spaces and convert to uppercase
-        iban = iban.Replace(" ", "").ToUpperInvariant();
-
-        // Basic length check (IBAN should be between 15-34 characters)
-        if (iban.Length < 15 || iban.Length > 34)
-            return false;
-
-        // Check if it starts with 2 letters (country code)
-        if (!char.IsLetter(iban[0]) || !char.IsLetter(iban[1]))
-            return false;
-
-        // Check if positions 2-3 are digits (check digits)
-        if (!char.IsDigit(iban[2]) || !char.IsDigit(iban[3]))
-            return false;
-
-        // Basic format validation passed
-        return true;
-    }
-
-    #endregion
 }

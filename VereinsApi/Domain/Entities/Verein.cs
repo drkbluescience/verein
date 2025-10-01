@@ -196,4 +196,14 @@ public class Verein : AuditableEntity
     /// Events organized by this verein
     /// </summary>
     public virtual ICollection<Veranstaltung> Veranstaltungen { get; set; } = new List<Veranstaltung>();
+
+    /// <summary>
+    /// Members of this verein
+    /// </summary>
+    public virtual ICollection<Mitglied> Mitglieder { get; set; } = new List<Mitglied>();
+
+    /// <summary>
+    /// Family relationships within this verein
+    /// </summary>
+    public virtual ICollection<MitgliedFamilie> MitgliedFamilien { get; set; } = new List<MitgliedFamilie>();
 }

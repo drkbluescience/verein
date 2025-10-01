@@ -53,32 +53,43 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 
 
-// AutoMapper Configuration - TEMPORARILY DISABLED FOR MIGRATION
-// builder.Services.AddAutoMapper(typeof(VereinMappingProfile), typeof(AdresseMappingProfile), typeof(BankkontoMappingProfile), typeof(VeranstaltungMappingProfile), typeof(VeranstaltungAnmeldungMappingProfile), typeof(VeranstaltungBildMappingProfile));
+// AutoMapper Configuration
+builder.Services.AddAutoMapper(typeof(VereinsApi.Profiles.AdresseProfile), typeof(VereinsApi.Profiles.BankkontoProfile), typeof(VereinsApi.Profiles.VeranstaltungProfile), typeof(VereinsApi.Profiles.VeranstaltungAnmeldungProfile), typeof(VereinsApi.Profiles.VeranstaltungBildProfile), typeof(VereinsApi.Profiles.VereinProfile), typeof(VereinsApi.Profiles.MitgliedProfile), typeof(VereinsApi.Profiles.MitgliedAdresseProfile), typeof(VereinsApi.Profiles.MitgliedFamilieProfile));
 
 // FluentValidation Configuration - TEMPORARILY DISABLED FOR MIGRATION
 // builder.Services.AddFluentValidationAutoValidation();
 // builder.Services.AddFluentValidationClientsideAdapters();
 // builder.Services.AddValidatorsFromAssemblyContaining<CreateVereinDtoValidator>();
 
-// Repository Registration - TEMPORARILY COMMENTED FOR MIGRATION
+// Repository Registration
 builder.Services.AddScoped(typeof(IRepository<>), typeof(VereinsApi.Data.Repositories.Repository<>));
-// builder.Services.AddScoped<IVereinRepository, VereinRepository>();
-// builder.Services.AddScoped<IAdresseRepository, AdresseRepository>();
-// builder.Services.AddScoped<IBankkontoRepository, BankkontoRepository>();
 
-// builder.Services.AddScoped<IVeranstaltungRepository, VeranstaltungRepository>();
-// builder.Services.AddScoped<IVeranstaltungAnmeldungRepository, VeranstaltungAnmeldungRepository>();
-// builder.Services.AddScoped<IVeranstaltungBildRepository, VeranstaltungBildRepository>();
+// Mitglied Repositories
+builder.Services.AddScoped<IMitgliedRepository, VereinsApi.Data.Repositories.MitgliedRepository>();
+builder.Services.AddScoped<IMitgliedAdresseRepository, VereinsApi.Data.Repositories.MitgliedAdresseRepository>();
+builder.Services.AddScoped<IMitgliedFamilieRepository, VereinsApi.Data.Repositories.MitgliedFamilieRepository>();
 
-// Service Registration - TEMPORARILY COMMENTED FOR MIGRATION
-// builder.Services.AddScoped<IVereinService, VereinService>();
-// builder.Services.AddScoped<IAdresseService, AdresseService>();
-// builder.Services.AddScoped<IBankkontoService, BankkontoService>();
+// Other Repositories
+builder.Services.AddScoped<IVereinRepository, VereinsApi.Data.Repositories.VereinRepository>();
+builder.Services.AddScoped<IAdresseRepository, VereinsApi.Data.Repositories.AdresseRepository>();
+builder.Services.AddScoped<IBankkontoRepository, VereinsApi.Data.Repositories.BankkontoRepository>();
+builder.Services.AddScoped<IVeranstaltungRepository, VereinsApi.Data.Repositories.VeranstaltungRepository>();
+builder.Services.AddScoped<IVeranstaltungAnmeldungRepository, VereinsApi.Data.Repositories.VeranstaltungAnmeldungRepository>();
+builder.Services.AddScoped<IVeranstaltungBildRepository, VereinsApi.Data.Repositories.VeranstaltungBildRepository>();
 
-// builder.Services.AddScoped<IVeranstaltungService, VeranstaltungService>();
-// builder.Services.AddScoped<IVeranstaltungAnmeldungService, VeranstaltungAnmeldungService>();
-// builder.Services.AddScoped<IVeranstaltungBildService, VeranstaltungBildService>();
+// Service Registration
+// Mitglied Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedService, VereinsApi.Services.MitgliedService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedAdresseService, VereinsApi.Services.MitgliedAdresseService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedFamilieService, VereinsApi.Services.MitgliedFamilieService>();
+
+// Other Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVereinService, VereinsApi.Services.VereinService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IAdresseService, VereinsApi.Services.AdresseService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankkontoService, VereinsApi.Services.BankkontoService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungService, VereinsApi.Services.VeranstaltungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungAnmeldungService, VereinsApi.Services.VeranstaltungAnmeldungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungBildService, VereinsApi.Services.VeranstaltungBildService>();
 
 // API Documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -110,7 +121,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000") // Add your frontend URLs
+        policy.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:3001", "https://localhost:3001") // Add your frontend URLs
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -136,7 +147,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Verein API v1");
-        c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+        c.RoutePrefix = "swagger"; // Set Swagger UI at /swagger
     });
 }
 

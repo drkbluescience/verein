@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.Veranstaltung;
-using VereinsApi.Domain.Entities;
-using VereinsApi.Domain.Interfaces;
+using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
 
@@ -13,14 +12,14 @@ namespace VereinsApi.Controllers;
 [Produces("application/json")]
 public class VeranstaltungenController : ControllerBase
 {
-    private readonly IRepository<Veranstaltung> _veranstaltungRepository;
+    private readonly IVeranstaltungService _veranstaltungService;
     private readonly ILogger<VeranstaltungenController> _logger;
 
     public VeranstaltungenController(
-        IRepository<Veranstaltung> veranstaltungRepository,
+        IVeranstaltungService veranstaltungService,
         ILogger<VeranstaltungenController> logger)
     {
-        _veranstaltungRepository = veranstaltungRepository;
+        _veranstaltungService = veranstaltungService;
         _logger = logger;
     }
 
@@ -34,9 +33,7 @@ public class VeranstaltungenController : ControllerBase
     {
         try
         {
-            var veranstaltungen = await _veranstaltungRepository.GetAllAsync();
-            var veranstaltungDtos = veranstaltungen.Select(v => MapToDto(v));
-
+            var veranstaltungDtos = await _veranstaltungService.GetAllAsync();
             return Ok(veranstaltungDtos);
         }
         catch (Exception ex)
@@ -58,13 +55,12 @@ public class VeranstaltungenController : ControllerBase
     {
         try
         {
-            var veranstaltung = await _veranstaltungRepository.GetByIdAsync(id);
-            if (veranstaltung == null)
+            var veranstaltungDto = await _veranstaltungService.GetByIdAsync(id);
+            if (veranstaltungDto == null)
             {
                 return NotFound($"Veranstaltung with ID {id} not found");
             }
 
-            var veranstaltungDto = MapToDto(veranstaltung);
             return Ok(veranstaltungDto);
         }
         catch (Exception ex)
@@ -85,9 +81,7 @@ public class VeranstaltungenController : ControllerBase
     {
         try
         {
-            var veranstaltungen = await _veranstaltungRepository.GetAsync(v => v.VereinId == vereinId);
-            var veranstaltungDtos = veranstaltungen.Select(v => MapToDto(v));
-
+            var veranstaltungDtos = await _veranstaltungService.GetByVereinIdAsync(vereinId);
             return Ok(veranstaltungDtos);
         }
         catch (Exception ex)
@@ -107,10 +101,7 @@ public class VeranstaltungenController : ControllerBase
     {
         try
         {
-            var now = DateTime.Now;
-            var veranstaltungen = await _veranstaltungRepository.GetAsync(v => v.Startdatum > now);
-            var veranstaltungDtos = veranstaltungen.Select(v => MapToDto(v)).OrderBy(v => v.Startdatum);
-
+            var veranstaltungDtos = await _veranstaltungService.GetUpcomingAsync();
             return Ok(veranstaltungDtos);
         }
         catch (Exception ex)
@@ -134,10 +125,7 @@ public class VeranstaltungenController : ControllerBase
     {
         try
         {
-            var veranstaltungen = await _veranstaltungRepository.GetAsync(v =>
-                v.Startdatum >= startDate && v.Startdatum <= endDate);
-            var veranstaltungDtos = veranstaltungen.Select(v => MapToDto(v)).OrderBy(v => v.Startdatum);
-
+            var veranstaltungDtos = await _veranstaltungService.GetByDateRangeAsync(startDate, endDate);
             return Ok(veranstaltungDtos);
         }
         catch (Exception ex)
@@ -164,19 +152,13 @@ public class VeranstaltungenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            // Validate dates
-            if (createDto.Enddatum.HasValue && createDto.Enddatum <= createDto.Startdatum)
-            {
-                return BadRequest("End date must be after start date");
-            }
-
-            var veranstaltung = MapFromCreateDto(createDto);
-
-            await _veranstaltungRepository.AddAsync(veranstaltung);
-            await _veranstaltungRepository.SaveChangesAsync();
-
-            var veranstaltungDto = MapToDto(veranstaltung);
-            return CreatedAtAction(nameof(GetById), new { id = veranstaltung.Id }, veranstaltungDto);
+            var veranstaltungDto = await _veranstaltungService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = veranstaltungDto.Id }, veranstaltungDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while creating Veranstaltung");
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -195,7 +177,7 @@ public class VeranstaltungenController : ControllerBase
     [ProducesResponseType(typeof(VeranstaltungDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VeranstaltungDto>> Update(int id, [FromBody] CreateVeranstaltungDto updateDto)
+    public async Task<ActionResult<VeranstaltungDto>> Update(int id, [FromBody] UpdateVeranstaltungDto updateDto, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -204,25 +186,13 @@ public class VeranstaltungenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var veranstaltung = await _veranstaltungRepository.GetByIdAsync(id);
-            if (veranstaltung == null)
-            {
-                return NotFound($"Veranstaltung with ID {id} not found");
-            }
-
-            // Validate dates
-            if (updateDto.Enddatum.HasValue && updateDto.Enddatum <= updateDto.Startdatum)
-            {
-                return BadRequest("End date must be after start date");
-            }
-
-            MapFromCreateDto(updateDto, veranstaltung);
-
-            await _veranstaltungRepository.UpdateAsync(veranstaltung);
-            await _veranstaltungRepository.SaveChangesAsync();
-
-            var veranstaltungDto = MapToDto(veranstaltung);
+            var veranstaltungDto = await _veranstaltungService.UpdateAsync(id, updateDto, cancellationToken);
             return Ok(veranstaltungDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while updating Veranstaltung with ID {Id}", id);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -243,20 +213,11 @@ public class VeranstaltungenController : ControllerBase
     {
         try
         {
-            var veranstaltung = await _veranstaltungRepository.GetByIdAsync(id);
-            if (veranstaltung == null)
+            var result = await _veranstaltungService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound($"Veranstaltung with ID {id} not found");
             }
-
-            // Soft delete: Set DeletedFlag and audit fields
-            veranstaltung.DeletedFlag = true;
-            veranstaltung.Aktiv = false;
-            veranstaltung.Modified = DateTime.UtcNow;
-            veranstaltung.ModifiedBy = GetCurrentUserId();
-
-            await _veranstaltungRepository.UpdateAsync(veranstaltung);
-            await _veranstaltungRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -267,93 +228,5 @@ public class VeranstaltungenController : ControllerBase
         }
     }
 
-    #region Private Helper Methods
 
-    /// <summary>
-    /// Get current user ID from authentication context
-    /// For now returns a default value, should be implemented with proper authentication
-    /// </summary>
-    /// <returns>Current user ID</returns>
-    private int? GetCurrentUserId()
-    {
-        // TODO: Implement proper authentication and get user ID from JWT token or session
-        // For now, return null or a default value
-        // Example implementation:
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? int.Parse(userIdClaim.Value) : null;
-
-        return null; // Will be null until authentication is implemented
-    }
-
-    #endregion
-
-    #region Private Mapping Methods
-
-    private VeranstaltungDto MapToDto(Veranstaltung veranstaltung)
-    {
-        return new VeranstaltungDto
-        {
-            Id = veranstaltung.Id,
-            VereinId = veranstaltung.VereinId,
-            Titel = veranstaltung.Titel,
-            Beschreibung = veranstaltung.Beschreibung,
-            Startdatum = veranstaltung.Startdatum,
-            Enddatum = veranstaltung.Enddatum,
-            Ort = veranstaltung.Ort,
-            NurFuerMitglieder = veranstaltung.NurFuerMitglieder,
-            MaxTeilnehmer = veranstaltung.MaxTeilnehmer,
-            AnmeldeErforderlich = veranstaltung.AnmeldeErforderlich,
-            Preis = veranstaltung.Preis,
-            WaehrungId = veranstaltung.WaehrungId,
-            Aktiv = veranstaltung.Aktiv,
-            Created = veranstaltung.Created,
-            CreatedBy = veranstaltung.CreatedBy,
-            Modified = veranstaltung.Modified,
-            ModifiedBy = veranstaltung.ModifiedBy,
-            DeletedFlag = veranstaltung.DeletedFlag
-        };
-    }
-
-    private Veranstaltung MapFromCreateDto(CreateVeranstaltungDto createDto)
-    {
-        return new Veranstaltung
-        {
-            VereinId = createDto.VereinId,
-            Titel = createDto.Titel,
-            Beschreibung = createDto.Beschreibung,
-            Startdatum = createDto.Startdatum,
-            Enddatum = createDto.Enddatum,
-            Ort = createDto.Ort,
-            NurFuerMitglieder = createDto.NurFuerMitglieder,
-            MaxTeilnehmer = createDto.MaxTeilnehmer,
-            AnmeldeErforderlich = createDto.AnmeldeErforderlich,
-            Preis = createDto.Preis,
-            WaehrungId = createDto.WaehrungId,
-            // Audit fields set automatically by system
-            Created = DateTime.UtcNow,
-            CreatedBy = GetCurrentUserId(),
-            DeletedFlag = false,
-            Aktiv = true
-        };
-    }
-
-    private void MapFromCreateDto(CreateVeranstaltungDto updateDto, Veranstaltung veranstaltung)
-    {
-        veranstaltung.VereinId = updateDto.VereinId;
-        veranstaltung.Titel = updateDto.Titel;
-        veranstaltung.Beschreibung = updateDto.Beschreibung;
-        veranstaltung.Startdatum = updateDto.Startdatum;
-        veranstaltung.Enddatum = updateDto.Enddatum;
-        veranstaltung.Ort = updateDto.Ort;
-        veranstaltung.NurFuerMitglieder = updateDto.NurFuerMitglieder;
-        veranstaltung.MaxTeilnehmer = updateDto.MaxTeilnehmer;
-        veranstaltung.AnmeldeErforderlich = updateDto.AnmeldeErforderlich;
-        veranstaltung.Preis = updateDto.Preis;
-        veranstaltung.WaehrungId = updateDto.WaehrungId;
-        // Audit fields set automatically by system
-        veranstaltung.Modified = DateTime.UtcNow;
-        veranstaltung.ModifiedBy = GetCurrentUserId();
-    }
-
-    #endregion
 }

@@ -37,13 +37,13 @@ public class VeranstaltungConfiguration : IEntityTypeConfiguration<Veranstaltung
 
         // Optional string fields with specific lengths - Almanca kolon isimleri
         builder.Property(v => v.Beschreibung)
-            .HasMaxLength(2000)
-            .HasColumnType("nvarchar(2000)")
+            .HasMaxLength(1000)
+            .HasColumnType("nvarchar(1000)")
             .HasColumnName("Beschreibung");
 
         builder.Property(v => v.Ort)
-            .HasMaxLength(200)
-            .HasColumnType("nvarchar(200)")
+            .HasMaxLength(250)
+            .HasColumnType("nvarchar(250)")
             .HasColumnName("Ort");
 
 
@@ -62,12 +62,14 @@ public class VeranstaltungConfiguration : IEntityTypeConfiguration<Veranstaltung
         builder.Property(v => v.MaxTeilnehmer)
             .HasColumnName("MaxTeilnehmer");
 
-        // Boolean fields - These fields are removed from entity as they don't exist in SQL table
-        // builder.Property(v => v.NurFuerMitglieder)
-        //     .HasColumnName("NurFuerMitglieder");
+        // Boolean fields - Veri tabanında mevcut
+        builder.Property(v => v.NurFuerMitglieder)
+            .IsRequired()
+            .HasColumnName("NurFuerMitglieder");
 
-        // builder.Property(v => v.AnmeldeErforderlich)
-        //     .HasColumnName("AnmeldeErforderlich");
+        builder.Property(v => v.AnmeldeErforderlich)
+            .IsRequired()
+            .HasColumnName("AnmeldeErforderlich");
 
         // Audit fields from AuditableEntity - Almanca kolon isimleri ve datetime tipi
         builder.Property(v => v.Created)

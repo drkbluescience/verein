@@ -20,9 +20,8 @@ public class AdresseConfiguration : IEntityTypeConfiguration<Adresse>
             .ValueGeneratedOnAdd()
             .HasAnnotation("SqlServer:Identity", "1, 1");
 
-        // Required fields
-        builder.Property(a => a.VereinId)
-            .IsRequired();
+        // VereinId - nullable olarak bırak (Entity'de nullable)
+        builder.Property(a => a.VereinId);
 
         // Optional string fields with specific lengths - Almanca kolon isimleri
         builder.Property(a => a.Strasse)
@@ -67,8 +66,8 @@ public class AdresseConfiguration : IEntityTypeConfiguration<Adresse>
             .HasDefaultValue("Deutschland");
 
         builder.Property(a => a.Postfach)
-            .HasMaxLength(20)
-            .HasColumnType("nvarchar(20)")
+            .HasMaxLength(30)
+            .HasColumnType("nvarchar(30)")
             .HasColumnName("Postfach");
 
         builder.Property(a => a.Telefonnummer)
@@ -92,8 +91,8 @@ public class AdresseConfiguration : IEntityTypeConfiguration<Adresse>
             .HasColumnName("Kontaktperson");
 
         builder.Property(a => a.Hinweis)
-            .HasMaxLength(500)
-            .HasColumnType("nvarchar(500)")
+            .HasMaxLength(250)
+            .HasColumnType("nvarchar(250)")
             .HasColumnName("Hinweis");
 
         // Decimal fields

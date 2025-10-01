@@ -46,6 +46,21 @@ public class ApplicationDbContext : DbContext
     /// </summary>
     public DbSet<VeranstaltungBild> VeranstaltungBilder { get; set; }
 
+    /// <summary>
+    /// Mitglieder table
+    /// </summary>
+    public DbSet<Mitglied> Mitglieder { get; set; }
+
+    /// <summary>
+    /// Mitglied Adressen table
+    /// </summary>
+    public DbSet<MitgliedAdresse> MitgliedAdressen { get; set; }
+
+    /// <summary>
+    /// Mitglied Familie table
+    /// </summary>
+    public DbSet<MitgliedFamilie> MitgliedFamilien { get; set; }
+
     #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,6 +74,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new VeranstaltungConfiguration());
         modelBuilder.ApplyConfiguration(new VeranstaltungAnmeldungConfiguration());
         modelBuilder.ApplyConfiguration(new VeranstaltungBildConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedAdresseConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedFamilieConfiguration());
 
         // Apply global query filters for soft delete
         ApplyGlobalQueryFilters(modelBuilder);

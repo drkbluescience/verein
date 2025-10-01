@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.VeranstaltungAnmeldung;
-using VereinsApi.Domain.Entities;
-using VereinsApi.Domain.Interfaces;
+using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
 
@@ -13,17 +12,14 @@ namespace VereinsApi.Controllers;
 [Produces("application/json")]
 public class VeranstaltungAnmeldungenController : ControllerBase
 {
-    private readonly IRepository<VeranstaltungAnmeldung> _anmeldungRepository;
-    private readonly IRepository<Veranstaltung> _veranstaltungRepository;
+    private readonly IVeranstaltungAnmeldungService _anmeldungService;
     private readonly ILogger<VeranstaltungAnmeldungenController> _logger;
 
     public VeranstaltungAnmeldungenController(
-        IRepository<VeranstaltungAnmeldung> anmeldungRepository,
-        IRepository<Veranstaltung> veranstaltungRepository,
+        IVeranstaltungAnmeldungService anmeldungService,
         ILogger<VeranstaltungAnmeldungenController> logger)
     {
-        _anmeldungRepository = anmeldungRepository;
-        _veranstaltungRepository = veranstaltungRepository;
+        _anmeldungService = anmeldungService;
         _logger = logger;
     }
 
@@ -37,9 +33,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldungen = await _anmeldungRepository.GetAllAsync();
-            var anmeldungDtos = anmeldungen.Select(a => MapToDto(a));
-
+            var anmeldungDtos = await _anmeldungService.GetAllAsync();
             return Ok(anmeldungDtos);
         }
         catch (Exception ex)
@@ -61,13 +55,12 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldung = await _anmeldungRepository.GetByIdAsync(id);
-            if (anmeldung == null)
+            var anmeldungDto = await _anmeldungService.GetByIdAsync(id);
+            if (anmeldungDto == null)
             {
                 return NotFound($"VeranstaltungAnmeldung with ID {id} not found");
             }
 
-            var anmeldungDto = MapToDto(anmeldung);
             return Ok(anmeldungDto);
         }
         catch (Exception ex)
@@ -88,9 +81,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldungen = await _anmeldungRepository.GetAsync(a => a.VeranstaltungId == veranstaltungId);
-            var anmeldungDtos = anmeldungen.Select(a => MapToDto(a));
-
+            var anmeldungDtos = await _anmeldungService.GetByVeranstaltungIdAsync(veranstaltungId);
             return Ok(anmeldungDtos);
         }
         catch (Exception ex)
@@ -111,9 +102,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldungen = await _anmeldungRepository.GetAsync(a => a.MitgliedId == mitgliedId);
-            var anmeldungDtos = anmeldungen.Select(a => MapToDto(a));
-
+            var anmeldungDtos = await _anmeldungService.GetByMitgliedIdAsync(mitgliedId);
             return Ok(anmeldungDtos);
         }
         catch (Exception ex)
@@ -134,9 +123,13 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldungen = await _anmeldungRepository.GetAsync(a => a.Status == status);
-            var anmeldungDtos = anmeldungen.Select(a => MapToDto(a));
+            // For now, we'll use a simple mapping. In a real app, this should be handled properly
+            if (!int.TryParse(status, out int statusId))
+            {
+                return BadRequest("Invalid status format");
+            }
 
+            var anmeldungDtos = await _anmeldungService.GetByStatusAsync(statusId);
             return Ok(anmeldungDtos);
         }
         catch (Exception ex)
@@ -163,39 +156,13 @@ public class VeranstaltungAnmeldungenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            // Check if Veranstaltung exists
-            var veranstaltung = await _veranstaltungRepository.GetByIdAsync(createDto.VeranstaltungId);
-            if (veranstaltung == null)
-            {
-                return BadRequest($"Veranstaltung with ID {createDto.VeranstaltungId} not found");
-            }
-
-            // Check if registration is still open (if event hasn't started yet)
-            if (veranstaltung.Startdatum <= DateTime.Now)
-            {
-                return BadRequest("Registration is closed - event has already started");
-            }
-
-            // Check if there are available spots
-            if (veranstaltung.MaxTeilnehmer.HasValue)
-            {
-                var existingRegistrations = await _anmeldungRepository.GetAsync(a => 
-                    a.VeranstaltungId == createDto.VeranstaltungId && a.Status != "Cancelled");
-                
-                if (existingRegistrations.Count() >= veranstaltung.MaxTeilnehmer.Value)
-                {
-                    return BadRequest("Event is fully booked - no available spots");
-                }
-            }
-
-            var anmeldung = MapFromCreateDto(createDto);
-            anmeldung.Status = "Registered"; // Default status
-
-            await _anmeldungRepository.AddAsync(anmeldung);
-            await _anmeldungRepository.SaveChangesAsync();
-
-            var anmeldungDto = MapToDto(anmeldung);
-            return CreatedAtAction(nameof(GetById), new { id = anmeldung.Id }, anmeldungDto);
+            var anmeldungDto = await _anmeldungService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = anmeldungDto.Id }, anmeldungDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while creating VeranstaltungAnmeldung");
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -214,7 +181,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     [ProducesResponseType(typeof(VeranstaltungAnmeldungDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VeranstaltungAnmeldungDto>> Update(int id, [FromBody] CreateVeranstaltungAnmeldungDto updateDto)
+    public async Task<ActionResult<VeranstaltungAnmeldungDto>> Update(int id, [FromBody] UpdateVeranstaltungAnmeldungDto updateDto, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -223,19 +190,13 @@ public class VeranstaltungAnmeldungenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var anmeldung = await _anmeldungRepository.GetByIdAsync(id);
-            if (anmeldung == null)
-            {
-                return NotFound($"VeranstaltungAnmeldung with ID {id} not found");
-            }
-
-            MapFromCreateDto(updateDto, anmeldung);
-
-            await _anmeldungRepository.UpdateAsync(anmeldung);
-            await _anmeldungRepository.SaveChangesAsync();
-
-            var anmeldungDto = MapToDto(anmeldung);
+            var anmeldungDto = await _anmeldungService.UpdateAsync(id, updateDto, cancellationToken);
             return Ok(anmeldungDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while updating VeranstaltungAnmeldung with ID {Id}", id);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -257,22 +218,29 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldung = await _anmeldungRepository.GetByIdAsync(id);
-            if (anmeldung == null)
+            // For now, we'll use a simple approach. In a real app, this should be a dedicated method
+            var anmeldungDto = await _anmeldungService.GetByIdAsync(id);
+            if (anmeldungDto == null)
             {
                 return NotFound($"VeranstaltungAnmeldung with ID {id} not found");
             }
 
-            anmeldung.Status = status;
-            // Audit fields set automatically by system
-            anmeldung.Modified = DateTime.UtcNow;
-            anmeldung.ModifiedBy = GetCurrentUserId();
+            // Create update DTO with new status
+            var updateDto = new UpdateVeranstaltungAnmeldungDto
+            {
+                MitgliedId = anmeldungDto.MitgliedId,
+                Name = anmeldungDto.Name,
+                Email = anmeldungDto.Email,
+                Telefon = anmeldungDto.Telefon,
+                Status = status,
+                Bemerkung = anmeldungDto.Bemerkung,
+                Preis = anmeldungDto.Preis,
+                WaehrungId = anmeldungDto.WaehrungId,
+                ZahlungStatusId = anmeldungDto.ZahlungStatusId
+            };
 
-            await _anmeldungRepository.UpdateAsync(anmeldung);
-            await _anmeldungRepository.SaveChangesAsync();
-
-            var anmeldungDto = MapToDto(anmeldung);
-            return Ok(anmeldungDto);
+            var result = await _anmeldungService.UpdateAsync(id, updateDto);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -293,20 +261,11 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     {
         try
         {
-            var anmeldung = await _anmeldungRepository.GetByIdAsync(id);
-            if (anmeldung == null)
+            var result = await _anmeldungService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound($"VeranstaltungAnmeldung with ID {id} not found");
             }
-
-            // Soft delete: Set DeletedFlag and audit fields
-            anmeldung.DeletedFlag = true;
-            anmeldung.Status = "Cancelled";
-            anmeldung.Modified = DateTime.UtcNow;
-            anmeldung.ModifiedBy = GetCurrentUserId();
-
-            await _anmeldungRepository.UpdateAsync(anmeldung);
-            await _anmeldungRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -317,86 +276,5 @@ public class VeranstaltungAnmeldungenController : ControllerBase
         }
     }
 
-    #region Private Helper Methods
 
-    /// <summary>
-    /// Get current user ID from authentication context
-    /// For now returns a default value, should be implemented with proper authentication
-    /// </summary>
-    /// <returns>Current user ID</returns>
-    private int? GetCurrentUserId()
-    {
-        // TODO: Implement proper authentication and get user ID from JWT token or session
-        // For now, return null or a default value
-        // Example implementation:
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? int.Parse(userIdClaim.Value) : null;
-
-        return null; // Will be null until authentication is implemented
-    }
-
-    #endregion
-
-    #region Private Mapping Methods
-
-    private VeranstaltungAnmeldungDto MapToDto(VeranstaltungAnmeldung anmeldung)
-    {
-        return new VeranstaltungAnmeldungDto
-        {
-            Id = anmeldung.Id,
-            VeranstaltungId = anmeldung.VeranstaltungId,
-            MitgliedId = anmeldung.MitgliedId,
-            Name = anmeldung.Name,
-            Email = anmeldung.Email,
-            Telefon = anmeldung.Telefon,
-            Status = anmeldung.Status,
-            Bemerkung = anmeldung.Bemerkung,
-            Preis = anmeldung.Preis,
-            WaehrungId = anmeldung.WaehrungId,
-            ZahlungStatusId = anmeldung.ZahlungStatusId,
-            Created = anmeldung.Created,
-            CreatedBy = anmeldung.CreatedBy,
-            Modified = anmeldung.Modified,
-            ModifiedBy = anmeldung.ModifiedBy,
-            DeletedFlag = anmeldung.DeletedFlag
-        };
-    }
-
-    private VeranstaltungAnmeldung MapFromCreateDto(CreateVeranstaltungAnmeldungDto createDto)
-    {
-        return new VeranstaltungAnmeldung
-        {
-            VeranstaltungId = createDto.VeranstaltungId,
-            MitgliedId = createDto.MitgliedId,
-            Name = createDto.Name,
-            Email = createDto.Email,
-            Telefon = createDto.Telefon,
-            Bemerkung = createDto.Bemerkung,
-            Preis = createDto.Preis,
-            WaehrungId = createDto.WaehrungId,
-            ZahlungStatusId = createDto.ZahlungStatusId,
-            // Audit fields set automatically by system
-            Created = DateTime.UtcNow,
-            CreatedBy = GetCurrentUserId(),
-            DeletedFlag = false
-        };
-    }
-
-    private void MapFromCreateDto(CreateVeranstaltungAnmeldungDto updateDto, VeranstaltungAnmeldung anmeldung)
-    {
-        anmeldung.VeranstaltungId = updateDto.VeranstaltungId;
-        anmeldung.MitgliedId = updateDto.MitgliedId;
-        anmeldung.Name = updateDto.Name;
-        anmeldung.Email = updateDto.Email;
-        anmeldung.Telefon = updateDto.Telefon;
-        anmeldung.Bemerkung = updateDto.Bemerkung;
-        anmeldung.Preis = updateDto.Preis;
-        anmeldung.WaehrungId = updateDto.WaehrungId;
-        anmeldung.ZahlungStatusId = updateDto.ZahlungStatusId;
-        // Audit fields set automatically by system
-        anmeldung.Modified = DateTime.UtcNow;
-        anmeldung.ModifiedBy = GetCurrentUserId();
-    }
-
-    #endregion
 }

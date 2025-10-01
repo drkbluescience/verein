@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.Adresse;
-using VereinsApi.Domain.Entities;
-using VereinsApi.Domain.Interfaces;
+using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
 
@@ -14,14 +13,14 @@ namespace VereinsApi.Controllers;
 // ControllerBase - API controller base class
 public class AdressenController : ControllerBase
 {
-    private readonly IRepository<Adresse> _adresseRepository;
+    private readonly IAdresseService _adresseService;
     private readonly ILogger<AdressenController> _logger;
 
     public AdressenController(
-        IRepository<Adresse> adresseRepository,
+        IAdresseService adresseService,
         ILogger<AdressenController> logger)
     {
-        _adresseRepository = adresseRepository;
+        _adresseService = adresseService;
         _logger = logger;
     }
 
@@ -35,9 +34,7 @@ public class AdressenController : ControllerBase
     {
         try
         {
-            var adressen = await _adresseRepository.GetAllAsync();
-            var adresseDtos = adressen.Select(a => MapToDto(a));
-
+            var adresseDtos = await _adresseService.GetAllAsync();
             return Ok(adresseDtos);
         }
         catch (Exception ex)
@@ -59,13 +56,12 @@ public class AdressenController : ControllerBase
     {
         try
         {
-            var adresse = await _adresseRepository.GetByIdAsync(id);
-            if (adresse == null)
+            var adresseDto = await _adresseService.GetByIdAsync(id);
+            if (adresseDto == null)
             {
                 return NotFound($"Adresse with ID {id} not found");
             }
 
-            var adresseDto = MapToDto(adresse);
             return Ok(adresseDto);
         }
         catch (Exception ex)
@@ -86,9 +82,7 @@ public class AdressenController : ControllerBase
     {
         try
         {
-            var adressen = await _adresseRepository.GetAsync(a => a.VereinId == vereinId);
-            var adresseDtos = adressen.Select(a => MapToDto(a));
-
+            var adresseDtos = await _adresseService.GetByVereinIdAsync(vereinId);
             return Ok(adresseDtos);
         }
         catch (Exception ex)
@@ -115,13 +109,13 @@ public class AdressenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var adresse = MapFromCreateDto(createDto);
-
-            await _adresseRepository.AddAsync(adresse);
-            await _adresseRepository.SaveChangesAsync();
-
-            var adresseDto = MapToDto(adresse);
-            return CreatedAtAction(nameof(GetById), new { id = adresse.Id }, adresseDto);
+            var adresseDto = await _adresseService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = adresseDto.Id }, adresseDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while creating Adresse");
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -149,19 +143,13 @@ public class AdressenController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var adresse = await _adresseRepository.GetByIdAsync(id);
-            if (adresse == null)
-            {
-                return NotFound($"Adresse with ID {id} not found");
-            }
-
-            MapFromUpdateDto(updateDto, adresse);
-
-            await _adresseRepository.UpdateAsync(adresse);
-            await _adresseRepository.SaveChangesAsync();
-
-            var adresseDto = MapToDto(adresse);
+            var adresseDto = await _adresseService.UpdateAsync(id, updateDto);
             return Ok(adresseDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while updating Adresse with ID {Id}", id);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -182,20 +170,11 @@ public class AdressenController : ControllerBase
     {
         try
         {
-            var adresse = await _adresseRepository.GetByIdAsync(id);
-            if (adresse == null)
+            var result = await _adresseService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound($"Adresse with ID {id} not found");
             }
-
-            // Soft delete: Set DeletedFlag and audit fields
-            adresse.DeletedFlag = true;
-            adresse.Aktiv = false;
-            adresse.Modified = DateTime.UtcNow;
-            adresse.ModifiedBy = GetCurrentUserId();
-
-            await _adresseRepository.UpdateAsync(adresse);
-            await _adresseRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -218,35 +197,20 @@ public class AdressenController : ControllerBase
     {
         try
         {
-            var adresse = await _adresseRepository.GetByIdAsync(id);
-            if (adresse == null)
+            // Get the address first to find the vereinId
+            var address = await _adresseService.GetByIdAsync(id);
+            if (address == null)
             {
                 return NotFound($"Adresse with ID {id} not found");
             }
 
-            // First, unset all other addresses for this Verein as default
-            if (adresse.VereinId.HasValue)
+            var result = await _adresseService.SetAsStandardAddressAsync(address.VereinId ?? 0, id);
+            if (!result)
             {
-                var otherAdressen = await _adresseRepository.GetAsync(a =>
-                    a.VereinId == adresse.VereinId && a.Id != id && a.IstStandard == true);
-                
-                foreach (var otherAdresse in otherAdressen)
-                {
-                    otherAdresse.IstStandard = false;
-                    otherAdresse.Modified = DateTime.UtcNow;
-                    otherAdresse.ModifiedBy = GetCurrentUserId();
-                    await _adresseRepository.UpdateAsync(otherAdresse);
-                }
+                return NotFound($"Adresse with ID {id} not found");
             }
 
-            // Set this address as default
-            adresse.IstStandard = true;
-            adresse.Modified = DateTime.UtcNow;
-            adresse.ModifiedBy = GetCurrentUserId();
-            await _adresseRepository.UpdateAsync(adresse);
-            await _adresseRepository.SaveChangesAsync();
-
-            var adresseDto = MapToDto(adresse);
+            var adresseDto = await _adresseService.GetByIdAsync(id);
             return Ok(adresseDto);
         }
         catch (Exception ex)
@@ -256,124 +220,5 @@ public class AdressenController : ControllerBase
         }
     }
 
-    #region Private Helper Methods
 
-    /// <summary>
-    /// Get current user ID from authentication context
-    /// For now returns a default value, should be implemented with proper authentication
-    /// </summary>
-    /// <returns>Current user ID</returns>
-    private int? GetCurrentUserId()
-    {
-        // TODO: Implement proper authentication and get user ID from JWT token or session
-        // For now, return null or a default value
-        // Example implementation:
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? int.Parse(userIdClaim.Value) : null;
-
-        return null; // Will be null until authentication is implemented
-    }
-
-    #endregion
-
-    #region Private Mapping Methods
-
-    private AdresseDto MapToDto(Adresse adresse)
-    {
-        return new AdresseDto
-        {
-            Id = adresse.Id,
-            VereinId = adresse.VereinId,
-            AdresseTypId = adresse.AdresseTypId,
-            Strasse = adresse.Strasse,
-            Hausnummer = adresse.Hausnummer,
-            Adresszusatz = adresse.Adresszusatz,
-            PLZ = adresse.PLZ,
-            Ort = adresse.Ort,
-            Stadtteil = adresse.Stadtteil,
-            Bundesland = adresse.Bundesland,
-            Land = adresse.Land,
-            Postfach = adresse.Postfach,
-            Telefonnummer = adresse.Telefonnummer,
-            Faxnummer = adresse.Faxnummer,
-            EMail = adresse.EMail,
-            Kontaktperson = adresse.Kontaktperson,
-            Hinweis = adresse.Hinweis,
-            Latitude = adresse.Latitude,
-            Longitude = adresse.Longitude,
-            GueltigVon = adresse.GueltigVon,
-            GueltigBis = adresse.GueltigBis,
-            IstStandard = adresse.IstStandard,
-            Aktiv = adresse.Aktiv,
-            Created = adresse.Created,
-            CreatedBy = adresse.CreatedBy,
-            Modified = adresse.Modified,
-            ModifiedBy = adresse.ModifiedBy,
-            DeletedFlag = adresse.DeletedFlag
-        };
-    }
-
-    private Adresse MapFromCreateDto(CreateAdresseDto createDto)
-    {
-        return new Adresse
-        {
-            VereinId = createDto.VereinId,
-            AdresseTypId = createDto.AdresseTypId,
-            Strasse = createDto.Strasse,
-            Hausnummer = createDto.Hausnummer,
-            Adresszusatz = createDto.Adresszusatz,
-            PLZ = createDto.PLZ,
-            Ort = createDto.Ort,
-            Stadtteil = createDto.Stadtteil,
-            Bundesland = createDto.Bundesland,
-            Land = createDto.Land,
-            Postfach = createDto.Postfach,
-            Telefonnummer = createDto.Telefonnummer,
-            Faxnummer = createDto.Faxnummer,
-            EMail = createDto.EMail,
-            Kontaktperson = createDto.Kontaktperson,
-            Hinweis = createDto.Hinweis,
-            Latitude = createDto.Latitude,
-            Longitude = createDto.Longitude,
-            GueltigVon = createDto.GueltigVon,
-            GueltigBis = createDto.GueltigBis,
-            IstStandard = createDto.IstStandard,
-            // Audit fields set automatically by system
-            Created = DateTime.UtcNow,
-            CreatedBy = GetCurrentUserId(),
-            DeletedFlag = false,
-            Aktiv = true
-        };
-    }
-
-    private void MapFromUpdateDto(UpdateAdresseDto updateDto, Adresse adresse)
-    {
-        adresse.VereinId = updateDto.VereinId;
-        adresse.AdresseTypId = updateDto.AdresseTypId;
-        adresse.Strasse = updateDto.Strasse;
-        adresse.Hausnummer = updateDto.Hausnummer;
-        adresse.Adresszusatz = updateDto.Adresszusatz;
-        adresse.PLZ = updateDto.PLZ;
-        adresse.Ort = updateDto.Ort;
-        adresse.Stadtteil = updateDto.Stadtteil;
-        adresse.Bundesland = updateDto.Bundesland;
-        adresse.Land = updateDto.Land;
-        adresse.Postfach = updateDto.Postfach;
-        adresse.Telefonnummer = updateDto.Telefonnummer;
-        adresse.Faxnummer = updateDto.Faxnummer;
-        adresse.EMail = updateDto.EMail;
-        adresse.Kontaktperson = updateDto.Kontaktperson;
-        adresse.Hinweis = updateDto.Hinweis;
-        adresse.Latitude = updateDto.Latitude;
-        adresse.Longitude = updateDto.Longitude;
-        adresse.GueltigVon = updateDto.GueltigVon;
-        adresse.GueltigBis = updateDto.GueltigBis;
-        adresse.IstStandard = updateDto.IstStandard;
-        adresse.Aktiv = updateDto.Aktiv;
-        // Audit fields set automatically by system
-        adresse.Modified = DateTime.UtcNow;
-        adresse.ModifiedBy = GetCurrentUserId();
-    }
-
-    #endregion
 }

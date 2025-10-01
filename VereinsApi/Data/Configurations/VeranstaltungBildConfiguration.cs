@@ -32,8 +32,8 @@ public class VeranstaltungBildConfiguration : IEntityTypeConfiguration<Veranstal
 
         // Optional string fields with specific lengths - Almanca kolon isimleri
         builder.Property(vb => vb.Titel)
-            .HasMaxLength(200)
-            .HasColumnType("nvarchar(200)")
+            .HasMaxLength(100)
+            .HasColumnType("nvarchar(100)")
             .HasColumnName("Titel");
 
 

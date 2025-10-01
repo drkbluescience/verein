@@ -32,13 +32,13 @@ public class Veranstaltung : AuditableEntity
     /// Event start date and time
     /// </summary>
     [Required]
-    [Column(TypeName = "datetime")]
+    [Column("Beginn", TypeName = "datetime")]
     public DateTime Startdatum { get; set; }
 
     /// <summary>
     /// Event end date and time
     /// </summary>
-    [Column(TypeName = "datetime")]
+    [Column("Ende", TypeName = "datetime")]
     public DateTime? Enddatum { get; set; }
 
     /// <summary>

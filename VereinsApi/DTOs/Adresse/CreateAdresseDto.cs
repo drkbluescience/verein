@@ -8,17 +8,15 @@ namespace VereinsApi.DTOs.Adresse;
 /// </summary>
 public class CreateAdresseDto
 {
-    [Required(ErrorMessage = "VereinId is required")]
     [JsonPropertyName("vereinId")]
-    public int VereinId { get; set; }
+    public int? VereinId { get; set; }
 
     [JsonPropertyName("adresseTypId")]
     public int? AdresseTypId { get; set; }
 
-    [Required(ErrorMessage = "Strasse is required")]
     [MaxLength(100)]
     [JsonPropertyName("strasse")]
-    public string Strasse { get; set; } = string.Empty;
+    public string? Strasse { get; set; }
 
     [MaxLength(10)]
     [JsonPropertyName("hausnummer")]
@@ -28,15 +26,13 @@ public class CreateAdresseDto
     [JsonPropertyName("adresszusatz")]
     public string? Adresszusatz { get; set; }
 
-    [Required(ErrorMessage = "PLZ is required")]
     [MaxLength(10)]
     [JsonPropertyName("plz")]
-    public string PLZ { get; set; } = string.Empty;
+    public string? PLZ { get; set; }
 
-    [Required(ErrorMessage = "Ort is required")]
     [MaxLength(100)]
     [JsonPropertyName("ort")]
-    public string Ort { get; set; } = string.Empty;
+    public string? Ort { get; set; }
 
     [MaxLength(50)]
     [JsonPropertyName("stadtteil")]

@@ -72,4 +72,9 @@ public class VeranstaltungAnmeldung : AuditableEntity
     /// Event for this registration
     /// </summary>
     public virtual Veranstaltung? Veranstaltung { get; set; }
+
+    /// <summary>
+    /// Member who registered for this event (if applicable)
+    /// </summary>
+    public virtual Mitglied? Mitglied { get; set; }
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.Verein;
-using VereinsApi.Domain.Entities;
-using VereinsApi.Domain.Interfaces;
+using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
 
@@ -13,14 +12,14 @@ namespace VereinsApi.Controllers;
 [Produces("application/json")]
 public class VereineController : ControllerBase
 {
-    private readonly IRepository<Verein> _vereinRepository;
+    private readonly IVereinService _vereinService;
     private readonly ILogger<VereineController> _logger;
 
     public VereineController(
-        IRepository<Verein> vereinRepository,
+        IVereinService vereinService,
         ILogger<VereineController> logger)
     {
-        _vereinRepository = vereinRepository;
+        _vereinService = vereinService;
         _logger = logger;
     }
 
@@ -34,9 +33,7 @@ public class VereineController : ControllerBase
     {
         try
         {
-            var vereine = await _vereinRepository.GetAllAsync();
-            var vereinDtos = vereine.Select(v => MapToDto(v));
-
+            var vereinDtos = await _vereinService.GetAllAsync();
             return Ok(vereinDtos);
         }
         catch (Exception ex)
@@ -58,13 +55,11 @@ public class VereineController : ControllerBase
     {
         try
         {
-            var verein = await _vereinRepository.GetByIdAsync(id);
-            if (verein == null)
+            var vereinDto = await _vereinService.GetByIdAsync(id);
+            if (vereinDto == null)
             {
                 return NotFound($"Verein with ID {id} not found");
             }
-
-            var vereinDto = MapToDto(verein);
 
             return Ok(vereinDto);
         }
@@ -92,14 +87,13 @@ public class VereineController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var verein = MapFromCreateDto(createDto);
-
-            await _vereinRepository.AddAsync(verein);
-            await _vereinRepository.SaveChangesAsync();
-
-            var vereinDto = MapToDto(verein);
-
-            return CreatedAtAction(nameof(GetById), new { id = verein.Id }, vereinDto);
+            var vereinDto = await _vereinService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = vereinDto.Id }, vereinDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while creating Verein");
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -127,21 +121,13 @@ public class VereineController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var verein = await _vereinRepository.GetByIdAsync(id);
-            if (verein == null)
-            {
-                return NotFound($"Verein with ID {id} not found");
-            }
-
-            // Update properties using mapping method
-            MapFromUpdateDto(updateDto, verein);
-
-            await _vereinRepository.UpdateAsync(verein);
-            await _vereinRepository.SaveChangesAsync();
-
-            var vereinDto = MapToDto(verein);
-
+            var vereinDto = await _vereinService.UpdateAsync(id, updateDto);
             return Ok(vereinDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while updating Verein with ID {Id}", id);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -162,20 +148,11 @@ public class VereineController : ControllerBase
     {
         try
         {
-            var verein = await _vereinRepository.GetByIdAsync(id);
-            if (verein == null)
+            var result = await _vereinService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound($"Verein with ID {id} not found");
             }
-
-            // Soft delete: Set DeletedFlag and audit fields
-            verein.DeletedFlag = true;
-            verein.Aktiv = false;
-            verein.Modified = DateTime.UtcNow;
-            verein.ModifiedBy = GetCurrentUserId();
-
-            await _vereinRepository.UpdateAsync(verein);
-            await _vereinRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -186,196 +163,5 @@ public class VereineController : ControllerBase
         }
     }
 
-    #region Private Helper Methods
 
-    /// <summary>
-    /// Get current user ID from authentication context
-    /// For now returns a default value, should be implemented with proper authentication
-    /// </summary>
-    /// <returns>Current user ID</returns>
-    private int? GetCurrentUserId()
-    {
-        // TODO: Implement proper authentication and get user ID from JWT token or session
-        // For now, return null or a default value
-        // Example implementation:
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? int.Parse(userIdClaim.Value) : null;
-
-        return null; // Will be null until authentication is implemented
-    }
-
-    #endregion
-
-    #region Private Mapping Methods
-
-    /// <summary>
-    /// Map Verein entity to DTO
-    /// </summary>
-    /// <param name="verein">Verein entity</param>
-    /// <returns>VereinDto</returns>
-    private VereinDto MapToDto(Domain.Entities.Verein verein)
-    {
-        return new VereinDto
-        {
-            Id = verein.Id,
-            Name = verein.Name,
-            Kurzname = verein.Kurzname,
-            Vereinsnummer = verein.Vereinsnummer,
-            Steuernummer = verein.Steuernummer,
-            RechtsformId = verein.RechtsformId,
-            Gruendungsdatum = verein.Gruendungsdatum,
-            Zweck = verein.Zweck,
-            AdresseId = verein.AdresseId,
-            HauptBankkontoId = verein.HauptBankkontoId,
-            Telefon = verein.Telefon,
-            Fax = verein.Fax,
-            Email = verein.Email,
-            Webseite = verein.Webseite,
-            SocialMediaLinks = verein.SocialMediaLinks,
-            Vorstandsvorsitzender = verein.Vorstandsvorsitzender,
-            Geschaeftsfuehrer = verein.Geschaeftsfuehrer,
-            VertreterEmail = verein.VertreterEmail,
-            Kontaktperson = verein.Kontaktperson,
-            Mitgliederzahl = verein.Mitgliederzahl,
-            SatzungPfad = verein.SatzungPfad,
-            LogoPfad = verein.LogoPfad,
-            ExterneReferenzId = verein.ExterneReferenzId,
-            Mandantencode = verein.Mandantencode,
-            EPostEmpfangAdresse = verein.EPostEmpfangAdresse,
-            SEPA_GlaeubigerID = verein.SEPA_GlaeubigerID,
-            UstIdNr = verein.UstIdNr,
-            ElektronischeSignaturKey = verein.ElektronischeSignaturKey,
-            Aktiv = verein.Aktiv,
-            Created = verein.Created,
-            CreatedBy = verein.CreatedBy,
-            Modified = verein.Modified,
-            ModifiedBy = verein.ModifiedBy,
-            DeletedFlag = verein.DeletedFlag
-        };
-    }
-
-    /// <summary>
-    /// Map CreateVereinDto to Verein entity
-    /// </summary>
-    /// <param name="createDto">CreateVereinDto</param>
-    /// <returns>Verein entity</returns>
-    private Domain.Entities.Verein MapFromCreateDto(CreateVereinDto createDto)
-    {
-        return new Domain.Entities.Verein
-        {
-            Name = createDto.Name,
-            Kurzname = createDto.Kurzname,
-            Vereinsnummer = createDto.Vereinsnummer,
-            Steuernummer = createDto.Steuernummer,
-            RechtsformId = createDto.RechtsformId,
-            Gruendungsdatum = createDto.Gruendungsdatum,
-            Zweck = createDto.Zweck,
-            AdresseId = createDto.AdresseId,
-            HauptBankkontoId = createDto.HauptBankkontoId,
-            Telefon = createDto.Telefon,
-            Fax = createDto.Fax,
-            Email = createDto.Email,
-            Webseite = createDto.Webseite,
-            SocialMediaLinks = createDto.SocialMediaLinks,
-            Vorstandsvorsitzender = createDto.Vorstandsvorsitzender,
-            Geschaeftsfuehrer = createDto.Geschaeftsfuehrer,
-            VertreterEmail = createDto.VertreterEmail,
-            Kontaktperson = createDto.Kontaktperson,
-            Mitgliederzahl = createDto.Mitgliederzahl,
-            SatzungPfad = createDto.SatzungPfad,
-            LogoPfad = createDto.LogoPfad,
-            ExterneReferenzId = createDto.ExterneReferenzId,
-            Mandantencode = createDto.Mandantencode,
-            EPostEmpfangAdresse = createDto.EPostEmpfangAdresse,
-            SEPA_GlaeubigerID = createDto.SEPA_GlaeubigerID,
-            UstIdNr = createDto.UstIdNr,
-            ElektronischeSignaturKey = createDto.ElektronischeSignaturKey,
-            // Audit fields set automatically by system
-            Created = DateTime.UtcNow,
-            CreatedBy = GetCurrentUserId(),
-            DeletedFlag = false,
-            Aktiv = true
-        };
-    }
-
-    /// <summary>
-    /// Map CreateVereinDto to existing Verein entity (for updates)
-    /// </summary>
-    /// <param name="updateDto">CreateVereinDto</param>
-    /// <param name="verein">Existing Verein entity</param>
-    private void MapFromCreateDto(CreateVereinDto updateDto, Domain.Entities.Verein verein)
-    {
-        verein.Name = updateDto.Name;
-        verein.Kurzname = updateDto.Kurzname;
-        verein.Vereinsnummer = updateDto.Vereinsnummer;
-        verein.Steuernummer = updateDto.Steuernummer;
-        verein.RechtsformId = updateDto.RechtsformId;
-        verein.Gruendungsdatum = updateDto.Gruendungsdatum;
-        verein.Zweck = updateDto.Zweck;
-        verein.AdresseId = updateDto.AdresseId;
-        verein.HauptBankkontoId = updateDto.HauptBankkontoId;
-        verein.Telefon = updateDto.Telefon;
-        verein.Fax = updateDto.Fax;
-        verein.Email = updateDto.Email;
-        verein.Webseite = updateDto.Webseite;
-        verein.SocialMediaLinks = updateDto.SocialMediaLinks;
-        verein.Vorstandsvorsitzender = updateDto.Vorstandsvorsitzender;
-        verein.Geschaeftsfuehrer = updateDto.Geschaeftsfuehrer;
-        verein.VertreterEmail = updateDto.VertreterEmail;
-        verein.Kontaktperson = updateDto.Kontaktperson;
-        verein.Mitgliederzahl = updateDto.Mitgliederzahl;
-        verein.SatzungPfad = updateDto.SatzungPfad;
-        verein.LogoPfad = updateDto.LogoPfad;
-        verein.ExterneReferenzId = updateDto.ExterneReferenzId;
-        verein.Mandantencode = updateDto.Mandantencode;
-        verein.EPostEmpfangAdresse = updateDto.EPostEmpfangAdresse;
-        verein.SEPA_GlaeubigerID = updateDto.SEPA_GlaeubigerID;
-        verein.UstIdNr = updateDto.UstIdNr;
-        verein.ElektronischeSignaturKey = updateDto.ElektronischeSignaturKey;
-        // Audit fields set automatically by system
-        verein.Modified = DateTime.UtcNow;
-        verein.ModifiedBy = GetCurrentUserId();
-    }
-
-    /// <summary>
-    /// Map UpdateVereinDto to existing Verein entity (for updates)
-    /// </summary>
-    /// <param name="updateDto">UpdateVereinDto</param>
-    /// <param name="verein">Existing Verein entity</param>
-    private void MapFromUpdateDto(UpdateVereinDto updateDto, Domain.Entities.Verein verein)
-    {
-        verein.Name = updateDto.Name;
-        verein.Kurzname = updateDto.Kurzname;
-        verein.Vereinsnummer = updateDto.Vereinsnummer;
-        verein.Steuernummer = updateDto.Steuernummer;
-        verein.RechtsformId = updateDto.RechtsformId;
-        verein.Gruendungsdatum = updateDto.Gruendungsdatum;
-        verein.Zweck = updateDto.Zweck;
-        verein.AdresseId = updateDto.AdresseId;
-        verein.HauptBankkontoId = updateDto.HauptBankkontoId;
-        verein.Telefon = updateDto.Telefon;
-        verein.Fax = updateDto.Fax;
-        verein.Email = updateDto.Email;
-        verein.Webseite = updateDto.Webseite;
-        verein.SocialMediaLinks = updateDto.SocialMediaLinks;
-        verein.Vorstandsvorsitzender = updateDto.Vorstandsvorsitzender;
-        verein.Geschaeftsfuehrer = updateDto.Geschaeftsfuehrer;
-        verein.VertreterEmail = updateDto.VertreterEmail;
-        verein.Kontaktperson = updateDto.Kontaktperson;
-        verein.Mitgliederzahl = updateDto.Mitgliederzahl;
-        verein.SatzungPfad = updateDto.SatzungPfad;
-        verein.LogoPfad = updateDto.LogoPfad;
-        verein.ExterneReferenzId = updateDto.ExterneReferenzId;
-        verein.Mandantencode = updateDto.Mandantencode;
-        verein.EPostEmpfangAdresse = updateDto.EPostEmpfangAdresse;
-        verein.SEPA_GlaeubigerID = updateDto.SEPA_GlaeubigerID;
-        verein.UstIdNr = updateDto.UstIdNr;
-        verein.ElektronischeSignaturKey = updateDto.ElektronischeSignaturKey;
-        verein.Aktiv = updateDto.Aktiv;
-        // Audit fields set automatically by system
-        verein.Modified = DateTime.UtcNow;
-        verein.ModifiedBy = GetCurrentUserId();
-    }
-
-    #endregion
 }
