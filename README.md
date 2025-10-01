@@ -27,7 +27,7 @@ A comprehensive .NET 8 Web API for managing German associations (Vereine) and th
 ## 🏗️ Project Architecture
 
 ```
-VereinsApi/
+verein-api/
 ├── Controllers/              # RESTful API Controllers
 │   ├── VereineController.cs         # Association management
 │   ├── AdressenController.cs        # Address management
