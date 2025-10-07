@@ -1,0 +1,179 @@
+{
+  "title": "Mitglieder",
+  "subtitle": "Mitgliederliste und Verwaltung",
+  "list": {
+    "title": "Mitgliederliste",
+    "empty": "Es sind noch keine Mitglieder vorhanden",
+    "search": "Mitglied suchen...",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "totalMembers": "Mitglieder gesamt"
+  },
+  "detail": {
+    "title": "Mitgliederdetails",
+    "personalInfo": "Persönliche Informationen",
+    "contactInfo": "Kontaktinformationen",
+    "membershipInfo": "Mitgliedschaftsinformationen",
+    "events": "Teilgenommene Veranstaltungen",
+    "family": "Familienmitglieder"
+  },
+  "form": {
+    "create": "Neues Mitglied hinzufügen",
+    "edit": "Mitglied bearbeiten",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "address": "Adresse",
+    "birthDate": "Geburtsdatum",
+    "membershipDate": "Mitgliedschaftsdatum",
+    "membershipNumber": "Mitgliedsnummer",
+    "status": "Status",
+    "notes": "Notizen"
+  },
+  "actions": {
+    "add": "Mitglied hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen",
+    "export": "Exportieren",
+    "sendEmail": "E-Mail senden"
+  },
+  "messages": {
+    "createSuccess": "Mitglied erfolgreich erstellt",
+    "updateSuccess": "Mitglied erfolgreich aktualisiert",
+    "deleteSuccess": "Mitglied erfolgreich gelöscht",
+    "deleteConfirm": "Sind Sie sicher, dass Sie dieses Mitglied löschen möchten?",
+    "error": "Ein Fehler ist während des Vorgangs aufgetreten"
+  },
+  "listPage": {
+    "loading": "Mitglieder werden geladen...",
+    "error": {
+      "title": "Fehler beim Laden der Daten",
+      "message": "Beim Laden der Mitgliederdaten ist ein Fehler aufgetreten."
+    },
+    "header": {
+      "titleAll": "Alle Mitglieder",
+      "titleOur": "Unsere Mitglieder",
+      "stats": "Mitglieder • {active} aktiv • {inactive} inaktiv"
+    },
+    "search": {
+      "placeholder": "Mitglied suchen (Name, Nachname, Mitgliedsnr., E-Mail)..."
+    },
+    "actions": {
+      "newMember": "Neues Mitglied"
+    },
+    "filters": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "empty": {
+      "title": "Kein Mitglied gefunden",
+      "noSearch": "Keine Mitglieder entsprechen Ihren Suchkriterien.",
+      "noMembers": "Es sind noch keine Mitglieder registriert."
+    },
+    "card": {
+      "age": "Jahre alt",
+      "membership": "Mitgliedschaft",
+      "view": "Anzeigen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "pagination": {
+      "previous": "← Zurück",
+      "next": "Weiter →",
+      "page": "Seite {current} / {total}"
+    }
+  },
+  "detailPage": {
+    "loading": "Mitgliederdaten werden geladen...",
+    "error": "Beim Laden der Mitgliederdaten ist ein Fehler aufgetreten.",
+    "back": "Zurück zu Mitgliedern",
+    "memberNumber": "Mitgliedsnr.",
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "editProfile": "Profil bearbeiten"
+    },
+    "sections": {
+      "personalInfo": "Persönliche Informationen",
+      "contactInfo": "Kontaktinformationen",
+      "membershipInfo": "Mitgliedschaftsinformationen",
+      "addressInfo": "Adressinformationen",
+      "familyMembers": "Familienmitglieder",
+      "notes": "Notizen"
+    },
+    "fields": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "birthDate": "Geburtsdatum",
+      "age": "Alter",
+      "birthPlace": "Geburtsort",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "mobile": "Mobiltelefon",
+      "verein": "Verein",
+      "memberNumber": "Mitgliedsnummer",
+      "joinDate": "Eintrittsdatum",
+      "membershipDuration": "Mitgliedschaftsdauer",
+      "exitDate": "Austrittsdatum",
+      "feeAmount": "Beitragshöhe",
+      "notSpecified": "Nicht angegeben",
+      "loading": "Wird geladen...",
+      "unknown": "Unbekannt"
+    },
+    "address": {
+      "title": "Adresse",
+      "default": "Standard"
+    },
+    "family": {
+      "relation": "Familienbeziehung",
+      "relationId": "Beziehungs-ID"
+    }
+  },
+  "eventsPage": {
+    "loading": "Veranstaltungen werden geladen...",
+    "error": {
+      "title": "Fehler beim Laden der Daten",
+      "message": "Beim Laden der Veranstaltungen ist ein Fehler aufgetreten."
+    },
+    "noVerein": {
+      "title": "Verein auswählen",
+      "message": "Bitte wählen Sie einen Verein im Dashboard aus, um Veranstaltungen anzuzeigen."
+    },
+    "header": {
+      "title": "Veranstaltungen",
+      "stats": "{total} Veranstaltungen • {upcoming} bevorstehend • {past} vergangen"
+    },
+    "search": {
+      "placeholder": "Veranstaltung suchen..."
+    },
+    "filters": {
+      "all": "Alle",
+      "upcoming": "Bevorstehend",
+      "past": "Vergangen"
+    },
+    "status": {
+      "upcoming": "Bevorstehend",
+      "ongoing": "Laufend",
+      "past": "Abgeschlossen"
+    },
+    "card": {
+      "maxParticipants": "Max. {count} Personen",
+      "details": "Details",
+      "register": "Anmelden",
+      "today": "🎉 Heute!",
+      "tomorrow": "⏰ Morgen",
+      "daysLeft": "📅 {days} Tage verbleibend"
+    },
+    "empty": {
+      "title": "Keine Veranstaltung gefunden",
+      "noSearch": "Keine Veranstaltungen entsprechen Ihren Suchkriterien.",
+      "noUpcoming": "Keine bevorstehenden Veranstaltungen.",
+      "noPast": "Keine vergangenen Veranstaltungen.",
+      "noEvents": "Es sind noch keine Veranstaltungen registriert."
+    }
+  }
+}
+

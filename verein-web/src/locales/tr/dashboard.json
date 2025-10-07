@@ -1,0 +1,140 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Dernek yönetim sistemi genel durumu",
+  "systemStatus": {
+    "title": "Sistem Durumu",
+    "connected": "API Bağlı",
+    "disconnected": "API Bağlantısı Yok",
+    "version": "Versiyon",
+    "environment": "Ortam",
+    "database": "Veritabanı",
+    "uptime": "Çalışma Süresi",
+    "checking": "Sistem durumu kontrol ediliyor..."
+  },
+  "statistics": {
+    "title": "İstatistikler",
+    "totalVereine": "Toplam Dernekler",
+    "activeVereine": "Aktif Dernekler",
+    "totalMitglieder": "Toplam Üyeler",
+    "totalVeranstaltungen": "Toplam Etkinlikler"
+  },
+  "quickActions": {
+    "title": "Hızlı İşlemler",
+    "manageVereine": {
+      "title": "Dernekleri Yönet",
+      "description": "Dernek bilgilerini görüntüle ve düzenle"
+    },
+    "manageMitglieder": {
+      "title": "Üyeleri Yönet",
+      "description": "Üye bilgilerini görüntüle ve düzenle"
+    },
+    "manageVeranstaltungen": {
+      "title": "Etkinlikleri Yönet",
+      "description": "Etkinlik bilgilerini görüntüle ve düzenle"
+    },
+    "viewReports": {
+      "title": "Raporları Görüntüle",
+      "description": "Detaylı raporlar ve analizler"
+    }
+  },
+  "errors": {
+    "connectionError": "Bağlantı Hatası",
+    "apiError": "Backend API'ye bağlanılamıyor. Lütfen API'nin çalıştığından emin olun."
+  },
+  "verein": {
+    "loading": "Dashboard yükleniyor...",
+    "header": {
+      "title": "Dashboard",
+      "subtitle": "Hoş geldiniz! Derneğinizi kolayca yönetin ve aktivitelerinizi takip edin."
+    },
+    "overview": {
+      "title": "Genel Bakış",
+      "totalMembers": "Toplam Üye",
+      "activeMembers": "aktif üye",
+      "events": "Etkinlikler",
+      "upcomingEvents": "yaklaşan etkinlik",
+      "thisMonth": "Bu Ay",
+      "newRegistrations": "yeni üye kaydı",
+      "eventActivity": "Etkinlik Aktivitesi",
+      "createdThisMonth": "bu ay oluşturulan"
+    },
+    "quickActions": {
+      "title": "Hızlı İşlemler",
+      "memberManagement": {
+        "title": "Üye Yönetimi",
+        "description": "Üyelerinizi görüntüleyin ve yönetin"
+      },
+      "eventManagement": {
+        "title": "Etkinlik Yönetimi",
+        "description": "Etkinliklerinizi planlayın ve yönetin"
+      },
+      "vereinSettings": {
+        "title": "Dernek Ayarları",
+        "description": "Dernek bilgilerini güncelleyin"
+      },
+      "reports": {
+        "title": "Raporlar",
+        "description": "İstatistikleri ve raporları görüntüleyin"
+      }
+    },
+    "recentActivities": {
+      "title": "Son Aktiviteler",
+      "newMember": "Yeni Üye Kaydı",
+      "memberJoined": "derneğe katıldı",
+      "eventCreated": "Etkinlik Oluşturuldu",
+      "eventAdded": "etkinliği eklendi",
+      "today": "Bugün",
+      "daysAgo": "gün önce",
+      "oneDayAgo": "1 gün önce"
+    }
+  },
+  "mitglied": {
+    "loading": "Dashboard yükleniyor...",
+    "noData": "Üye bilgileri yüklenemedi.",
+    "vereinSelector": {
+      "title": "Dernek Seçin",
+      "subtitle": "Devam etmek için lütfen bir dernek seçin",
+      "placeholder": "Dernek seçiniz...",
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "header": {
+      "welcome": "Hoş Geldiniz",
+      "membershipDate": "Üyelik"
+    },
+    "status": {
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "overview": {
+      "title": "Üyelik Özeti",
+      "myEvents": "Katıldığım Etkinlikler",
+      "upcoming": "yaklaşan",
+      "familyMembers": "Aile Üyeleri",
+      "registeredFamily": "kayıtlı aile üyesi",
+      "membershipDuration": "Üyelik Süresi",
+      "years": "yıl",
+      "monthlyFee": "Aylık Aidat",
+      "currentFee": "güncel aidat"
+    },
+    "quickActions": {
+      "title": "Hızlı İşlemler",
+      "myProfile": {
+        "title": "Profilim",
+        "description": "Kişisel bilgilerinizi görüntüleyin ve düzenleyin"
+      },
+      "events": {
+        "title": "Etkinlikler",
+        "description": "Etkinlikleri görüntüleyin ve kayıt olun"
+      },
+      "myFamily": {
+        "title": "Ailem",
+        "description": "Aile üyelerinizi görüntüleyin"
+      }
+    },
+    "recentActivities": {
+      "title": "Son Aktivitelerim"
+    }
+  }
+}
+

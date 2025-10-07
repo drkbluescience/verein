@@ -1,0 +1,62 @@
+/* Language Switcher Component */
+.language-switcher-component {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.language-switcher-component .lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.language-switcher-component .lang-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.language-switcher-component .lang-btn.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.language-switcher-component .lang-btn.active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Compact Variant */
+.language-switcher-component.compact .lang-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .language-switcher-component {
+    gap: 6px;
+  }
+
+  .language-switcher-component .lang-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
+}
+

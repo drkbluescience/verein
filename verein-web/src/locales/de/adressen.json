@@ -1,0 +1,88 @@
+{
+  "title": "Adressen",
+  "subtitle": "Adressverwaltung",
+  "addAddress": "Adresse hinzufügen",
+  "editAddress": "Adresse bearbeiten",
+  "deleteAddress": "Adresse löschen",
+  "noAddresses": "Noch keine Adressen hinzugefügt",
+  "defaultAddress": "Standardadresse",
+  "setAsDefault": "Als Standard festlegen",
+  "viewOnMap": "Auf Karte anzeigen",
+  
+  "fields": {
+    "strasse": "Straße",
+    "strassePlaceholder": "Straßenname",
+    "hausnummer": "Hausnummer",
+    "hausnummerPlaceholder": "Hausnummer",
+    "adresszusatz": "Adresszusatz",
+    "adresszusatzPlaceholder": "Wohnung, Etage usw.",
+    "plz": "PLZ",
+    "plzPlaceholder": "Postleitzahl",
+    "ort": "Ort",
+    "ortPlaceholder": "Ortsname",
+    "stadtteil": "Stadtteil",
+    "stadtteilPlaceholder": "Stadtteilname",
+    "bundesland": "Bundesland",
+    "bundeslandPlaceholder": "Bundeslandname",
+    "land": "Land",
+    "landPlaceholder": "Ländername",
+    "postfach": "Postfach",
+    "postfachPlaceholder": "Postfachnummer",
+    "telefonnummer": "Telefon",
+    "telefonnummerPlaceholder": "+49 XXX XXX XX XX",
+    "faxnummer": "Fax",
+    "faxnummerPlaceholder": "+49 XXX XXX XX XX",
+    "email": "E-Mail",
+    "emailPlaceholder": "beispiel@email.com",
+    "kontaktperson": "Kontaktperson",
+    "kontaktpersonPlaceholder": "Name der Kontaktperson",
+    "hinweis": "Hinweis",
+    "hinweisPlaceholder": "Notizen zur Adresse",
+    "gueltigVon": "Gültig von",
+    "gueltigBis": "Gültig bis",
+    "istStandard": "Standardadresse",
+    "aktiv": "Aktiv"
+  },
+  
+  "sections": {
+    "basicInfo": "Grundinformationen",
+    "contactInfo": "Kontaktinformationen",
+    "additionalInfo": "Zusätzliche Informationen",
+    "location": "Standortinformationen"
+  },
+  
+  "messages": {
+    "createSuccess": "Adresse erfolgreich hinzugefügt",
+    "updateSuccess": "Adresse erfolgreich aktualisiert",
+    "deleteSuccess": "Adresse erfolgreich gelöscht",
+    "setDefaultSuccess": "Standardadresse festgelegt"
+  },
+  
+  "errors": {
+    "loadFailed": "Adressen konnten nicht geladen werden",
+    "createFailed": "Adresse konnte nicht hinzugefügt werden",
+    "updateFailed": "Adresse konnte nicht aktualisiert werden",
+    "deleteFailed": "Adresse konnte nicht gelöscht werden",
+    "strasseRequired": "Straßenname ist erforderlich",
+    "plzRequired": "Postleitzahl ist erforderlich",
+    "ortRequired": "Ortsname ist erforderlich",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "invalidPhone": "Ungültige Telefonnummer"
+  },
+  
+  "confirmations": {
+    "deleteTitle": "Adresse löschen",
+    "deleteMessage": "Sind Sie sicher, dass Sie diese Adresse löschen möchten?",
+    "deleteConfirm": "Ja, löschen",
+    "deleteCancel": "Abbrechen"
+  },
+  
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "default": "Standard",
+    "valid": "Gültig",
+    "expired": "Abgelaufen"
+  }
+}
+

@@ -121,7 +121,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:3001", "https://localhost:3001") // Add your frontend URLs
+        policy.WithOrigins(
+                "http://localhost:3000", "https://localhost:3000",
+                "http://localhost:3001", "https://localhost:3001",
+                "http://localhost:3002", "https://localhost:3002") // Add your frontend URLs
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -184,7 +187,10 @@ if (app.Environment.IsDevelopment())
         // Ensure database is created
         await context.Database.EnsureCreatedAsync();
 
-        Log.Information("Database initialized successfully");
+        // Seed test data
+        await SeedData.SeedAsync(context);
+
+        Log.Information("Database initialized and seeded successfully");
     }
     catch (Exception ex)
     {

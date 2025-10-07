@@ -1,0 +1,153 @@
+{
+  "title": "Veranstaltungen",
+  "subtitle": "Veranstaltungsliste und Verwaltung",
+  "list": {
+    "title": "Veranstaltungsliste",
+    "empty": "Es sind noch keine Veranstaltungen vorhanden",
+    "search": "Veranstaltung suchen...",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "upcoming": "Bevorstehende Veranstaltungen",
+    "past": "Vergangene Veranstaltungen",
+    "all": "Alle Veranstaltungen"
+  },
+  "detail": {
+    "title": "Veranstaltungsdetails",
+    "info": "Veranstaltungsinformationen",
+    "participants": "Teilnehmer",
+    "location": "Ort",
+    "schedule": "Programm",
+    "description": "Beschreibung"
+  },
+  "form": {
+    "create": "Neue Veranstaltung hinzufügen",
+    "edit": "Veranstaltung bearbeiten",
+    "name": "Veranstaltungsname",
+    "description": "Beschreibung",
+    "date": "Datum",
+    "startTime": "Startzeit",
+    "endTime": "Endzeit",
+    "location": "Ort",
+    "capacity": "Kapazität",
+    "status": "Status",
+    "category": "Kategorie"
+  },
+  "actions": {
+    "add": "Veranstaltung hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen",
+    "register": "Anmelden",
+    "unregister": "Abmelden",
+    "export": "Exportieren"
+  },
+  "messages": {
+    "createSuccess": "Veranstaltung erfolgreich erstellt",
+    "updateSuccess": "Veranstaltung erfolgreich aktualisiert",
+    "deleteSuccess": "Veranstaltung erfolgreich gelöscht",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diese Veranstaltung löschen möchten?",
+    "registerSuccess": "Erfolgreich für die Veranstaltung angemeldet",
+    "unregisterSuccess": "Veranstaltungsanmeldung abgebrochen",
+    "error": "Ein Fehler ist während des Vorgangs aufgetreten"
+  },
+  "listPage": {
+    "loading": "Veranstaltungen werden geladen...",
+    "error": {
+      "title": "Fehler beim Laden der Daten",
+      "message": "Beim Laden der Veranstaltungen ist ein Fehler aufgetreten."
+    },
+    "accessDenied": {
+      "title": "Zugriff verweigert",
+      "message": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen."
+    },
+    "header": {
+      "title": "Veranstaltungen",
+      "subtitleAdmin": "Alle Veranstaltungen verwalten",
+      "subtitleDernek": "Veranstaltungen Ihres Vereins verwalten"
+    },
+    "search": {
+      "placeholder": "Veranstaltung suchen..."
+    },
+    "actions": {
+      "newEvent": "Neue Veranstaltung",
+      "addFirstEvent": "Erste Veranstaltung hinzufügen"
+    },
+    "filters": {
+      "all": "Alle",
+      "upcoming": "Bevorstehend",
+      "past": "Vergangen"
+    },
+    "status": {
+      "upcoming": "Bevorstehend",
+      "ongoing": "Laufend",
+      "past": "Abgeschlossen"
+    },
+    "card": {
+      "maxParticipants": "Max. {count} Personen",
+      "details": "Details",
+      "register": "Anmelden",
+      "today": "🎉 Heute!",
+      "tomorrow": "⏰ Morgen",
+      "daysLeft": "📅 {days} Tage verbleibend"
+    },
+    "empty": {
+      "title": "Keine Veranstaltung gefunden",
+      "noSearch": "Keine Veranstaltungen entsprechen Ihren Suchkriterien.",
+      "noEvents": "Es wurden noch keine Veranstaltungen hinzugefügt."
+    }
+  },
+  "detailPage": {
+    "loading": "Veranstaltungsdetails werden geladen...",
+    "error": {
+      "title": "Veranstaltung nicht gefunden",
+      "message": "Die gesuchte Veranstaltung wurde nicht gefunden oder Sie haben keine Zugriffsberechtigung."
+    },
+    "accessDenied": {
+      "title": "Zugriff verweigert",
+      "message": "Sie haben keine Berechtigung, die Details dieser Veranstaltung anzuzeigen.",
+      "backButton": "Zurück zur Veranstaltungsliste"
+    },
+    "back": "Zurück zu Veranstaltungen",
+    "countdown": {
+      "today": "Heute!",
+      "tomorrow": "Morgen",
+      "daysLeft": "{days} Tage verbleibend"
+    },
+    "sections": {
+      "eventInfo": "Veranstaltungsinformationen",
+      "description": "Beschreibung",
+      "notes": "Notizen",
+      "participants": "Teilnehmer"
+    },
+    "fields": {
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "location": "Ort",
+      "participants": "Teilnehmer",
+      "fee": "Gebühr",
+      "registrationDeadline": "Anmeldeschluss"
+    },
+    "actions": {
+      "getReport": "Bericht erstellen",
+      "addParticipant": "Teilnehmer hinzufügen",
+      "edit": "Bearbeiten",
+      "copy": "Kopieren",
+      "delete": "Löschen"
+    },
+    "participantsError": {
+      "title": "Teilnehmerliste konnte nicht geladen werden",
+      "message": "Beim Laden der Teilnehmerinformationen ist ein Fehler aufgetreten."
+    },
+    "emptyParticipants": {
+      "title": "Noch keine Teilnehmer",
+      "message": "Für diese Veranstaltung hat sich noch niemand angemeldet.",
+      "addButton": "Ersten Teilnehmer hinzufügen"
+    },
+    "anmeldung": {
+      "registeredOn": "Anmeldedatum",
+      "participants": "Teilnehmerzahl",
+      "person": "Person"
+    }
+  }
+}
+

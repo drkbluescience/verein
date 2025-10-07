@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "Vereinsverwaltungssystem",
+    "title": "Verein"
+  },
+  "navigation": {
+    "dashboard": "Startseite",
+    "vereine": "Vereine",
+    "mitglieder": "Mitglieder",
+    "veranstaltungen": "Veranstaltungen",
+    "reports": "Berichte",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "etkinlikler": "Meine Veranstaltungen",
+    "ailem": "Meine Familie"
+  },
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "reset": "Zurücksetzen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "submit": "Absenden",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "view": "Anzeigen",
+    "download": "Herunterladen",
+    "upload": "Hochladen",
+    "refresh": "Aktualisieren"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "pending": "Ausstehend",
+    "completed": "Abgeschlossen",
+    "cancelled": "Abgebrochen",
+    "loading": "Wird geladen...",
+    "saving": "Wird gespeichert...",
+    "success": "Erfolgreich",
+    "error": "Fehler",
+    "warning": "Warnung",
+    "info": "Information",
+    "comingSoon": "Demnächst..."
+  },
+  "messages": {
+    "success": "Vorgang erfolgreich abgeschlossen",
+    "error": "Ein Fehler ist aufgetreten",
+    "confirmDelete": "Sind Sie sicher, dass Sie löschen möchten?",
+    "noData": "Keine Daten gefunden",
+    "comingSoon": "Demnächst"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "minLength": "Muss mindestens {{count}} Zeichen lang sein",
+    "maxLength": "Darf maximal {{count}} Zeichen lang sein",
+    "invalidFormat": "Ungültiges Format"
+  },
+  "date": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "tomorrow": "Morgen",
+    "thisWeek": "Diese Woche",
+    "thisMonth": "Dieser Monat",
+    "thisYear": "Dieses Jahr"
+  },
+  "language": {
+    "select": "Sprache wählen",
+    "turkish": "Türkisch",
+    "german": "Deutsch",
+    "tr": "TR",
+    "de": "DE"
+  }
+}
+

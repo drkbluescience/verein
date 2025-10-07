@@ -1,0 +1,140 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Allgemeiner Status des Vereinsverwaltungssystems",
+  "systemStatus": {
+    "title": "Systemstatus",
+    "connected": "API verbunden",
+    "disconnected": "Keine API-Verbindung",
+    "version": "Version",
+    "environment": "Umgebung",
+    "database": "Datenbank",
+    "uptime": "Betriebszeit",
+    "checking": "Systemstatus wird überprüft..."
+  },
+  "statistics": {
+    "title": "Statistiken",
+    "totalVereine": "Vereine gesamt",
+    "activeVereine": "Aktive Vereine",
+    "totalMitglieder": "Mitglieder gesamt",
+    "totalVeranstaltungen": "Veranstaltungen gesamt"
+  },
+  "quickActions": {
+    "title": "Schnellaktionen",
+    "manageVereine": {
+      "title": "Vereine verwalten",
+      "description": "Vereinsinformationen anzeigen und bearbeiten"
+    },
+    "manageMitglieder": {
+      "title": "Mitglieder verwalten",
+      "description": "Mitgliederinformationen anzeigen und bearbeiten"
+    },
+    "manageVeranstaltungen": {
+      "title": "Veranstaltungen verwalten",
+      "description": "Veranstaltungsinformationen anzeigen und bearbeiten"
+    },
+    "viewReports": {
+      "title": "Berichte anzeigen",
+      "description": "Detaillierte Berichte und Analysen"
+    }
+  },
+  "errors": {
+    "connectionError": "Verbindungsfehler",
+    "apiError": "Verbindung zum Backend-API nicht möglich. Bitte stellen Sie sicher, dass die API läuft."
+  },
+  "verein": {
+    "loading": "Dashboard wird geladen...",
+    "header": {
+      "title": "Dashboard",
+      "subtitle": "Willkommen! Verwalten Sie Ihren Verein einfach und verfolgen Sie Ihre Aktivitäten."
+    },
+    "overview": {
+      "title": "Übersicht",
+      "totalMembers": "Mitglieder gesamt",
+      "activeMembers": "aktive Mitglieder",
+      "events": "Veranstaltungen",
+      "upcomingEvents": "bevorstehende Veranstaltungen",
+      "thisMonth": "Diesen Monat",
+      "newRegistrations": "neue Mitgliederregistrierungen",
+      "eventActivity": "Veranstaltungsaktivität",
+      "createdThisMonth": "diesen Monat erstellt"
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "memberManagement": {
+        "title": "Mitgliederverwaltung",
+        "description": "Mitglieder anzeigen und verwalten"
+      },
+      "eventManagement": {
+        "title": "Veranstaltungsverwaltung",
+        "description": "Veranstaltungen planen und verwalten"
+      },
+      "vereinSettings": {
+        "title": "Vereinseinstellungen",
+        "description": "Vereinsinformationen aktualisieren"
+      },
+      "reports": {
+        "title": "Berichte",
+        "description": "Statistiken und Berichte anzeigen"
+      }
+    },
+    "recentActivities": {
+      "title": "Letzte Aktivitäten",
+      "newMember": "Neue Mitgliederregistrierung",
+      "memberJoined": "ist dem Verein beigetreten",
+      "eventCreated": "Veranstaltung erstellt",
+      "eventAdded": "Veranstaltung hinzugefügt",
+      "today": "Heute",
+      "daysAgo": "Tage her",
+      "oneDayAgo": "1 Tag her"
+    }
+  },
+  "mitglied": {
+    "loading": "Dashboard wird geladen...",
+    "noData": "Mitgliederdaten konnten nicht geladen werden.",
+    "vereinSelector": {
+      "title": "Verein auswählen",
+      "subtitle": "Bitte wählen Sie einen Verein aus, um fortzufahren",
+      "placeholder": "Verein auswählen...",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "header": {
+      "welcome": "Willkommen",
+      "membershipDate": "Mitgliedschaft"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "overview": {
+      "title": "Mitgliedschaftsübersicht",
+      "myEvents": "Meine Veranstaltungen",
+      "upcoming": "bevorstehend",
+      "familyMembers": "Familienmitglieder",
+      "registeredFamily": "registrierte Familienmitglieder",
+      "membershipDuration": "Mitgliedschaftsdauer",
+      "years": "Jahre",
+      "monthlyFee": "Monatlicher Beitrag",
+      "currentFee": "aktueller Beitrag"
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "myProfile": {
+        "title": "Mein Profil",
+        "description": "Persönliche Informationen anzeigen und bearbeiten"
+      },
+      "events": {
+        "title": "Veranstaltungen",
+        "description": "Veranstaltungen anzeigen und anmelden"
+      },
+      "myFamily": {
+        "title": "Meine Familie",
+        "description": "Familienmitglieder anzeigen"
+      }
+    },
+    "recentActivities": {
+      "title": "Meine letzten Aktivitäten"
+    }
+  }
+}
+

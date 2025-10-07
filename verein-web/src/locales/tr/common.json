@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "Verein Yönetim Sistemi",
+    "title": "Verein"
+  },
+  "navigation": {
+    "dashboard": "Ana Sayfa",
+    "vereine": "Dernekler",
+    "mitglieder": "Üyeler",
+    "veranstaltungen": "Etkinlikler",
+    "reports": "Raporlar",
+    "settings": "Ayarlar",
+    "profile": "Profil",
+    "logout": "Çıkış Yap",
+    "etkinlikler": "Etkinliklerim",
+    "ailem": "Ailem"
+  },
+  "actions": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "add": "Ekle",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "reset": "Sıfırla",
+    "back": "Geri",
+    "next": "İleri",
+    "submit": "Gönder",
+    "close": "Kapat",
+    "confirm": "Onayla",
+    "view": "Görüntüle",
+    "download": "İndir",
+    "upload": "Yükle",
+    "refresh": "Yenile"
+  },
+  "status": {
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "pending": "Beklemede",
+    "completed": "Tamamlandı",
+    "cancelled": "İptal Edildi",
+    "loading": "Yükleniyor...",
+    "saving": "Kaydediliyor...",
+    "success": "Başarılı",
+    "error": "Hata",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "comingSoon": "Yakında..."
+  },
+  "messages": {
+    "success": "İşlem başarıyla tamamlandı",
+    "error": "Bir hata oluştu",
+    "confirmDelete": "Silmek istediğinizden emin misiniz?",
+    "noData": "Veri bulunamadı",
+    "comingSoon": "Yakında"
+  },
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "email": "Geçerli bir e-posta adresi giriniz",
+    "minLength": "En az {{count}} karakter olmalıdır",
+    "maxLength": "En fazla {{count}} karakter olmalıdır",
+    "invalidFormat": "Geçersiz format"
+  },
+  "date": {
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "tomorrow": "Yarın",
+    "thisWeek": "Bu Hafta",
+    "thisMonth": "Bu Ay",
+    "thisYear": "Bu Yıl"
+  },
+  "language": {
+    "select": "Dil Seçin",
+    "turkish": "Türkçe",
+    "german": "Almanca",
+    "tr": "TR",
+    "de": "DE"
+  }
+}
+

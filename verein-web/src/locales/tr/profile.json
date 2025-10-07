@@ -1,0 +1,59 @@
+{
+  "title": "Profilim",
+  "subtitle": "Kişisel bilgilerinizi görüntüleyin ve yönetin",
+  "userTypes": {
+    "admin": "Sistem Yöneticisi",
+    "dernek": "Dernek Yöneticisi",
+    "mitglied": "Üye",
+    "default": "Kullanıcı"
+  },
+  "personalInfo": {
+    "title": "Kişisel Bilgiler",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "name": "Ad Soyad",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "address": "Adres",
+    "birthDate": "Doğum Tarihi",
+    "memberNumber": "Üyelik Numarası"
+  },
+  "accountInfo": {
+    "title": "Hesap Bilgileri",
+    "username": "Kullanıcı Adı",
+    "userType": "Kullanıcı Tipi",
+    "accountType": "Hesap Tipi",
+    "accountStatus": "Hesap Durumu",
+    "vereinId": "Dernek ID",
+    "memberSince": "Kayıt Tarihi",
+    "lastLogin": "Son Giriş",
+    "now": "Şimdi"
+  },
+  "status": {
+    "active": "● Aktif",
+    "inactive": "● Pasif"
+  },
+  "security": {
+    "title": "Güvenlik",
+    "changePassword": "Şifre Değiştir",
+    "currentPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "confirmPassword": "Şifre Tekrar"
+  },
+  "actions": {
+    "edit": "Düzenle",
+    "save": "Kaydet",
+    "cancel": "İptal"
+  },
+  "messages": {
+    "updateSuccess": "Profil başarıyla güncellendi",
+    "updateError": "Profil güncellenirken hata oluştu",
+    "passwordChangeSuccess": "Şifre başarıyla değiştirildi",
+    "passwordChangeError": "Şifre değiştirilirken hata oluştu",
+    "infoMessage": "💡 Bilgilerinizi güncellemek için <strong>Düzenle</strong> butonuna tıklayın."
+  },
+  "placeholders": {
+    "notAvailable": "-"
+  }
+}
+

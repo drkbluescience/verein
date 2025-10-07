@@ -1,0 +1,153 @@
+{
+  "title": "Etkinlikler",
+  "subtitle": "Etkinlik listesi ve yönetimi",
+  "list": {
+    "title": "Etkinlik Listesi",
+    "empty": "Henüz etkinlik bulunmamaktadır",
+    "search": "Etkinlik ara...",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "upcoming": "Yaklaşan Etkinlikler",
+    "past": "Geçmiş Etkinlikler",
+    "all": "Tüm Etkinlikler"
+  },
+  "detail": {
+    "title": "Etkinlik Detayları",
+    "info": "Etkinlik Bilgileri",
+    "participants": "Katılımcılar",
+    "location": "Konum",
+    "schedule": "Program",
+    "description": "Açıklama"
+  },
+  "form": {
+    "create": "Yeni Etkinlik Ekle",
+    "edit": "Etkinlik Düzenle",
+    "name": "Etkinlik Adı",
+    "description": "Açıklama",
+    "date": "Tarih",
+    "startTime": "Başlangıç Saati",
+    "endTime": "Bitiş Saati",
+    "location": "Konum",
+    "capacity": "Kapasite",
+    "status": "Durum",
+    "category": "Kategori"
+  },
+  "actions": {
+    "add": "Etkinlik Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "view": "Görüntüle",
+    "register": "Kayıt Ol",
+    "unregister": "Kaydı İptal Et",
+    "export": "Dışa Aktar"
+  },
+  "messages": {
+    "createSuccess": "Etkinlik başarıyla oluşturuldu",
+    "updateSuccess": "Etkinlik başarıyla güncellendi",
+    "deleteSuccess": "Etkinlik başarıyla silindi",
+    "deleteConfirm": "Bu etkinliği silmek istediğinizden emin misiniz?",
+    "registerSuccess": "Etkinliğe başarıyla kayıt oldunuz",
+    "unregisterSuccess": "Etkinlik kaydınız iptal edildi",
+    "error": "İşlem sırasında bir hata oluştu"
+  },
+  "listPage": {
+    "loading": "Etkinlikler yükleniyor...",
+    "error": {
+      "title": "Veri Yükleme Hatası",
+      "message": "Etkinlikler yüklenirken bir hata oluştu."
+    },
+    "accessDenied": {
+      "title": "Erişim Reddedildi",
+      "message": "Bu sayfaya erişim yetkiniz bulunmamaktadır."
+    },
+    "header": {
+      "title": "Etkinlikler",
+      "subtitleAdmin": "Tüm etkinlikleri yönetin",
+      "subtitleDernek": "Derneğinizin etkinliklerini yönetin"
+    },
+    "search": {
+      "placeholder": "Etkinlik ara..."
+    },
+    "actions": {
+      "newEvent": "Yeni Etkinlik",
+      "addFirstEvent": "İlk Etkinliği Ekle"
+    },
+    "filters": {
+      "all": "Tümü",
+      "upcoming": "Yaklaşan",
+      "past": "Geçmiş"
+    },
+    "status": {
+      "upcoming": "Yaklaşan",
+      "ongoing": "Devam Ediyor",
+      "past": "Tamamlandı"
+    },
+    "card": {
+      "maxParticipants": "Max {count} kişi",
+      "details": "Detaylar",
+      "register": "Kayıt Ol",
+      "today": "🎉 Bugün!",
+      "tomorrow": "⏰ Yarın",
+      "daysLeft": "📅 {days} gün kaldı"
+    },
+    "empty": {
+      "title": "Etkinlik Bulunamadı",
+      "noSearch": "Arama kriterlerinize uygun etkinlik bulunamadı.",
+      "noEvents": "Henüz hiç etkinlik eklenmemiş."
+    }
+  },
+  "detailPage": {
+    "loading": "Etkinlik detayları yükleniyor...",
+    "error": {
+      "title": "Etkinlik Bulunamadı",
+      "message": "Aradığınız etkinlik bulunamadı veya erişim yetkiniz bulunmamaktadır."
+    },
+    "accessDenied": {
+      "title": "Erişim Reddedildi",
+      "message": "Bu etkinliğin detaylarını görme yetkiniz bulunmamaktadır.",
+      "backButton": "Etkinlik Listesine Dön"
+    },
+    "back": "Etkinliklere Dön",
+    "countdown": {
+      "today": "Bugün!",
+      "tomorrow": "Yarın",
+      "daysLeft": "{days} gün kaldı"
+    },
+    "sections": {
+      "eventInfo": "Etkinlik Bilgileri",
+      "description": "Açıklama",
+      "notes": "Notlar",
+      "participants": "Katılımcılar"
+    },
+    "fields": {
+      "date": "Tarih",
+      "time": "Saat",
+      "location": "Yer",
+      "participants": "Katılımcılar",
+      "fee": "Ücret",
+      "registrationDeadline": "Kayıt Sonu"
+    },
+    "actions": {
+      "getReport": "Rapor Al",
+      "addParticipant": "Katılımcı Ekle",
+      "edit": "Düzenle",
+      "copy": "Kopyala",
+      "delete": "Sil"
+    },
+    "participantsError": {
+      "title": "Katılımcı Listesi Yüklenemedi",
+      "message": "Katılımcı bilgileri yüklenirken bir hata oluştu."
+    },
+    "emptyParticipants": {
+      "title": "Henüz Katılımcı Yok",
+      "message": "Bu etkinliğe henüz kimse kayıt olmamış.",
+      "addButton": "İlk Katılımcıyı Ekle"
+    },
+    "anmeldung": {
+      "registeredOn": "Kayıt Tarihi",
+      "participants": "Katılımcı Sayısı",
+      "person": "kişi"
+    }
+  }
+}
+

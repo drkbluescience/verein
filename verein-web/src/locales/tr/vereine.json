@@ -1,0 +1,89 @@
+{
+  "title": "Dernekler",
+  "subtitle": "Tüm dernekleri görüntüle ve yönet",
+  "list": {
+    "title": "Dernek Listesi",
+    "empty": "Henüz dernek bulunmamaktadır",
+    "search": "Dernek ara (isim, numara, email)...",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "showActiveOnly": "Sadece Aktif",
+    "newVerein": "Yeni Dernek",
+    "notFound": "Dernek Bulunamadı",
+    "noResults": "Arama kriterlerinize uygun dernek bulunamadı.",
+    "noData": "Henüz hiç dernek eklenmemiş.",
+    "addFirst": "İlk Derneği Ekle",
+    "loading": "Dernekler yükleniyor...",
+    "loadError": "Veri Yükleme Hatası",
+    "loadErrorMessage": "Dernekler yüklenirken bir hata oluştu."
+  },
+  "stats": {
+    "total": "Toplam",
+    "active": "Aktif",
+    "showing": "Gösterilen"
+  },
+  "card": {
+    "number": "Numara",
+    "email": "Email",
+    "phone": "Telefon",
+    "address": "Adres",
+    "founded": "Kuruluş",
+    "statusActive": "● Aktif",
+    "statusInactive": "○ Pasif",
+    "president": "Başkan",
+    "website": "Website"
+  },
+  "detail": {
+    "title": "Dernek Detayları",
+    "info": "Dernek Bilgileri",
+    "members": "Üyeler",
+    "events": "Etkinlikler",
+    "statistics": "İstatistikler"
+  },
+  "form": {
+    "create": "Yeni Dernek Ekle",
+    "edit": "Dernek Düzenle",
+    "name": "Dernek Adı",
+    "description": "Açıklama",
+    "address": "Adres",
+    "phone": "Telefon",
+    "email": "E-posta",
+    "website": "Web Sitesi",
+    "foundedDate": "Kuruluş Tarihi",
+    "status": "Durum"
+  },
+  "actions": {
+    "add": "Dernek Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "view": "Görüntüle",
+    "details": "Detaylar",
+    "export": "Dışa Aktar"
+  },
+  "messages": {
+    "createSuccess": "Dernek başarıyla oluşturuldu",
+    "updateSuccess": "Dernek başarıyla güncellendi",
+    "deleteSuccess": "Dernek başarıyla silindi",
+    "deleteConfirm": "Bu derneği silmek istediğinizden emin misiniz?",
+    "error": "İşlem sırasında bir hata oluştu"
+  },
+  "tabs": {
+    "info": "Bilgiler",
+    "adressen": "Adresler",
+    "mitglieder": "Üyeler"
+  },
+  "fields": {
+    "email": "E-posta",
+    "telefon": "Telefon",
+    "webseite": "Web Sitesi",
+    "vorstandsvorsitzender": "Başkan",
+    "kontaktperson": "İletişim Kişisi",
+    "gruendungsdatum": "Kuruluş Tarihi",
+    "zweck": "Amaç"
+  },
+  "errors": {
+    "loadFailed": "Dernek yüklenemedi",
+    "vereinNotFound": "Dernek bulunamadı"
+  }
+}
+

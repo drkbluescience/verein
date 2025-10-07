@@ -1,0 +1,44 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Verwalten Sie Ihre Anwendungseinstellungen",
+  "actions": {
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "reset": "Zurücksetzen"
+  },
+  "messages": {
+    "saveSuccess": "Einstellungen erfolgreich gespeichert!",
+    "saveError": "Fehler beim Speichern der Einstellungen.",
+    "resetSuccess": "Einstellungen auf Standardwerte zurückgesetzt."
+  },
+  "sections": {
+    "appearance": {
+      "title": "Erscheinungsbild",
+      "theme": {
+        "label": "Design",
+        "description": "Wählen Sie das Farbschema der Anwendung",
+        "dark": "Dunkles Design",
+        "light": "Helles Design"
+      },
+      "compactMode": {
+        "label": "Kompaktmodus",
+        "description": "Aktivieren für eine kompaktere Benutzeroberfläche"
+      }
+    },
+    "language": {
+      "title": "Sprache und Region",
+      "label": "Sprache",
+      "description": "Wählen Sie die Anwendungssprache",
+      "options": {
+        "tr": "Türkçe",
+        "de": "Deutsch"
+      }
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "label": "Benachrichtigungen",
+      "description": "Systembenachrichtigungen aktivieren"
+    }
+  }
+}
+

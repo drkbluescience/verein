@@ -1,0 +1,179 @@
+{
+  "title": "Üyeler",
+  "subtitle": "Üye listesi ve yönetimi",
+  "list": {
+    "title": "Üye Listesi",
+    "empty": "Henüz üye bulunmamaktadır",
+    "search": "Üye ara...",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "totalMembers": "Toplam Üye"
+  },
+  "detail": {
+    "title": "Üye Detayları",
+    "personalInfo": "Kişisel Bilgiler",
+    "contactInfo": "İletişim Bilgileri",
+    "membershipInfo": "Üyelik Bilgileri",
+    "events": "Katıldığı Etkinlikler",
+    "family": "Aile Üyeleri"
+  },
+  "form": {
+    "create": "Yeni Üye Ekle",
+    "edit": "Üye Düzenle",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "address": "Adres",
+    "birthDate": "Doğum Tarihi",
+    "membershipDate": "Üyelik Tarihi",
+    "membershipNumber": "Üyelik Numarası",
+    "status": "Durum",
+    "notes": "Notlar"
+  },
+  "actions": {
+    "add": "Üye Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "view": "Görüntüle",
+    "export": "Dışa Aktar",
+    "sendEmail": "E-posta Gönder"
+  },
+  "messages": {
+    "createSuccess": "Üye başarıyla oluşturuldu",
+    "updateSuccess": "Üye başarıyla güncellendi",
+    "deleteSuccess": "Üye başarıyla silindi",
+    "deleteConfirm": "Bu üyeyi silmek istediğinizden emin misiniz?",
+    "error": "İşlem sırasında bir hata oluştu"
+  },
+  "listPage": {
+    "loading": "Üyeler yükleniyor...",
+    "error": {
+      "title": "Veri Yükleme Hatası",
+      "message": "Üye bilgileri yüklenirken bir hata oluştu."
+    },
+    "header": {
+      "titleAll": "Tüm Üyeler",
+      "titleOur": "Üyelerimiz",
+      "stats": "üye • {active} aktif • {inactive} pasif"
+    },
+    "search": {
+      "placeholder": "Üye ara (ad, soyad, üye no, email)..."
+    },
+    "actions": {
+      "newMember": "Yeni Üye"
+    },
+    "filters": {
+      "all": "Tümü",
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "empty": {
+      "title": "Üye Bulunamadı",
+      "noSearch": "Arama kriterlerinize uygun üye bulunamadı.",
+      "noMembers": "Henüz kayıtlı üye bulunmuyor."
+    },
+    "card": {
+      "age": "yaşında",
+      "membership": "Üyelik",
+      "view": "Görüntüle",
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "pagination": {
+      "previous": "← Önceki",
+      "next": "Sonraki →",
+      "page": "Sayfa {current} / {total}"
+    }
+  },
+  "detailPage": {
+    "loading": "Üye bilgileri yükleniyor...",
+    "error": "Üye bilgileri yüklenirken bir hata oluştu.",
+    "back": "Üyelere Dön",
+    "memberNumber": "Üye No",
+    "actions": {
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "editProfile": "Profil Düzenle"
+    },
+    "sections": {
+      "personalInfo": "Kişisel Bilgiler",
+      "contactInfo": "İletişim Bilgileri",
+      "membershipInfo": "Üyelik Bilgileri",
+      "addressInfo": "Adres Bilgileri",
+      "familyMembers": "Aile Üyeleri",
+      "notes": "Notlar"
+    },
+    "fields": {
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "birthDate": "Doğum Tarihi",
+      "age": "Yaş",
+      "birthPlace": "Doğum Yeri",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "mobile": "Mobil Telefon",
+      "verein": "Dernek",
+      "memberNumber": "Üye Numarası",
+      "joinDate": "Giriş Tarihi",
+      "membershipDuration": "Üyelik Süresi",
+      "exitDate": "Çıkış Tarihi",
+      "feeAmount": "Aidat Miktarı",
+      "notSpecified": "Belirtilmemiş",
+      "loading": "Yükleniyor...",
+      "unknown": "Bilinmiyor"
+    },
+    "address": {
+      "title": "Adres",
+      "default": "Varsayılan"
+    },
+    "family": {
+      "relation": "Aile İlişkisi",
+      "relationId": "İlişki ID"
+    }
+  },
+  "eventsPage": {
+    "loading": "Etkinlikler yükleniyor...",
+    "error": {
+      "title": "Veri Yükleme Hatası",
+      "message": "Etkinlikler yüklenirken bir hata oluştu."
+    },
+    "noVerein": {
+      "title": "Dernek Seçin",
+      "message": "Etkinlikleri görüntülemek için lütfen dashboard'dan bir dernek seçin."
+    },
+    "header": {
+      "title": "Etkinlikler",
+      "stats": "{total} etkinlik • {upcoming} yaklaşan • {past} geçmiş"
+    },
+    "search": {
+      "placeholder": "Etkinlik ara..."
+    },
+    "filters": {
+      "all": "Tümü",
+      "upcoming": "Yaklaşan",
+      "past": "Geçmiş"
+    },
+    "status": {
+      "upcoming": "Yaklaşan",
+      "ongoing": "Devam Ediyor",
+      "past": "Tamamlandı"
+    },
+    "card": {
+      "maxParticipants": "Max {count} kişi",
+      "details": "Detaylar",
+      "register": "Kayıt Ol",
+      "today": "🎉 Bugün!",
+      "tomorrow": "⏰ Yarın",
+      "daysLeft": "📅 {days} gün kaldı"
+    },
+    "empty": {
+      "title": "Etkinlik Bulunamadı",
+      "noSearch": "Arama kriterlerinize uygun etkinlik bulunamadı.",
+      "noUpcoming": "Yaklaşan etkinlik bulunmuyor.",
+      "noPast": "Geçmiş etkinlik bulunmuyor.",
+      "noEvents": "Henüz kayıtlı etkinlik bulunmuyor."
+    }
+  }
+}
+

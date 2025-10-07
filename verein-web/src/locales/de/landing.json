@@ -1,0 +1,51 @@
+{
+  "hero": {
+    "title": "Vereinsverwaltung <span class='highlight'>vereinfachen</span>",
+    "subtitle": "Eine professionelle Plattform für Vereine, Mitglieder und Administratoren. Organisieren Sie Ihre Veranstaltungen, verwalten Sie Ihre Mitglieder und bauen Sie starke Gemeinschaften auf.",
+    "getStarted": "Jetzt starten",
+    "learnMore": "Mehr erfahren",
+    "modernManagement": "Moderne Verwaltung",
+    "allInOne": "Alle Vereinsangelegenheiten auf einer Plattform"
+  },
+  "features": {
+    "title": "Spezielles Design für jede Rolle",
+    "subtitle": "Ob Mitglied, Vereinsverwalter oder Systemadministrator - wir bieten Ihnen maßgeschneiderte Tools für Ihre Bedürfnisse.",
+    "admin": {
+      "title": "Für Administratoren",
+      "description": "Vollständige Kontrolle und leistungsstarke Verwaltungstools im gesamten System",
+      "features": [
+        "Alle Vereine verwalten",
+        "Veranstaltungen und Mitglieder überwachen",
+        "Systemweite Berichte und Analysen"
+      ]
+    },
+    "verein": {
+      "title": "Für Vereine",
+      "description": "Verwalten Sie Ihre Mitglieder, erstellen Sie Veranstaltungen und lassen Sie Ihren Verein wachsen",
+      "features": [
+        "Mitglieder organisieren und verwalten",
+        "Veranstaltungen erstellen und planen",
+        "Teilnahmeanalysen anzeigen"
+      ]
+    },
+    "member": {
+      "title": "Für Mitglieder",
+      "description": "Treten Sie Vereinen bei, melden Sie sich für Veranstaltungen an und bleiben Sie mit Ihrer Gemeinschaft verbunden",
+      "features": [
+        "Vereine durchsuchen und beitreten",
+        "Für bevorstehende Veranstaltungen anmelden",
+        "Ihre Mitgliedschaften verfolgen"
+      ]
+    }
+  },
+  "cta": {
+    "title": "Bereit anzufangen?",
+    "subtitle": "Tausende von Vereinen und Mitgliedern verwalten bereits ihre Gemeinschaften mit unserer Plattform. Werden Sie Teil davon!",
+    "button": "Konto erstellen"
+  },
+  "footer": {
+    "copyright": "© 2025 Qubbe - Vereinsverwaltungssystem",
+    "version": "v1.0.0"
+  }
+}
+

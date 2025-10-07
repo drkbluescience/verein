@@ -1,0 +1,59 @@
+{
+  "title": "Mein Profil",
+  "subtitle": "Zeigen Sie Ihre persönlichen Informationen an und verwalten Sie sie",
+  "userTypes": {
+    "admin": "Systemadministrator",
+    "dernek": "Vereinsverwalter",
+    "mitglied": "Mitglied",
+    "default": "Benutzer"
+  },
+  "personalInfo": {
+    "title": "Persönliche Informationen",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "address": "Adresse",
+    "birthDate": "Geburtsdatum",
+    "memberNumber": "Mitgliedsnummer"
+  },
+  "accountInfo": {
+    "title": "Kontoinformationen",
+    "username": "Benutzername",
+    "userType": "Benutzertyp",
+    "accountType": "Kontotyp",
+    "accountStatus": "Kontostatus",
+    "vereinId": "Vereins-ID",
+    "memberSince": "Registrierungsdatum",
+    "lastLogin": "Letzte Anmeldung",
+    "now": "Jetzt"
+  },
+  "status": {
+    "active": "● Aktiv",
+    "inactive": "● Inaktiv"
+  },
+  "security": {
+    "title": "Sicherheit",
+    "changePassword": "Passwort ändern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen"
+  },
+  "actions": {
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "messages": {
+    "updateSuccess": "Profil erfolgreich aktualisiert",
+    "updateError": "Fehler beim Aktualisieren des Profils",
+    "passwordChangeSuccess": "Passwort erfolgreich geändert",
+    "passwordChangeError": "Fehler beim Ändern des Passworts",
+    "infoMessage": "💡 Klicken Sie auf die Schaltfläche <strong>Bearbeiten</strong>, um Ihre Informationen zu aktualisieren."
+  },
+  "placeholders": {
+    "notAvailable": "-"
+  }
+}
+

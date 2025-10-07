@@ -1,0 +1,88 @@
+{
+  "title": "Adresler",
+  "subtitle": "Adres yönetimi",
+  "addAddress": "Adres Ekle",
+  "editAddress": "Adresi Düzenle",
+  "deleteAddress": "Adresi Sil",
+  "noAddresses": "Henüz adres eklenmemiş",
+  "defaultAddress": "Varsayılan Adres",
+  "setAsDefault": "Varsayılan Yap",
+  "viewOnMap": "Haritada Göster",
+  
+  "fields": {
+    "strasse": "Sokak",
+    "strassePlaceholder": "Sokak adı",
+    "hausnummer": "Kapı No",
+    "hausnummerPlaceholder": "Kapı numarası",
+    "adresszusatz": "Adres Ek Bilgi",
+    "adresszusatzPlaceholder": "Daire, kat vb.",
+    "plz": "Posta Kodu",
+    "plzPlaceholder": "Posta kodu",
+    "ort": "Şehir",
+    "ortPlaceholder": "Şehir adı",
+    "stadtteil": "Semt",
+    "stadtteilPlaceholder": "Semt adı",
+    "bundesland": "Eyalet",
+    "bundeslandPlaceholder": "Eyalet adı",
+    "land": "Ülke",
+    "landPlaceholder": "Ülke adı",
+    "postfach": "Posta Kutusu",
+    "postfachPlaceholder": "Posta kutusu no",
+    "telefonnummer": "Telefon",
+    "telefonnummerPlaceholder": "+90 XXX XXX XX XX",
+    "faxnummer": "Faks",
+    "faxnummerPlaceholder": "+90 XXX XXX XX XX",
+    "email": "E-posta",
+    "emailPlaceholder": "ornek@email.com",
+    "kontaktperson": "İletişim Kişisi",
+    "kontaktpersonPlaceholder": "İletişim kişisi adı",
+    "hinweis": "Not",
+    "hinweisPlaceholder": "Adres hakkında notlar",
+    "gueltigVon": "Geçerlilik Başlangıcı",
+    "gueltigBis": "Geçerlilik Bitişi",
+    "istStandard": "Varsayılan Adres",
+    "aktiv": "Aktif"
+  },
+  
+  "sections": {
+    "basicInfo": "Temel Bilgiler",
+    "contactInfo": "İletişim Bilgileri",
+    "additionalInfo": "Ek Bilgiler",
+    "location": "Konum Bilgileri"
+  },
+  
+  "messages": {
+    "createSuccess": "Adres başarıyla eklendi",
+    "updateSuccess": "Adres başarıyla güncellendi",
+    "deleteSuccess": "Adres başarıyla silindi",
+    "setDefaultSuccess": "Varsayılan adres ayarlandı"
+  },
+  
+  "errors": {
+    "loadFailed": "Adresler yüklenemedi",
+    "createFailed": "Adres eklenemedi",
+    "updateFailed": "Adres güncellenemedi",
+    "deleteFailed": "Adres silinemedi",
+    "strasseRequired": "Sokak adı gereklidir",
+    "plzRequired": "Posta kodu gereklidir",
+    "ortRequired": "Şehir adı gereklidir",
+    "invalidEmail": "Geçersiz e-posta adresi",
+    "invalidPhone": "Geçersiz telefon numarası"
+  },
+  
+  "confirmations": {
+    "deleteTitle": "Adresi Sil",
+    "deleteMessage": "Bu adresi silmek istediğinizden emin misiniz?",
+    "deleteConfirm": "Evet, Sil",
+    "deleteCancel": "İptal"
+  },
+  
+  "status": {
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "default": "Varsayılan",
+    "valid": "Geçerli",
+    "expired": "Süresi Dolmuş"
+  }
+}
+

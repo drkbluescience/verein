@@ -1,116 +1,197 @@
-import React, { useState, useEffect } from 'react';
-import './App-new.css';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
+import Layout from './components/Layout/Layout';
+import Dashboard from './pages/Dashboard/Dashboard';
+import VereinDashboard from './pages/Dashboard/VereinDashboard';
+import MitgliedDashboard from './pages/Dashboard/MitgliedDashboard';
+import VereinList from './pages/Vereine/VereinList';
+import VereinDetail from './pages/Vereine/VereinDetail';
+import MitgliedList from './pages/Mitglieder/MitgliedList';
+import MitgliedDetail from './pages/Mitglieder/MitgliedDetail';
+import MitgliedEtkinlikler from './pages/Mitglieder/MitgliedEtkinlikler';
+import VeranstaltungList from './pages/Veranstaltungen/VeranstaltungList';
+import VeranstaltungDetail from './pages/Veranstaltungen/VeranstaltungDetail';
+import Settings from './pages/Settings/Settings';
+import Profile from './pages/Profile/Profile';
+import Login from './pages/Auth/Login';
+import Landing from './pages/Landing/Landing';
+import './i18n/config'; // Initialize i18n
+import './styles/globals.css';
 
-interface HealthStatus {
-  status: string;
-  timestamp: string;
-}
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-function App() {
-  const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// Main App Content Component
+const AppContent: React.FC = () => {
+  const { isAuthenticated, user, getUserSettingsKey } = useAuth();
 
-  const checkApiHealth = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      console.log('Checking API health...');
-      const response = await fetch('http://localhost:5103/api/health');
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const health = await response.json();
-      console.log('API health response:', health);
-
-      setHealthStatus(health);
-      setIsConnected(true);
-    } catch (err) {
-      console.error('API Health Check failed:', err);
-      setIsConnected(false);
-      setHealthStatus(null);
-      setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Load saved theme on mount
   useEffect(() => {
-    checkApiHealth();
-  }, []);
+    const loadSavedTheme = () => {
+      try {
+        const settingsKey = getUserSettingsKey();
+        const savedSettings = localStorage.getItem(settingsKey);
+
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+          if (parsed.theme) {
+            document.documentElement.setAttribute('data-theme', parsed.theme);
+          }
+        } else {
+          // Default to dark theme
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (error) {
+        console.error('Error loading saved theme:', error);
+        // Default to dark theme on error
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    };
+
+    loadSavedTheme();
+  }, [getUserSettingsKey]);
+
+  // Determine which dashboard to show based on user type
+  const DashboardComponent = user?.type === 'admin' ? Dashboard :
+                            user?.type === 'dernek' ? VereinDashboard :
+                            MitgliedDashboard;
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>🏛️ Verein Web App</h1>
-        <div className={`status ${isConnected ? 'connected' : 'disconnected'}`}>
-          {loading ? '⏳ Bağlanıyor...' : isConnected ? '🟢 API Verbunden' : '🔴 API Getrennt'}
-        </div>
-        {healthStatus && (
-          <div className="health-info">
-            Status: {healthStatus.status} | {new Date(healthStatus.timestamp).toLocaleString()}
-          </div>
-        )}
-        {error && (
-          <div className="error">
-            ❌ Hata: {error}
-          </div>
-        )}
-      </header>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/auth" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
 
-      <main className="main-content">
-        {!isConnected && !loading ? (
-          <div className="error-message">
-            <h2>⚠️ Backend API nicht erreichbar</h2>
-            <p>Stellen Sie sicher, dass die .NET API auf http://localhost:5103 läuft</p>
-            <button onClick={checkApiHealth} className="retry-btn" disabled={loading}>
-              🔄 Erneut versuchen
-            </button>
-          </div>
-        ) : (
-          <div className="success-message">
-            <h2>✅ Web App Başarıyla Çalışıyor!</h2>
-            <p>Backend API bağlantısı kuruldu. Verein yönetim özellikleri yakında eklenecek.</p>
+      {/* Protected Routes */}
+      {isAuthenticated ? (
+        <>
+          <Route path="/dashboard" element={
+            <Layout>
+              <DashboardComponent />
+            </Layout>
+          } />
 
-            <div className="buttons">
-              <button
-                className="test-btn"
-                onClick={() => alert('Test button çalışıyor!')}
-              >
-                🧪 Test Button
-              </button>
+          {user?.type === 'admin' && (
+            <>
+              <Route path="/vereine" element={
+                <Layout>
+                  <VereinList />
+                </Layout>
+              } />
+              <Route path="/vereine/:id" element={
+                <Layout>
+                  <VereinDetail />
+                </Layout>
+              } />
+            </>
+          )}
 
-              <button
-                className="refresh-btn"
-                onClick={checkApiHealth}
-                disabled={loading}
-              >
-                🔄 API Yenile
-              </button>
-            </div>
+          {(user?.type === 'admin' || user?.type === 'dernek') && (
+            <>
+              <Route path="/mitglieder" element={
+                <Layout>
+                  <MitgliedList />
+                </Layout>
+              } />
+              <Route path="/mitglieder/:id" element={
+                <Layout>
+                  <MitgliedDetail />
+                </Layout>
+              } />
+              <Route path="/veranstaltungen" element={
+                <Layout>
+                  <VeranstaltungList />
+                </Layout>
+              } />
+            </>
+          )}
 
-            <div className="features">
-              <p><strong>Web App Özellikleri:</strong></p>
-              <ul>
-                <li>✅ React + TypeScript</li>
-                <li>✅ Responsive tasarım</li>
-                <li>✅ Backend API entegrasyonu</li>
-                <li>✅ Modern web teknolojileri</li>
-                <li>✅ Cross-platform uyumluluk</li>
-              </ul>
-            </div>
-          </div>
-        )}
-      </main>
+          {/* Veranstaltung Detail - Available for all user types */}
+          <Route path="/veranstaltungen/:id" element={
+            <Layout>
+              <VeranstaltungDetail />
+            </Layout>
+          } />
 
-      <footer className="app-footer">
-        <p>🌐 Web App - Tarayıcınızda çalışır</p>
-      </footer>
-    </div>
+          <Route path="/reports" element={
+            <Layout>
+              <div>Raporlar - Yakında</div>
+            </Layout>
+          } />
+
+          {/* Settings - Available for all user types */}
+          <Route path="/ayarlar" element={
+            <Layout>
+              <Settings />
+            </Layout>
+          } />
+          <Route path="/verein/settings" element={
+            <Layout>
+              <Settings />
+            </Layout>
+          } />
+          <Route path="/settings" element={
+            <Layout>
+              <Settings />
+            </Layout>
+          } />
+
+          {/* Profile - Available for all user types */}
+          <Route path="/profil" element={
+            <Layout>
+              <Profile />
+            </Layout>
+          } />
+          <Route path="/profile" element={
+            <Layout>
+              <Profile />
+            </Layout>
+          } />
+
+          {/* Mitglied specific routes */}
+          <Route path="/etkinlikler" element={
+            <Layout>
+              <MitgliedEtkinlikler />
+            </Layout>
+          } />
+          <Route path="/ailem" element={
+            <Layout>
+              <div>Ailem - Yakında</div>
+            </Layout>
+          } />
+
+          {/* Redirect any other route to dashboard */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </>
+      ) : (
+        /* Redirect unauthenticated users to auth page */
+        <Route path="*" element={<Navigate to="/auth" replace />} />
+      )}
+    </Routes>
+  );
+};
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <AuthProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </AuthProvider>
+      </ToastProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -1,0 +1,44 @@
+{
+  "title": "Ayarlar",
+  "subtitle": "Uygulama tercihlerinizi yönetin",
+  "actions": {
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "reset": "Sıfırla"
+  },
+  "messages": {
+    "saveSuccess": "Ayarlar başarıyla kaydedildi!",
+    "saveError": "Ayarlar kaydedilirken hata oluştu.",
+    "resetSuccess": "Ayarlar varsayılan değerlere sıfırlandı."
+  },
+  "sections": {
+    "appearance": {
+      "title": "Görünüm",
+      "theme": {
+        "label": "Tema",
+        "description": "Uygulamanın renk temasını seçin",
+        "dark": "Koyu Tema",
+        "light": "Açık Tema"
+      },
+      "compactMode": {
+        "label": "Kompakt Mod",
+        "description": "Daha sıkışık arayüz için etkinleştirin"
+      }
+    },
+    "language": {
+      "title": "Dil ve Bölge",
+      "label": "Dil",
+      "description": "Uygulama dilini seçin",
+      "options": {
+        "tr": "Türkçe",
+        "de": "Deutsch"
+      }
+    },
+    "notifications": {
+      "title": "Bildirimler",
+      "label": "Bildirimler",
+      "description": "Sistem bildirimlerini etkinleştirin"
+    }
+  }
+}
+

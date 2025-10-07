@@ -1,0 +1,51 @@
+{
+  "hero": {
+    "title": "Dernek Yönetiminizi <span class='highlight'>Kolaylaştırın</span>",
+    "subtitle": "Dernekler, üyeler ve yöneticiler için profesyonel bir platform. Etkinliklerinizi organize edin, üyelerinizi yönetin ve güçlü topluluklar oluşturun.",
+    "getStarted": "Hemen Başlayın",
+    "learnMore": "Daha Fazla Bilgi",
+    "modernManagement": "Modern Yönetim",
+    "allInOne": "Tüm dernek işlemlerinizi tek platformda"
+  },
+  "features": {
+    "title": "Her Rol İçin Özel Tasarım",
+    "subtitle": "İster üye, ister dernek yöneticisi, ister sistem yöneticisi olun, ihtiyaçlarınıza özel araçlar sunuyoruz.",
+    "admin": {
+      "title": "Yöneticiler İçin",
+      "description": "Sistem genelinde tam kontrol ve güçlü yönetim araçları",
+      "features": [
+        "Tüm dernekleri yönetin",
+        "Etkinlikleri ve üyeleri denetleyin",
+        "Sistem geneli raporlar ve analizler"
+      ]
+    },
+    "verein": {
+      "title": "Dernekler İçin",
+      "description": "Üyelerinizi yönetin, etkinlikler oluşturun ve derneğinizi büyütün",
+      "features": [
+        "Üyeleri organize edin ve yönetin",
+        "Etkinlik oluşturun ve planlayın",
+        "Katılım analizleri görüntüleyin"
+      ]
+    },
+    "member": {
+      "title": "Üyeler İçin",
+      "description": "Derneklere katılın, etkinliklere kayıt olun ve topluluğunuzla bağlantıda kalın",
+      "features": [
+        "Derneklere göz atın ve katılın",
+        "Yaklaşan etkinliklere kayıt olun",
+        "Üyeliklerinizi takip edin"
+      ]
+    }
+  },
+  "cta": {
+    "title": "Başlamaya Hazır mısınız?",
+    "subtitle": "Binlerce dernek ve üye zaten topluluklarını platformumuzla yönetiyor. Siz de aramıza katılın!",
+    "button": "Hesap Oluşturun"
+  },
+  "footer": {
+    "copyright": "© 2025 Qubbe - Dernek Yönetim Sistemi",
+    "version": "v1.0.0"
+  }
+}
+

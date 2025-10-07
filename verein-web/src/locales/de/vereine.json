@@ -1,0 +1,89 @@
+{
+  "title": "Vereine",
+  "subtitle": "Alle Vereine anzeigen und verwalten",
+  "list": {
+    "title": "Vereinsliste",
+    "empty": "Es sind noch keine Vereine vorhanden",
+    "search": "Verein suchen (Name, Nummer, E-Mail)...",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "showActiveOnly": "Nur Aktive",
+    "newVerein": "Neuer Verein",
+    "notFound": "Kein Verein gefunden",
+    "noResults": "Keine Vereine entsprechen Ihren Suchkriterien.",
+    "noData": "Es wurden noch keine Vereine hinzugefügt.",
+    "addFirst": "Ersten Verein hinzufügen",
+    "loading": "Vereine werden geladen...",
+    "loadError": "Fehler beim Laden der Daten",
+    "loadErrorMessage": "Beim Laden der Vereine ist ein Fehler aufgetreten."
+  },
+  "stats": {
+    "total": "Gesamt",
+    "active": "Aktiv",
+    "showing": "Angezeigt"
+  },
+  "card": {
+    "number": "Nummer",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "address": "Adresse",
+    "founded": "Gründung",
+    "statusActive": "● Aktiv",
+    "statusInactive": "○ Inaktiv",
+    "president": "Vorsitzender",
+    "website": "Webseite"
+  },
+  "detail": {
+    "title": "Vereinsdetails",
+    "info": "Vereinsinformationen",
+    "members": "Mitglieder",
+    "events": "Veranstaltungen",
+    "statistics": "Statistiken"
+  },
+  "form": {
+    "create": "Neuen Verein hinzufügen",
+    "edit": "Verein bearbeiten",
+    "name": "Vereinsname",
+    "description": "Beschreibung",
+    "address": "Adresse",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "website": "Webseite",
+    "foundedDate": "Gründungsdatum",
+    "status": "Status"
+  },
+  "actions": {
+    "add": "Verein hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen",
+    "details": "Details",
+    "export": "Exportieren"
+  },
+  "messages": {
+    "createSuccess": "Verein erfolgreich erstellt",
+    "updateSuccess": "Verein erfolgreich aktualisiert",
+    "deleteSuccess": "Verein erfolgreich gelöscht",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Verein löschen möchten?",
+    "error": "Ein Fehler ist während des Vorgangs aufgetreten"
+  },
+  "tabs": {
+    "info": "Informationen",
+    "adressen": "Adressen",
+    "mitglieder": "Mitglieder"
+  },
+  "fields": {
+    "email": "E-Mail",
+    "telefon": "Telefon",
+    "webseite": "Webseite",
+    "vorstandsvorsitzender": "Vorstandsvorsitzender",
+    "kontaktperson": "Kontaktperson",
+    "gruendungsdatum": "Gründungsdatum",
+    "zweck": "Zweck"
+  },
+  "errors": {
+    "loadFailed": "Verein konnte nicht geladen werden",
+    "vereinNotFound": "Verein nicht gefunden"
+  }
+}
+
