@@ -202,23 +202,23 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, is
 const MitgliedEtkinlikler: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
-  const { selectedVereinId, user } = useAuth();
+  const { user } = useAuth();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch events for selected verein
+  // Fetch events for user's verein
   const {
     data: veranstaltungen,
     isLoading,
     error
   } = useQuery({
-    queryKey: ['mitglied-veranstaltungen', selectedVereinId],
+    queryKey: ['mitglied-veranstaltungen', user?.vereinId],
     queryFn: async () => {
-      if (!selectedVereinId) return [];
-      const result = await veranstaltungService.getByVereinId(selectedVereinId);
+      if (!user?.vereinId) return [];
+      const result = await veranstaltungService.getByVereinId(user.vereinId);
       return result || [];
     },
-    enabled: !!selectedVereinId,
+    enabled: !!user?.vereinId,
   });
 
   // Fetch user's registrations
@@ -281,7 +281,7 @@ const MitgliedEtkinlikler: React.FC = () => {
     past: veranstaltungen?.filter(v => veranstaltungUtils.isPast(v.startdatum, v.enddatum)).length || 0
   };
 
-  if (!selectedVereinId) {
+  if (!user?.vereinId) {
     return (
       <div className="veranstaltung-list">
         <div className="empty-state" style={{ margin: '100px 24px' }}>
