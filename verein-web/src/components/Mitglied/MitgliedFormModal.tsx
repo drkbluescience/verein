@@ -3,7 +3,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { mitgliedService } from '../../services/mitgliedService';
 import { MitgliedDto, CreateMitgliedDto, UpdateMitgliedDto } from '../../types/mitglied';
 import { useAuth } from '../../contexts/AuthContext';
-import './MitgliedFormModal.css';
+import Modal from '../Common/Modal';
+import styles from './MitgliedFormModal.module.css';
 
 interface MitgliedFormModalProps {
   isOpen: boolean;
@@ -246,24 +247,42 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content mitglied-form-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{mode === 'create' ? 'Yeni Üye Ekle' : 'Üye Bilgilerini Düzenle'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={mode === 'create' ? 'Yeni Üye Ekle' : 'Üye Bilgilerini Düzenle'}
+      size="lg"
+      closeOnOverlayClick={!isLoading}
+      footer={
+        <div className={styles.footer}>
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            İptal
+          </button>
+          <button
+            type="submit"
+            form="mitglied-form"
+            className={styles.btnPrimary}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Kaydediliyor...' : mode === 'create' ? 'Üye Ekle' : 'Güncelle'}
+          </button>
         </div>
-
-        <form onSubmit={handleSubmit} className="modal-form">
+      }
+    >
+      <form id="mitglied-form" onSubmit={handleSubmit} className={styles.form}>
           {/* Kişisel Bilgiler */}
-          <div className="form-section">
-            <h3 className="section-title">Kişisel Bilgiler</h3>
-            <div className="form-grid">
-              <div className="form-group">
+          <div className={styles.formSection}>
+            <h3>Kişisel Bilgiler</h3>
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
                 <label htmlFor="vorname">Ad *</label>
                 <input
                   type="text"
@@ -271,13 +290,13 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   name="vorname"
                   value={formData.vorname}
                   onChange={handleChange}
-                  className={errors.vorname ? 'error' : ''}
+                  className={errors.vorname ? styles.error : ''}
                   disabled={isLoading}
                 />
-                {errors.vorname && <span className="error-message">{errors.vorname}</span>}
+                {errors.vorname && <span className={styles.errorMessage}>{errors.vorname}</span>}
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="nachname">Soyad *</label>
                 <input
                   type="text"
@@ -285,13 +304,13 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   name="nachname"
                   value={formData.nachname}
                   onChange={handleChange}
-                  className={errors.nachname ? 'error' : ''}
+                  className={errors.nachname ? styles.error : ''}
                   disabled={isLoading}
                 />
-                {errors.nachname && <span className="error-message">{errors.nachname}</span>}
+                {errors.nachname && <span className={styles.errorMessage}>{errors.nachname}</span>}
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="geburtsdatum">Doğum Tarihi</label>
                 <input
                   type="date"
@@ -303,7 +322,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                 />
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="geburtsort">Doğum Yeri</label>
                 <input
                   type="text"
@@ -318,10 +337,10 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
           </div>
 
           {/* İletişim Bilgileri */}
-          <div className="form-section">
-            <h3 className="section-title">İletişim Bilgileri</h3>
-            <div className="form-grid">
-              <div className="form-group">
+          <div className={styles.formSection}>
+            <h3 className={styles.sectionTitle}>İletişim Bilgileri</h3>
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
                 <label htmlFor="email">Email</label>
                 <input
                   type="email"
@@ -329,13 +348,13 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={errors.email ? 'error' : ''}
+                  className={errors.email ? styles.error : ''}
                   disabled={isLoading}
                 />
-                {errors.email && <span className="error-message">{errors.email}</span>}
+                {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="telefon">Telefon</label>
                 <input
                   type="tel"
@@ -347,7 +366,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                 />
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="mobiltelefon">Mobil Telefon</label>
                 <input
                   type="tel"
@@ -363,10 +382,10 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
 
           {/* Üyelik Bilgileri - Sadece Dernek Yöneticisi */}
           {user?.type === 'dernek' && (
-            <div className="form-section">
-              <h3 className="section-title">Üyelik Bilgileri</h3>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className={styles.formSection}>
+              <h3 className={styles.sectionTitle}>Üyelik Bilgileri</h3>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
                   <label htmlFor="eintrittsdatum">Giriş Tarihi</label>
                   <input
                     type="date"
@@ -378,7 +397,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="austrittsdatum">Çıkış Tarihi</label>
                   <input
                     type="date"
@@ -408,10 +427,10 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
 
           {/* Aidat Bilgileri - Sadece Dernek Yöneticisi */}
           {user?.type === 'dernek' && (
-            <div className="form-section">
-              <h3 className="section-title">Aidat Bilgileri</h3>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className={styles.formSection}>
+              <h3 className={styles.sectionTitle}>Aidat Bilgileri</h3>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
                   <label htmlFor="beitragBetrag">Aidat Miktarı (€)</label>
                   <input
                     type="number"
@@ -425,7 +444,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="beitragPeriodeCode">Ödeme Periyodu</label>
                   <select
                     id="beitragPeriodeCode"
@@ -441,7 +460,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="beitragZahlungsTag">Ödeme Günü</label>
                   <input
                     type="number"
@@ -472,9 +491,9 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
           )}
 
           {/* Notlar */}
-          <div className="form-section">
-            <h3 className="section-title">Notlar</h3>
-            <div className="form-group">
+          <div className={styles.formSection}>
+            <h3 className={styles.sectionTitle}>Notlar</h3>
+            <div className={styles.formGroup}>
               <textarea
                 id="bemerkung"
                 name="bemerkung"
@@ -488,31 +507,13 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
           </div>
 
           {errors.submit && (
-            <div className="error-message-box">{errors.submit}</div>
+            <div className={styles.errorMessage}>{errors.submit}</div>
           )}
-
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              İptal
-            </button>
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Kaydediliyor...' : mode === 'create' ? 'Üye Ekle' : 'Güncelle'}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
 export default MitgliedFormModal;
+
 

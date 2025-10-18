@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Adresse, CreateAdresseDto, UpdateAdresseDto } from '../../services/adresseService';
-import './AdresseFormModal.css';
+import Modal from '../Common/Modal';
+import styles from './AdresseFormModal.module.css';
 
 interface AdresseFormModalProps {
   isOpen: boolean;
@@ -23,7 +24,6 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Form state
   const [formData, setFormData] = useState({
     strasse: '',
     hausnummer: '',
@@ -43,7 +43,6 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
     aktiv: true,
   });
 
-  // Load existing adresse data when editing
   useEffect(() => {
     if (adresse) {
       setFormData({
@@ -62,10 +61,9 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
         kontaktperson: adresse.kontaktperson || '',
         hinweis: adresse.hinweis || '',
         istStandard: adresse.istStandard || false,
-        aktiv: adresse.aktiv !== false,
+        aktiv: adresse.aktiv !== undefined ? adresse.aktiv : true,
       });
     } else {
-      // Reset form for new adresse
       setFormData({
         strasse: '',
         hausnummer: '',
@@ -74,7 +72,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
         ort: '',
         stadtteil: '',
         bundesland: '',
-        land: 'Deutschland',
+        land: '',
         postfach: '',
         telefonnummer: '',
         faxnummer: '',
@@ -88,18 +86,19 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
     setErrors({});
   }, [adresse, isOpen]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
 
-    // Clear error for this field
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -110,20 +109,20 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Required fields
     if (!formData.strasse.trim()) {
-      newErrors.strasse = t('adressen:errors.strasseRequired');
-    }
-    if (!formData.plz.trim()) {
-      newErrors.plz = t('adressen:errors.plzRequired');
-    }
-    if (!formData.ort.trim()) {
-      newErrors.ort = t('adressen:errors.ortRequired');
+      newErrors.strasse = t('adressen:validation.strasseRequired');
     }
 
-    // Email validation
+    if (!formData.plz.trim()) {
+      newErrors.plz = t('adressen:validation.plzRequired');
+    }
+
+    if (!formData.ort.trim()) {
+      newErrors.ort = t('adressen:validation.ortRequired');
+    }
+
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = t('adressen:errors.invalidEmail');
+      newErrors.email = t('adressen:validation.invalidEmail');
     }
 
     setErrors(newErrors);
@@ -160,28 +159,43 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal-content adresse-form-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="modal-header">
-          <h2>{adresse ? t('adressen:editAddress') : t('adressen:addAddress')}</h2>
-          <button className="close-button" onClick={handleClose} disabled={isSubmitting}>
-            ✕
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={adresse ? t('adressen:editAddress') : t('adressen:addAddress')}
+      size="lg"
+      closeOnOverlayClick={!isSubmitting}
+      footer={
+        <div className={styles.footer}>
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
+            {t('common:actions.cancel')}
+          </button>
+          <button
+            type="submit"
+            form="adresse-form"
+            className={styles.btnPrimary}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? t('common:actions.saving') : t('common:actions.save')}
           </button>
         </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="adresse-form">
+      }
+    >
+      <form id="adresse-form" onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGrid}>
           {/* Basic Info Section */}
-          <div className="form-section">
+          <div className={styles.formSection}>
             <h3>{t('adressen:sections.basicInfo')}</h3>
-            <div className="form-row">
-              <div className="form-group flex-3">
+            <div className={styles.formRow}>
+              <div className={`${styles.formGroup} ${styles.flex3}`}>
                 <label htmlFor="strasse">
-                  {t('adressen:fields.strasse')} <span className="required">*</span>
+                  {t('adressen:fields.strasse')} <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="text"
@@ -190,11 +204,11 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   value={formData.strasse}
                   onChange={handleChange}
                   placeholder={t('adressen:fields.strassePlaceholder')}
-                  className={errors.strasse ? 'error' : ''}
+                  className={errors.strasse ? styles.error : ''}
                 />
-                {errors.strasse && <span className="error-message">{errors.strasse}</span>}
+                {errors.strasse && <span className={styles.errorMessage}>{errors.strasse}</span>}
               </div>
-              <div className="form-group flex-1">
+              <div className={`${styles.formGroup} ${styles.flex1}`}>
                 <label htmlFor="hausnummer">{t('adressen:fields.hausnummer')}</label>
                 <input
                   type="text"
@@ -207,7 +221,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
               </div>
             </div>
 
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="adresszusatz">{t('adressen:fields.adresszusatz')}</label>
               <input
                 type="text"
@@ -219,10 +233,10 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-group flex-1">
+            <div className={styles.formRow}>
+              <div className={`${styles.formGroup} ${styles.flex1}`}>
                 <label htmlFor="plz">
-                  {t('adressen:fields.plz')} <span className="required">*</span>
+                  {t('adressen:fields.plz')} <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="text"
@@ -231,13 +245,13 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   value={formData.plz}
                   onChange={handleChange}
                   placeholder={t('adressen:fields.plzPlaceholder')}
-                  className={errors.plz ? 'error' : ''}
+                  className={errors.plz ? styles.error : ''}
                 />
-                {errors.plz && <span className="error-message">{errors.plz}</span>}
+                {errors.plz && <span className={styles.errorMessage}>{errors.plz}</span>}
               </div>
-              <div className="form-group flex-2">
+              <div className={`${styles.formGroup} ${styles.flex2}`}>
                 <label htmlFor="ort">
-                  {t('adressen:fields.ort')} <span className="required">*</span>
+                  {t('adressen:fields.ort')} <span className={styles.required}>*</span>
                 </label>
                 <input
                   type="text"
@@ -246,18 +260,18 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   value={formData.ort}
                   onChange={handleChange}
                   placeholder={t('adressen:fields.ortPlaceholder')}
-                  className={errors.ort ? 'error' : ''}
+                  className={errors.ort ? styles.error : ''}
                 />
-                {errors.ort && <span className="error-message">{errors.ort}</span>}
+                {errors.ort && <span className={styles.errorMessage}>{errors.ort}</span>}
               </div>
             </div>
           </div>
 
           {/* Additional Info Section */}
-          <div className="form-section">
+          <div className={styles.formSection}>
             <h3>{t('adressen:sections.additionalInfo')}</h3>
-            <div className="form-row">
-              <div className="form-group">
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
                 <label htmlFor="stadtteil">{t('adressen:fields.stadtteil')}</label>
                 <input
                   type="text"
@@ -268,7 +282,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   placeholder={t('adressen:fields.stadtteilPlaceholder')}
                 />
               </div>
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="bundesland">{t('adressen:fields.bundesland')}</label>
                 <input
                   type="text"
@@ -281,8 +295,8 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
                 <label htmlFor="land">{t('adressen:fields.land')}</label>
                 <input
                   type="text"
@@ -293,7 +307,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   placeholder={t('adressen:fields.landPlaceholder')}
                 />
               </div>
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="postfach">{t('adressen:fields.postfach')}</label>
                 <input
                   type="text"
@@ -308,10 +322,10 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
           </div>
 
           {/* Contact Info Section */}
-          <div className="form-section">
+          <div className={styles.formSection}>
             <h3>{t('adressen:sections.contactInfo')}</h3>
-            <div className="form-row">
-              <div className="form-group">
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
                 <label htmlFor="telefonnummer">{t('adressen:fields.telefonnummer')}</label>
                 <input
                   type="tel"
@@ -322,7 +336,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   placeholder={t('adressen:fields.telefonnummerPlaceholder')}
                 />
               </div>
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="faxnummer">{t('adressen:fields.faxnummer')}</label>
                 <input
                   type="tel"
@@ -335,8 +349,8 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
                 <label htmlFor="email">{t('adressen:fields.email')}</label>
                 <input
                   type="email"
@@ -345,11 +359,11 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={t('adressen:fields.emailPlaceholder')}
-                  className={errors.email ? 'error' : ''}
+                  className={errors.email ? styles.error : ''}
                 />
-                {errors.email && <span className="error-message">{errors.email}</span>}
+                {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
               </div>
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="kontaktperson">{t('adressen:fields.kontaktperson')}</label>
                 <input
                   type="text"
@@ -363,9 +377,9 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
             </div>
           </div>
 
-          {/* Notes and Settings Section */}
-          <div className="form-section">
-            <div className="form-group">
+          {/* Notes Section */}
+          <div className={styles.formSection}>
+            <div className={styles.formGroup}>
               <label htmlFor="hinweis">{t('adressen:fields.hinweis')}</label>
               <textarea
                 id="hinweis"
@@ -377,8 +391,8 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
               />
             </div>
 
-            <div className="form-checkboxes">
-              <label className="checkbox-label">
+            <div className={styles.formCheckboxes}>
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   name="istStandard"
@@ -387,7 +401,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
                 />
                 <span>{t('adressen:fields.istStandard')}</span>
               </label>
-              <label className="checkbox-label">
+              <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   name="aktiv"
@@ -398,30 +412,10 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
               </label>
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
-              {t('common:actions.cancel')}
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? t('common:status.saving') : t('common:actions.save')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </Modal>
   );
 };
 
 export default AdresseFormModal;
-

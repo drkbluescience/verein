@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VereinDto, UpdateVereinDto } from '../../types/verein';
-import './VereinFormModal.css';
+import Modal from '../Common/Modal';
+import styles from './VereinFormModal.module.css';
 
 interface VereinFormModalProps {
   isOpen: boolean;
@@ -101,24 +102,29 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
     onSubmit(formData);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content verein-form-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{t('vereine:editVerein')}</h2>
-          <button className="close-button" onClick={onClose}>
-            ×
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('vereine:editVerein')}
+      size="lg"
+      footer={
+        <div className={styles.footer}>
+          <button type="button" className={styles.btnSecondary} onClick={onClose}>
+            {t('common:actions.cancel')}
+          </button>
+          <button type="submit" form="verein-form" className={styles.btnPrimary}>
+            {t('common:actions.save')}
           </button>
         </div>
-
-        <form onSubmit={handleSubmit} className="verein-form">
-          <div className="form-grid">
+      }
+    >
+      <form id="verein-form" onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGrid}>
             {/* Dernek Adı */}
-            <div className="form-group full-width">
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
               <label htmlFor="name">
-                {t('vereine:fields.name')} <span className="required">*</span>
+                {t('vereine:fields.name')} <span className={styles.required}>*</span>
               </label>
               <input
                 type="text"
@@ -126,14 +132,14 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 name="name"
                 value={formData.name || ''}
                 onChange={handleChange}
-                className={errors.name ? 'error' : ''}
+                className={errors.name ? styles.error : ''}
                 required
               />
-              {errors.name && <span className="error-message">{errors.name}</span>}
+              {errors.name && <span className={styles.errorMessage}>{errors.name}</span>}
             </div>
 
             {/* Kısa Ad */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="kurzname">{t('vereine:fields.kurzname')}</label>
               <input
                 type="text"
@@ -145,7 +151,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             </div>
 
             {/* Telefon */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="telefon">{t('vereine:fields.telefon')}</label>
               <input
                 type="tel"
@@ -157,7 +163,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             </div>
 
             {/* Email */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="email">{t('vereine:fields.email')}</label>
               <input
                 type="email"
@@ -165,13 +171,13 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 name="email"
                 value={formData.email || ''}
                 onChange={handleChange}
-                className={errors.email ? 'error' : ''}
+                className={errors.email ? styles.error : ''}
               />
-              {errors.email && <span className="error-message">{errors.email}</span>}
+              {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
             </div>
 
             {/* Webseite */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="webseite">{t('vereine:fields.webseite')}</label>
               <input
                 type="url"
@@ -179,14 +185,14 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 name="webseite"
                 value={formData.webseite || ''}
                 onChange={handleChange}
-                className={errors.webseite ? 'error' : ''}
+                className={errors.webseite ? styles.error : ''}
                 placeholder="https://example.com"
               />
-              {errors.webseite && <span className="error-message">{errors.webseite}</span>}
+              {errors.webseite && <span className={styles.errorMessage}>{errors.webseite}</span>}
             </div>
 
             {/* Vorstandsvorsitzender */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="vorstandsvorsitzender">
                 {t('vereine:fields.vorstandsvorsitzender')}
               </label>
@@ -200,7 +206,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             </div>
 
             {/* Kontaktperson */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="kontaktperson">{t('vereine:fields.kontaktperson')}</label>
               <input
                 type="text"
@@ -212,7 +218,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             </div>
 
             {/* Gruendungsdatum */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="gruendungsdatum">
                 {t('vereine:fields.gruendungsdatum')}
               </label>
@@ -230,7 +236,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             </div>
 
             {/* Zweck */}
-            <div className="form-group full-width">
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
               <label htmlFor="zweck">{t('vereine:fields.zweck')}</label>
               <textarea
                 id="zweck"
@@ -242,7 +248,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             </div>
 
             {/* Aktiv */}
-            <div className="form-group checkbox-group">
+            <div className={`${styles.formGroup} ${styles.checkboxGroup}`}>
               <label htmlFor="aktiv">
                 <input
                   type="checkbox"
@@ -255,18 +261,8 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
               </label>
             </div>
           </div>
-
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              {t('common:actions.cancel')}
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {t('common:actions.save')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   );
 };
 

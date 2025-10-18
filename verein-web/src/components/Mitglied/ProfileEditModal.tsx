@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { mitgliedService } from '../../services/mitgliedService';
 import { MitgliedDto, UpdateMitgliedDto } from '../../types/mitglied';
-import './ProfileEditModal.css';
+import Modal from '../Common/Modal';
+import styles from './ProfileEditModal.module.css';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -113,27 +114,45 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const isLoading = updateMutation.isPending;
 
   return (
-    <div className="profile-modal-overlay" onClick={onClose}>
-      <div className="profile-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="profile-modal-header">
-          <h2>İletişim Bilgilerini Düzenle</h2>
-          <button className="profile-modal-close" onClick={onClose}>×</button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="İletişim Bilgilerini Düzenle"
+      size="md"
+      closeOnOverlayClick={!isLoading}
+      footer={
+        <div className={styles.footer}>
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            İptal
+          </button>
+          <button
+            type="submit"
+            form="profile-form"
+            className={styles.btnPrimary}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Kaydediliyor...' : 'Güncelle'}
+          </button>
         </div>
-
-        <form onSubmit={handleSubmit} className="profile-modal-form">
-          <div className="profile-info-box">
-            <p className="profile-info-text">
+      }
+    >
+      <form id="profile-form" onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.infoBox}>
+            <p className={styles.infoText}>
               Sadece iletişim bilgilerinizi güncelleyebilirsiniz. 
               Diğer bilgilerinizi değiştirmek için dernek yöneticinizle iletişime geçiniz.
             </p>
           </div>
 
-          <div className="profile-form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>
             <input
               type="email"
@@ -141,14 +160,14 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={errors.email ? 'error' : ''}
+              className={errors.email ? styles.error : ''}
               disabled={isLoading}
               placeholder="ornek@email.com"
             />
             {errors.email && <span className="profile-error-message">{errors.email}</span>}
           </div>
 
-          <div className="profile-form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="telefon">Telefon</label>
             <input
               type="tel"
@@ -161,7 +180,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             />
           </div>
 
-          <div className="profile-form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="mobiltelefon">Mobil Telefon</label>
             <input
               type="tel"
@@ -178,28 +197,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <div className="profile-error-box">{errors.submit}</div>
           )}
 
-          <div className="profile-modal-footer">
-            <button
-              type="button"
-              className="profile-btn-secondary"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              İptal
-            </button>
-            <button
-              type="submit"
-              className="profile-btn-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Kaydediliyor...' : 'Güncelle'}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
 export default ProfileEditModal;
+
+
 
