@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { mitgliedService } from '../../services/mitgliedService';
 import { veranstaltungService, veranstaltungUtils } from '../../services/veranstaltungService';
 import { useAuth } from '../../contexts/AuthContext';
+import { MembershipStatistics } from '../../types/mitglied';
 import Loading from '../../components/Common/Loading';
 import './VereinDashboard.css';
 
@@ -96,6 +97,16 @@ const VereinDashboard: React.FC = () => {
   } = useQuery({
     queryKey: ['veranstaltungen', vereinId],
     queryFn: () => veranstaltungService.getByVereinId(vereinId),
+    enabled: !!vereinId,
+  });
+
+  // Fetch membership statistics
+  const {
+    data: membershipStats,
+    isLoading: statsLoading
+  } = useQuery<MembershipStatistics>({
+    queryKey: ['membershipStatistics', vereinId],
+    queryFn: () => mitgliedService.getMembershipStatistics(vereinId),
     enabled: !!vereinId,
   });
 
@@ -210,7 +221,7 @@ const VereinDashboard: React.FC = () => {
     }
   }, [mitglieder, veranstaltungen]);
 
-  if (mitgliederLoading || veranstaltungenLoading) {
+  if (mitgliederLoading || veranstaltungenLoading || statsLoading) {
     return <Loading text={t('dashboard:verein.loading')} />;
   }
 
@@ -317,6 +328,78 @@ const VereinDashboard: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      {/* Detailed Membership Statistics */}
+      {membershipStats && (
+        <div className="stats-section detailed-stats">
+          <h2>📊 Detaylı Üyelik İstatistikleri</h2>
+          <div className="stats-grid">
+            <div className="stat-card highlight">
+              <div className="stat-icon">
+                <UsersIcon />
+              </div>
+              <div className="stat-info">
+                <h3>Toplam Üye</h3>
+                <div className="stat-number">{membershipStats.totalMembers}</div>
+                <span className="stat-detail">
+                  {membershipStats.activeMembers} aktif, {membershipStats.inactiveMembers} pasif
+                </span>
+              </div>
+            </div>
+
+            <div className="stat-card success">
+              <div className="stat-icon">
+                <TrendingUpIcon />
+              </div>
+              <div className="stat-info">
+                <h3>Bu Ay Yeni Üyeler</h3>
+                <div className="stat-number">{membershipStats.newMembersThisMonth}</div>
+                <span className="stat-detail">
+                  Bu yıl: {membershipStats.newMembersThisYear} yeni üye
+                </span>
+              </div>
+            </div>
+
+            {Object.keys(membershipStats.membersByStatus).length > 0 && (
+              <div className="stat-card info">
+                <div className="stat-icon">
+                  <ActivityIcon />
+                </div>
+                <div className="stat-info">
+                  <h3>Durumlara Göre</h3>
+                  <div className="stat-breakdown">
+                    {Object.entries(membershipStats.membersByStatus).map(([statusId, count]) => (
+                      <div key={statusId} className="stat-item">
+                        <span className="stat-label">Durum {statusId}:</span>
+                        <span className="stat-value">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {Object.keys(membershipStats.membersByType).length > 0 && (
+              <div className="stat-card warning">
+                <div className="stat-icon">
+                  <BarChartIcon />
+                </div>
+                <div className="stat-info">
+                  <h3>Tiplere Göre</h3>
+                  <div className="stat-breakdown">
+                    {Object.entries(membershipStats.membersByType).map(([typeId, count]) => (
+                      <div key={typeId} className="stat-item">
+                        <span className="stat-label">Tip {typeId}:</span>
+                        <span className="stat-value">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Recent Activities */}
       <div className="activities-section">
