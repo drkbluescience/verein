@@ -20,7 +20,12 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
+    // If data is FormData, remove Content-Type header to let browser set it automatically
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
