@@ -124,7 +124,7 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = ({ isOpen, onClose, ve
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal-content image-upload-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="image-upload-modal modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>📸 Resim Yükle</h2>
           <button className="modal-close" onClick={handleClose} disabled={uploadMutation.isPending}>
