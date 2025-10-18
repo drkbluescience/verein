@@ -94,6 +94,14 @@
     "loadFailed": "Dernek yüklenemedi",
     "vereinNotFound": "Dernek bulunamadı",
     "updateFailed": "Dernek güncellenirken bir hata oluştu"
+  },
+  "mitglieder": {
+    "email": "E-posta",
+    "telefon": "Telefon",
+    "empty": {
+      "title": "Henüz Üye Yok",
+      "message": "Bu derneğe henüz üye eklenmemiş."
+    }
   }
 }
 

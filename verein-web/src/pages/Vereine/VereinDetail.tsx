@@ -7,6 +7,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { vereinService } from '../../services/vereinService';
 import { VereinDto, UpdateVereinDto } from '../../types/verein';
 import adresseService, { Adresse, CreateAdresseDto, UpdateAdresseDto } from '../../services/adresseService';
+import { mitgliedService } from '../../services/mitgliedService';
+import { MitgliedDto } from '../../types/mitglied';
 import AdresseFormModal from '../../components/Adressen/AdresseFormModal';
 import VereinFormModal from '../../components/Vereine/VereinFormModal';
 import Loading from '../../components/Common/Loading';
@@ -25,6 +27,22 @@ const PlusIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="5" x2="12" y2="19"/>
     <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const UsersIcon = () => (
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
   </svg>
 );
 
@@ -62,6 +80,17 @@ const VereinDetail: React.FC = () => {
   } = useQuery<Adresse[]>({
     queryKey: ['adressen', 'verein', id],
     queryFn: () => adresseService.getByVereinId(Number(id)),
+    enabled: !!id,
+  });
+
+  // Fetch Mitglieder data
+  const {
+    data: mitglieder = [],
+    isLoading: mitgliederLoading,
+    error: mitgliederError,
+  } = useQuery<MitgliedDto[]>({
+    queryKey: ['mitglieder', 'verein', id],
+    queryFn: () => mitgliedService.getByVereinId(Number(id), true),
     enabled: !!id,
   });
 
@@ -398,7 +427,63 @@ const VereinDetail: React.FC = () => {
         {/* Mitglieder Tab */}
         {activeTab === 'mitglieder' && (
           <div className="mitglieder-section">
-            <p>{t('common:status.comingSoon')}</p>
+            <div className="section-header">
+              <h2>{t('vereine:tabs.mitglieder')}</h2>
+            </div>
+
+            {mitgliederLoading && <Loading />}
+            {mitgliederError && <ErrorMessage message={t('common:errors.loadFailed')} />}
+
+            {!mitgliederLoading && !mitgliederError && mitglieder.length === 0 && (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <UsersIcon />
+                </div>
+                <h3>{t('vereine:mitglieder.empty.title')}</h3>
+                <p>{t('vereine:mitglieder.empty.message')}</p>
+              </div>
+            )}
+
+            {!mitgliederLoading && !mitgliederError && mitglieder.length > 0 && (
+              <div className="mitglieder-list">
+                {mitglieder.map((mitglied) => (
+                  <div key={mitglied.id} className="mitglied-card">
+                    <div className="mitglied-card-header">
+                      <div className="mitglied-avatar">
+                        {mitglied.vorname?.[0]}{mitglied.nachname?.[0]}
+                      </div>
+                      <div className="mitglied-info">
+                        <h3>{mitglied.vorname} {mitglied.nachname}</h3>
+                        <p className="mitglied-number">#{mitglied.mitgliedsnummer}</p>
+                      </div>
+                    </div>
+                    <div className="mitglied-card-body">
+                      {mitglied.email && (
+                        <div className="info-row">
+                          <span className="info-label">{t('vereine:mitglieder.email')}:</span>
+                          <span className="info-value">{mitglied.email}</span>
+                        </div>
+                      )}
+                      {mitglied.telefon && (
+                        <div className="info-row">
+                          <span className="info-label">{t('vereine:mitglieder.telefon')}:</span>
+                          <span className="info-value">{mitglied.telefon}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mitglied-card-footer">
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => navigate(`/mitglieder/${mitglied.id}`)}
+                      >
+                        <EyeIcon />
+                        <span>{t('common:actions.view')}</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
