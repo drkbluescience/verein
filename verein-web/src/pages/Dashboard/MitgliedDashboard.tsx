@@ -82,14 +82,16 @@ const MitgliedDashboard: React.FC = () => {
 
   // Fetch member's vereine
   const { data: memberVereine, isLoading: vereineLoading } = useQuery({
-    queryKey: ['member-vereine', user?.mitgliedId],
+    queryKey: ['member-vereine', user?.mitgliedId, user?.vereinId],
     queryFn: async () => {
-      // TODO: Backend should provide endpoint to get member's vereine
-      // For now, get all vereine and filter (not ideal for production)
-      const allVereine = await vereinService.getAll();
-      return allVereine;
+      // Mitglied users should only see their own Verein
+      if (user?.vereinId) {
+        const verein = await vereinService.getById(user.vereinId);
+        return [verein];
+      }
+      return [];
     },
-    enabled: !!user?.mitgliedId,
+    enabled: !!user?.mitgliedId && !!user?.vereinId,
   });
 
   // Fetch selected verein details
@@ -119,6 +121,13 @@ const MitgliedDashboard: React.FC = () => {
     familyMembers: 0,
     membershipYears: 0
   });
+
+  // Auto-select user's Verein if not already selected
+  useEffect(() => {
+    if (user?.vereinId && !selectedVereinId && memberVereine && memberVereine.length > 0) {
+      setSelectedVereinId(user.vereinId);
+    }
+  }, [user?.vereinId, selectedVereinId, memberVereine, setSelectedVereinId]);
 
   // Calculate stats from real data
   useEffect(() => {
