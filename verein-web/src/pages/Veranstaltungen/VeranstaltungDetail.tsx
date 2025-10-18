@@ -11,6 +11,7 @@ import ErrorMessage from '../../components/Common/ErrorMessage';
 import { VeranstaltungAnmeldungDto, CreateVeranstaltungAnmeldungDto } from '../../types/veranstaltung';
 import VeranstaltungFormModal from '../../components/Veranstaltung/VeranstaltungFormModal';
 import AddParticipantModal from '../../components/Veranstaltung/AddParticipantModal';
+import ImageGallery from '../../components/Veranstaltung/ImageGallery';
 import './VeranstaltungDetail.css';
 
 // SVG Icons
@@ -685,6 +686,12 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
             </div>
           </div>
         )}
+
+        {/* Image Gallery Section */}
+        <ImageGallery
+          veranstaltungId={eventId}
+          canManage={canManageEvent()}
+        />
       </div>
 
       {/* Action Bar - Only for Admin and Dernek */}
