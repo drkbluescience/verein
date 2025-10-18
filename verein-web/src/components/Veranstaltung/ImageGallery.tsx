@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@antml/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { veranstaltungBildService } from '../../services/veranstaltungService';
 import { VeranstaltungBildDto } from '../../types/veranstaltung';
 import { useToast } from '../../contexts/ToastContext';
@@ -97,7 +97,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
     );
   }
 
-  const sortedImages = images?.sort((a, b) => (a.reihenfolge || 0) - (b.reihenfolge || 0)) || [];
+  const sortedImages = images?.sort((a: VeranstaltungBildDto, b: VeranstaltungBildDto) => (a.reihenfolge || 0) - (b.reihenfolge || 0)) || [];
 
   // Helper function to get full image URL
   const getImageUrl = (bildPfad: string) => {
@@ -135,7 +135,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
         </div>
       ) : (
         <div className="gallery-grid">
-          {sortedImages.map((image) => (
+          {sortedImages.map((image: VeranstaltungBildDto) => (
             <div key={image.id} className="gallery-item">
               <div className="image-wrapper" onClick={() => handleImageClick(image)}>
                 <img
