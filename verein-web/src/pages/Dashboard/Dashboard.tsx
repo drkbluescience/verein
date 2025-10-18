@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { healthService, vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
 import { veranstaltungService } from '../../services/veranstaltungService';
+import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import './Dashboard.css';
@@ -28,6 +29,7 @@ interface DashboardStats {
 const Dashboard: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['dashboard', 'common']);
+  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalVereine: 0,
     activeVereine: 0,
@@ -36,52 +38,79 @@ const Dashboard: React.FC = () => {
   });
 
   // Health check query
-  const { 
-    data: healthStatus, 
-    isLoading: healthLoading, 
+  const {
+    data: healthStatus,
+    isLoading: healthLoading,
     error: healthError,
-    refetch: refetchHealth 
+    refetch: refetchHealth
   } = useQuery<HealthStatus>({
     queryKey: ['health'],
     queryFn: healthService.check,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  // Vereine query for stats
+  // Vereine query for stats - filtered by user role
   const {
     data: vereine,
     isLoading: vereineLoading
   } = useQuery({
-    queryKey: ['vereine'],
-    queryFn: vereinService.getAll,
-    enabled: !!healthStatus, // Only fetch if health check passes
+    queryKey: ['vereine', user?.vereinId],
+    queryFn: async () => {
+      // If user is Mitglied (member), only show their Verein
+      if (user?.type === 'mitglied' && user?.vereinId) {
+        const verein = await vereinService.getById(user.vereinId);
+        return [verein];
+      }
+      // Admin and Dernek can see all Vereine
+      return vereinService.getAll();
+    },
+    enabled: !!healthStatus && !!user, // Only fetch if health check passes and user is loaded
   });
 
-  // Mitglieder query for stats
+  // Mitglieder query for stats - filtered by user role
   const {
     data: mitgliederData
   } = useQuery({
-    queryKey: ['mitglieder', 'all'],
-    queryFn: () => mitgliedService.getAll({ pageNumber: 1, pageSize: 1000 }),
-    enabled: !!healthStatus,
+    queryKey: ['mitglieder', user?.vereinId],
+    queryFn: async () => {
+      // If user is Mitglied, only show members from their Verein
+      if (user?.type === 'mitglied' && user?.vereinId) {
+        return mitgliedService.getByVereinId(user.vereinId, true);
+      }
+      // Admin and Dernek can see all members
+      return mitgliedService.getAll({ pageNumber: 1, pageSize: 1000 });
+    },
+    enabled: !!healthStatus && !!user,
   });
 
-  // Veranstaltungen query for stats
+  // Veranstaltungen query for stats - filtered by user role
   const {
     data: veranstaltungen
   } = useQuery({
-    queryKey: ['veranstaltungen', 'all'],
-    queryFn: () => veranstaltungService.getAll(),
-    enabled: !!healthStatus,
+    queryKey: ['veranstaltungen', user?.vereinId],
+    queryFn: async () => {
+      // If user is Mitglied, only show events from their Verein
+      if (user?.type === 'mitglied' && user?.vereinId) {
+        return veranstaltungService.getByVereinId(user.vereinId);
+      }
+      // Admin and Dernek can see all events
+      return veranstaltungService.getAll();
+    },
+    enabled: !!healthStatus && !!user,
   });
 
   // Update stats when data changes
   useEffect(() => {
     if (vereine || mitgliederData || veranstaltungen) {
+      // Handle mitgliederData which can be PagedResult or array
+      const mitgliederCount = Array.isArray(mitgliederData)
+        ? mitgliederData.length
+        : mitgliederData?.items?.length || 0;
+
       setStats({
         totalVereine: vereine?.length || 0,
         activeVereine: vereine?.filter(v => v.aktiv).length || 0,
-        totalMitglieder: mitgliederData?.items?.length || 0,
+        totalMitglieder: mitgliederCount,
         totalVeranstaltungen: veranstaltungen?.length || 0,
       });
     }
