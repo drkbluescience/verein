@@ -201,6 +201,17 @@ export interface MitgliedStats {
   averageAge?: number;
 }
 
+// Membership Statistics
+export interface MembershipStatistics {
+  totalMembers: number;
+  activeMembers: number;
+  inactiveMembers: number;
+  newMembersThisMonth: number;
+  newMembersThisYear: number;
+  membersByStatus: Record<number, number>;
+  membersByType: Record<number, number>;
+}
+
 // Display Types for UI
 export interface MitgliedDisplayInfo {
   id: number;

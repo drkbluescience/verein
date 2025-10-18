@@ -170,5 +170,52 @@ public class VereineController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Get all active Vereine
+    /// </summary>
+    /// <returns>List of active Vereine</returns>
+    [HttpGet("active")]
+    [ProducesResponseType(typeof(IEnumerable<VereinDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<VereinDto>>> GetActive()
+    {
+        try
+        {
+            var vereinDtos = await _vereinService.GetActiveVereineAsync();
+            return Ok(vereinDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while getting active Vereine");
+            return StatusCode(500, "Internal server error");
+        }
+    }
 
+    /// <summary>
+    /// Get a Verein with full details (including addresses, bank accounts, etc.)
+    /// </summary>
+    /// <param name="id">Verein ID</param>
+    /// <returns>Verein with full details</returns>
+    [HttpGet("{id}/full-details")]
+    [ProducesResponseType(typeof(VereinDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<VereinDto>> GetFullDetails(int id)
+    {
+        try
+        {
+            var vereinDto = await _vereinService.GetFullDetailsAsync(id);
+            if (vereinDto == null)
+            {
+                return NotFound($"Verein with ID {id} not found");
+            }
+
+            return Ok(vereinDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while getting full details for Verein with ID {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }

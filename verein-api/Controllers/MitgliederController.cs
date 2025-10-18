@@ -249,6 +249,131 @@ public class MitgliederController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    /// <summary>
+    /// Create new Mitglied with address in one transaction
+    /// </summary>
+    [HttpPost("with-address")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can create members
+    [ProducesResponseType(typeof(MitgliedDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<MitgliedDto>> CreateWithAddress(
+        [FromBody] CreateMitgliedWithAddressRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var validationResult = await _mitgliedService.ValidateCreateAsync(request.Mitglied, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            var mitglied = await _mitgliedService.CreateWithAddressAsync(
+                request.Mitglied,
+                request.Adresse,
+                cancellationToken);
+
+            return CreatedAtAction(nameof(GetById), new { id = mitglied.Id }, mitglied);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while creating Mitglied with address");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Transfer Mitglied to another Verein
+    /// </summary>
+    [HttpPost("{id:int}/transfer")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can transfer members
+    [ProducesResponseType(typeof(MitgliedDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<MitgliedDto>> Transfer(
+        int id,
+        [FromBody] TransferMitgliedRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var mitglied = await _mitgliedService.TransferToVereinAsync(
+                id,
+                request.NewVereinId,
+                request.TransferDate,
+                cancellationToken);
+
+            if (mitglied == null)
+            {
+                return NotFound($"Mitglied with ID {id} not found");
+            }
+
+            return Ok(mitglied);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Validation error while transferring Mitglied with ID {Id}", id);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while transferring Mitglied with ID {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Set active status for a Mitglied
+    /// </summary>
+    [HttpPost("{id:int}/set-active")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can change member status
+    [ProducesResponseType(typeof(MitgliedDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<MitgliedDto>> SetActiveStatus(
+        int id,
+        [FromBody] SetActiveStatusRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var mitglied = await _mitgliedService.SetActiveStatusAsync(
+                id,
+                request.IsActive,
+                cancellationToken);
+
+            if (mitglied == null)
+            {
+                return NotFound($"Mitglied with ID {id} not found");
+            }
+
+            return Ok(mitglied);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while setting active status for Mitglied with ID {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }
 
 

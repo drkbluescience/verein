@@ -10,6 +10,7 @@ import {
   CreateMitgliedWithAddressRequest,
   TransferMitgliedRequest,
   SetActiveStatusRequest,
+  MembershipStatistics,
   PagedResult,
   MitgliedSearchParams
 } from '../types/mitglied';
@@ -76,6 +77,11 @@ export const mitgliedService = {
     if (vereinId) queryParams.append('vereinId', vereinId.toString());
 
     return await api.get<MitgliedDto[]>(`/api/Mitglieder/search?${queryParams}`);
+  },
+
+  // Get membership statistics for a Verein
+  getMembershipStatistics: async (vereinId: number): Promise<MembershipStatistics> => {
+    return await api.get<MembershipStatistics>(`/api/Mitglieder/statistics/verein/${vereinId}`);
   }
 };
 
