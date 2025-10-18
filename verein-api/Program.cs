@@ -184,6 +184,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseResponseCompression();
 
+// Static Files (for uploaded images)
+app.UseStaticFiles();
+
 // Global Exception Handling
 app.UseGlobalExceptionHandling();
 

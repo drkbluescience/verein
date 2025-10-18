@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@antml/react-query';
 import { veranstaltungBildService } from '../../services/veranstaltungService';
 import { VeranstaltungBildDto } from '../../types/veranstaltung';
 import { useToast } from '../../contexts/ToastContext';
 import ImageUploadModal from './ImageUploadModal';
 import './ImageGallery.css';
+
+// API Base URL for images
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5103';
 
 interface ImageGalleryProps {
   veranstaltungId: number;
@@ -96,6 +99,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
 
   const sortedImages = images?.sort((a, b) => (a.reihenfolge || 0) - (b.reihenfolge || 0)) || [];
 
+  // Helper function to get full image URL
+  const getImageUrl = (bildPfad: string) => {
+    if (bildPfad.startsWith('http')) {
+      return bildPfad;
+    }
+    return `${API_BASE_URL}${bildPfad}`;
+  };
+
   return (
     <div className="image-gallery">
       <div className="gallery-header">
@@ -128,7 +139,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
             <div key={image.id} className="gallery-item">
               <div className="image-wrapper" onClick={() => handleImageClick(image)}>
                 <img
-                  src={image.bildPfad}
+                  src={getImageUrl(image.bildPfad)}
                   alt={image.titel || 'Etkinlik resmi'}
                   className="gallery-image"
                   onError={(e) => {
@@ -176,7 +187,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
           <div className="preview-content" onClick={(e) => e.stopPropagation()}>
             <button className="preview-close" onClick={closeImagePreview}>×</button>
             <img
-              src={selectedImage.bildPfad}
+              src={getImageUrl(selectedImage.bildPfad)}
               alt={selectedImage.titel || 'Etkinlik resmi'}
               className="preview-image"
             />

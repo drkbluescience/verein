@@ -264,16 +264,34 @@ public class VeranstaltungBildService : IVeranstaltungBildService
                 throw new ArgumentException($"Veranstaltung with ID {veranstaltungId} not found");
             }
 
+            // Generate unique file name
+            var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+            var relativePath = $"/images/veranstaltungen/{veranstaltungId}/{uniqueFileName}";
+
+            // Save file to wwwroot
+            var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var eventFolderPath = Path.Combine(wwwrootPath, "images", "veranstaltungen", veranstaltungId.ToString());
+
+            // Create directory if it doesn't exist
+            if (!Directory.Exists(eventFolderPath))
+            {
+                Directory.CreateDirectory(eventFolderPath);
+            }
+
+            var fullPath = Path.Combine(eventFolderPath, uniqueFileName);
+
+            // Write file to disk
+            await File.WriteAllBytesAsync(fullPath, fileContent, cancellationToken);
+
+            _logger.LogInformation("Image saved to {FilePath}", fullPath);
+
             var createDto = new CreateVeranstaltungBildDto
             {
                 VeranstaltungId = veranstaltungId,
-                BildPfad = $"/images/veranstaltungen/{veranstaltungId}/{Guid.NewGuid()}_{fileName}",
+                BildPfad = relativePath,
                 Titel = description ?? fileName,
                 Reihenfolge = await GetNextSortOrderForEventAsync(veranstaltungId, cancellationToken)
             };
-
-            // TODO: Save file to storage (file system, cloud storage, etc.)
-            // For now, we'll just store the metadata
 
             return await CreateAsync(createDto, cancellationToken);
         }
