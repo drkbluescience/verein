@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Attributes;
 using VereinsApi.DTOs.Verein;
 using VereinsApi.Services.Interfaces;
 
@@ -10,6 +12,7 @@ namespace VereinsApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
+[Authorize] // Require authentication for all endpoints
 public class VereineController : ControllerBase
 {
     private readonly IVereinService _vereinService;
@@ -28,6 +31,7 @@ public class VereineController : ControllerBase
     /// </summary>
     /// <returns>List of all Vereine</returns>
     [HttpGet]
+    [RequireAdmin] // Only Admin can view all Vereine
     [ProducesResponseType(typeof(IEnumerable<VereinDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VereinDto>>> GetAll()
     {
@@ -76,6 +80,7 @@ public class VereineController : ControllerBase
     /// <param name="createDto">Verein creation data</param>
     /// <returns>Created Verein</returns>
     [HttpPost]
+    [RequireAdmin] // Only Admin can create new Vereine
     [ProducesResponseType(typeof(VereinDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VereinDto>> Create([FromBody] CreateVereinDto createDto)
@@ -109,6 +114,7 @@ public class VereineController : ControllerBase
     /// <param name="updateDto">Verein update data</param>
     /// <returns>Updated Verein</returns>
     [HttpPut("{id}")]
+    [RequireAdminOrDernek] // Admin or Dernek can update (Dernek only their own)
     [ProducesResponseType(typeof(VereinDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -142,6 +148,7 @@ public class VereineController : ControllerBase
     /// <param name="id">Verein ID</param>
     /// <returns>No content</returns>
     [HttpDelete("{id}")]
+    [RequireAdmin] // Only Admin can delete Vereine
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)

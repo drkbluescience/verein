@@ -13,6 +13,7 @@ export interface LoginResponse {
   vereinId?: number;
   mitgliedId?: number;
   permissions: string[];
+  token: string; // JWT token
 }
 
 export interface RegisterMitgliedRequest {

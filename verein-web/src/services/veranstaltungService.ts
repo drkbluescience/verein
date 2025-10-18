@@ -1,12 +1,15 @@
 import { api } from './api';
-import { 
-  VeranstaltungDto, 
-  CreateVeranstaltungDto, 
+import {
+  VeranstaltungDto,
+  CreateVeranstaltungDto,
   UpdateVeranstaltungDto,
   VeranstaltungAnmeldungDto,
   CreateVeranstaltungAnmeldungDto,
-  VeranstaltungSearchParams,
-  PagedResult 
+  UpdateVeranstaltungAnmeldungDto,
+  VeranstaltungBildDto,
+  CreateVeranstaltungBildDto,
+  UpdateVeranstaltungBildDto,
+  VeranstaltungSearchParams
 } from '../types/veranstaltung';
 
 // Veranstaltung Service
@@ -72,14 +75,91 @@ export const veranstaltungAnmeldungService = {
     return await api.get<VeranstaltungAnmeldungDto[]>(`/api/VeranstaltungAnmeldungen/mitglied/${mitgliedId}`);
   },
 
+  // Get Anmeldungen by Status
+  getByStatus: async (status: number): Promise<VeranstaltungAnmeldungDto[]> => {
+    return await api.get<VeranstaltungAnmeldungDto[]>(`/api/VeranstaltungAnmeldungen/status/${status}`);
+  },
+
   // Create new Anmeldung
   create: async (data: CreateVeranstaltungAnmeldungDto): Promise<VeranstaltungAnmeldungDto> => {
     return await api.post<VeranstaltungAnmeldungDto>('/api/VeranstaltungAnmeldungen', data);
   },
 
+  // Update Anmeldung
+  update: async (id: number, data: UpdateVeranstaltungAnmeldungDto): Promise<VeranstaltungAnmeldungDto> => {
+    return await api.put<VeranstaltungAnmeldungDto>(`/api/VeranstaltungAnmeldungen/${id}`, data);
+  },
+
+  // Update Anmeldung Status
+  updateStatus: async (id: number, status: string): Promise<VeranstaltungAnmeldungDto> => {
+    return await api.patch<VeranstaltungAnmeldungDto>(`/api/VeranstaltungAnmeldungen/${id}/status`, status);
+  },
+
   // Delete Anmeldung
   delete: async (id: number): Promise<void> => {
     return await api.delete<void>(`/api/VeranstaltungAnmeldungen/${id}`);
+  }
+};
+
+// VeranstaltungBild Service
+export const veranstaltungBildService = {
+  // Get all Bilder
+  getAll: async (): Promise<VeranstaltungBildDto[]> => {
+    return await api.get<VeranstaltungBildDto[]>('/api/VeranstaltungBilder');
+  },
+
+  // Get Bild by ID
+  getById: async (id: number): Promise<VeranstaltungBildDto> => {
+    return await api.get<VeranstaltungBildDto>(`/api/VeranstaltungBilder/${id}`);
+  },
+
+  // Get Bilder by Veranstaltung ID
+  getByVeranstaltungId: async (veranstaltungId: number): Promise<VeranstaltungBildDto[]> => {
+    return await api.get<VeranstaltungBildDto[]>(`/api/VeranstaltungBilder/veranstaltung/${veranstaltungId}`);
+  },
+
+  // Upload Image
+  uploadImage: async (
+    veranstaltungId: number,
+    file: File,
+    titel?: string,
+    reihenfolge: number = 1
+  ): Promise<VeranstaltungBildDto> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (titel) formData.append('titel', titel);
+    formData.append('reihenfolge', reihenfolge.toString());
+
+    return await api.post<VeranstaltungBildDto>(
+      `/api/VeranstaltungBilder/upload/${veranstaltungId}`,
+      formData
+    );
+  },
+
+  // Create Bild with existing path
+  create: async (data: CreateVeranstaltungBildDto): Promise<VeranstaltungBildDto> => {
+    return await api.post<VeranstaltungBildDto>('/api/VeranstaltungBilder', data);
+  },
+
+  // Update Bild
+  update: async (id: number, data: UpdateVeranstaltungBildDto): Promise<VeranstaltungBildDto> => {
+    return await api.put<VeranstaltungBildDto>(`/api/VeranstaltungBilder/${id}`, data);
+  },
+
+  // Reorder Images
+  reorderImages: async (
+    veranstaltungId: number,
+    sortOrders: Record<number, number>
+  ): Promise<VeranstaltungBildDto[]> => {
+    return await api.patch<VeranstaltungBildDto[]>(
+      `/api/VeranstaltungBilder/veranstaltung/${veranstaltungId}/reorder`,
+      sortOrders
+    );
+  },
+
+  // Delete Bild
+  delete: async (id: number): Promise<void> => {
+    return await api.delete<void>(`/api/VeranstaltungBilder/${id}`);
   }
 };
 

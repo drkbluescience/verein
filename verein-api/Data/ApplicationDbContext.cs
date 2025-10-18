@@ -125,7 +125,15 @@ public class ApplicationDbContext : DbContext
                 case EntityState.Added:
                     entry.Entity.Created = DateTime.UtcNow;
                     entry.Entity.DeletedFlag = false;
-                    entry.Entity.Aktiv = true;
+
+                    // Only set Aktiv for entities that have this column in database
+                    // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild don't have Aktiv column
+                    if (entry.Entity is not MitgliedFamilie
+                        && entry.Entity is not VeranstaltungAnmeldung
+                        && entry.Entity is not VeranstaltungBild)
+                    {
+                        entry.Entity.Aktiv = true;
+                    }
                     break;
 
                 case EntityState.Modified:

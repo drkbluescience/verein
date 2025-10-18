@@ -73,17 +73,27 @@
     "mitglieder": "Üyeler"
   },
   "fields": {
+    "name": "Dernek Adı",
+    "kurzname": "Kısa Ad",
     "email": "E-posta",
     "telefon": "Telefon",
     "webseite": "Web Sitesi",
     "vorstandsvorsitzender": "Başkan",
     "kontaktperson": "İletişim Kişisi",
     "gruendungsdatum": "Kuruluş Tarihi",
-    "zweck": "Amaç"
+    "zweck": "Amaç",
+    "aktiv": "Aktif"
+  },
+  "editVerein": "Dernek Bilgilerini Düzenle",
+  "validation": {
+    "nameRequired": "Dernek adı zorunludur",
+    "invalidEmail": "Geçerli bir e-posta adresi giriniz",
+    "invalidUrl": "Geçerli bir URL giriniz (https://... ile başlamalı)"
   },
   "errors": {
     "loadFailed": "Dernek yüklenemedi",
-    "vereinNotFound": "Dernek bulunamadı"
+    "vereinNotFound": "Dernek bulunamadı",
+    "updateFailed": "Dernek güncellenirken bir hata oluştu"
   }
 }
 

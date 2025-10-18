@@ -81,5 +81,11 @@ public class CreateVeranstaltungDto
     /// </summary>
     [JsonPropertyName("anmeldeErforderlich")]
     public bool AnmeldeErforderlich { get; set; } = false;
+
+    /// <summary>
+    /// Active status flag
+    /// </summary>
+    [JsonPropertyName("aktiv")]
+    public bool Aktiv { get; set; } = true;
 }
 

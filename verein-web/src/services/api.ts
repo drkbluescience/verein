@@ -70,6 +70,12 @@ export const api = {
     return response.data;
   },
 
+  // PATCH request
+  patch: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await apiClient.patch<T>(url, data);
+    return response.data;
+  },
+
   // DELETE request
   delete: async <T>(url: string): Promise<T> => {
     const response = await apiClient.delete<T>(url);

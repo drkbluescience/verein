@@ -109,7 +109,7 @@ public class VeranstaltungConfiguration : IEntityTypeConfiguration<Veranstaltung
             .HasColumnName("WaehrungId");
 
         builder.HasOne(v => v.Verein)
-            .WithMany()
+            .WithMany(ve => ve.Veranstaltungen)
             .HasForeignKey(v => v.VereinId)
             .OnDelete(DeleteBehavior.Cascade);
 

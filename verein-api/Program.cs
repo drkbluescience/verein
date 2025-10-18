@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Serilog;
 using VereinsApi.Data;
 // using VereinsApi.Data.Repositories;
 using VereinsApi.Domain.Interfaces;
-// using VereinsApi.Services;
+using VereinsApi.Services;
+using VereinsApi.Middleware;
 // using VereinsApi.Services.Interfaces;
 // using VereinsApi.Mapping;
 // using VereinsApi.Validators;
@@ -34,21 +38,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    if (builder.Environment.IsDevelopment())
+    // Always use SQL Server (both Development and Production)
+    options.UseSqlServer(connectionString, sqlOptions =>
     {
-        options.UseSqlite(connectionString);
-    }
-    else
-    {
-        options.UseSqlServer(connectionString, sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-            sqlOptions.CommandTimeout(120);
-        });
-    }
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null);
+        sqlOptions.CommandTimeout(120);
+    });
 });
 
 
@@ -90,6 +88,35 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankkontoService, Ver
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungService, VereinsApi.Services.VeranstaltungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungAnmeldungService, VereinsApi.Services.VeranstaltungAnmeldungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungBildService, VereinsApi.Services.VeranstaltungBildService>();
+
+// JWT Service
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+// JWT Authentication Configuration
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 // API Documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -163,9 +190,12 @@ app.UseGlobalExceptionHandling();
 // CORS
 app.UseCors("AllowSpecificOrigins");
 
-// Authentication & Authorization (if needed in the future)
-// app.UseAuthentication();
-// app.UseAuthorization();
+// Authentication & Authorization
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Custom Verein Authorization Middleware
+app.UseVereinAuthorization();
 
 // Request logging
 app.UseSerilogRequestLogging();
@@ -176,7 +206,9 @@ app.MapControllers();
 // Health Checks
 app.MapHealthChecks("/health");
 
-// Database Migration and Seeding (in Development)
+// Database Migration (in Development)
+// Note: Demo data is now managed via SQL scripts (docs/DEMO_DATA.sql)
+// Run APPLICATION_H_101.sql first, then DEMO_DATA.sql
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -187,10 +219,7 @@ if (app.Environment.IsDevelopment())
         // Ensure database is created
         await context.Database.EnsureCreatedAsync();
 
-        // Seed test data
-        await SeedData.SeedAsync(context);
-
-        Log.Information("Database initialized and seeded successfully");
+        Log.Information("Database initialized successfully. Run docs/DEMO_DATA.sql for demo data.");
     }
     catch (Exception ex)
     {

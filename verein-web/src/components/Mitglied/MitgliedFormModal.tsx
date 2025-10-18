@@ -252,7 +252,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content mitglied-form-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{mode === 'create' ? 'Yeni Üye Ekle' : 'Üye Bilgilerini Düzenle'}</h2>
           <button className="modal-close" onClick={onClose}>×</button>

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Attributes;
 using VereinsApi.DTOs.Mitglied;
 using VereinsApi.DTOs.MitgliedAdresse;
 using VereinsApi.Services.Interfaces;
@@ -13,6 +15,7 @@ namespace VereinsApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
+[Authorize] // Require authentication for all endpoints
 public class MitgliederController : ControllerBase
 {
     private readonly IMitgliedService _mitgliedService;
@@ -130,6 +133,7 @@ public class MitgliederController : ControllerBase
     /// Create new Mitglied
     /// </summary>
     [HttpPost]
+    [RequireAdminOrDernek] // Only Admin or Dernek can create members
     [ProducesResponseType(typeof(MitgliedDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -164,6 +168,7 @@ public class MitgliederController : ControllerBase
     /// Update existing Mitglied
     /// </summary>
     [HttpPut("{id:int}")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can update members
     [ProducesResponseType(typeof(MitgliedDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -205,6 +210,7 @@ public class MitgliederController : ControllerBase
     /// Delete Mitglied (soft delete)
     /// </summary>
     [HttpDelete("{id:int}")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can delete members
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

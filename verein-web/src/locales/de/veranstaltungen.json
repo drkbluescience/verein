@@ -147,6 +147,21 @@
       "registeredOn": "Anmeldedatum",
       "participants": "Teilnehmerzahl",
       "person": "Person"
+    },
+    "registration": {
+      "title": "Zur Veranstaltung anmelden",
+      "register": "Anmelden",
+      "registered": "Angemeldet",
+      "name": "Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "fee": "Gebühr",
+      "note": "Notiz (Optional)",
+      "notePlaceholder": "Besondere Wünsche, Ernährungseinschränkungen usw. können Sie hier angeben...",
+      "confirm": "Anmeldung bestätigen",
+      "registering": "Wird angemeldet...",
+      "success": "Sie haben sich erfolgreich für die Veranstaltung angemeldet!",
+      "error": "Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
     }
   }
 }

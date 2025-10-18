@@ -110,7 +110,7 @@ public class BankkontoConfiguration : IEntityTypeConfiguration<Bankkonto>
             .HasColumnName("KontotypId");
 
         builder.HasOne(b => b.Verein)
-            .WithMany()
+            .WithMany(v => v.Bankkonten)
             .HasForeignKey(b => b.VereinId)
             .OnDelete(DeleteBehavior.Cascade);
     }

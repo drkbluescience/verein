@@ -152,7 +152,7 @@ public class AdresseConfiguration : IEntityTypeConfiguration<Adresse>
             .HasColumnName("AdresseTypId");
 
         builder.HasOne(a => a.Verein)
-            .WithMany()
+            .WithMany(v => v.Adressen)
             .HasForeignKey(a => a.VereinId)
             .OnDelete(DeleteBehavior.Cascade);
     }

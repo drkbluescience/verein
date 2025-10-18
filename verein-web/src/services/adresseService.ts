@@ -82,7 +82,7 @@ export interface UpdateAdresseDto {
 }
 
 class AdresseService {
-  private readonly baseUrl = '/Adressen';
+  private readonly baseUrl = '/api/Adressen';
 
   /**
    * Get all addresses

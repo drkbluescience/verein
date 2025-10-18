@@ -72,7 +72,32 @@
   --line-height-relaxed: 1.7;
 }
 
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Neutral Colors - Dark Theme */
+  --color-background: #0f172a;
+  --color-background-primary: #1e293b;
+  --color-background-secondary: #1e293b;
+  --color-surface: #1e293b;
+  --color-surface-secondary: #334155;
+  --color-border: #475569;
+  --color-separator: #475569;
+
+  /* Text Colors - Dark Theme */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e5e7eb;
+  --color-text-tertiary: #9ca3af;
+  --color-text-on-primary: #ffffff;
+
+  /* Shadows - Dark Theme */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
 body {
+  margin: 0;
   font-family: var(--font-family);
   font-size: var(--font-size-md);
   line-height: var(--line-height-normal);
@@ -81,6 +106,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Typography - Kompakt */

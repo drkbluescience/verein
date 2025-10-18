@@ -79,8 +79,8 @@ public class VeranstaltungAnmeldungConfiguration : IEntityTypeConfiguration<Vera
             .HasDefaultValue(false)
             .HasColumnName("DeletedFlag");
 
-        builder.Property(va => va.Aktiv)
-            .HasColumnName("Aktiv");
+        // Aktiv column doesn't exist in VeranstaltungAnmeldung table - ignore it
+        builder.Ignore(va => va.Aktiv);
 
         // Indexes for performance
         builder.HasIndex(va => va.VeranstaltungId)

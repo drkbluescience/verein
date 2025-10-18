@@ -74,8 +74,8 @@ public class MitgliedFamilieConfiguration : IEntityTypeConfiguration<MitgliedFam
         builder.Property(mf => mf.DeletedFlag)
             .HasColumnName("DeletedFlag");
 
-        builder.Property(mf => mf.Aktiv)
-            .HasColumnName("Aktiv");
+        // Aktiv column doesn't exist in MitgliedFamilie table - ignore it
+        builder.Ignore(mf => mf.Aktiv);
 
         // Unique constraint from SQL schema
         builder.HasIndex(mf => new { 

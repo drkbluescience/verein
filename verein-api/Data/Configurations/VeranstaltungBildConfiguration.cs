@@ -58,8 +58,8 @@ public class VeranstaltungBildConfiguration : IEntityTypeConfiguration<Veranstal
             .HasDefaultValue(false)
             .HasColumnName("DeletedFlag");
 
-        builder.Property(vb => vb.Aktiv)
-            .HasColumnName("Aktiv");
+        // Aktiv column doesn't exist in VeranstaltungBild table - ignore it
+        builder.Ignore(vb => vb.Aktiv);
 
         // Indexes for performance
         builder.HasIndex(vb => vb.VeranstaltungId)

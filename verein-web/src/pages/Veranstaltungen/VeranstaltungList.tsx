@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import { VeranstaltungDto } from '../../types/veranstaltung';
+import VeranstaltungFormModal from '../../components/Veranstaltung/VeranstaltungFormModal';
 import './VeranstaltungList.css';
 
 // SVG Icons
@@ -70,16 +71,30 @@ const CheckIcon = () => (
   </svg>
 );
 
+const EditIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
 interface VeranstaltungCardProps {
   veranstaltung: VeranstaltungDto;
+  onEdit?: (veranstaltung: VeranstaltungDto) => void;
 }
 
-const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) => {
+const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, onEdit }) => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['veranstaltungen', 'common']);
+  const { user } = useAuth();
   const status = veranstaltungUtils.getEventStatus(veranstaltung.startdatum, veranstaltung.enddatum);
   const isUpcoming = veranstaltungUtils.isUpcoming(veranstaltung.startdatum);
   const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(veranstaltung.startdatum) : null;
+
+  // Check if user can edit (admin or dernek owner)
+  const canEdit = user?.type === 'admin' || (user?.type === 'dernek' && user?.vereinId === veranstaltung.vereinId);
+
+  // Check if user can register (only mitglied users)
+  const canRegister = user?.type === 'mitglied';
 
   const getStatusBadge = () => {
     switch (status) {
@@ -139,10 +154,10 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) 
             </div>
           )}
 
-          {veranstaltung.kosten && veranstaltung.kosten > 0 && (
+          {veranstaltung.preis && veranstaltung.preis > 0 && (
             <div className="detail-item">
               <DollarIcon />
-              <span className="detail-text">{veranstaltung.kosten}€</span>
+              <span className="detail-text">{veranstaltung.preis}€</span>
             </div>
           )}
         </div>
@@ -165,11 +180,17 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) 
           <EyeIcon />
           <span>{t('veranstaltungen:listPage.card.details')}</span>
         </Link>
-        {isUpcoming && veranstaltung.istAnmeldungErforderlich && (
-          <button className="action-btn action-btn-primary">
+        {canEdit && onEdit && (
+          <button className="action-btn" onClick={() => onEdit(veranstaltung)}>
+            <EditIcon />
+            <span>Düzenle</span>
+          </button>
+        )}
+        {canRegister && isUpcoming && veranstaltung.anmeldeErforderlich && (
+          <Link to={`/veranstaltungen/${veranstaltung.id}`} className="action-btn action-btn-primary">
             <CheckIcon />
             <span>{t('veranstaltungen:listPage.card.register')}</span>
-          </button>
+          </Link>
         )}
       </div>
     </div>
@@ -182,6 +203,9 @@ const VeranstaltungList: React.FC = () => {
   const { user } = useAuth();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVeranstaltung, setSelectedVeranstaltung] = useState<VeranstaltungDto | null>(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
   // Determine data fetching based on user type
   const {
@@ -233,12 +257,29 @@ const VeranstaltungList: React.FC = () => {
   const sortedVeranstaltungen = [...filteredVeranstaltungen].sort((a, b) => {
     const aUpcoming = veranstaltungUtils.isUpcoming(a.startdatum);
     const bUpcoming = veranstaltungUtils.isUpcoming(b.startdatum);
-    
+
     if (aUpcoming && !bUpcoming) return -1;
     if (!aUpcoming && bUpcoming) return 1;
-    
+
     return new Date(a.startdatum).getTime() - new Date(b.startdatum).getTime();
   });
+
+  const handleOpenCreateModal = () => {
+    setSelectedVeranstaltung(null);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (veranstaltung: VeranstaltungDto) => {
+    setSelectedVeranstaltung(veranstaltung);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedVeranstaltung(null);
+  };
 
   if (isLoading) {
     return <Loading text={t('veranstaltungen:listPage.loading')} />;
@@ -291,7 +332,7 @@ const VeranstaltungList: React.FC = () => {
           />
         </div>
 
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={handleOpenCreateModal}>
           <PlusIcon />
           <span>{t('veranstaltungen:listPage.actions.newEvent')}</span>
         </button>
@@ -334,7 +375,7 @@ const VeranstaltungList: React.FC = () => {
               }
             </p>
             {!searchTerm && (
-              <button className="btn-primary">
+              <button className="btn-primary" onClick={handleOpenCreateModal}>
                 <PlusIcon />
                 <span>{t('veranstaltungen:listPage.actions.addFirstEvent')}</span>
               </button>
@@ -345,10 +386,19 @@ const VeranstaltungList: React.FC = () => {
             <VeranstaltungCard
               key={veranstaltung.id}
               veranstaltung={veranstaltung}
+              onEdit={handleOpenEditModal}
             />
           ))
         )}
       </div>
+
+      {/* Veranstaltung Form Modal */}
+      <VeranstaltungFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        veranstaltung={selectedVeranstaltung}
+        mode={modalMode}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,6 +13,18 @@ const Login: React.FC = () => {
   const { login, loading } = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
+
+  // Force light theme for login/signup pages
+  useEffect(() => {
+    const originalTheme = document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', 'light');
+
+    return () => {
+      if (originalTheme) {
+        document.documentElement.setAttribute('data-theme', originalTheme);
+      }
+    };
+  }, []);
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);

@@ -182,7 +182,7 @@
 
 .login-subtitle {
   font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
+  color: #6b7280;
   margin: 0;
   font-weight: 500;
 }
@@ -482,7 +482,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #374151;
+  color: #111827;
 }
 
 .demo-btn svg {
@@ -616,14 +616,14 @@
 
 .footer-text {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: #6b7280;
   margin: 0 0 var(--spacing-sm) 0;
   font-weight: 500;
 }
 
 .footer-version {
   font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
+  color: #9ca3af;
   font-weight: 600;
 }
 
@@ -703,11 +703,11 @@
 @media (prefers-color-scheme: dark) {
   .login-card {
     background: rgba(255, 255, 255, 0.95);
-    color: #1a1a1a;
+    color: #111827;
   }
 
   .login-title {
-    color: #1a1a1a !important;
+    color: #111827 !important;
   }
 
   .login-subtitle,
@@ -720,11 +720,17 @@
   }
 
   .form-group label {
-    color: #1a1a1a !important;
+    color: #111827 !important;
   }
 
   .demo-title {
     color: #6b7280 !important;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    background: white !important;
+    color: #111827 !important;
   }
 }
 

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Attributes;
 using VereinsApi.DTOs.Adresse;
 using VereinsApi.Services.Interfaces;
 
@@ -10,6 +12,7 @@ namespace VereinsApi.Controllers;
 [ApiController] // API controller özelliklerini aktifleştirir
 [Route("api/[controller]")] // base route
 [Produces("application/json")] // JSON response döner
+[Authorize] // Require authentication for all endpoints
 // ControllerBase - API controller base class
 public class AdressenController : ControllerBase
 {
@@ -98,6 +101,7 @@ public class AdressenController : ControllerBase
     /// <param name="createDto">Adresse creation data</param>
     /// <returns>Created Adresse</returns>
     [HttpPost]
+    [RequireAdminOrDernek] // Only Admin or Dernek can create addresses
     [ProducesResponseType(typeof(AdresseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AdresseDto>> Create([FromBody] CreateAdresseDto createDto)
@@ -131,6 +135,7 @@ public class AdressenController : ControllerBase
     /// <param name="updateDto">Adresse update data</param>
     /// <returns>Updated Adresse</returns>
     [HttpPut("{id}")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can update addresses
     [ProducesResponseType(typeof(AdresseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -164,6 +169,7 @@ public class AdressenController : ControllerBase
     /// <param name="id">Adresse ID</param>
     /// <returns>No content</returns>
     [HttpDelete("{id}")]
+    [RequireAdminOrDernek] // Only Admin or Dernek can delete addresses
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)

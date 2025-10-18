@@ -76,6 +76,7 @@ export interface CreateVereinDto {
 
 export interface UpdateVereinDto {
   name?: string;
+  kurzname?: string;
   vereinsnummer?: string;
   mandantencode?: string;
   rechtsformId?: number;
@@ -83,8 +84,10 @@ export interface UpdateVereinDto {
   hauptBankkontoId?: number;
   telefon?: string;
   telefax?: string;
+  fax?: string;
   email?: string;
   webseite?: string;
+  socialMediaLinks?: string;
   vereinsregisterNummer?: string;
   vereinsregisterGericht?: string;
   steuernummer?: string;
@@ -97,6 +100,17 @@ export interface UpdateVereinDto {
   gruendungsdatum?: string;
   aufloesungsdatum?: string;
   bemerkungen?: string;
+  zweck?: string;
+  vorstandsvorsitzender?: string;
+  geschaeftsfuehrer?: string;
+  vertreterEmail?: string;
+  kontaktperson?: string;
+  mitgliederzahl?: number;
+  satzungPfad?: string;
+  logoPfad?: string;
+  externeReferenzId?: string;
+  ePostEmpfangAdresse?: string;
+  sepaGlaeubigerID?: string;
   aktiv?: boolean;
   elektronischeSignaturKey?: string;
 }

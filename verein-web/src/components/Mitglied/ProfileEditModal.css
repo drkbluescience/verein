@@ -5,28 +5,38 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: var(--spacing-md);
   backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Profile Modal Content */
 .profile-modal-content {
-  background: white;
-  border-radius: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: profileModalSlideIn 0.3s ease-out;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s ease-out;
 }
 
-@keyframes profileModalSlideIn {
+@keyframes slideUp {
   from {
     opacity: 0;
     transform: translateY(-20px);
@@ -42,14 +52,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 32px;
-  border-bottom: 2px solid #f3f4f6;
+  padding: var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .profile-modal-header h2 {
-  font-size: 22px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -57,10 +67,10 @@
   width: 36px;
   height: 36px;
   border: none;
-  background: #f3f4f6;
-  border-radius: 8px;
-  font-size: 24px;
-  color: #6b7280;
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -69,27 +79,27 @@
 }
 
 .profile-modal-close:hover {
-  background: #e5e7eb;
-  color: #111827;
+  background: var(--color-border);
+  color: var(--color-text-primary);
 }
 
 /* Profile Modal Form */
 .profile-modal-form {
-  padding: 32px;
+  padding: var(--spacing-xl);
 }
 
 /* Info Box */
 .profile-info-box {
-  padding: 16px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  margin-bottom: 24px;
+  padding: var(--spacing-md);
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .profile-info-text {
-  font-size: 14px;
-  color: #1e40af;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
   margin: 0;
   line-height: 1.6;
 }
@@ -98,73 +108,74 @@
 .profile-form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
 }
 
 .profile-form-group label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 .profile-form-group input {
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 15px;
-  color: #111827;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
   transition: all 0.2s ease;
   font-family: inherit;
 }
 
 .profile-form-group input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .profile-form-group input.error {
-  border-color: #ef4444;
+  border-color: var(--color-error);
 }
 
 .profile-form-group input:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
   cursor: not-allowed;
 }
 
 .profile-error-message {
-  font-size: 13px;
-  color: #ef4444;
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
   font-weight: 500;
 }
 
 .profile-error-box {
-  padding: 12px 16px;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  color: #991b1b;
-  font-size: 14px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-md);
 }
 
 /* Profile Modal Footer */
 .profile-modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 2px solid #f3f4f6;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 }
 
 .profile-btn-primary,
 .profile-btn-secondary {
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -172,30 +183,29 @@
 }
 
 .profile-btn-primary {
-  background: #3b82f6;
+  background: var(--color-primary);
   color: white;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .profile-btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
 }
 
 .profile-btn-primary:disabled {
-  background: #9ca3af;
+  opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .profile-btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 .profile-btn-secondary:hover:not(:disabled) {
-  background: #e5e7eb;
+  background: var(--color-border);
 }
 
 .profile-btn-secondary:disabled {
@@ -203,24 +213,38 @@
   cursor: not-allowed;
 }
 
+/* Dark Mode Specific Adjustments */
+[data-theme="dark"] .profile-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .profile-form-group input {
+  background-color: var(--color-background);
+}
+
+[data-theme="dark"] .profile-form-group input:focus {
+  background-color: var(--color-surface);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  .profile-modal-overlay {
+    padding: 0;
+  }
+
   .profile-modal-content {
     max-width: 100%;
     max-height: 100vh;
     border-radius: 0;
   }
 
-  .profile-modal-header {
-    padding: 20px;
+  .profile-modal-header,
+  .profile-modal-form {
+    padding: var(--spacing-md);
   }
 
   .profile-modal-header h2 {
-    font-size: 18px;
-  }
-
-  .profile-modal-form {
-    padding: 20px;
+    font-size: var(--font-size-lg);
   }
 
   .profile-modal-footer {

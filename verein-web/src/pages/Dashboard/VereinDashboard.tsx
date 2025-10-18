@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { mitgliedService } from '../../services/mitgliedService';
@@ -275,7 +276,7 @@ const VereinDashboard: React.FC = () => {
       <div className="actions-section">
         <h2>{t('dashboard:verein.quickActions.title')}</h2>
         <div className="actions-grid">
-          <a href="/mitglieder" className="action-card">
+          <Link to="/mitglieder" className="action-card">
             <div className="action-icon">
               <UsersIcon />
             </div>
@@ -283,9 +284,9 @@ const VereinDashboard: React.FC = () => {
               <h3>{t('dashboard:verein.quickActions.memberManagement.title')}</h3>
               <p>{t('dashboard:verein.quickActions.memberManagement.description')}</p>
             </div>
-          </a>
+          </Link>
 
-          <a href="/veranstaltungen" className="action-card">
+          <Link to="/veranstaltungen" className="action-card">
             <div className="action-icon">
               <CalendarIcon />
             </div>
@@ -293,9 +294,9 @@ const VereinDashboard: React.FC = () => {
               <h3>{t('dashboard:verein.quickActions.eventManagement.title')}</h3>
               <p>{t('dashboard:verein.quickActions.eventManagement.description')}</p>
             </div>
-          </a>
+          </Link>
 
-          <a href="/verein/settings" className="action-card">
+          <Link to={`/vereine/${user?.vereinId}`} className="action-card">
             <div className="action-icon">
               <SettingsIcon />
             </div>
@@ -303,9 +304,9 @@ const VereinDashboard: React.FC = () => {
               <h3>{t('dashboard:verein.quickActions.vereinSettings.title')}</h3>
               <p>{t('dashboard:verein.quickActions.vereinSettings.description')}</p>
             </div>
-          </a>
+          </Link>
 
-          <a href="/reports" className="action-card">
+          <Link to="/reports" className="action-card">
             <div className="action-icon">
               <BarChartIcon />
             </div>
@@ -313,7 +314,7 @@ const VereinDashboard: React.FC = () => {
               <h3>{t('dashboard:verein.quickActions.reports.title')}</h3>
               <p>{t('dashboard:verein.quickActions.reports.description')}</p>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
 

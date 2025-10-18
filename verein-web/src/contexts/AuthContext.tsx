@@ -78,6 +78,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
+      // Store JWT token
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+      }
+
       // Load user-specific language settings after login
       loadUserLanguageSettings(userData);
     } catch (error) {
@@ -116,6 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setSelectedVereinId(null);
     localStorage.removeItem('user');
     localStorage.removeItem('selectedVereinId');
+    localStorage.removeItem('auth_token'); // Remove JWT token
 
     // Switch back to guest settings
     const guestSettings = localStorage.getItem('app-settings-guest');

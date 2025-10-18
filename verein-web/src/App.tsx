@@ -12,12 +12,14 @@ import VereinDetail from './pages/Vereine/VereinDetail';
 import MitgliedList from './pages/Mitglieder/MitgliedList';
 import MitgliedDetail from './pages/Mitglieder/MitgliedDetail';
 import MitgliedEtkinlikler from './pages/Mitglieder/MitgliedEtkinlikler';
+import MitgliedAilem from './pages/Mitglieder/MitgliedAilem';
 import VeranstaltungList from './pages/Veranstaltungen/VeranstaltungList';
 import VeranstaltungDetail from './pages/Veranstaltungen/VeranstaltungDetail';
 import Settings from './pages/Settings/Settings';
 import Profile from './pages/Profile/Profile';
 import Login from './pages/Auth/Login';
 import Landing from './pages/Landing/Landing';
+import Reports from './pages/Reports/Reports';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
 
@@ -81,19 +83,22 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
+          {/* Vereine List - Sadece Admin */}
           {user?.type === 'admin' && (
-            <>
-              <Route path="/vereine" element={
-                <Layout>
-                  <VereinList />
-                </Layout>
-              } />
-              <Route path="/vereine/:id" element={
-                <Layout>
-                  <VereinDetail />
-                </Layout>
-              } />
-            </>
+            <Route path="/vereine" element={
+              <Layout>
+                <VereinList />
+              </Layout>
+            } />
+          )}
+
+          {/* Verein Detail - Admin ve Dernek */}
+          {(user?.type === 'admin' || user?.type === 'dernek') && (
+            <Route path="/vereine/:id" element={
+              <Layout>
+                <VereinDetail />
+              </Layout>
+            } />
           )}
 
           {(user?.type === 'admin' || user?.type === 'dernek') && (
@@ -125,7 +130,7 @@ const AppContent: React.FC = () => {
 
           <Route path="/reports" element={
             <Layout>
-              <div>Raporlar - Yakında</div>
+              <Reports />
             </Layout>
           } />
 
@@ -166,7 +171,7 @@ const AppContent: React.FC = () => {
           } />
           <Route path="/ailem" element={
             <Layout>
-              <div>Ailem - Yakında</div>
+              <MitgliedAilem />
             </Layout>
           } />
 

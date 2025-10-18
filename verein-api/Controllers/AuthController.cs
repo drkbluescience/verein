@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Services;
 using VereinsApi.Services.Interfaces;
 using VereinsApi.DTOs.Auth;
 using VereinsApi.DTOs.Mitglied;
@@ -12,15 +13,18 @@ public class AuthController : ControllerBase
 {
     private readonly IMitgliedService _mitgliedService;
     private readonly IVereinService _vereinService;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         IMitgliedService mitgliedService,
         IVereinService vereinService,
+        IJwtService jwtService,
         ILogger<AuthController> logger)
     {
         _mitgliedService = mitgliedService;
         _vereinService = vereinService;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -45,6 +49,18 @@ public class AuthController : ControllerBase
             // Check if it's an admin login
             if (request.Email.Contains("admin"))
             {
+                var adminPermissions = new[] { "admin.all", "verein.all", "mitglied.all", "veranstaltung.all", "adresse.all" };
+                var adminToken = _jwtService.GenerateToken(
+                    userId: 0, // Admin has no specific ID
+                    userType: "admin",
+                    email: request.Email,
+                    firstName: "System",
+                    lastName: "Admin",
+                    vereinId: null,
+                    mitgliedId: null,
+                    permissions: adminPermissions
+                );
+
                 return Ok(new LoginResponseDto
                 {
                     UserType = "admin",
@@ -53,22 +69,40 @@ public class AuthController : ControllerBase
                     Email = request.Email,
                     VereinId = null,
                     MitgliedId = null,
-                    Permissions = new[] { "admin.all", "verein.all", "mitglied.all", "veranstaltung.all" }
+                    Permissions = adminPermissions,
+                    Token = adminToken
                 });
             }
 
             // Try to find member by email
             var mitglieder = await _mitgliedService.GetAllAsync();
+            _logger.LogInformation("🔍 DEBUG: Total mitglieder count: {Count}", mitglieder.Count());
+
             var mitglied = mitglieder.FirstOrDefault(m => m.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
 
             if (mitglied != null)
             {
+                _logger.LogInformation("🔍 DEBUG: Found mitglied - Id: {Id}, Email: {Email}, Vorname: {Vorname}, Nachname: {Nachname}",
+                    mitglied.Id, mitglied.Email, mitglied.Vorname, mitglied.Nachname);
+
                 // Check if this member is a Verein admin (simplified check)
                 var verein = await _vereinService.GetByIdAsync(mitglied.VereinId);
                 bool isVereinAdmin = verein?.Vorstandsvorsitzender?.Contains(mitglied.Vorname + " " + mitglied.Nachname) == true;
 
                 if (isVereinAdmin)
                 {
+                    var dernekPermissions = new[] { "verein.read", "verein.update", "mitglied.all", "veranstaltung.all", "adresse.manage" };
+                    var dernekToken = _jwtService.GenerateToken(
+                        userId: mitglied.Id,
+                        userType: "dernek",
+                        email: mitglied.Email ?? "",
+                        firstName: mitglied.Vorname,
+                        lastName: mitglied.Nachname,
+                        vereinId: mitglied.VereinId,
+                        mitgliedId: mitglied.Id,
+                        permissions: dernekPermissions
+                    );
+
                     return Ok(new LoginResponseDto
                     {
                         UserType = "dernek",
@@ -77,11 +111,24 @@ public class AuthController : ControllerBase
                         Email = mitglied.Email,
                         VereinId = mitglied.VereinId,
                         MitgliedId = mitglied.Id,
-                        Permissions = new[] { "verein.read", "verein.update", "mitglied.all", "veranstaltung.all" }
+                        Permissions = dernekPermissions,
+                        Token = dernekToken
                     });
                 }
                 else
                 {
+                    var mitgliedPermissions = new[] { "mitglied.read", "mitglied.update", "veranstaltung.read", "adresse.read" };
+                    var mitgliedToken = _jwtService.GenerateToken(
+                        userId: mitglied.Id,
+                        userType: "mitglied",
+                        email: mitglied.Email ?? "",
+                        firstName: mitglied.Vorname,
+                        lastName: mitglied.Nachname,
+                        vereinId: mitglied.VereinId,
+                        mitgliedId: mitglied.Id,
+                        permissions: mitgliedPermissions
+                    );
+
                     return Ok(new LoginResponseDto
                     {
                         UserType = "mitglied",
@@ -90,7 +137,8 @@ public class AuthController : ControllerBase
                         Email = mitglied.Email,
                         VereinId = mitglied.VereinId,
                         MitgliedId = mitglied.Id,
-                        Permissions = new[] { "mitglied.read", "mitglied.update", "veranstaltung.read" }
+                        Permissions = mitgliedPermissions,
+                        Token = mitgliedToken
                     });
                 }
             }

@@ -20,15 +20,10 @@ export interface VeranstaltungDto {
   enddatum?: string;
   ort?: string;
   maxTeilnehmer?: number;
-  anmeldeschluss?: string;
-  kosten?: number;
+  preis?: number;
   waehrungId?: number;
-  istOeffentlich?: boolean;
-  istAnmeldungErforderlich?: boolean;
-  veranstaltungsTypId?: number;
-  veranstaltungsStatusId?: number;
-  organisatorId?: number;
-  hinweise?: string;
+  nurFuerMitglieder?: boolean;  // true = Sadece üyeler, false = Herkese açık
+  anmeldeErforderlich?: boolean;  // Kayıt gerekli mi?
   aktiv?: boolean;
   created?: string;
   createdBy?: string;
@@ -44,15 +39,10 @@ export interface CreateVeranstaltungDto {
   enddatum?: string;
   ort?: string;
   maxTeilnehmer?: number;
-  anmeldeschluss?: string;
-  kosten?: number;
+  preis?: number;
   waehrungId?: number;
-  istOeffentlich?: boolean;
-  istAnmeldungErforderlich?: boolean;
-  veranstaltungsTypId?: number;
-  veranstaltungsStatusId?: number;
-  organisatorId?: number;
-  hinweise?: string;
+  nurFuerMitglieder?: boolean;  // true = Sadece üyeler, false = Herkese açık
+  anmeldeErforderlich?: boolean;  // Kayıt gerekli mi?
   aktiv?: boolean;
 }
 
@@ -64,15 +54,10 @@ export interface UpdateVeranstaltungDto {
   enddatum?: string;
   ort?: string;
   maxTeilnehmer?: number;
-  anmeldeschluss?: string;
-  kosten?: number;
+  preis?: number;
   waehrungId?: number;
-  istOeffentlich?: boolean;
-  istAnmeldungErforderlich?: boolean;
-  veranstaltungsTypId?: number;
-  veranstaltungsStatusId?: number;
-  organisatorId?: number;
-  hinweise?: string;
+  nurFuerMitglieder?: boolean;  // true = Sadece üyeler, false = Herkese açık
+  anmeldeErforderlich?: boolean;  // Kayıt gerekli mi?
   aktiv?: boolean;
 }
 
@@ -84,17 +69,16 @@ export interface VeranstaltungAnmeldungDto {
   name?: string;
   email?: string;
   telefon?: string;
-  anmeldedatum?: string;
-  anmeldungsStatusId?: number;
-  teilnehmerAnzahl?: number;
+  status?: string;
   bemerkung?: string;
-  stornierungsdatum?: string;
-  stornierungsgrund?: string;
-  aktiv?: boolean;
+  preis?: number;
+  waehrungId?: number;
+  zahlungStatusId?: number;
   created?: string;
-  createdBy?: string;
+  createdBy?: number;
   modified?: string;
-  modifiedBy?: string;
+  modifiedBy?: number;
+  deletedFlag?: boolean;
 }
 
 export interface CreateVeranstaltungAnmeldungDto {
@@ -103,10 +87,57 @@ export interface CreateVeranstaltungAnmeldungDto {
   name?: string;
   email?: string;
   telefon?: string;
-  anmeldedatum?: string;
-  anmeldungsStatusId?: number;
-  teilnehmerAnzahl?: number;
   bemerkung?: string;
+  preis?: number;
+  waehrungId?: number;
+  zahlungStatusId?: number;
+  status?: string;
+}
+
+export interface UpdateVeranstaltungAnmeldungDto {
+  mitgliedId?: number;
+  name?: string;
+  email?: string;
+  telefon?: string;
+  status?: string;
+  bemerkung?: string;
+  preis?: number;
+  waehrungId?: number;
+  zahlungStatusId?: number;
+}
+
+// VeranstaltungBild Types
+export interface VeranstaltungBildDto {
+  id: number;
+  veranstaltungId: number;
+  bildPfad: string;
+  titel?: string;
+  beschreibung?: string;
+  reihenfolge?: number;
+  istHauptbild?: boolean;
+  aktiv?: boolean;
+  created?: string;
+  createdBy?: string;
+  modified?: string;
+  modifiedBy?: string;
+}
+
+export interface CreateVeranstaltungBildDto {
+  veranstaltungId: number;
+  bildPfad: string;
+  titel?: string;
+  beschreibung?: string;
+  reihenfolge?: number;
+  istHauptbild?: boolean;
+  aktiv?: boolean;
+}
+
+export interface UpdateVeranstaltungBildDto {
+  bildPfad?: string;
+  titel?: string;
+  beschreibung?: string;
+  reihenfolge?: number;
+  istHauptbild?: boolean;
   aktiv?: boolean;
 }
 

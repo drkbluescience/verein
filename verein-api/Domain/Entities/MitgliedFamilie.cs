@@ -10,6 +10,12 @@ namespace VereinsApi.Domain.Entities;
 public class MitgliedFamilie : AuditableEntity
 {
     /// <summary>
+    /// Aktiv property is not mapped because this column doesn't exist in the database table
+    /// </summary>
+    [NotMapped]
+    public new bool? Aktiv { get; set; }
+
+    /// <summary>
     /// Verein identifier (foreign key to Verein table)
     /// </summary>
     [Required]

@@ -9,4 +9,5 @@ public class LoginResponseDto
     public int? VereinId { get; set; }
     public int? MitgliedId { get; set; }
     public string[] Permissions { get; set; } = Array.Empty<string>();
+    public string Token { get; set; } = string.Empty; // JWT token
 }

@@ -2,7 +2,7 @@
 
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%);
+  background: var(--color-background);
   padding: 0;
 }
 
@@ -15,14 +15,14 @@
 .dashboard-header h1 {
   font-size: 36px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 8px;
   letter-spacing: -0.025em;
 }
 
 .dashboard-header p {
   font-size: 18px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
   font-weight: 400;
 }
@@ -35,7 +35,7 @@
 }
 
 .status-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -86,7 +86,7 @@
 .status-info h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 4px 0;
 }
 
@@ -109,11 +109,11 @@
   flex-wrap: wrap;
   gap: 12px;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .status-details span {
-  background: #f3f4f6;
+  background: var(--color-surface-secondary);
   padding: 4px 10px;
   border-radius: 6px;
   font-weight: 500;
@@ -121,7 +121,7 @@
 
 .status-timestamp {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--color-text-tertiary);
   text-align: right;
   flex-shrink: 0;
 }
@@ -136,7 +136,7 @@
 .stats-section h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 24px;
   letter-spacing: -0.025em;
 }
@@ -148,7 +148,7 @@
 }
 
 .stat-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -184,14 +184,14 @@
 .stat-info h3 {
   font-size: 14px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0 0 8px 0;
 }
 
 .stat-number {
   font-size: 32px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
   display: flex;
   align-items: center;
@@ -201,9 +201,9 @@
 
 .stat-note {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-weight: 500;
-  background: #fef3c7;
+  background: rgba(251, 191, 36, 0.15);
   padding: 4px 8px;
   border-radius: 6px;
   margin-top: 8px;
@@ -220,7 +220,7 @@
 .actions-section h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 24px;
   letter-spacing: -0.025em;
 }
@@ -232,7 +232,7 @@
 }
 
 .action-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -284,14 +284,14 @@
 .action-info h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 8px 0;
   letter-spacing: -0.025em;
 }
 
 .action-info p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.5;
 }
@@ -300,8 +300,8 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #fbbf24;
-  color: #78350f;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
   font-size: 11px;
   font-weight: 600;
   padding: 4px 10px;

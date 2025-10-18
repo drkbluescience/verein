@@ -1,0 +1,432 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* Modal Content */
+.veranstaltung-form-modal.modal-content {
+  background: #ffffff;
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Header */
+.veranstaltung-form-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.veranstaltung-form-modal .modal-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.veranstaltung-form-modal .modal-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 8px;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.veranstaltung-form-modal .modal-close:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+/* Modal Form */
+.veranstaltung-form-modal .modal-form {
+  padding: 32px;
+}
+
+/* Form Section */
+.veranstaltung-form-modal .form-section {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.veranstaltung-form-modal .form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.veranstaltung-form-modal .section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.veranstaltung-form-modal .section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 2px;
+}
+
+.veranstaltung-form-modal .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.veranstaltung-form-modal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.veranstaltung-form-modal .form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.veranstaltung-form-modal .form-group input,
+.veranstaltung-form-modal .form-group textarea,
+.veranstaltung-form-modal .form-group select {
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  background: #ffffff;
+  background-color: #ffffff;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Autocomplete override */
+.veranstaltung-form-modal .form-group input:-webkit-autofill,
+.veranstaltung-form-modal .form-group input:-webkit-autofill:hover,
+.veranstaltung-form-modal .form-group input:-webkit-autofill:focus,
+.veranstaltung-form-modal .form-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  box-shadow: 0 0 0 30px #ffffff inset !important;
+}
+
+.veranstaltung-form-modal .form-group input::placeholder,
+.veranstaltung-form-modal .form-group textarea::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+.veranstaltung-form-modal .form-group select option {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.veranstaltung-form-modal .form-group input:focus,
+.veranstaltung-form-modal .form-group textarea:focus,
+.veranstaltung-form-modal .form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.veranstaltung-form-modal .form-group input.error {
+  border-color: #ef4444;
+}
+
+.veranstaltung-form-modal .form-group input:disabled,
+.veranstaltung-form-modal .form-group textarea:disabled,
+.veranstaltung-form-modal .form-group select:disabled {
+  background: #f3f4f6;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.veranstaltung-form-modal .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.veranstaltung-form-modal .form-group-full {
+  grid-column: 1 / -1;
+}
+
+.veranstaltung-form-modal .error-message {
+  font-size: 13px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.veranstaltung-form-modal .error-message-box {
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Checkbox Group */
+.veranstaltung-form-modal .form-group-checkbox {
+  margin-bottom: 20px;
+}
+
+.veranstaltung-form-modal .form-group-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.veranstaltung-form-modal .form-group-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.veranstaltung-form-modal .form-group-checkbox span {
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Modal Footer */
+.veranstaltung-form-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 2px solid #d1d5db;
+}
+
+.veranstaltung-form-modal .btn-primary,
+.veranstaltung-form-modal .btn-secondary {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.veranstaltung-form-modal .btn-primary {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.veranstaltung-form-modal .btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.veranstaltung-form-modal .btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.veranstaltung-form-modal .btn-secondary {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.veranstaltung-form-modal .btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.veranstaltung-form-modal .btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dark Theme */
+[data-theme="dark"] .veranstaltung-form-modal.modal-content {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .modal-header {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .modal-header h2 {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .modal-footer {
+  border-top-color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-section {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .section-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group label {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input,
+[data-theme="dark"] .veranstaltung-form-modal .form-group textarea,
+[data-theme="dark"] .veranstaltung-form-modal .form-group select {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input:focus,
+[data-theme="dark"] .veranstaltung-form-modal .form-group textarea:focus,
+[data-theme="dark"] .veranstaltung-form-modal .form-group select:focus {
+  background-color: #1e293b !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input:-webkit-autofill,
+[data-theme="dark"] .veranstaltung-form-modal .form-group input:-webkit-autofill:hover,
+[data-theme="dark"] .veranstaltung-form-modal .form-group input:-webkit-autofill:focus,
+[data-theme="dark"] .veranstaltung-form-modal .form-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 0 0 30px #1e293b inset !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input::placeholder,
+[data-theme="dark"] .veranstaltung-form-modal .form-group textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group select option {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input:disabled,
+[data-theme="dark"] .veranstaltung-form-modal .form-group textarea:disabled,
+[data-theme="dark"] .veranstaltung-form-modal .form-group select:disabled {
+  background-color: #334155 !important;
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .modal-close {
+  background-color: #334155 !important;
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .modal-close:hover {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .btn-secondary {
+  background-color: #334155 !important;
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .btn-secondary:hover:not(:disabled) {
+  background-color: #475569 !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group-checkbox span {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+[data-theme="dark"] .veranstaltung-form-modal .form-group input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .veranstaltung-form-modal.modal-content {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .veranstaltung-form-modal .modal-header {
+    padding: 20px;
+  }
+
+  .veranstaltung-form-modal .modal-header h2 {
+    font-size: 20px;
+  }
+
+  .veranstaltung-form-modal .modal-form {
+    padding: 20px;
+  }
+
+  .veranstaltung-form-modal .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .veranstaltung-form-modal .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .veranstaltung-form-modal .btn-primary,
+  .veranstaltung-form-modal .btn-secondary {
+    width: 100%;
+  }
+}
+

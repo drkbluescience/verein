@@ -81,12 +81,26 @@ export const mitgliedService = {
 
 // MitgliedAdresse Operations
 export const mitgliedAdresseService = {
+  // Get all addresses with pagination
+  getAll: async (pageNumber: number = 1, pageSize: number = 10): Promise<PagedResult<MitgliedAdresseDto>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('pageNumber', pageNumber.toString());
+    queryParams.append('pageSize', pageSize.toString());
+
+    return await api.get<PagedResult<MitgliedAdresseDto>>(`/api/MitgliedAdressen?${queryParams}`);
+  },
+
   // Get all addresses for a Mitglied
   getByMitgliedId: async (mitgliedId: number, activeOnly: boolean = true): Promise<MitgliedAdresseDto[]> => {
     const queryParams = new URLSearchParams();
     queryParams.append('activeOnly', activeOnly.toString());
 
     return await api.get<MitgliedAdresseDto[]>(`/api/MitgliedAdressen/mitglied/${mitgliedId}?${queryParams}`);
+  },
+
+  // Get standard address for a Mitglied
+  getStandardAddress: async (mitgliedId: number): Promise<MitgliedAdresseDto> => {
+    return await api.get<MitgliedAdresseDto>(`/api/MitgliedAdressen/mitglied/${mitgliedId}/standard`);
   },
 
   // Get address by ID
@@ -109,7 +123,17 @@ export const mitgliedAdresseService = {
     await api.delete(`/api/MitgliedAdressen/${id}`);
   },
 
-  // Set as default address
+  // Set as standard address
+  setAsStandardAddress: async (mitgliedId: number, addressId: number): Promise<MitgliedAdresseDto> => {
+    return await api.post<MitgliedAdresseDto>(`/api/MitgliedAdressen/${mitgliedId}/address/${addressId}/set-standard`);
+  },
+
+  // Get address statistics
+  getAddressStatistics: async (mitgliedId: number): Promise<any> => {
+    return await api.get(`/api/MitgliedAdressen/statistics/mitglied/${mitgliedId}`);
+  },
+
+  // Set as default address (deprecated - use setAsStandardAddress)
   setAsDefault: async (id: number): Promise<MitgliedAdresseDto> => {
     return await api.post<MitgliedAdresseDto>(`/api/MitgliedAdressen/${id}/set-default`);
   }
@@ -117,6 +141,20 @@ export const mitgliedAdresseService = {
 
 // MitgliedFamilie Operations
 export const mitgliedFamilieService = {
+  // Get all family relationships with pagination
+  getAll: async (pageNumber: number = 1, pageSize: number = 10): Promise<PagedResult<MitgliedFamilieDto>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('pageNumber', pageNumber.toString());
+    queryParams.append('pageSize', pageSize.toString());
+
+    return await api.get<PagedResult<MitgliedFamilieDto>>(`/api/MitgliedFamilien?${queryParams}`);
+  },
+
+  // Get family relationship by ID
+  getById: async (id: number): Promise<MitgliedFamilieDto> => {
+    return await api.get<MitgliedFamilieDto>(`/api/MitgliedFamilien/${id}`);
+  },
+
   // Get family relationships for a Mitglied
   getByMitgliedId: async (mitgliedId: number, activeOnly: boolean = true): Promise<MitgliedFamilieDto[]> => {
     const queryParams = new URLSearchParams();
@@ -135,9 +173,22 @@ export const mitgliedFamilieService = {
     return await api.get<MitgliedDto[]>(`/api/MitgliedFamilien/mitglied/${mitgliedId}/parents`);
   },
 
+  // Get siblings of a Mitglied
+  getSiblings: async (mitgliedId: number): Promise<MitgliedDto[]> => {
+    return await api.get<MitgliedDto[]>(`/api/MitgliedFamilien/mitglied/${mitgliedId}/siblings`);
+  },
+
   // Get family tree
-  getFamilyTree: async (mitgliedId: number): Promise<any> => {
-    return await api.get(`/api/MitgliedFamilien/mitglied/${mitgliedId}/family-tree`);
+  getFamilyTree: async (mitgliedId: number, maxDepth: number = 3): Promise<any> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('maxDepth', maxDepth.toString());
+
+    return await api.get(`/api/MitgliedFamilien/mitglied/${mitgliedId}/family-tree?${queryParams}`);
+  },
+
+  // Get family statistics
+  getFamilyStatistics: async (mitgliedId: number): Promise<any> => {
+    return await api.get(`/api/MitgliedFamilien/statistics/mitglied/${mitgliedId}`);
   },
 
   // Create family relationship

@@ -1,7 +1,7 @@
 /* Mitglied Detail Page - Dashboard Aligned */
 .mitglied-detail {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%);
+  background: var(--color-background);
   padding: 0;
 }
 
@@ -21,9 +21,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: #ffffff;
-  color: #6b7280;
-  border: 2px solid #e5e7eb;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -75,7 +75,7 @@
 .member-title {
   font-size: 36px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 8px 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
@@ -83,7 +83,7 @@
 
 .member-subtitle {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0 0 12px 0;
   font-weight: 500;
 }
@@ -175,7 +175,7 @@
 
 /* Info Sections */
 .info-section {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 16px;
   padding: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -204,7 +204,7 @@
 .section-header h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -224,7 +224,7 @@
 .info-item label {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -232,7 +232,7 @@
 .info-item p {
   font-size: 16px;
   font-weight: 500;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -244,10 +244,10 @@
 }
 
 .address-card {
-  background: #f9fafb;
+  background: var(--color-surface-secondary);
   border-radius: 12px;
   padding: 20px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   transition: all 0.2s ease;
 }
 
@@ -266,7 +266,7 @@
 .address-header h4 {
   font-size: 15px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -284,7 +284,7 @@
 
 .address-text {
   font-size: 14px;
-  color: #4b5563;
+  color: var(--color-text-secondary);
   line-height: 1.6;
   margin: 0;
 }
@@ -297,10 +297,10 @@
 }
 
 .family-card {
-  background: #f9fafb;
+  background: var(--color-surface-secondary);
   border-radius: 12px;
   padding: 20px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   transition: all 0.2s ease;
 }
 
@@ -312,13 +312,13 @@
 .family-info h4 {
   font-size: 15px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 8px 0;
 }
 
 .family-info p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 

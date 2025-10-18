@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { veranstaltungService, veranstaltungUtils } from '../../services/veranstaltungService';
+import { veranstaltungService, veranstaltungAnmeldungService, veranstaltungUtils } from '../../services/veranstaltungService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
@@ -66,11 +66,13 @@ const CheckIcon = () => (
 
 interface VeranstaltungCardProps {
   veranstaltung: VeranstaltungDto;
+  isRegistered?: boolean;
 }
 
-const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) => {
+const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, isRegistered = false }) => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
+  const navigate = useNavigate();
   const status = veranstaltungUtils.getEventStatus(veranstaltung.startdatum, veranstaltung.enddatum);
   const isUpcoming = veranstaltungUtils.isUpcoming(veranstaltung.startdatum);
   const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(veranstaltung.startdatum) : null;
@@ -92,7 +94,26 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) 
     <Link to={`/veranstaltungen/${veranstaltung.id}`} className={`veranstaltung-card ${status}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className="card-header">
         <div className="card-title-section">
-          <h3 className="event-title">{veranstaltung.titel}</h3>
+          <h3 className="event-title">
+            {veranstaltung.titel}
+            {isRegistered && (
+              <span className="registered-badge" style={{
+                marginLeft: '8px',
+                padding: '2px 8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                borderRadius: '12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <CheckIcon />
+                Kayıtlı
+              </span>
+            )}
+          </h3>
         </div>
         {getStatusBadge()}
       </div>
@@ -133,10 +154,10 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) 
             </div>
           )}
 
-          {veranstaltung.kosten && veranstaltung.kosten > 0 && (
+          {veranstaltung.preis && veranstaltung.preis > 0 && (
             <div className="detail-item">
               <DollarIcon />
-              <span className="detail-text">{veranstaltung.kosten}€</span>
+              <span className="detail-text">{veranstaltung.preis}€</span>
             </div>
           )}
         </div>
@@ -154,13 +175,21 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) 
         )}
       </div>
 
-      <div className="card-actions" onClick={(e) => e.preventDefault()}>
-        <button className="action-btn" onClick={(e) => { e.preventDefault(); window.location.href = `/veranstaltungen/${veranstaltung.id}`; }}>
+      <div className="card-actions" onClick={(e) => e.stopPropagation()}>
+        <button className="action-btn" onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          navigate(`/veranstaltungen/${veranstaltung.id}`);
+        }}>
           <EyeIcon />
           <span>{t('mitglieder:eventsPage.card.details')}</span>
         </button>
-        {isUpcoming && veranstaltung.istAnmeldungErforderlich && (
-          <button className="action-btn action-btn-primary" onClick={(e) => { e.preventDefault(); /* Kayıt ol işlemi */ }}>
+        {isUpcoming && veranstaltung.anmeldeErforderlich && !isRegistered && (
+          <button className="action-btn action-btn-primary" onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigate(`/veranstaltungen/${veranstaltung.id}`);
+          }}>
             <CheckIcon />
             <span>{t('mitglieder:eventsPage.card.register')}</span>
           </button>
@@ -173,7 +202,7 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung }) 
 const MitgliedEtkinlikler: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
-  const { selectedVereinId } = useAuth();
+  const { selectedVereinId, user } = useAuth();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -191,6 +220,25 @@ const MitgliedEtkinlikler: React.FC = () => {
     },
     enabled: !!selectedVereinId,
   });
+
+  // Fetch user's registrations
+  const {
+    data: userRegistrations,
+    isLoading: registrationsLoading
+  } = useQuery({
+    queryKey: ['mitglied-anmeldungen', user?.mitgliedId],
+    queryFn: async () => {
+      if (!user?.mitgliedId) return [];
+      const result = await veranstaltungAnmeldungService.getByMitgliedId(user.mitgliedId);
+      return result || [];
+    },
+    enabled: !!user?.mitgliedId,
+  });
+
+  // Create a Set of registered event IDs for quick lookup
+  const registeredEventIds = new Set(
+    userRegistrations?.map(reg => reg.veranstaltungId) || []
+  );
 
   // Filter and search
   const filteredVeranstaltungen = veranstaltungen?.filter(veranstaltung => {
@@ -247,7 +295,7 @@ const MitgliedEtkinlikler: React.FC = () => {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || registrationsLoading) {
     return <Loading text={t('mitglieder:eventsPage.loading')} />;
   }
 
@@ -327,7 +375,11 @@ const MitgliedEtkinlikler: React.FC = () => {
           </div>
         ) : (
           sortedVeranstaltungen.map((veranstaltung) => (
-            <VeranstaltungCard key={veranstaltung.id} veranstaltung={veranstaltung} />
+            <VeranstaltungCard
+              key={veranstaltung.id}
+              veranstaltung={veranstaltung}
+              isRegistered={registeredEventIds.has(veranstaltung.id)}
+            />
           ))
         )}
       </div>

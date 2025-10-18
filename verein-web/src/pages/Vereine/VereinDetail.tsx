@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { vereinService } from '../../services/vereinService';
-import { VereinDto } from '../../types/verein';
+import { VereinDto, UpdateVereinDto } from '../../types/verein';
 import adresseService, { Adresse, CreateAdresseDto, UpdateAdresseDto } from '../../services/adresseService';
 import AdresseFormModal from '../../components/Adressen/AdresseFormModal';
+import VereinFormModal from '../../components/Vereine/VereinFormModal';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import './VereinDetail.css';
@@ -18,8 +20,10 @@ const VereinDetail: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'info' | 'adressen' | 'mitglieder'>('info');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAdresseModalOpen, setIsAdresseModalOpen] = useState(false);
+  const [isVereinModalOpen, setIsVereinModalOpen] = useState(false);
   const [editingAdresse, setEditingAdresse] = useState<Adresse | null>(null);
 
   // Fetch Verein data
@@ -46,13 +50,26 @@ const VereinDetail: React.FC = () => {
     enabled: !!id,
   });
 
+  // Update Verein Mutation
+  const updateVereinMutation = useMutation({
+    mutationFn: (data: UpdateVereinDto) => vereinService.update(Number(id), data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['verein', id] });
+      showSuccess(t('vereine:messages.updateSuccess'));
+      setIsVereinModalOpen(false);
+    },
+    onError: () => {
+      showError(t('vereine:errors.updateFailed'));
+    },
+  });
+
   // Create Adresse Mutation
   const createAdresseMutation = useMutation({
     mutationFn: (data: CreateAdresseDto) => adresseService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adressen', 'verein', id] });
       showSuccess(t('adressen:messages.createSuccess'));
-      setIsModalOpen(false);
+      setIsAdresseModalOpen(false);
     },
     onError: () => {
       showError(t('adressen:errors.createFailed'));
@@ -66,7 +83,7 @@ const VereinDetail: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adressen', 'verein', id] });
       showSuccess(t('adressen:messages.updateSuccess'));
-      setIsModalOpen(false);
+      setIsAdresseModalOpen(false);
       setEditingAdresse(null);
     },
     onError: () => {
@@ -90,14 +107,18 @@ const VereinDetail: React.FC = () => {
     navigate('/vereine');
   };
 
+  const handleEditVerein = () => {
+    setIsVereinModalOpen(true);
+  };
+
   const handleAddAdresse = () => {
     setEditingAdresse(null);
-    setIsModalOpen(true);
+    setIsAdresseModalOpen(true);
   };
 
   const handleEditAdresse = (adresse: Adresse) => {
     setEditingAdresse(adresse);
-    setIsModalOpen(true);
+    setIsAdresseModalOpen(true);
   };
 
   const handleDeleteAdresse = async (adresse: Adresse) => {
@@ -106,7 +127,11 @@ const VereinDetail: React.FC = () => {
     }
   };
 
-  const handleModalSubmit = async (data: CreateAdresseDto | UpdateAdresseDto) => {
+  const handleVereinModalSubmit = async (data: UpdateVereinDto) => {
+    await updateVereinMutation.mutateAsync(data);
+  };
+
+  const handleAdresseModalSubmit = async (data: CreateAdresseDto | UpdateAdresseDto) => {
     if (editingAdresse) {
       // Update existing adresse
       await updateAdresseMutation.mutateAsync({ id: editingAdresse.id, data });
@@ -116,9 +141,41 @@ const VereinDetail: React.FC = () => {
     }
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
+  const handleAdresseModalClose = () => {
+    setIsAdresseModalOpen(false);
     setEditingAdresse(null);
+  };
+
+  const handleVereinModalClose = () => {
+    setIsVereinModalOpen(false);
+  };
+
+  // Yetkilendirme kontrolü - Adres
+  const canEditAddress = (): boolean => {
+    if (!user) return false;
+
+    // Admin her şeyi yapabilir
+    if (user.type === 'admin') return true;
+
+    // Dernek yöneticisi sadece kendi derneğinin adreslerini düzenleyebilir
+    if (user.type === 'dernek' && user.vereinId === Number(id)) return true;
+
+    // Üyeler düzenleyemez
+    return false;
+  };
+
+  // Yetkilendirme kontrolü - Dernek Bilgileri
+  const canEditVerein = (): boolean => {
+    if (!user) return false;
+
+    // Admin her şeyi yapabilir
+    if (user.type === 'admin') return true;
+
+    // Dernek yöneticisi sadece kendi derneğini düzenleyebilir
+    if (user.type === 'dernek' && user.vereinId === Number(id)) return true;
+
+    // Üyeler düzenleyemez
+    return false;
   };
 
   if (vereinLoading) {
@@ -182,6 +239,14 @@ const VereinDetail: React.FC = () => {
         {/* Info Tab */}
         {activeTab === 'info' && (
           <div className="info-section">
+            <div className="section-header">
+              <h2>{t('vereine:tabs.info')}</h2>
+              {canEditVerein() && (
+                <button className="btn btn-primary" onClick={handleEditVerein}>
+                  ✏️ {t('common:actions.edit')}
+                </button>
+              )}
+            </div>
             <div className="info-grid">
               {verein.email && (
                 <div className="info-item">
@@ -236,9 +301,11 @@ const VereinDetail: React.FC = () => {
           <div className="adressen-section">
             <div className="section-header">
               <h2>{t('adressen:title')}</h2>
-              <button className="btn btn-primary" onClick={handleAddAdresse}>
-                + {t('adressen:addAddress')}
-              </button>
+              {canEditAddress() && (
+                <button className="btn btn-primary" onClick={handleAddAdresse}>
+                  + {t('adressen:addAddress')}
+                </button>
+              )}
             </div>
 
             {adressenLoading ? (
@@ -287,18 +354,22 @@ const VereinDetail: React.FC = () => {
                       >
                         🗺️ {t('adressen:viewOnMap')}
                       </a>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => handleEditAdresse(adresse)}
-                      >
-                        {t('common:actions.edit')}
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDeleteAdresse(adresse)}
-                      >
-                        {t('common:actions.delete')}
-                      </button>
+                      {canEditAddress() && (
+                        <>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleEditAdresse(adresse)}
+                          >
+                            {t('common:actions.edit')}
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteAdresse(adresse)}
+                          >
+                            {t('common:actions.delete')}
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -315,11 +386,21 @@ const VereinDetail: React.FC = () => {
         )}
       </div>
 
+      {/* Verein Form Modal */}
+      {verein && (
+        <VereinFormModal
+          isOpen={isVereinModalOpen}
+          onClose={handleVereinModalClose}
+          onSubmit={handleVereinModalSubmit}
+          verein={verein}
+        />
+      )}
+
       {/* Adresse Form Modal */}
       <AdresseFormModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onSubmit={handleModalSubmit}
+        isOpen={isAdresseModalOpen}
+        onClose={handleAdresseModalClose}
+        onSubmit={handleAdresseModalSubmit}
         adresse={editingAdresse}
         vereinId={Number(id)}
       />

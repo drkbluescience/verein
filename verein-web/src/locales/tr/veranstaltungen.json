@@ -147,6 +147,21 @@
       "registeredOn": "Kayıt Tarihi",
       "participants": "Katılımcı Sayısı",
       "person": "kişi"
+    },
+    "registration": {
+      "title": "Etkinliğe Kayıt Ol",
+      "register": "Kayıt Ol",
+      "registered": "Kayıtlısınız",
+      "name": "Ad Soyad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "fee": "Ücret",
+      "note": "Not (İsteğe Bağlı)",
+      "notePlaceholder": "Özel istekleriniz, diyet kısıtlamalarınız vb. varsa buraya yazabilirsiniz...",
+      "confirm": "Kaydı Onayla",
+      "registering": "Kayıt Yapılıyor...",
+      "success": "Etkinliğe başarıyla kayıt oldunuz!",
+      "error": "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin."
     }
   }
 }
