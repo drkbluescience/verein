@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { healthService, vereinService } from '../../services/vereinService';
+import { mitgliedService } from '../../services/mitgliedService';
+import { veranstaltungService } from '../../services/veranstaltungService';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import './Dashboard.css';
@@ -45,26 +48,44 @@ const Dashboard: React.FC = () => {
   });
 
   // Vereine query for stats
-  const { 
-    data: vereine, 
-    isLoading: vereineLoading 
+  const {
+    data: vereine,
+    isLoading: vereineLoading
   } = useQuery({
     queryKey: ['vereine'],
     queryFn: vereinService.getAll,
     enabled: !!healthStatus, // Only fetch if health check passes
   });
 
+  // Mitglieder query for stats
+  const {
+    data: mitgliederData
+  } = useQuery({
+    queryKey: ['mitglieder', 'all'],
+    queryFn: () => mitgliedService.getAll({ pageNumber: 1, pageSize: 1000 }),
+    enabled: !!healthStatus,
+  });
+
+  // Veranstaltungen query for stats
+  const {
+    data: veranstaltungen
+  } = useQuery({
+    queryKey: ['veranstaltungen', 'all'],
+    queryFn: () => veranstaltungService.getAll(),
+    enabled: !!healthStatus,
+  });
+
   // Update stats when data changes
   useEffect(() => {
-    if (vereine) {
+    if (vereine || mitgliederData || veranstaltungen) {
       setStats({
-        totalVereine: vereine.length,
-        activeVereine: vereine.filter(v => v.aktiv).length,
-        totalMitglieder: 0, // Will be updated when we add member endpoints
-        totalVeranstaltungen: 0, // Will be updated when we add event endpoints
+        totalVereine: vereine?.length || 0,
+        activeVereine: vereine?.filter(v => v.aktiv).length || 0,
+        totalMitglieder: mitgliederData?.items?.length || 0,
+        totalVeranstaltungen: veranstaltungen?.length || 0,
       });
     }
-  }, [vereine]);
+  }, [vereine, mitgliederData, veranstaltungen]);
 
   const isConnected = healthStatus?.status === 'Healthy';
 
@@ -158,7 +179,6 @@ const Dashboard: React.FC = () => {
             <div className="stat-info">
               <h3>{t('dashboard:statistics.totalMitglieder')}</h3>
               <div className="stat-number">{stats.totalMitglieder}</div>
-              <span className="stat-note">{t('common:messages.comingSoon')}</span>
             </div>
           </div>
 
@@ -171,7 +191,6 @@ const Dashboard: React.FC = () => {
             <div className="stat-info">
               <h3>{t('dashboard:statistics.totalVeranstaltungen')}</h3>
               <div className="stat-number">{stats.totalVeranstaltungen}</div>
-              <span className="stat-note">{t('common:messages.comingSoon')}</span>
             </div>
           </div>
         </div>
@@ -181,7 +200,7 @@ const Dashboard: React.FC = () => {
       <div className="actions-section">
         <h2>{t('dashboard:quickActions.title')}</h2>
         <div className="actions-grid">
-          <a href="/vereine" className="action-card">
+          <Link to="/vereine" className="action-card">
             <div className="action-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
@@ -191,9 +210,9 @@ const Dashboard: React.FC = () => {
               <h3>{t('dashboard:quickActions.manageVereine.title')}</h3>
               <p>{t('dashboard:quickActions.manageVereine.description')}</p>
             </div>
-          </a>
+          </Link>
 
-          <div className="action-card action-disabled">
+          <Link to="/mitglieder" className="action-card">
             <div className="action-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -202,11 +221,10 @@ const Dashboard: React.FC = () => {
             <div className="action-info">
               <h3>{t('dashboard:quickActions.manageMitglieder.title')}</h3>
               <p>{t('dashboard:quickActions.manageMitglieder.description')}</p>
-              <span className="action-badge">{t('common:messages.comingSoon')}</span>
             </div>
-          </div>
+          </Link>
 
-          <div className="action-card action-disabled">
+          <Link to="/veranstaltungen" className="action-card">
             <div className="action-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
@@ -215,11 +233,10 @@ const Dashboard: React.FC = () => {
             <div className="action-info">
               <h3>{t('dashboard:quickActions.manageVeranstaltungen.title')}</h3>
               <p>{t('dashboard:quickActions.manageVeranstaltungen.description')}</p>
-              <span className="action-badge">{t('common:messages.comingSoon')}</span>
             </div>
-          </div>
+          </Link>
 
-          <div className="action-card action-disabled">
+          <Link to="/reports" className="action-card">
             <div className="action-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
@@ -228,9 +245,8 @@ const Dashboard: React.FC = () => {
             <div className="action-info">
               <h3>{t('dashboard:quickActions.viewReports.title')}</h3>
               <p>{t('dashboard:quickActions.viewReports.description')}</p>
-              <span className="action-badge">{t('common:messages.comingSoon')}</span>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
