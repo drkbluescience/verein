@@ -60,10 +60,15 @@ WHERE MitgliedId IN (
        OR Mitgliedsnummer IN (SELECT Mitgliedsnummer FROM @DemoMitgliedsnummer)
 );
 
--- 3. Üyeleri sil (Email veya Mitgliedsnummer bazlı - TÜM kayıtları sil)
-DELETE FROM [Mitglied].[Mitglied]
-WHERE Email IN (SELECT Email FROM @DemoEmails)
-   OR Mitgliedsnummer IN (SELECT Mitgliedsnummer FROM @DemoMitgliedsnummer);
+-- 3. Etkinlik resimlerini sil (Dernek bazlı) - ÖNCE BU!
+DELETE FROM [Verein].[VeranstaltungBild]
+WHERE VeranstaltungId IN (
+    SELECT Id FROM [Verein].[Veranstaltung]
+    WHERE VereinId IN (
+        SELECT Id FROM [Verein].[Verein]
+        WHERE Kurzname IN (N'TDKV München', N'DTF Berlin')
+    )
+);
 
 -- 4. Etkinlikleri sil (Dernek bazlı)
 DELETE FROM [Verein].[Veranstaltung]
@@ -72,7 +77,20 @@ WHERE VereinId IN (
     WHERE Kurzname IN (N'TDKV München', N'DTF Berlin')
 );
 
--- 5. Dernekleri sil
+-- 5. Üye adreslerini sil (Email veya Mitgliedsnummer bazlı)
+DELETE FROM [Mitglied].[MitgliedAdresse]
+WHERE MitgliedId IN (
+    SELECT Id FROM [Mitglied].[Mitglied]
+    WHERE Email IN (SELECT Email FROM @DemoEmails)
+       OR Mitgliedsnummer IN (SELECT Mitgliedsnummer FROM @DemoMitgliedsnummer)
+);
+
+-- 6. Üyeleri sil (Email veya Mitgliedsnummer bazlı - TÜM kayıtları sil)
+DELETE FROM [Mitglied].[Mitglied]
+WHERE Email IN (SELECT Email FROM @DemoEmails)
+   OR Mitgliedsnummer IN (SELECT Mitgliedsnummer FROM @DemoMitgliedsnummer);
+
+-- 7. Dernekleri sil
 DELETE FROM [Verein].[Verein]
 WHERE Kurzname IN (N'TDKV München', N'DTF Berlin');
 
