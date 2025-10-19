@@ -239,15 +239,14 @@ const DernekRaporlar: React.FC = () => {
       if (!element) return;
 
       const opt = {
-        margin: 10,
+        margin: [5, 5, 5, 5],
         filename: `dernek-raporlar-${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
+        image: { type: 'jpeg' as const, quality: 0.95 },
         html2canvas: {
-          scale: 1,
+          scale: 2,
           useCORS: true,
           logging: false,
-          backgroundColor: '#ffffff',
-          width: 800
+          backgroundColor: '#ffffff'
         },
         jsPDF: {
           unit: 'mm',
