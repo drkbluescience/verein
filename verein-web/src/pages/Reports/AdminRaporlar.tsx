@@ -265,60 +265,86 @@ const AdminRaporlar: React.FC = () => {
       const element = document.getElementById('reports-content');
       if (!element) return;
 
-      // Capture the entire content as canvas
+      // Capture the entire content as canvas with high quality
       const canvas = await html2canvas(element, {
         scale: 2,
         logging: false,
         useCORS: true,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
+        backgroundColor: '#ffffff',
       });
 
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
 
+      // PDF page dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // Calculate dimensions
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = pdfWidth / imgWidth;
-      const scaledHeight = imgHeight * ratio;
+      // Margins (in mm)
+      const margin = 10;
+      const contentWidth = pdfWidth - (2 * margin);
+      const contentHeight = pdfHeight - (2 * margin);
+
+      // Canvas dimensions
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+
+      // Calculate scaling ratio to fit content width
+      const ratio = (contentWidth * 96 / 25.4) / canvasWidth; // Convert mm to pixels (96 DPI)
+
+      // Calculate scaled dimensions
+      const scaledWidth = canvasWidth * ratio;
+      const scaledHeight = canvasHeight * ratio;
+
+      // Convert back to mm for PDF
+      const imgWidth = scaledWidth * 25.4 / 96;
+      const imgHeight = scaledHeight * 25.4 / 96;
 
       // Calculate how many pages we need
-      const pageHeight = pdfHeight;
-      const totalPages = Math.ceil(scaledHeight / pageHeight);
+      const totalPages = Math.ceil(imgHeight / contentHeight);
 
-      // Add pages
-      for (let i = 0; i < totalPages; i++) {
-        if (i > 0) {
+      // Add content page by page
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
           pdf.addPage();
         }
 
-        const yOffset = -(i * pageHeight / ratio);
+        // Calculate the portion of canvas for this page
+        const sourceY = page * (contentHeight * 96 / 25.4) / ratio;
+        const sourceHeight = Math.min(
+          (contentHeight * 96 / 25.4) / ratio,
+          canvasHeight - sourceY
+        );
+
+        // Create a temporary canvas for this page
         const pageCanvas = document.createElement('canvas');
         const pageContext = pageCanvas.getContext('2d');
 
-        pageCanvas.width = imgWidth;
-        pageCanvas.height = Math.min(pageHeight / ratio, imgHeight - (i * pageHeight / ratio));
+        if (!pageContext) continue;
 
-        if (pageContext) {
-          pageContext.drawImage(
-            canvas,
-            0,
-            i * (pageHeight / ratio),
-            imgWidth,
-            pageCanvas.height,
-            0,
-            0,
-            imgWidth,
-            pageCanvas.height
-          );
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = sourceHeight;
 
-          const pageImgData = pageCanvas.toDataURL('image/png');
-          pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pageCanvas.height * ratio);
-        }
+        // Draw the portion of the original canvas
+        pageContext.drawImage(
+          canvas,
+          0, sourceY,           // Source position
+          canvasWidth, sourceHeight,  // Source dimensions
+          0, 0,                 // Destination position
+          canvasWidth, sourceHeight   // Destination dimensions
+        );
+
+        // Convert to image and add to PDF
+        const pageImgData = pageCanvas.toDataURL('image/png');
+        const pageImgHeight = sourceHeight * ratio * 25.4 / 96;
+
+        pdf.addImage(
+          pageImgData,
+          'PNG',
+          margin,
+          margin,
+          contentWidth,
+          pageImgHeight
+        );
       }
 
       pdf.save(`admin-raporlar-${new Date().toISOString().split('T')[0]}.pdf`);
