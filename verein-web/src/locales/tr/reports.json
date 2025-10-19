@@ -1,0 +1,93 @@
+{
+  "title": "Raporlar",
+  "noAccess": "Bu sayfaya erişim yetkiniz bulunmamaktadır.",
+  "loading": "Raporlar yükleniyor...",
+  "noData": "Veri yüklenemedi",
+  
+  "admin": {
+    "title": "Genel Raporlar",
+    "subtitle": "Tüm dernekler için özet istatistikler",
+    
+    "overallStats": {
+      "title": "Genel İstatistikler",
+      "totalVereine": "Toplam Dernek",
+      "totalMembers": "Toplam Üye",
+      "last30Days": "Son 30 Gün",
+      "newRegistrations": "Yeni üye kaydı",
+      "average": "Ortalama",
+      "membersPerVerein": "Dernek başına üye",
+      "active": "aktif"
+    },
+    
+    "ageDistribution": {
+      "title": "Yaş Dağılımı",
+      "years": "yaş"
+    },
+    
+    "genderDistribution": {
+      "title": "Cinsiyet Dağılımı",
+      "male": "Erkek",
+      "female": "Kadın",
+      "other": "Diğer"
+    },
+    
+    "vereinStats": {
+      "title": "Dernek Bazlı İstatistikler",
+      "vereinName": "Dernek Adı",
+      "totalMembers": "Toplam Üye",
+      "activeMembers": "Aktif Üye",
+      "activeRate": "Aktif Oran"
+    }
+  },
+  
+  "dernek": {
+    "title": "Dernek Raporları",
+    "subtitle": "için istatistikler",
+    
+    "stats": {
+      "totalMembers": "Toplam Üye",
+      "totalEvents": "Toplam Etkinlik",
+      "last30Days": "Son 30 Gün",
+      "newRegistrations": "Yeni üye kaydı",
+      "upcomingEvents": "Yaklaşan Etkinlik",
+      "active": "aktif",
+      "upcoming": "yaklaşan"
+    },
+    
+    "ageDistribution": {
+      "title": "Yaş Dağılımı",
+      "years": "yaş"
+    },
+    
+    "genderDistribution": {
+      "title": "Cinsiyet Dağılımı",
+      "male": "Erkek",
+      "female": "Kadın"
+    },
+    
+    "membershipStatus": {
+      "title": "Üyelik Durumu",
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    
+    "recentEvents": {
+      "title": "Son Etkinlikler",
+      "eventName": "Etkinlik Adı",
+      "date": "Tarih",
+      "participants": "Katılımcı",
+      "status": "Durum",
+      "upcoming": "Yaklaşan",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal"
+    },
+    
+    "topMembers": {
+      "title": "En Aktif Üyeler",
+      "memberName": "Üye Adı",
+      "eventCount": "Etkinlik Sayısı",
+      "lastActivity": "Son Aktivite"
+    }
+  }
+}
+

@@ -90,11 +90,20 @@
     "vorstandsvorsitzender": "Vorstandsvorsitzender",
     "kontaktperson": "Kontaktperson",
     "gruendungsdatum": "Gründungsdatum",
-    "zweck": "Zweck"
+    "zweck": "Zweck",
+    "aktiv": "Aktiv"
+  },
+  "editVerein": "Vereinsinformationen bearbeiten",
+  "createVerein": "Neuen Verein hinzufügen",
+  "validation": {
+    "nameRequired": "Vereinsname ist erforderlich",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "invalidUrl": "Bitte geben Sie eine gültige URL ein (muss mit https://... beginnen)"
   },
   "errors": {
     "loadFailed": "Verein konnte nicht geladen werden",
-    "vereinNotFound": "Verein nicht gefunden"
+    "vereinNotFound": "Verein nicht gefunden",
+    "updateFailed": "Beim Aktualisieren des Vereins ist ein Fehler aufgetreten"
   }
 }
 

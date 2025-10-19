@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { veranstaltungService } from '../../services/veranstaltungService';
 import { VeranstaltungDto, CreateVeranstaltungDto, UpdateVeranstaltungDto } from '../../types/veranstaltung';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,6 +19,8 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
   veranstaltung,
   mode
 }) => {
+  // @ts-ignore - i18next type definitions
+  const { i18n } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -237,6 +240,7 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
                   value={formData.startdatum}
                   onChange={handleChange}
                   className={errors.startdatum ? 'error' : ''}
+                  lang={i18n.language}
                 />
                 {errors.startdatum && <span className="error-message">{errors.startdatum}</span>}
               </div>
@@ -249,6 +253,7 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
                   value={formData.enddatum}
                   onChange={handleChange}
                   className={errors.enddatum ? 'error' : ''}
+                  lang={i18n.language}
                 />
                 {errors.enddatum && <span className="error-message">{errors.enddatum}</span>}
               </div>

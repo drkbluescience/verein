@@ -3,12 +3,24 @@
     "name": "Verein Yönetim Sistemi",
     "title": "Verein"
   },
+  "userTypes": {
+    "admin": "Sistem Yöneticisi",
+    "dernek": "Dernek Yöneticisi",
+    "mitglied": "Üye"
+  },
+  "header": {
+    "notifications": "Bildirimler",
+    "settings": "Ayarlar"
+  },
   "navigation": {
     "dashboard": "Ana Sayfa",
     "vereine": "Dernekler",
     "mitglieder": "Üyeler",
+    "mitgliederimiz": "Üyelerimiz",
     "veranstaltungen": "Etkinlikler",
+    "etkinliklerimiz": "Etkinliklerimiz",
     "reports": "Raporlar",
+    "raporlarimiz": "Raporlarımız",
     "settings": "Ayarlar",
     "profile": "Profil",
     "logout": "Çıkış Yap",
@@ -21,6 +33,7 @@
     "delete": "Sil",
     "edit": "Düzenle",
     "add": "Ekle",
+    "create": "Oluştur",
     "search": "Ara",
     "filter": "Filtrele",
     "reset": "Sıfırla",

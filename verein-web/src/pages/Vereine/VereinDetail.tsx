@@ -495,6 +495,7 @@ const VereinDetail: React.FC = () => {
           onClose={handleVereinModalClose}
           onSubmit={handleVereinModalSubmit}
           verein={verein}
+          mode="edit"
         />
       )}
 

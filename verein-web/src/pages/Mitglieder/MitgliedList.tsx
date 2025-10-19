@@ -215,9 +215,6 @@ const MitgliedList: React.FC = () => {
         <h1 className="page-title">
           {user?.type === 'admin' ? t('mitglieder:listPage.header.titleAll') : t('mitglieder:listPage.header.titleOur')}
         </h1>
-        <p className="page-subtitle">
-          {stats.total} {t('mitglieder:listPage.header.stats', { active: stats.active, inactive: stats.inactive }).replace('{active}', stats.active.toString()).replace('{inactive}', stats.inactive.toString())}
-        </p>
       </div>
 
       {/* Actions Bar */}

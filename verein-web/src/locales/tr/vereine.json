@@ -96,6 +96,7 @@
     "aktiv": "Aktif"
   },
   "editVerein": "Dernek Bilgilerini Düzenle",
+  "createVerein": "Yeni Dernek Ekle",
   "validation": {
     "nameRequired": "Dernek adı zorunludur",
     "invalidEmail": "Geçerli bir e-posta adresi giriniz",

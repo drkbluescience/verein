@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import './Header.css';
 
@@ -10,19 +11,35 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
+  // @ts-ignore - i18next type definitions
+  const { t, i18n } = useTranslation('common');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  // Force re-render when language changes
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => {
+      setCurrentLanguage(lng);
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
 
   const getPageTitle = () => {
     if (title) return title;
-    
+
     const path = location.pathname;
-    if (path === '/') return 'Dashboard';
-    if (path.startsWith('/vereine')) return 'Dernekler';
-    if (path.startsWith('/mitglieder')) return 'Üyeler';
-    if (path.startsWith('/veranstaltungen')) return 'Etkinlikler';
-    if (path.startsWith('/reports')) return 'Raporlar';
-    
-    return 'Verein Yönetimi';
+    if (path === '/') return t('navigation.dashboard');
+    if (path.startsWith('/vereine')) return t('navigation.vereine');
+    if (path.startsWith('/mitglieder')) return t('navigation.mitglieder');
+    if (path.startsWith('/veranstaltungen')) return t('navigation.veranstaltungen');
+    if (path.startsWith('/reports')) return t('navigation.reports');
+
+    return t('app.name');
   };
 
   return (
@@ -41,10 +58,10 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         
         <div className="header-right">
           <div className="header-actions">
-            <button className="header-btn" title="Bildirimler">
+            <button className="header-btn" title={t('header.notifications')}>
               <span className="btn-icon">🔔</span>
             </button>
-            <button className="header-btn" title="Ayarlar">
+            <button className="header-btn" title={t('header.settings')}>
               <span className="btn-icon">⚙️</span>
             </button>
             <div className="user-menu">
@@ -62,7 +79,9 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                 <div className="user-dropdown">
                   <div className="dropdown-header">
                     <span className="user-type">
-                      {user?.type === 'admin' ? 'System Admin' : 'Dernek Yöneticisi'}
+                      {user?.type === 'admin' ? t('userTypes.admin') :
+                       user?.type === 'dernek' ? t('userTypes.dernek') :
+                       t('userTypes.mitglied')}
                     </span>
                   </div>
                   <div className="dropdown-divider"></div>
@@ -74,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                     }}
                   >
                     <span className="dropdown-icon">🚪</span>
-                    Çıkış Yap
+                    {t('navigation.logout')}
                   </button>
                 </div>
               )}

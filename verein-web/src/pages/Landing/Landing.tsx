@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../../components/Common/LanguageSwitcher';
@@ -6,8 +6,22 @@ import './Landing.css';
 
 const Landing: React.FC = () => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['landing', 'common']);
+  const { t, i18n } = useTranslation('landing');
   const navigate = useNavigate();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  // Force re-render when language changes
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => {
+      setCurrentLanguage(lng);
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
 
   const handleGetStarted = () => {
     navigate('/auth');
@@ -44,19 +58,19 @@ const Landing: React.FC = () => {
                 className="logo-image"
               />
             </div>
-            <h1 className="hero-title" dangerouslySetInnerHTML={{ __html: t('landing:hero.title') }} />
+            <h1 className="hero-title" dangerouslySetInnerHTML={{ __html: t('hero.title') }} />
             <p className="hero-subtitle">
-              {t('landing:hero.subtitle')}
+              {t('hero.subtitle')}
             </p>
             <div className="hero-buttons">
               <button className="btn-hero-primary" onClick={handleGetStarted}>
-                <span>{t('landing:hero.getStarted')}</span>
+                <span>{t('hero.getStarted')}</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
               </button>
               <button className="btn-hero-secondary" onClick={handleLearnMore}>
-                {t('landing:hero.learnMore')}
+                {t('hero.learnMore')}
               </button>
             </div>
           </div>
@@ -70,8 +84,8 @@ const Landing: React.FC = () => {
                 />
               </div>
               <div className="hero-card-content">
-                <h3>{t('landing:hero.modernManagement')}</h3>
-                <p>{t('landing:hero.allInOne')}</p>
+                <h3>{t('hero.modernManagement')}</h3>
+                <p>{t('hero.allInOne')}</p>
               </div>
             </div>
           </div>
@@ -82,42 +96,13 @@ const Landing: React.FC = () => {
       <section id="features-section" className="features-section">
         <div className="features-container">
           <div className="section-header">
-            <h2 className="section-title">{t('landing:features.title')}</h2>
+            <h2 className="section-title">{t('features.title')}</h2>
             <p className="section-subtitle">
-              {t('landing:features.subtitle')}
+              {t('features.subtitle')}
             </p>
           </div>
 
           <div className="features-grid">
-            {/* Admin Card */}
-            <div className="feature-card feature-card-admin">
-              <div className="feature-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                  <circle cx="8.5" cy="7" r="4"/>
-                  <polyline points="17 11 19 13 23 9"/>
-                </svg>
-              </div>
-              <h3 className="feature-title">{t('landing:features.admin.title')}</h3>
-              <p className="feature-description">
-                {t('landing:features.admin.description')}
-              </p>
-              <ul className="feature-list">
-                <li>
-                  <span className="list-dot"></span>
-                  {t('landing:features.admin.features.0')}
-                </li>
-                <li>
-                  <span className="list-dot"></span>
-                  {t('landing:features.admin.features.1')}
-                </li>
-                <li>
-                  <span className="list-dot"></span>
-                  {t('landing:features.admin.features.2')}
-                </li>
-              </ul>
-            </div>
-
             {/* Dernek Card */}
             <div className="feature-card feature-card-dernek">
               <div className="feature-icon">
@@ -126,22 +111,22 @@ const Landing: React.FC = () => {
                   <path d="M3 9h18M9 21V9"/>
                 </svg>
               </div>
-              <h3 className="feature-title">{t('landing:features.verein.title')}</h3>
+              <h3 className="feature-title">{t('features.verein.title')}</h3>
               <p className="feature-description">
-                {t('landing:features.verein.description')}
+                {t('features.verein.description')}
               </p>
               <ul className="feature-list">
                 <li>
                   <span className="list-dot"></span>
-                  {t('landing:features.verein.features.0')}
+                  {t('features.verein.features.0')}
                 </li>
                 <li>
                   <span className="list-dot"></span>
-                  {t('landing:features.verein.features.1')}
+                  {t('features.verein.features.1')}
                 </li>
                 <li>
                   <span className="list-dot"></span>
-                  {t('landing:features.verein.features.2')}
+                  {t('features.verein.features.2')}
                 </li>
               </ul>
             </div>
@@ -155,22 +140,22 @@ const Landing: React.FC = () => {
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
               </div>
-              <h3 className="feature-title">{t('landing:features.member.title')}</h3>
+              <h3 className="feature-title">{t('features.member.title')}</h3>
               <p className="feature-description">
-                {t('landing:features.member.description')}
+                {t('features.member.description')}
               </p>
               <ul className="feature-list">
                 <li>
                   <span className="list-dot"></span>
-                  {t('landing:features.member.features.0')}
+                  {t('features.member.features.0')}
                 </li>
                 <li>
                   <span className="list-dot"></span>
-                  {t('landing:features.member.features.1')}
+                  {t('features.member.features.1')}
                 </li>
                 <li>
                   <span className="list-dot"></span>
-                  {t('landing:features.member.features.2')}
+                  {t('features.member.features.2')}
                 </li>
               </ul>
             </div>
@@ -182,12 +167,12 @@ const Landing: React.FC = () => {
       <section className="cta-section">
         <div className="cta-container">
           <div className="cta-content">
-            <h2 className="cta-title">{t('landing:cta.title')}</h2>
+            <h2 className="cta-title">{t('cta.title')}</h2>
             <p className="cta-subtitle">
-              {t('landing:cta.subtitle')}
+              {t('cta.subtitle')}
             </p>
             <button className="btn-cta" onClick={handleGetStarted}>
-              <span>{t('landing:cta.button')}</span>
+              <span>{t('cta.button')}</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
@@ -206,8 +191,8 @@ const Landing: React.FC = () => {
               className="logo-image-footer"
             />
           </div>
-          <p className="footer-text">{t('landing:footer.copyright')}</p>
-          <p className="footer-version">{t('landing:footer.version')}</p>
+          <p className="footer-text">{t('footer.copyright')}</p>
+          <p className="footer-version">{t('footer.version')}</p>
         </div>
       </footer>
     </div>

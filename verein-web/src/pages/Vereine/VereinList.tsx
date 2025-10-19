@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { vereinService } from '../../services/vereinService';
-import { VereinDto } from '../../types/verein';
+import { VereinDto, CreateVereinDto, UpdateVereinDto } from '../../types/verein';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
+import VereinFormModal from '../../components/Vereine/VereinFormModal';
 import './VereinList.css';
 
 // SVG Icons
@@ -61,9 +62,15 @@ const VereinList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['vereine', 'common']);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+
+  // Modal states
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [selectedVerein, setSelectedVerein] = useState<VereinDto | null>(null);
 
   // Fetch Vereine
   const {
@@ -74,6 +81,33 @@ const VereinList: React.FC = () => {
   } = useQuery<VereinDto[]>({
     queryKey: ['vereine'],
     queryFn: vereinService.getAll,
+  });
+
+  // Create Verein Mutation
+  const createMutation = useMutation({
+    mutationFn: (data: CreateVereinDto) => vereinService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vereine'] });
+      setIsFormModalOpen(false);
+      setSelectedVerein(null);
+    },
+    onError: (error: any) => {
+      console.error('Create error:', error);
+    }
+  });
+
+  // Update Verein Mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateVereinDto }) =>
+      vereinService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vereine'] });
+      setIsFormModalOpen(false);
+      setSelectedVerein(null);
+    },
+    onError: (error: any) => {
+      console.error('Update error:', error);
+    }
   });
 
   // Filter vereine based on search and active status
@@ -97,6 +131,26 @@ const VereinList: React.FC = () => {
 
   const handleActiveToggle = () => {
     setShowActiveOnly(!showActiveOnly);
+  };
+
+  const handleCreateVerein = () => {
+    setFormMode('create');
+    setSelectedVerein(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditVerein = (verein: VereinDto) => {
+    setFormMode('edit');
+    setSelectedVerein(verein);
+    setIsFormModalOpen(true);
+  };
+
+  const handleSubmitVerein = (data: CreateVereinDto | UpdateVereinDto) => {
+    if (formMode === 'create') {
+      createMutation.mutate(data as CreateVereinDto);
+    } else if (formMode === 'edit' && selectedVerein) {
+      updateMutation.mutate({ id: selectedVerein.id, data: data as UpdateVereinDto });
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -175,7 +229,7 @@ const VereinList: React.FC = () => {
             <span className="toggle-label">{t('vereine:list.showActiveOnly')}</span>
           </label>
 
-          <button className="btn-primary">
+          <button className="btn-primary" onClick={handleCreateVerein}>
             <PlusIcon />
             <span>{t('vereine:list.newVerein')}</span>
           </button>
@@ -212,7 +266,7 @@ const VereinList: React.FC = () => {
                 : t('vereine:list.noData')}
             </p>
             {!searchTerm && (
-              <button className="btn-primary">
+              <button className="btn-primary" onClick={handleCreateVerein}>
                 <PlusIcon />
                 <span>{t('vereine:list.addFirst')}</span>
               </button>
@@ -280,7 +334,11 @@ const VereinList: React.FC = () => {
               </div>
 
               <div className="card-footer">
-                <button className="action-btn" title={t('vereine:actions.edit')}>
+                <button
+                  className="action-btn"
+                  title={t('vereine:actions.edit')}
+                  onClick={() => handleEditVerein(verein)}
+                >
                   <EditIcon />
                   <span>{t('vereine:actions.edit')}</span>
                 </button>
@@ -346,7 +404,7 @@ const VereinList: React.FC = () => {
                         className="table-action-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Handle edit
+                          handleEditVerein(verein);
                         }}
                         title={t('vereine:actions.edit')}
                       >
@@ -360,6 +418,15 @@ const VereinList: React.FC = () => {
           </table>
         </div>
       )}
+
+      {/* Verein Form Modal */}
+      <VereinFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        onSubmit={handleSubmitVerein}
+        verein={selectedVerein}
+        mode={formMode}
+      />
     </div>
   );
 };

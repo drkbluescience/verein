@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { VereinDto, UpdateVereinDto } from '../../types/verein';
+import { VereinDto, UpdateVereinDto, CreateVereinDto } from '../../types/verein';
 import Modal from '../Common/Modal';
 import styles from './VereinFormModal.module.css';
 
 interface VereinFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: UpdateVereinDto) => void;
-  verein: VereinDto;
+  onSubmit: (data: UpdateVereinDto | CreateVereinDto) => void;
+  verein?: VereinDto | null;
+  mode: 'create' | 'edit';
 }
 
 const VereinFormModal: React.FC<VereinFormModalProps> = ({
@@ -16,42 +17,59 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
   onClose,
   onSubmit,
   verein,
+  mode,
 }) => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['vereine', 'common']);
+  const { t, i18n } = useTranslation(['vereine', 'common']);
 
   const [formData, setFormData] = useState<UpdateVereinDto>({
-    name: verein.name,
-    kurzname: verein.kurzname || '',
-    telefon: verein.telefon || '',
-    email: verein.email || '',
-    webseite: verein.webseite || '',
-    vorstandsvorsitzender: verein.vorstandsvorsitzender || '',
-    kontaktperson: verein.kontaktperson || '',
-    gruendungsdatum: verein.gruendungsdatum || '',
-    zweck: verein.zweck || '',
-    aktiv: verein.aktiv,
+    name: '',
+    kurzname: '',
+    telefon: '',
+    email: '',
+    webseite: '',
+    vorstandsvorsitzender: '',
+    kontaktperson: '',
+    gruendungsdatum: '',
+    zweck: '',
+    aktiv: true,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({
-        name: verein.name,
-        kurzname: verein.kurzname || '',
-        telefon: verein.telefon || '',
-        email: verein.email || '',
-        webseite: verein.webseite || '',
-        vorstandsvorsitzender: verein.vorstandsvorsitzender || '',
-        kontaktperson: verein.kontaktperson || '',
-        gruendungsdatum: verein.gruendungsdatum || '',
-        zweck: verein.zweck || '',
-        aktiv: verein.aktiv,
-      });
+      if (mode === 'edit' && verein) {
+        setFormData({
+          name: verein.name,
+          kurzname: verein.kurzname || '',
+          telefon: verein.telefon || '',
+          email: verein.email || '',
+          webseite: verein.webseite || '',
+          vorstandsvorsitzender: verein.vorstandsvorsitzender || '',
+          kontaktperson: verein.kontaktperson || '',
+          gruendungsdatum: verein.gruendungsdatum || '',
+          zweck: verein.zweck || '',
+          aktiv: verein.aktiv,
+        });
+      } else {
+        // Reset form for create mode
+        setFormData({
+          name: '',
+          kurzname: '',
+          telefon: '',
+          email: '',
+          webseite: '',
+          vorstandsvorsitzender: '',
+          kontaktperson: '',
+          gruendungsdatum: '',
+          zweck: '',
+          aktiv: true,
+        });
+      }
       setErrors({});
     }
-  }, [isOpen, verein]);
+  }, [isOpen, verein, mode]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -106,7 +124,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('vereine:editVerein')}
+      title={mode === 'create' ? t('vereine:createVerein') : t('vereine:editVerein')}
       size="lg"
       footer={
         <div className={styles.footer}>
@@ -114,7 +132,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
             {t('common:actions.cancel')}
           </button>
           <button type="submit" form="verein-form" className={styles.btnPrimary}>
-            {t('common:actions.save')}
+            {mode === 'create' ? t('common:actions.create') : t('common:actions.save')}
           </button>
         </div>
       }
@@ -232,6 +250,7 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                     : ''
                 }
                 onChange={handleChange}
+                lang={i18n.language}
               />
             </div>
 

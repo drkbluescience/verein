@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { vereinService } from '../../services/vereinService';
 import './Sidebar.css';
 
 interface MenuItem {
   path: string;
-  label: string;
+  labelKey: string; // Translation key instead of hard-coded label
   icon: React.ReactNode;
 }
 
@@ -60,27 +61,27 @@ const LogOutIcon = () => (
 );
 
 const adminMenuItems: MenuItem[] = [
-  { path: '/dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-  { path: '/vereine', label: 'Dernekler', icon: <BuildingIcon /> },
-  { path: '/mitglieder', label: 'Üyeler', icon: <UsersIcon /> },
-  { path: '/veranstaltungen', label: 'Etkinlikler', icon: <CalendarIcon /> },
-  { path: '/reports', label: 'Raporlar', icon: <BarChartIcon /> },
-  { path: '/ayarlar', label: 'Ayarlar', icon: <SettingsIcon /> },
+  { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/vereine', labelKey: 'navigation.vereine', icon: <BuildingIcon /> },
+  { path: '/mitglieder', labelKey: 'navigation.mitglieder', icon: <UsersIcon /> },
+  { path: '/veranstaltungen', labelKey: 'navigation.veranstaltungen', icon: <CalendarIcon /> },
+  { path: '/reports', labelKey: 'navigation.reports', icon: <BarChartIcon /> },
+  { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 
 const dernekMenuItems: MenuItem[] = [
-  { path: '/dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-  { path: '/mitglieder', label: 'Üyelerimiz', icon: <UsersIcon /> },
-  { path: '/veranstaltungen', label: 'Etkinliklerimiz', icon: <CalendarIcon /> },
-  { path: '/reports', label: 'Raporlarımız', icon: <BarChartIcon /> },
-  { path: '/ayarlar', label: 'Ayarlar', icon: <SettingsIcon /> },
+  { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/mitglieder', labelKey: 'navigation.mitgliederimiz', icon: <UsersIcon /> },
+  { path: '/veranstaltungen', labelKey: 'navigation.etkinliklerimiz', icon: <CalendarIcon /> },
+  { path: '/reports', labelKey: 'navigation.raporlarimiz', icon: <BarChartIcon /> },
+  { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 
 const mitgliedMenuItems: MenuItem[] = [
-  { path: '/dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-  { path: '/etkinlikler', label: 'Etkinlikler', icon: <CalendarIcon /> },
-  { path: '/ailem', label: 'Ailem', icon: <UsersIcon /> },
-  { path: '/ayarlar', label: 'Ayarlar', icon: <SettingsIcon /> },
+  { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/etkinlikler', labelKey: 'navigation.etkinlikler', icon: <CalendarIcon /> },
+  { path: '/ailem', labelKey: 'navigation.ailem', icon: <UsersIcon /> },
+  { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 
 interface SidebarProps {
@@ -91,6 +92,22 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const navigate = useNavigate();
   const { user, logout, selectedVereinId } = useAuth();
+  // @ts-ignore - i18next type definitions
+  const { t, i18n } = useTranslation('common');
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  // Force re-render when language changes
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => {
+      setCurrentLanguage(lng);
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
 
   const menuItems = user?.type === 'admin' ? adminMenuItems :
                    user?.type === 'dernek' ? dernekMenuItems :
@@ -140,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           </div>
           <button className="profile-button" onClick={() => navigate('/profil')}>
             <UserIcon />
-            <span>Profil</span>
+            <span>{t('navigation.profile')}</span>
           </button>
         </div>
 
@@ -152,7 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               <div className="verein-details">
                 <span className="verein-name">{currentVerein.name}</span>
                 <span className="verein-status">
-                  {currentVerein.aktiv ? '● Aktif' : '○ Pasif'}
+                  {currentVerein.aktiv ? `● ${t('status.active')}` : `○ ${t('status.inactive')}`}
                 </span>
               </div>
             </div>
@@ -168,7 +185,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
             >
               <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
+              <span className="nav-label">{t(item.labelKey)}</span>
             </NavLink>
           ))}
         </nav>
@@ -176,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         <div className="sidebar-footer">
           <button className="logout-button" onClick={handleLogout}>
             <LogOutIcon />
-            <span>Çıkış Yap</span>
+            <span>{t('navigation.logout')}</span>
           </button>
         </div>
       </aside>

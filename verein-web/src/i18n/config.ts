@@ -13,6 +13,7 @@ import mitgliederTr from '../locales/tr/mitglieder.json';
 import veranstaltungenTr from '../locales/tr/veranstaltungen.json';
 import landingTr from '../locales/tr/landing.json';
 import adressenTr from '../locales/tr/adressen.json';
+import reportsTr from '../locales/tr/reports.json';
 
 // Import German translations
 import commonDe from '../locales/de/common.json';
@@ -25,6 +26,7 @@ import mitgliederDe from '../locales/de/mitglieder.json';
 import veranstaltungenDe from '../locales/de/veranstaltungen.json';
 import landingDe from '../locales/de/landing.json';
 import adressenDe from '../locales/de/adressen.json';
+import reportsDe from '../locales/de/reports.json';
 
 // Define resources
 const resources = {
@@ -39,6 +41,7 @@ const resources = {
     veranstaltungen: veranstaltungenTr,
     landing: landingTr,
     adressen: adressenTr,
+    reports: reportsTr,
   },
   de: {
     common: commonDe,
@@ -51,6 +54,7 @@ const resources = {
     veranstaltungen: veranstaltungenDe,
     landing: landingDe,
     adressen: adressenDe,
+    reports: reportsDe,
   },
 };
 
@@ -93,8 +97,8 @@ i18n
     lng: getSavedLanguage(),
     fallbackLng: 'tr',
     defaultNS: 'common',
-    ns: ['common', 'dashboard', 'settings', 'auth', 'profile', 'vereine', 'mitglieder', 'veranstaltungen', 'landing', 'adressen'],
-    
+    ns: ['common', 'dashboard', 'settings', 'auth', 'profile', 'vereine', 'mitglieder', 'veranstaltungen', 'landing', 'adressen', 'reports'],
+
     interpolation: {
       escapeValue: false, // React already escapes values
     },
@@ -109,6 +113,18 @@ i18n
       useSuspense: false,
     },
   });
+
+// Update HTML lang attribute when language changes
+i18n.on('languageChanged', (lng) => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lng;
+  }
+});
+
+// Set initial lang attribute
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = i18n.language;
+}
 
 export default i18n;
 

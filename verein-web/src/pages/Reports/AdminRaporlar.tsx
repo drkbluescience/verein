@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
 import { veranstaltungService } from '../../services/veranstaltungService';
@@ -71,6 +72,9 @@ interface VereinStats {
 }
 
 const AdminRaporlar: React.FC = () => {
+  // @ts-ignore - i18next type definitions
+  const { t } = useTranslation('reports');
+
   // Fetch all vereine
   const { data: vereine, isLoading: vereineLoading } = useQuery({
     queryKey: ['vereine'],
@@ -158,32 +162,32 @@ const AdminRaporlar: React.FC = () => {
   }, [vereine, allMitglieder]);
 
   if (vereineLoading || mitgliederLoading) {
-    return <Loading text="Raporlar yükleniyor..." />;
+    return <Loading text={t('loading')} />;
   }
 
   if (!stats) {
-    return <div>Veri yüklenemedi</div>;
+    return <div>{t('noData')}</div>;
   }
 
   return (
     <div className="reports-container">
       <div className="reports-header">
-        <h1>Genel Raporlar</h1>
-        <p>Tüm dernekler için özet istatistikler</p>
+        <h1>{t('admin.title')}</h1>
+        <p>{t('admin.subtitle')}</p>
       </div>
 
       {/* Overall Statistics */}
       <div className="stats-section">
-        <h2>Genel İstatistikler</h2>
+        <h2>{t('admin.overallStats.title')}</h2>
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon">
               <Building2Icon />
             </div>
             <div className="stat-info">
-              <h3>Toplam Dernek</h3>
+              <h3>{t('admin.overallStats.totalVereine')}</h3>
               <div className="stat-number">{stats.totalVereine}</div>
-              <span className="stat-detail">{stats.activeVereine} aktif</span>
+              <span className="stat-detail">{stats.activeVereine} {t('admin.overallStats.active')}</span>
             </div>
           </div>
 
@@ -192,9 +196,9 @@ const AdminRaporlar: React.FC = () => {
               <UsersIcon />
             </div>
             <div className="stat-info">
-              <h3>Toplam Üye</h3>
+              <h3>{t('admin.overallStats.totalMembers')}</h3>
               <div className="stat-number">{stats.totalMitglieder}</div>
-              <span className="stat-detail">{stats.activeMitglieder} aktif</span>
+              <span className="stat-detail">{stats.activeMitglieder} {t('admin.overallStats.active')}</span>
             </div>
           </div>
 
@@ -203,9 +207,9 @@ const AdminRaporlar: React.FC = () => {
               <TrendingUpIcon />
             </div>
             <div className="stat-info">
-              <h3>Son 30 Gün</h3>
+              <h3>{t('admin.overallStats.last30Days')}</h3>
               <div className="stat-number">{stats.recentRegistrations}</div>
-              <span className="stat-detail">Yeni üye kaydı</span>
+              <span className="stat-detail">{t('admin.overallStats.newRegistrations')}</span>
             </div>
           </div>
 
@@ -214,11 +218,11 @@ const AdminRaporlar: React.FC = () => {
               <BarChartIcon />
             </div>
             <div className="stat-info">
-              <h3>Ortalama</h3>
+              <h3>{t('admin.overallStats.average')}</h3>
               <div className="stat-number">
                 {stats.totalVereine > 0 ? Math.round(stats.totalMitglieder / stats.totalVereine) : 0}
               </div>
-              <span className="stat-detail">Dernek başına üye</span>
+              <span className="stat-detail">{t('admin.overallStats.membersPerVerein')}</span>
             </div>
           </div>
         </div>
@@ -226,21 +230,21 @@ const AdminRaporlar: React.FC = () => {
 
       {/* Age Distribution */}
       <div className="chart-section">
-        <h2>Yaş Dağılımı</h2>
+        <h2>{t('admin.ageDistribution.title')}</h2>
         <div className="chart-container">
           {Object.entries(stats.ageGroups).map(([group, count]) => {
-            const percentage = stats.totalMitglieder > 0 
-              ? Math.round((count / stats.totalMitglieder) * 100) 
+            const percentage = stats.totalMitglieder > 0
+              ? Math.round((count / stats.totalMitglieder) * 100)
               : 0;
             return (
               <div key={group} className="chart-bar-item">
                 <div className="chart-label">
-                  <span>{group} yaş</span>
+                  <span>{group} {t('admin.ageDistribution.years')}</span>
                   <span className="chart-value">{count} ({percentage}%)</span>
                 </div>
                 <div className="chart-bar-bg">
-                  <div 
-                    className="chart-bar-fill" 
+                  <div
+                    className="chart-bar-fill"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -252,12 +256,12 @@ const AdminRaporlar: React.FC = () => {
 
       {/* Gender Distribution */}
       <div className="chart-section">
-        <h2>Cinsiyet Dağılımı</h2>
+        <h2>{t('admin.genderDistribution.title')}</h2>
         <div className="chart-container">
           <div className="chart-bar-item">
             <div className="chart-label">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MaleIcon /> Erkek
+                <MaleIcon /> {t('admin.genderDistribution.male')}
               </span>
               <span className="chart-value">
                 {stats.genderDistribution.male} (
@@ -281,22 +285,22 @@ const AdminRaporlar: React.FC = () => {
           <div className="chart-bar-item">
             <div className="chart-label">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FemaleIcon /> Kadın
+                <FemaleIcon /> {t('admin.genderDistribution.female')}
               </span>
               <span className="chart-value">
                 {stats.genderDistribution.female} (
-                {stats.totalMitglieder > 0 
-                  ? Math.round((stats.genderDistribution.female / stats.totalMitglieder) * 100) 
+                {stats.totalMitglieder > 0
+                  ? Math.round((stats.genderDistribution.female / stats.totalMitglieder) * 100)
                   : 0}%)
               </span>
             </div>
             <div className="chart-bar-bg">
-              <div 
-                className="chart-bar-fill chart-bar-female" 
-                style={{ 
-                  width: `${stats.totalMitglieder > 0 
-                    ? (stats.genderDistribution.female / stats.totalMitglieder) * 100 
-                    : 0}%` 
+              <div
+                className="chart-bar-fill chart-bar-female"
+                style={{
+                  width: `${stats.totalMitglieder > 0
+                    ? (stats.genderDistribution.female / stats.totalMitglieder) * 100
+                    : 0}%`
                 }}
               />
             </div>
@@ -306,15 +310,15 @@ const AdminRaporlar: React.FC = () => {
 
       {/* Per-Verein Statistics */}
       <div className="table-section">
-        <h2>Dernek Bazlı İstatistikler</h2>
+        <h2>{t('admin.vereinStats.title')}</h2>
         <div className="table-container">
           <table className="reports-table">
             <thead>
               <tr>
-                <th>Dernek Adı</th>
-                <th>Toplam Üye</th>
-                <th>Aktif Üye</th>
-                <th>Aktif Oran</th>
+                <th>{t('admin.vereinStats.vereinName')}</th>
+                <th>{t('admin.vereinStats.totalMembers')}</th>
+                <th>{t('admin.vereinStats.activeMembers')}</th>
+                <th>{t('admin.vereinStats.activeRate')}</th>
               </tr>
             </thead>
             <tbody>

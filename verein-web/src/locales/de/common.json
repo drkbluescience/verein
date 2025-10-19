@@ -3,12 +3,24 @@
     "name": "Vereinsverwaltungssystem",
     "title": "Verein"
   },
+  "userTypes": {
+    "admin": "Systemadministrator",
+    "dernek": "Vereinsverwalter",
+    "mitglied": "Mitglied"
+  },
+  "header": {
+    "notifications": "Benachrichtigungen",
+    "settings": "Einstellungen"
+  },
   "navigation": {
     "dashboard": "Startseite",
     "vereine": "Vereine",
     "mitglieder": "Mitglieder",
+    "mitgliederimiz": "Unsere Mitglieder",
     "veranstaltungen": "Veranstaltungen",
+    "etkinliklerimiz": "Unsere Veranstaltungen",
     "reports": "Berichte",
+    "raporlarimiz": "Unsere Berichte",
     "settings": "Einstellungen",
     "profile": "Profil",
     "logout": "Abmelden",
@@ -21,6 +33,7 @@
     "delete": "Löschen",
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
+    "create": "Erstellen",
     "search": "Suchen",
     "filter": "Filtern",
     "reset": "Zurücksetzen",

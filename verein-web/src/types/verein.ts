@@ -49,9 +49,12 @@ export interface VereinDto {
 
 export interface CreateVereinDto {
   name: string;
+  kurzname?: string;
   vereinsnummer?: string;
-  mandantencode?: string;
+  steuernummer?: string;
   rechtsformId?: number;
+  gruendungsdatum?: string;
+  zweck?: string;
   adresseId?: number;
   hauptBankkontoId?: number;
   telefon?: string;
@@ -60,17 +63,23 @@ export interface CreateVereinDto {
   webseite?: string;
   vereinsregisterNummer?: string;
   vereinsregisterGericht?: string;
-  steuernummer?: string;
   finanzamt?: string;
   ustIdNr?: string;
   gemeinnuetzig?: boolean;
   freistellungsbescheidVom?: string;
   freistellungsbescheidAz?: string;
   satzungVom?: string;
-  gruendungsdatum?: string;
-  aufloesungsdatum?: string;
-  bemerkungen?: string;
-  aktiv?: boolean;
+  vorstandsvorsitzender?: string;
+  geschaeftsfuehrer?: string;
+  vertreterEmail?: string;
+  kontaktperson?: string;
+  mitgliederzahl?: number;
+  satzungPfad?: string;
+  logoPfad?: string;
+  externeReferenzId?: string;
+  ePostEmpfangAdresse?: string;
+  sepaGlaeubigerID?: string;
+  socialMediaLinks?: string;
   elektronischeSignaturKey?: string;
 }
 

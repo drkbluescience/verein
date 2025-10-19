@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { authService } from '../../services/authService';
 import './Login.css';
+
+// Register locales for date picker
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 const Login: React.FC = () => {
   // @ts-ignore - i18next type definitions
@@ -45,7 +52,7 @@ const Login: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [memberTelefon, setMemberTelefon] = useState('');
   const [mobiltelefon, setMobiltelefon] = useState('');
-  const [geburtsdatum, setGeburtsdatum] = useState('');
+  const [geburtsdatum, setGeburtsdatum] = useState<Date | null>(null);
   const [geburtsort, setGeburtsort] = useState('');
 
   // Association fields
@@ -55,7 +62,7 @@ const Login: React.FC = () => {
   const [kontaktperson, setKontaktperson] = useState('');
   const [vorstandsvorsitzender, setVorstandsvorsitzender] = useState('');
   const [webseite, setWebseite] = useState('');
-  const [gruendungsdatum, setGruendungsdatum] = useState('');
+  const [gruendungsdatum, setGruendungsdatum] = useState<Date | null>(null);
   const [zweck, setZweck] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -101,7 +108,7 @@ const Login: React.FC = () => {
           email: signupEmail,
           telefon: memberTelefon || undefined,
           mobiltelefon: mobiltelefon || undefined,
-          geburtsdatum: geburtsdatum || undefined,
+          geburtsdatum: geburtsdatum ? geburtsdatum.toISOString().split('T')[0] : undefined,
           geburtsort: geburtsort || undefined,
         });
 
@@ -129,7 +136,7 @@ const Login: React.FC = () => {
           vorstandsvorsitzender: vorstandsvorsitzender || undefined,
           kontaktperson: kontaktperson || undefined,
           webseite: webseite || undefined,
-          gruendungsdatum: gruendungsdatum || undefined,
+          gruendungsdatum: gruendungsdatum ? gruendungsdatum.toISOString().split('T')[0] : undefined,
           zweck: zweck || undefined,
         });
 
@@ -314,11 +321,17 @@ const Login: React.FC = () => {
                     </div>
                     <div className="form-group">
                       <label htmlFor="geburtsdatum">{t('auth:fields.birthDate')}</label>
-                      <input
-                        type="date"
-                        id="geburtsdatum"
-                        value={geburtsdatum}
-                        onChange={(e) => setGeburtsdatum(e.target.value)}
+                      <DatePicker
+                        selected={geburtsdatum}
+                        onChange={(date) => setGeburtsdatum(date)}
+                        locale={i18n.language}
+                        dateFormat="dd.MM.yyyy"
+                        placeholderText={t('auth:fields.birthDatePlaceholder')}
+                        className="date-picker-input"
+                        showYearDropdown
+                        scrollableYearDropdown
+                        yearDropdownItemNumber={100}
+                        maxDate={new Date()}
                       />
                     </div>
                     <div className="form-group">
@@ -425,11 +438,17 @@ const Login: React.FC = () => {
                     </div>
                     <div className="form-group">
                       <label htmlFor="gruendungsdatum">{t('auth:fields.foundingDate')}</label>
-                      <input
-                        type="date"
-                        id="gruendungsdatum"
-                        value={gruendungsdatum}
-                        onChange={(e) => setGruendungsdatum(e.target.value)}
+                      <DatePicker
+                        selected={gruendungsdatum}
+                        onChange={(date) => setGruendungsdatum(date)}
+                        locale={i18n.language}
+                        dateFormat="dd.MM.yyyy"
+                        placeholderText={t('auth:fields.foundingDatePlaceholder')}
+                        className="date-picker-input"
+                        showYearDropdown
+                        scrollableYearDropdown
+                        yearDropdownItemNumber={100}
+                        maxDate={new Date()}
                       />
                     </div>
                     <div className="form-group">

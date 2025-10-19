@@ -1,0 +1,93 @@
+{
+  "title": "Berichte",
+  "noAccess": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen.",
+  "loading": "Berichte werden geladen...",
+  "noData": "Daten konnten nicht geladen werden",
+  
+  "admin": {
+    "title": "Allgemeine Berichte",
+    "subtitle": "Zusammenfassende Statistiken für alle Vereine",
+    
+    "overallStats": {
+      "title": "Allgemeine Statistiken",
+      "totalVereine": "Vereine Gesamt",
+      "totalMembers": "Mitglieder Gesamt",
+      "last30Days": "Letzte 30 Tage",
+      "newRegistrations": "Neue Mitgliederregistrierungen",
+      "average": "Durchschnitt",
+      "membersPerVerein": "Mitglieder pro Verein",
+      "active": "aktiv"
+    },
+    
+    "ageDistribution": {
+      "title": "Altersverteilung",
+      "years": "Jahre"
+    },
+    
+    "genderDistribution": {
+      "title": "Geschlechterverteilung",
+      "male": "Männlich",
+      "female": "Weiblich",
+      "other": "Andere"
+    },
+    
+    "vereinStats": {
+      "title": "Vereinsbasierte Statistiken",
+      "vereinName": "Vereinsname",
+      "totalMembers": "Mitglieder Gesamt",
+      "activeMembers": "Aktive Mitglieder",
+      "activeRate": "Aktivitätsrate"
+    }
+  },
+  
+  "dernek": {
+    "title": "Vereinsberichte",
+    "subtitle": "Statistiken für",
+    
+    "stats": {
+      "totalMembers": "Mitglieder Gesamt",
+      "totalEvents": "Veranstaltungen Gesamt",
+      "last30Days": "Letzte 30 Tage",
+      "newRegistrations": "Neue Mitgliederregistrierungen",
+      "upcomingEvents": "Bevorstehende Veranstaltungen",
+      "active": "aktiv",
+      "upcoming": "bevorstehend"
+    },
+    
+    "ageDistribution": {
+      "title": "Altersverteilung",
+      "years": "Jahre"
+    },
+    
+    "genderDistribution": {
+      "title": "Geschlechterverteilung",
+      "male": "Männlich",
+      "female": "Weiblich"
+    },
+    
+    "membershipStatus": {
+      "title": "Mitgliedschaftsstatus",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    
+    "recentEvents": {
+      "title": "Letzte Veranstaltungen",
+      "eventName": "Veranstaltungsname",
+      "date": "Datum",
+      "participants": "Teilnehmer",
+      "status": "Status",
+      "upcoming": "Bevorstehend",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgesagt"
+    },
+    
+    "topMembers": {
+      "title": "Aktivste Mitglieder",
+      "memberName": "Mitgliedsname",
+      "eventCount": "Anzahl Veranstaltungen",
+      "lastActivity": "Letzte Aktivität"
+    }
+  }
+}
+

@@ -35,6 +35,9 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Flag to prevent multiple redirects
+let isRedirecting = false;
+
 // Response interceptor
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -43,14 +46,18 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     console.error('❌ Response Error:', error.response?.status, error.response?.data);
-    
+
     // Handle common errors
     if (error.response?.status === 401) {
-      // Unauthorized - redirect to login
-      localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      // Unauthorized - redirect to login (only once)
+      if (!isRedirecting) {
+        isRedirecting = true;
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
-    
+
     return Promise.reject(error);
   }
 );

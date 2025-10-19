@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { mitgliedService } from '../../services/mitgliedService';
 import { MitgliedDto, CreateMitgliedDto, UpdateMitgliedDto } from '../../types/mitglied';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,6 +20,8 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
   mitglied,
   mode
 }) => {
+  // @ts-ignore - i18next type definitions
+  const { i18n } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -319,6 +322,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   value={formData.geburtsdatum}
                   onChange={handleChange}
                   disabled={isLoading}
+                  lang={i18n.language}
                 />
               </div>
 
@@ -394,6 +398,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                     value={formData.eintrittsdatum}
                     onChange={handleChange}
                     disabled={isLoading}
+                    lang={i18n.language}
                   />
                 </div>
 
@@ -406,6 +411,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                     value={formData.austrittsdatum}
                     onChange={handleChange}
                     disabled={isLoading}
+                    lang={i18n.language}
                   />
                 </div>
 
