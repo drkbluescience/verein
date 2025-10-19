@@ -246,7 +246,6 @@
   padding: 1.25rem;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
-  min-height: 300px;
 }
 
 /* Recharts Customization */
