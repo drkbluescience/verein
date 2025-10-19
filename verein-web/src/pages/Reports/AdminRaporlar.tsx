@@ -435,13 +435,17 @@ const AdminRaporlar: React.FC = () => {
       <div className="chart-section">
         <h2>Aylık Üye Kayıt Trendi</h2>
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={stats.monthlyData}>
+          <ResponsiveContainer width="100%" height={350}>
+            <LineChart data={stats.monthlyData} margin={{ bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
               <XAxis
                 dataKey="month"
                 stroke="#666"
-                style={{ fontSize: '0.875rem' }}
+                style={{ fontSize: '0.75rem' }}
+                interval={0}
+                angle={-45}
+                textAnchor="end"
+                height={60}
               />
               <YAxis
                 stroke="#666"
@@ -473,8 +477,8 @@ const AdminRaporlar: React.FC = () => {
       <div className="chart-section">
         <h2>Kümülatif Üye Artışı</h2>
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={stats.monthlyData}>
+          <ResponsiveContainer width="100%" height={350}>
+            <AreaChart data={stats.monthlyData} margin={{ bottom: 20 }}>
               <defs>
                 <linearGradient id="colorCumulative" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#4CAF50" stopOpacity={0.8}/>
@@ -485,7 +489,11 @@ const AdminRaporlar: React.FC = () => {
               <XAxis
                 dataKey="month"
                 stroke="#666"
-                style={{ fontSize: '0.875rem' }}
+                style={{ fontSize: '0.75rem' }}
+                interval={0}
+                angle={-45}
+                textAnchor="end"
+                height={60}
               />
               <YAxis
                 stroke="#666"
