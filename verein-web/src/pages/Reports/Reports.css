@@ -98,6 +98,136 @@
   color: var(--color-text-tertiary);
 }
 
+/* Trend Badge */
+.stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  margin-top: 0.25rem;
+}
+
+.stat-trend.positive {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.stat-trend.negative {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.stat-trend.neutral {
+  background: #f5f5f5;
+  color: #757575;
+}
+
+.stat-trend svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Toolbar Section */
+.reports-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Date Range Selector */
+.date-range-selector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: var(--color-surface);
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.date-range-selector label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.date-range-selector select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.date-range-selector select:hover {
+  border-color: var(--color-primary);
+}
+
+.date-range-selector select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+/* Export Button */
+.export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.export-button:hover {
+  background: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.export-button:active {
+  transform: translateY(0);
+}
+
+.export-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-button svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Chart Section */
 .chart-section {
   margin-bottom: 1.5rem;
@@ -116,6 +246,55 @@
   padding: 1.25rem;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
+  min-height: 300px;
+}
+
+/* Recharts Customization */
+.recharts-wrapper {
+  margin: 0 auto;
+}
+
+.recharts-cartesian-axis-tick-value {
+  font-size: 0.75rem;
+  fill: var(--color-text-secondary);
+}
+
+.recharts-legend-item-text {
+  font-size: 0.875rem;
+  color: var(--color-text-primary) !important;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+.custom-tooltip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.custom-tooltip .label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.custom-tooltip .value {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.custom-tooltip .value .color-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
 }
 
 .chart-bar-item {
