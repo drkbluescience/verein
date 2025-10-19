@@ -265,7 +265,7 @@ const AdminRaporlar: React.FC = () => {
       if (!element) return;
 
       const opt = {
-        margin: [5, 5, 5, 5],
+        margin: [5, 5, 5, 5] as [number, number, number, number],
         filename: `admin-raporlar-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.95 },
         html2canvas: {
