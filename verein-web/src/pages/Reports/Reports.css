@@ -4,21 +4,9 @@
   margin: 0 auto;
 }
 
-/* PDF Export Mode - Scale down content to fit in PDF */
+/* PDF Export Mode - No scaling needed for landscape orientation */
 .pdf-export-mode {
-  transform: scale(0.85);
-  transform-origin: top left;
-  width: 117.65%; /* 100% / 0.85 to compensate for scale */
-}
-
-/* Ensure charts don't get cut off in PDF export mode */
-.pdf-export-mode .chart-container {
-  min-width: 100%;
-  overflow: visible;
-}
-
-.pdf-export-mode .recharts-wrapper {
-  min-width: 100% !important;
+  /* Landscape orientation provides enough width, no scaling needed */
 }
 
 .reports-header {
