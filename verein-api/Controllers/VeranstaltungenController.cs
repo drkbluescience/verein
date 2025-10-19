@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Attributes;
 using VereinsApi.DTOs.Veranstaltung;
 using VereinsApi.Services.Interfaces;
 
@@ -141,6 +143,7 @@ public class VeranstaltungenController : ControllerBase
     /// <param name="createDto">Veranstaltung creation data</param>
     /// <returns>Created Veranstaltung</returns>
     [HttpPost]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VeranstaltungDto>> Create([FromBody] CreateVeranstaltungDto createDto)
@@ -174,6 +177,7 @@ public class VeranstaltungenController : ControllerBase
     /// <param name="updateDto">Veranstaltung update data</param>
     /// <returns>Updated Veranstaltung</returns>
     [HttpPut("{id}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -207,6 +211,7 @@ public class VeranstaltungenController : ControllerBase
     /// <param name="id">Veranstaltung ID</param>
     /// <returns>No content</returns>
     [HttpDelete("{id}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)

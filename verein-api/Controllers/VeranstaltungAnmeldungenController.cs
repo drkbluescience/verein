@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Attributes;
 using VereinsApi.DTOs.VeranstaltungAnmeldung;
 using VereinsApi.Services.Interfaces;
 
@@ -28,6 +30,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// </summary>
     /// <returns>List of all VeranstaltungAnmeldungen</returns>
     [HttpGet]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungAnmeldungDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VeranstaltungAnmeldungDto>>> GetAll()
     {
@@ -49,6 +52,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="id">VeranstaltungAnmeldung ID</param>
     /// <returns>VeranstaltungAnmeldung details</returns>
     [HttpGet("{id}")]
+    [Authorize]
     [ProducesResponseType(typeof(VeranstaltungAnmeldungDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<VeranstaltungAnmeldungDto>> GetById(int id)
@@ -97,6 +101,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="mitgliedId">Member ID</param>
     /// <returns>List of VeranstaltungAnmeldungen for the specified Member</returns>
     [HttpGet("mitglied/{mitgliedId}")]
+    [Authorize]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungAnmeldungDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VeranstaltungAnmeldungDto>>> GetByMitgliedId(int mitgliedId)
     {
@@ -145,6 +150,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="createDto">VeranstaltungAnmeldung creation data</param>
     /// <returns>Created VeranstaltungAnmeldung</returns>
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(VeranstaltungAnmeldungDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VeranstaltungAnmeldungDto>> Create([FromBody] CreateVeranstaltungAnmeldungDto createDto)
@@ -178,6 +184,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="updateDto">VeranstaltungAnmeldung update data</param>
     /// <returns>Updated VeranstaltungAnmeldung</returns>
     [HttpPut("{id}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungAnmeldungDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -212,6 +219,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="status">New status</param>
     /// <returns>Updated VeranstaltungAnmeldung</returns>
     [HttpPatch("{id}/status")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungAnmeldungDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<VeranstaltungAnmeldungDto>> UpdateStatus(int id, [FromBody] string status)
@@ -255,6 +263,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="id">VeranstaltungAnmeldung ID</param>
     /// <returns>No content</returns>
     [HttpDelete("{id}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)

@@ -274,7 +274,7 @@ const VereinDetail: React.FC = () => {
           className={`tab-button ${activeTab === 'mitglieder' ? 'active' : ''}`}
           onClick={() => setActiveTab('mitglieder')}
         >
-          {t('vereine:tabs.mitglieder')}
+          {t('vereine:tabs.mitglieder')} ({mitglieder.length})
         </button>
       </div>
 
@@ -428,7 +428,7 @@ const VereinDetail: React.FC = () => {
         {activeTab === 'mitglieder' && (
           <div className="mitglieder-section">
             <div className="section-header">
-              <h2>{t('vereine:tabs.mitglieder')}</h2>
+              <h2>{t('vereine:tabs.mitglieder')} ({mitglieder.length})</h2>
             </div>
 
             {mitgliederLoading && <Loading />}

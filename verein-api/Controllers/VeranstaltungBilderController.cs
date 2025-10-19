@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VereinsApi.Attributes;
 using VereinsApi.DTOs.VeranstaltungBild;
 using VereinsApi.Services.Interfaces;
 
@@ -100,6 +102,7 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="reihenfolge">Sort order</param>
     /// <returns>Created VeranstaltungBild</returns>
     [HttpPost("upload/{veranstaltungId}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungBildDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VeranstaltungBildDto>> UploadImage(
@@ -144,6 +147,7 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="createDto">VeranstaltungBild creation data</param>
     /// <returns>Created VeranstaltungBild</returns>
     [HttpPost]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungBildDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VeranstaltungBildDto>> Create([FromBody] CreateVeranstaltungBildDto createDto)
@@ -177,6 +181,7 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="updateDto">VeranstaltungBild update data</param>
     /// <returns>Updated VeranstaltungBild</returns>
     [HttpPut("{id}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(VeranstaltungBildDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -211,6 +216,7 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="sortOrders">Array of image IDs with their new sort orders</param>
     /// <returns>Updated images</returns>
     [HttpPatch("veranstaltung/{veranstaltungId}/reorder")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungBildDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<VeranstaltungBildDto>>> ReorderImages(
@@ -236,6 +242,7 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="id">VeranstaltungBild ID</param>
     /// <returns>No content</returns>
     [HttpDelete("{id}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)

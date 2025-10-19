@@ -48,6 +48,8 @@
   },
   "listPage": {
     "loading": "Üyeler yükleniyor...",
+    "gridView": "Kart Görünümü",
+    "tableView": "Tablo Görünümü",
     "error": {
       "title": "Veri Yükleme Hatası",
       "message": "Üye bilgileri yüklenirken bir hata oluştu."
@@ -134,6 +136,9 @@
   },
   "eventsPage": {
     "loading": "Etkinlikler yükleniyor...",
+    "gridView": "Kart Görünümü",
+    "tableView": "Tablo Görünümü",
+    "registered": "Kayıtlı",
     "error": {
       "title": "Veri Yükleme Hatası",
       "message": "Etkinlikler yüklenirken bir hata oluştu."
@@ -152,12 +157,27 @@
     "filters": {
       "all": "Tümü",
       "upcoming": "Yaklaşan",
-      "past": "Geçmiş"
+      "past": "Geçmiş",
+      "registered": "Kayıtlı Olduklarım",
+      "notRegistered": "Kayıtlı Olmadıklarım"
     },
     "status": {
       "upcoming": "Yaklaşan",
       "ongoing": "Devam Ediyor",
       "past": "Tamamlandı"
+    },
+    "table": {
+      "title": "Başlık",
+      "date": "Tarih",
+      "time": "Saat",
+      "location": "Konum",
+      "participants": "Katılımcılar",
+      "price": "Ücret",
+      "status": "Durum",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "view": "Görüntüle"
     },
     "card": {
       "maxParticipants": "Max {count} kişi",
@@ -165,7 +185,7 @@
       "register": "Kayıt Ol",
       "today": "🎉 Bugün!",
       "tomorrow": "⏰ Yarın",
-      "daysLeft": "📅 {days} gün kaldı"
+      "daysLeft": "{days} gün kaldı"
     },
     "empty": {
       "title": "Etkinlik Bulunamadı",
@@ -198,6 +218,16 @@
     "stats": {
       "totalMembers": "Toplam Aile Üyesi"
     }
+  },
+  "table": {
+    "name": "Ad Soyad",
+    "memberNumber": "Üye No",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "birthdate": "Doğum Tarihi",
+    "joinDate": "Üyelik Tarihi",
+    "status": "Durum",
+    "actions": "İşlemler"
   }
 }
 

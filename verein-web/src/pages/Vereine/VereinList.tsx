@@ -21,6 +21,12 @@ const SearchIcon = () => (
   </svg>
 );
 
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
 const BuildingIcon = () => (
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/>
@@ -39,12 +45,25 @@ const EyeIcon = () => (
   </svg>
 );
 
+const GridIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const TableIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>
+  </svg>
+);
+
 const VereinList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['vereine', 'common']);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showActiveOnly, setShowActiveOnly] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   // Fetch Vereine
   const {
@@ -59,11 +78,15 @@ const VereinList: React.FC = () => {
 
   // Filter vereine based on search and active status
   const filteredVereine = vereine?.filter(verein => {
-    const matchesSearch = verein.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    // Search filter - check if search term is empty first for performance
+    const matchesSearch = !searchTerm ||
+                         verein.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          verein.vereinsnummer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         verein.email?.toLowerCase().includes(searchTerm.toLowerCase());
+                         verein.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         verein.kurzname?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesActiveFilter = showActiveOnly ? verein.aktiv : true;
+    // Active filter - only show active if showActiveOnly is true
+    const matchesActiveFilter = !showActiveOnly || verein.aktiv === true;
 
     return matchesSearch && matchesActiveFilter;
   }) || [];
@@ -113,9 +136,35 @@ const VereinList: React.FC = () => {
             onChange={handleSearch}
             className="search-input"
           />
+          {searchTerm && (
+            <button
+              className="clear-search-btn"
+              onClick={() => setSearchTerm('')}
+              title="Aramayı temizle"
+            >
+              <XIcon />
+            </button>
+          )}
         </div>
 
         <div className="filter-controls">
+          <div className="view-toggle">
+            <button
+              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title={t('vereine:list.gridView')}
+            >
+              <GridIcon />
+            </button>
+            <button
+              className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              title={t('vereine:list.tableView')}
+            >
+              <TableIcon />
+            </button>
+          </div>
+
           <label className="filter-toggle">
             <input
               type="checkbox"
@@ -149,9 +198,9 @@ const VereinList: React.FC = () => {
         </div>
       </div>
 
-      {/* Verein Cards */}
-      <div className="verein-grid">
-        {filteredVereine.length === 0 ? (
+      {/* Verein Content - Grid or Table */}
+      {filteredVereine.length === 0 ? (
+        <div className="verein-grid">
           <div className="empty-state">
             <div className="empty-icon">
               <BuildingIcon />
@@ -169,8 +218,10 @@ const VereinList: React.FC = () => {
               </button>
             )}
           </div>
-        ) : (
-          filteredVereine.map((verein) => (
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="verein-grid">
+          {filteredVereine.map((verein) => (
             <div key={verein.id} className="verein-card">
               <div className="card-header">
                 <div className="card-title-section">
@@ -243,9 +294,72 @@ const VereinList: React.FC = () => {
                 </button>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="verein-table-container">
+          <table className="verein-table">
+            <thead>
+              <tr>
+                <th>{t('vereine:table.name')}</th>
+                <th>{t('vereine:table.number')}</th>
+                <th>{t('vereine:table.email')}</th>
+                <th>{t('vereine:table.phone')}</th>
+                <th>{t('vereine:table.president')}</th>
+                <th>{t('vereine:table.status')}</th>
+                <th>{t('vereine:table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredVereine.map((verein) => (
+                <tr key={verein.id} onClick={() => navigate(`/vereine/${verein.id}`)}>
+                  <td>
+                    <div className="table-name-cell">
+                      <strong>{verein.name}</strong>
+                      {verein.kurzname && (
+                        <span className="table-subtitle">{verein.kurzname}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td>{verein.vereinsnummer || '-'}</td>
+                  <td>{verein.email || '-'}</td>
+                  <td>{verein.telefon || '-'}</td>
+                  <td>{verein.vorstandsvorsitzender || '-'}</td>
+                  <td>
+                    <span className={`status-badge ${verein.aktiv ? 'status-active' : 'status-inactive'}`}>
+                      {verein.aktiv ? t('vereine:card.statusActive') : t('vereine:card.statusInactive')}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="table-actions">
+                      <button
+                        className="table-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/vereine/${verein.id}`);
+                        }}
+                        title={t('vereine:actions.details')}
+                      >
+                        <EyeIcon />
+                      </button>
+                      <button
+                        className="table-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Handle edit
+                        }}
+                        title={t('vereine:actions.edit')}
+                      >
+                        <EditIcon />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

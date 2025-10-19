@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.Mitglied;
 using VereinsApi.DTOs.MitgliedAdresse;
@@ -13,6 +14,7 @@ namespace VereinsApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
+[Authorize]
 public class MitgliedAdressenController : ControllerBase
 {
     private readonly IMitgliedAdresseService _mitgliedAdresseService;

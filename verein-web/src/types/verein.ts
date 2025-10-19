@@ -38,7 +38,7 @@ export interface VereinDto {
   ePostEmpfangAdresse?: string;
   sepaGlaeubigerID?: string;
   socialMediaLinks?: string;
-  aktiv: boolean;
+  aktiv?: boolean;
   elektronischeSignaturKey?: string;
   created: string;
   createdBy?: string;

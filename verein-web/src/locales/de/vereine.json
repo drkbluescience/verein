@@ -15,7 +15,9 @@
     "addFirst": "Ersten Verein hinzufügen",
     "loading": "Vereine werden geladen...",
     "loadError": "Fehler beim Laden der Daten",
-    "loadErrorMessage": "Beim Laden der Vereine ist ein Fehler aufgetreten."
+    "loadErrorMessage": "Beim Laden der Vereine ist ein Fehler aufgetreten.",
+    "gridView": "Kartenansicht",
+    "tableView": "Tabellenansicht"
   },
   "stats": {
     "total": "Gesamt",
@@ -32,6 +34,15 @@
     "statusInactive": "○ Inaktiv",
     "president": "Vorsitzender",
     "website": "Webseite"
+  },
+  "table": {
+    "name": "Vereinsname",
+    "number": "Nummer",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "president": "Vorsitzender",
+    "status": "Status",
+    "actions": "Aktionen"
   },
   "detail": {
     "title": "Vereinsdetails",

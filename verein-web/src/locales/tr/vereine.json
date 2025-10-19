@@ -15,7 +15,9 @@
     "addFirst": "İlk Derneği Ekle",
     "loading": "Dernekler yükleniyor...",
     "loadError": "Veri Yükleme Hatası",
-    "loadErrorMessage": "Dernekler yüklenirken bir hata oluştu."
+    "loadErrorMessage": "Dernekler yüklenirken bir hata oluştu.",
+    "gridView": "Kart Görünümü",
+    "tableView": "Tablo Görünümü"
   },
   "stats": {
     "total": "Toplam",
@@ -32,6 +34,15 @@
     "statusInactive": "○ Pasif",
     "president": "Başkan",
     "website": "Website"
+  },
+  "table": {
+    "name": "Dernek Adı",
+    "number": "Numara",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "president": "Başkan",
+    "status": "Durum",
+    "actions": "İşlemler"
   },
   "detail": {
     "title": "Dernek Detayları",

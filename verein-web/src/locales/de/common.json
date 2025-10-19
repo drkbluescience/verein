@@ -42,6 +42,7 @@
     "cancelled": "Abgebrochen",
     "loading": "Wird geladen...",
     "saving": "Wird gespeichert...",
+    "deleting": "Wird gelöscht...",
     "success": "Erfolgreich",
     "error": "Fehler",
     "warning": "Warnung",

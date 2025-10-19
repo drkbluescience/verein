@@ -24,6 +24,12 @@ const SearchIcon = () => (
   </svg>
 );
 
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
 const UsersIcon = () => (
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -78,13 +84,27 @@ const TrashIcon = () => (
   </svg>
 );
 
+const GridIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const TableIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>
+  </svg>
+);
+
 const MitgliedList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const pageSize = 20;
 
   // Modal states
@@ -211,6 +231,32 @@ const MitgliedList: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
+          {searchTerm && (
+            <button
+              className="clear-search-btn"
+              onClick={() => setSearchTerm('')}
+              title="Aramayı temizle"
+            >
+              <XIcon />
+            </button>
+          )}
+        </div>
+
+        <div className="view-toggle">
+          <button
+            className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            title={t('mitglieder:listPage.gridView')}
+          >
+            <GridIcon />
+          </button>
+          <button
+            className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+            onClick={() => setViewMode('table')}
+            title={t('mitglieder:listPage.tableView')}
+          >
+            <TableIcon />
+          </button>
         </div>
 
         {user?.type === 'dernek' && (
@@ -250,9 +296,9 @@ const MitgliedList: React.FC = () => {
         </button>
       </div>
 
-      {/* Mitglied Cards */}
-      <div className="mitglied-grid">
-        {filteredMitglieder.length === 0 ? (
+      {/* Mitglied Content - Grid or Table */}
+      {filteredMitglieder.length === 0 ? (
+        <div className="mitglied-grid">
           <div className="empty-state">
             <div className="empty-icon">
               <UsersIcon />
@@ -265,8 +311,10 @@ const MitgliedList: React.FC = () => {
               }
             </p>
           </div>
-        ) : (
-          filteredMitglieder.map((mitglied) => (
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="mitglied-grid">
+          {filteredMitglieder.map((mitglied) => (
             <MitgliedCard
               key={mitglied.id}
               mitglied={mitglied}
@@ -280,9 +328,97 @@ const MitgliedList: React.FC = () => {
                 setIsDeleteDialogOpen(true);
               }}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mitglied-table-container">
+          <table className="mitglied-table">
+            <thead>
+              <tr>
+                <th>{t('mitglieder:table.name')}</th>
+                <th>{t('mitglieder:table.memberNumber')}</th>
+                <th>{t('mitglieder:table.email')}</th>
+                <th>{t('mitglieder:table.phone')}</th>
+                <th>{t('mitglieder:table.birthdate')}</th>
+                <th>{t('mitglieder:table.joinDate')}</th>
+                <th>{t('mitglieder:table.status')}</th>
+                <th>{t('mitglieder:table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredMitglieder.map((mitglied) => {
+                const statusText = mitgliedUtils.getStatusText(mitglied);
+                const statusColor = mitgliedUtils.getStatusColor(mitglied);
+                return (
+                  <tr key={mitglied.id} onClick={() => navigate(`/mitglieder/${mitglied.id}`)}>
+                    <td>
+                      <div className="table-name-cell">
+                        <strong>{mitglied.vorname} {mitglied.nachname}</strong>
+                        {mitglied.geschlechtId && (
+                          <span className="table-subtitle">
+                            {mitglied.geschlechtId === 1 ? '♂' : mitglied.geschlechtId === 2 ? '♀' : ''}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>{mitglied.mitgliedsnummer || '-'}</td>
+                    <td>{mitglied.email || '-'}</td>
+                    <td>{mitglied.telefon || '-'}</td>
+                    <td>{mitglied.geburtsdatum ? new Date(mitglied.geburtsdatum).toLocaleDateString('tr-TR') : '-'}</td>
+                    <td>{mitglied.eintrittsdatum ? new Date(mitglied.eintrittsdatum).toLocaleDateString('tr-TR') : '-'}</td>
+                    <td>
+                      <span className={`status-badge status-${statusColor}`}>
+                        {statusText}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <button
+                          className="table-action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/mitglieder/${mitglied.id}`);
+                          }}
+                          title={t('mitglieder:listPage.actions.view')}
+                        >
+                          <EyeIcon />
+                        </button>
+                        {user?.type === 'dernek' && (
+                          <>
+                            <button
+                              className="table-action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMitglied(mitglied);
+                                setFormMode('edit');
+                                setIsFormModalOpen(true);
+                              }}
+                              title={t('mitglieder:listPage.actions.edit')}
+                            >
+                              <EditIcon />
+                            </button>
+                            <button
+                              className="table-action-btn delete"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMitglied(mitglied);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                              title={t('mitglieder:listPage.actions.delete')}
+                            >
+                              <TrashIcon />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Pagination for admin */}
       {user?.type === 'admin' && 'totalPages' in (mitgliederData || {}) && (

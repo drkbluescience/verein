@@ -52,6 +52,8 @@
   },
   "listPage": {
     "loading": "Etkinlikler yükleniyor...",
+    "gridView": "Kart Görünümü",
+    "tableView": "Tablo Görünümü",
     "error": {
       "title": "Veri Yükleme Hatası",
       "message": "Etkinlikler yüklenirken bir hata oluştu."
@@ -88,7 +90,7 @@
       "register": "Kayıt Ol",
       "today": "🎉 Bugün!",
       "tomorrow": "⏰ Yarın",
-      "daysLeft": "📅 {days} gün kaldı"
+      "daysLeft": "{days} gün kaldı"
     },
     "empty": {
       "title": "Etkinlik Bulunamadı",
@@ -132,7 +134,11 @@
       "addParticipant": "Katılımcı Ekle",
       "edit": "Düzenle",
       "copy": "Kopyala",
-      "delete": "Sil"
+      "delete": "Sil",
+      "deleteSuccess": "Etkinlik başarıyla silindi",
+      "deleteError": "Etkinlik silinirken bir hata oluştu",
+      "deleteConfirm": "{{title}} etkinliğini silmek istediğinizden emin misiniz?",
+      "deleteWarning": "Bu işlem geri alınamaz."
     },
     "participantsError": {
       "title": "Katılımcı Listesi Yüklenemedi",
@@ -163,6 +169,16 @@
       "success": "Etkinliğe başarıyla kayıt oldunuz!",
       "error": "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin."
     }
+  },
+  "table": {
+    "title": "Başlık",
+    "date": "Tarih",
+    "time": "Saat",
+    "location": "Konum",
+    "participants": "Katılımcılar",
+    "price": "Ücret",
+    "status": "Durum",
+    "actions": "İşlemler"
   }
 }
 

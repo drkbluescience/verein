@@ -52,6 +52,8 @@
   },
   "listPage": {
     "loading": "Veranstaltungen werden geladen...",
+    "gridView": "Kartenansicht",
+    "tableView": "Tabellenansicht",
     "error": {
       "title": "Fehler beim Laden der Daten",
       "message": "Beim Laden der Veranstaltungen ist ein Fehler aufgetreten."
@@ -88,7 +90,7 @@
       "register": "Anmelden",
       "today": "🎉 Heute!",
       "tomorrow": "⏰ Morgen",
-      "daysLeft": "📅 {days} Tage verbleibend"
+      "daysLeft": "{days} Tage verbleibend"
     },
     "empty": {
       "title": "Keine Veranstaltung gefunden",
@@ -132,7 +134,11 @@
       "addParticipant": "Teilnehmer hinzufügen",
       "edit": "Bearbeiten",
       "copy": "Kopieren",
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "deleteSuccess": "Veranstaltung erfolgreich gelöscht",
+      "deleteError": "Fehler beim Löschen der Veranstaltung",
+      "deleteConfirm": "Sind Sie sicher, dass Sie die Veranstaltung {{title}} löschen möchten?",
+      "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "participantsError": {
       "title": "Teilnehmerliste konnte nicht geladen werden",
@@ -163,6 +169,16 @@
       "success": "Sie haben sich erfolgreich für die Veranstaltung angemeldet!",
       "error": "Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
     }
+  },
+  "table": {
+    "title": "Titel",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "location": "Ort",
+    "participants": "Teilnehmer",
+    "price": "Preis",
+    "status": "Status",
+    "actions": "Aktionen"
   }
 }
 

@@ -48,6 +48,8 @@
   },
   "listPage": {
     "loading": "Mitglieder werden geladen...",
+    "gridView": "Kartenansicht",
+    "tableView": "Tabellenansicht",
     "error": {
       "title": "Fehler beim Laden der Daten",
       "message": "Beim Laden der Mitgliederdaten ist ein Fehler aufgetreten."
@@ -134,6 +136,9 @@
   },
   "eventsPage": {
     "loading": "Veranstaltungen werden geladen...",
+    "gridView": "Kartenansicht",
+    "tableView": "Tabellenansicht",
+    "registered": "Angemeldet",
     "error": {
       "title": "Fehler beim Laden der Daten",
       "message": "Beim Laden der Veranstaltungen ist ein Fehler aufgetreten."
@@ -152,12 +157,27 @@
     "filters": {
       "all": "Alle",
       "upcoming": "Bevorstehend",
-      "past": "Vergangen"
+      "past": "Vergangen",
+      "registered": "Meine Anmeldungen",
+      "notRegistered": "Nicht angemeldet"
     },
     "status": {
       "upcoming": "Bevorstehend",
       "ongoing": "Laufend",
       "past": "Abgeschlossen"
+    },
+    "table": {
+      "title": "Titel",
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "location": "Ort",
+      "participants": "Teilnehmer",
+      "price": "Preis",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "view": "Anzeigen"
     },
     "card": {
       "maxParticipants": "Max. {count} Personen",
@@ -165,7 +185,7 @@
       "register": "Anmelden",
       "today": "🎉 Heute!",
       "tomorrow": "⏰ Morgen",
-      "daysLeft": "📅 {days} Tage verbleibend"
+      "daysLeft": "{days} Tage verbleibend"
     },
     "empty": {
       "title": "Keine Veranstaltung gefunden",
@@ -198,6 +218,16 @@
     "stats": {
       "totalMembers": "Familienmitglieder gesamt"
     }
+  },
+  "table": {
+    "name": "Name",
+    "memberNumber": "Mitgliedsnr.",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "birthdate": "Geburtsdatum",
+    "joinDate": "Beitrittsdatum",
+    "status": "Status",
+    "actions": "Aktionen"
   }
 }
 

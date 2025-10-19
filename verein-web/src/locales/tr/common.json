@@ -42,6 +42,7 @@
     "cancelled": "İptal Edildi",
     "loading": "Yükleniyor...",
     "saving": "Kaydediliyor...",
+    "deleting": "Siliniyor...",
     "success": "Başarılı",
     "error": "Hata",
     "warning": "Uyarı",
