@@ -243,7 +243,7 @@ const DernekRaporlar: React.FC = () => {
         filename: `dernek-raporlar-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: {
-          scale: 2,
+          scale: 1.5,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff'
