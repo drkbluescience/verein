@@ -280,9 +280,7 @@ const AdminRaporlar: React.FC = () => {
           orientation: 'portrait' as const
         },
         pagebreak: {
-          mode: ['avoid-all', 'css', 'legacy'],
-          before: '.stats-section',
-          after: '.chart-container'
+          mode: ['avoid-all', 'css', 'legacy']
         }
       };
 
