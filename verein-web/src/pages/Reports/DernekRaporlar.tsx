@@ -7,7 +7,7 @@ import { veranstaltungService } from '../../services/veranstaltungService';
 import Loading from '../../components/Common/Loading';
 import { MitgliedDto } from '../../types/mitglied';
 import { VeranstaltungDto } from '../../types/veranstaltung';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import './Reports.css';

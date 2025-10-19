@@ -1,13 +1,12 @@
 import api from './api';
-import { 
-  VereinDto, 
-  CreateVereinDto, 
+import {
+  VereinDto,
+  CreateVereinDto,
   UpdateVereinDto,
   AdresseDto,
   CreateAdresseDto,
   BankkontoDto,
-  CreateBankkontoDto,
-  PagedResult 
+  CreateBankkontoDto
 } from '../types/verein';
 
 // Verein Service
@@ -128,9 +127,11 @@ export const healthService = {
 };
 
 // Export all services
-export default {
+const services = {
   verein: vereinService,
   adresse: adresseService,
   bankkonto: bankkontoService,
   health: healthService,
 };
+
+export default services;

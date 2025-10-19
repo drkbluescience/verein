@@ -94,12 +94,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const { user, logout, selectedVereinId } = useAuth();
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation('common');
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+  const [, forceUpdate] = useState({});
 
   // Force re-render when language changes
   useEffect(() => {
-    const handleLanguageChange = (lng: string) => {
-      setCurrentLanguage(lng);
+    const handleLanguageChange = () => {
+      forceUpdate({});
     };
 
     i18n.on('languageChanged', handleLanguageChange);

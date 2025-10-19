@@ -16,12 +16,6 @@ const RefreshIcon = () => (
   </svg>
 );
 
-const UserIcon = () => (
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-  </svg>
-);
-
 interface ThemeSettings {
   theme: 'dark' | 'light';
   language: 'tr' | 'en' | 'de';
@@ -67,7 +61,8 @@ const Settings: React.FC = () => {
       // If no saved settings, sync with current i18n language
       setSettings(prev => ({ ...prev, language: i18n.language as 'tr' | 'en' | 'de' }));
     }
-  }, [i18n, user]); // Add user to dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n, user]); // getSettingsKey is stable, no need to include
 
   const applyTheme = (theme: 'dark' | 'light') => {
     // Use data-theme attribute instead of CSS variables

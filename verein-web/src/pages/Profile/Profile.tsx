@@ -79,15 +79,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return t('profile:placeholders.notAvailable');
-    const date = new Date(dateString);
-    return date.toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+
 
   return (
     <div className="profile-page">

@@ -8,12 +8,12 @@ const Landing: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation('landing');
   const navigate = useNavigate();
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+  const [, forceUpdate] = useState({});
 
   // Force re-render when language changes
   useEffect(() => {
-    const handleLanguageChange = (lng: string) => {
-      setCurrentLanguage(lng);
+    const handleLanguageChange = () => {
+      forceUpdate({});
     };
 
     i18n.on('languageChanged', handleLanguageChange);

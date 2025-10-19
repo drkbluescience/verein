@@ -153,10 +153,6 @@ const VereinList: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR');
-  };
-
   if (isLoading) {
     return <Loading text={t('vereine:list.loading')} />;
   }

@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
-import { veranstaltungService } from '../../services/veranstaltungService';
 import Loading from '../../components/Common/Loading';
 import { MitgliedDto } from '../../types/mitglied';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -121,13 +120,12 @@ const AdminRaporlar: React.FC = () => {
     queryFn: () => mitgliedService.getAll({ pageNumber: 1, pageSize: 10000 }),
   });
 
-  const allMitglieder = mitgliederData?.items || [];
+  // Wrap allMitglieder in useMemo to prevent exhaustive-deps warning
+  const allMitglieder = useMemo(() => mitgliederData?.items || [], [mitgliederData?.items]);
 
   // Calculate statistics with period comparison
   const stats = useMemo(() => {
     if (!vereine || allMitglieder.length === 0) return null;
-
-    const now = new Date();
 
     // Filter data based on selected verein
     const filteredMitglieder = selectedVereinId

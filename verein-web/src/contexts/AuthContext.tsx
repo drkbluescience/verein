@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService, LoginRequest, LoginResponse } from '../services/authService';
+import { authService } from '../services/authService';
 
 export type UserType = 'admin' | 'dernek' | 'mitglied';
 

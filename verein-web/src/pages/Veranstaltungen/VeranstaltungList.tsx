@@ -468,7 +468,6 @@ const VeranstaltungList: React.FC = () => {
             <tbody>
               {sortedVeranstaltungen.map(veranstaltung => {
                 const status = veranstaltungUtils.getEventStatus(veranstaltung.startdatum, veranstaltung.enddatum);
-                const isUpcoming = veranstaltungUtils.isUpcoming(veranstaltung.startdatum);
                 const canEdit = user?.type === 'admin' || (user?.type === 'dernek' && user?.vereinId === veranstaltung.vereinId);
 
                 return (
