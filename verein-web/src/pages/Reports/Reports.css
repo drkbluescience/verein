@@ -11,6 +11,16 @@
   width: 117.65%; /* 100% / 0.85 to compensate for scale */
 }
 
+/* Ensure charts don't get cut off in PDF export mode */
+.pdf-export-mode .chart-container {
+  min-width: 100%;
+  overflow: visible;
+}
+
+.pdf-export-mode .recharts-wrapper {
+  min-width: 100% !important;
+}
+
 .reports-header {
   padding: 48px 24px 32px;
   max-width: 1400px;
