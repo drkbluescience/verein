@@ -277,7 +277,7 @@ const AdminRaporlar: React.FC = () => {
         jsPDF: {
           unit: 'mm',
           format: 'a4',
-          orientation: 'portrait'
+          orientation: 'portrait' as const
         },
         pagebreak: {
           mode: ['avoid-all', 'css', 'legacy'],
