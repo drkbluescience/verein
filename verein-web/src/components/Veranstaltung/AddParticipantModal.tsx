@@ -11,6 +11,7 @@ interface AddParticipantModalProps {
   isOpen: boolean;
   onClose: () => void;
   veranstaltungId: number;
+  vereinId?: number;
   veranstaltungPreis?: number;
   veranstaltungWaehrungId?: number;
 }
@@ -19,6 +20,7 @@ const AddParticipantModal: React.FC<AddParticipantModalProps> = ({
   isOpen,
   onClose,
   veranstaltungId,
+  vereinId,
   veranstaltungPreis,
   veranstaltungWaehrungId
 }) => {
@@ -39,10 +41,13 @@ const AddParticipantModal: React.FC<AddParticipantModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Fetch members for dropdown
+  // Use vereinId from props (for admin) or user's vereinId (for dernek)
+  const targetVereinId = vereinId || user?.vereinId;
+
   const { data: mitglieder } = useQuery({
-    queryKey: ['mitglieder', user?.vereinId],
-    queryFn: () => mitgliedService.getByVereinId(user?.vereinId || 0, true),
-    enabled: !!user?.vereinId && isOpen,
+    queryKey: ['mitglieder', targetVereinId],
+    queryFn: () => mitgliedService.getByVereinId(targetVereinId || 0, true),
+    enabled: !!targetVereinId && isOpen,
   });
 
   // Reset form when modal opens/closes

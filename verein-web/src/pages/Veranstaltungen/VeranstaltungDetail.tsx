@@ -938,6 +938,7 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
         isOpen={showAddParticipantModal}
         onClose={() => setShowAddParticipantModal(false)}
         veranstaltungId={eventId}
+        vereinId={veranstaltung?.vereinId}
         veranstaltungPreis={veranstaltung?.preis}
         veranstaltungWaehrungId={veranstaltung?.waehrungId}
       />
