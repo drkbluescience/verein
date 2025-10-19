@@ -107,6 +107,7 @@ const AdminRaporlar: React.FC = () => {
   const { t } = useTranslation('reports');
   const [dateRange, setDateRange] = useState<'30days' | '3months' | '6months' | '1year'>('30days');
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
 
   // Fetch all vereine
   const { data: vereine, isLoading: vereineLoading } = useQuery({
@@ -127,10 +128,20 @@ const AdminRaporlar: React.FC = () => {
     if (!vereine || allMitglieder.length === 0) return null;
 
     const now = new Date();
-    const totalVereine = vereine.length;
-    const activeVereine = vereine.filter(v => v.aktiv).length;
-    const totalMitglieder = allMitglieder.length;
-    const activeMitglieder = allMitglieder.filter((m: MitgliedDto) => m.aktiv).length;
+
+    // Filter data based on selected verein
+    const filteredMitglieder = selectedVereinId
+      ? allMitglieder.filter((m: MitgliedDto) => m.vereinId === selectedVereinId)
+      : allMitglieder;
+
+    const filteredVereine = selectedVereinId
+      ? vereine.filter(v => v.id === selectedVereinId)
+      : vereine;
+
+    const totalVereine = filteredVereine.length;
+    const activeVereine = filteredVereine.filter(v => v.aktiv).length;
+    const totalMitglieder = filteredMitglieder.length;
+    const activeMitglieder = filteredMitglieder.filter((m: MitgliedDto) => m.aktiv).length;
 
     // Calculate date ranges based on selection
     const getDaysAgo = (days: number) => {
@@ -145,12 +156,12 @@ const AdminRaporlar: React.FC = () => {
     const previousPeriodEnd = currentPeriodStart;
 
     // Current period registrations
-    const currentPeriodRegistrations = allMitglieder.filter((m: MitgliedDto) =>
+    const currentPeriodRegistrations = filteredMitglieder.filter((m: MitgliedDto) =>
       m.eintrittsdatum && new Date(m.eintrittsdatum) >= currentPeriodStart
     ).length;
 
     // Previous period registrations
-    const previousPeriodRegistrations = allMitglieder.filter((m: MitgliedDto) =>
+    const previousPeriodRegistrations = filteredMitglieder.filter((m: MitgliedDto) =>
       m.eintrittsdatum &&
       new Date(m.eintrittsdatum) >= previousPeriodStart &&
       new Date(m.eintrittsdatum) < previousPeriodEnd
@@ -169,7 +180,7 @@ const AdminRaporlar: React.FC = () => {
       const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
       const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-      const monthRegistrations = allMitglieder.filter((m: MitgliedDto) => {
+      const monthRegistrations = filteredMitglieder.filter((m: MitgliedDto) => {
         if (!m.eintrittsdatum) return false;
         const entryDate = new Date(m.eintrittsdatum);
         return entryDate >= monthStart && entryDate <= monthEnd;
@@ -199,7 +210,7 @@ const AdminRaporlar: React.FC = () => {
       '60+': 0,
     };
 
-    allMitglieder.forEach((m: MitgliedDto) => {
+    filteredMitglieder.forEach((m: MitgliedDto) => {
       if (m.geburtsdatum) {
         const age = new Date().getFullYear() - new Date(m.geburtsdatum).getFullYear();
         if (age <= 18) ageGroups['0-18']++;
@@ -212,9 +223,9 @@ const AdminRaporlar: React.FC = () => {
 
     // Gender distribution
     const genderDistribution = {
-      male: allMitglieder.filter((m: MitgliedDto) => m.geschlechtId === 1).length,
-      female: allMitglieder.filter((m: MitgliedDto) => m.geschlechtId === 2).length,
-      other: allMitglieder.filter((m: MitgliedDto) => !m.geschlechtId || (m.geschlechtId !== 1 && m.geschlechtId !== 2)).length,
+      male: filteredMitglieder.filter((m: MitgliedDto) => m.geschlechtId === 1).length,
+      female: filteredMitglieder.filter((m: MitgliedDto) => m.geschlechtId === 2).length,
+      other: filteredMitglieder.filter((m: MitgliedDto) => !m.geschlechtId || (m.geschlechtId !== 1 && m.geschlechtId !== 2)).length,
     };
 
     return {
@@ -229,7 +240,7 @@ const AdminRaporlar: React.FC = () => {
       growthRate,
       monthlyData,
     };
-  }, [vereine, allMitglieder, dateRange]);
+  }, [vereine, allMitglieder, dateRange, selectedVereinId]);
 
   // Calculate per-verein statistics
   const vereinStats = useMemo((): VereinStats[] => {
@@ -306,16 +317,32 @@ const AdminRaporlar: React.FC = () => {
     return <div>{t('noData')}</div>;
   }
 
+  const selectedVerein = vereine?.find(v => v.id === selectedVereinId);
+
   return (
     <div className="reports-container">
       <div className="reports-header">
-        <h1>{t('admin.title')}</h1>
-        <p>{t('admin.subtitle')}</p>
+        <h1>{selectedVerein ? `${selectedVerein.name} - Raporlar` : t('admin.title')}</h1>
+        <p>{selectedVerein ? 'Dernek detaylı istatistikleri' : t('admin.subtitle')}</p>
       </div>
 
       {/* Toolbar */}
       <div className="reports-toolbar">
         <div className="toolbar-left">
+          <div className="date-range-selector">
+            <label>Dernek:</label>
+            <select
+              value={selectedVereinId || ''}
+              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+            >
+              <option value="">Tüm Dernekler</option>
+              {vereine?.map(verein => (
+                <option key={verein.id} value={verein.id}>
+                  {verein.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="date-range-selector">
             <label>Dönem:</label>
             <select value={dateRange} onChange={(e) => setDateRange(e.target.value as any)}>
@@ -343,16 +370,18 @@ const AdminRaporlar: React.FC = () => {
         <div className="stats-section">
           <h2>{t('admin.overallStats.title')}</h2>
           <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Building2Icon />
+            {!selectedVereinId && (
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Building2Icon />
+                </div>
+                <div className="stat-info">
+                  <h3>{t('admin.overallStats.totalVereine')}</h3>
+                  <div className="stat-number">{stats.totalVereine}</div>
+                  <span className="stat-detail">{stats.activeVereine} {t('admin.overallStats.active')}</span>
+                </div>
               </div>
-              <div className="stat-info">
-                <h3>{t('admin.overallStats.totalVereine')}</h3>
-                <div className="stat-number">{stats.totalVereine}</div>
-                <span className="stat-detail">{stats.activeVereine} {t('admin.overallStats.active')}</span>
-              </div>
-            </div>
+            )}
 
             <div className="stat-card">
               <div className="stat-icon">
