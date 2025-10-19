@@ -30,6 +30,8 @@
 /* Stats Section */
 .stats-section {
   margin-bottom: 1.5rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .stats-section h2 {
@@ -55,6 +57,8 @@
   gap: 0.75rem;
   transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid var(--color-border);
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .stat-card:hover {
@@ -246,6 +250,8 @@
   padding: 1.25rem;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 /* Recharts Customization */

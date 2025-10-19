@@ -8,8 +8,7 @@ import Loading from '../../components/Common/Loading';
 import { MitgliedDto } from '../../types/mitglied';
 import { VeranstaltungDto } from '../../types/veranstaltung';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2pdf from 'html2pdf.js';
 import './Reports.css';
 
 // Professional SVG Icons
@@ -232,96 +231,36 @@ const DernekRaporlar: React.FC = () => {
     };
   }, [mitglieder, veranstaltungen, dateRange]);
 
-  // PDF Export function with multi-page support
+  // PDF Export function with html2pdf.js (prevents element splitting)
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
       const element = document.getElementById('reports-content');
       if (!element) return;
 
-      // Capture the entire content as canvas with high quality
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-      });
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      // PDF page dimensions
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // Margins (in mm)
-      const margin = 10;
-      const contentWidth = pdfWidth - (2 * margin);
-      const contentHeight = pdfHeight - (2 * margin);
-
-      // Canvas dimensions
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-
-      // Calculate scaling ratio to fit content width
-      const ratio = (contentWidth * 96 / 25.4) / canvasWidth; // Convert mm to pixels (96 DPI)
-
-      // Calculate scaled dimensions
-      const scaledWidth = canvasWidth * ratio;
-      const scaledHeight = canvasHeight * ratio;
-
-      // Convert back to mm for PDF
-      const imgWidth = scaledWidth * 25.4 / 96;
-      const imgHeight = scaledHeight * 25.4 / 96;
-
-      // Calculate how many pages we need
-      const totalPages = Math.ceil(imgHeight / contentHeight);
-
-      // Add content page by page
-      for (let page = 0; page < totalPages; page++) {
-        if (page > 0) {
-          pdf.addPage();
+      const opt = {
+        margin: 10,
+        filename: `dernek-raporlar-${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy'],
+          before: '.stats-section',
+          after: '.chart-container'
         }
+      };
 
-        // Calculate the portion of canvas for this page
-        const sourceY = page * (contentHeight * 96 / 25.4) / ratio;
-        const sourceHeight = Math.min(
-          (contentHeight * 96 / 25.4) / ratio,
-          canvasHeight - sourceY
-        );
-
-        // Create a temporary canvas for this page
-        const pageCanvas = document.createElement('canvas');
-        const pageContext = pageCanvas.getContext('2d');
-
-        if (!pageContext) continue;
-
-        pageCanvas.width = canvasWidth;
-        pageCanvas.height = sourceHeight;
-
-        // Draw the portion of the original canvas
-        pageContext.drawImage(
-          canvas,
-          0, sourceY,           // Source position
-          canvasWidth, sourceHeight,  // Source dimensions
-          0, 0,                 // Destination position
-          canvasWidth, sourceHeight   // Destination dimensions
-        );
-
-        // Convert to image and add to PDF
-        const pageImgData = pageCanvas.toDataURL('image/png');
-        const pageImgHeight = sourceHeight * ratio * 25.4 / 96;
-
-        pdf.addImage(
-          pageImgData,
-          'PNG',
-          margin,
-          margin,
-          contentWidth,
-          pageImgHeight
-        );
-      }
-
-      pdf.save(`dernek-raporlar-${new Date().toISOString().split('T')[0]}.pdf`);
+      await html2pdf().set(opt).from(element).save();
     } catch (error) {
       console.error('PDF export error:', error);
       alert('PDF oluşturulurken bir hata oluştu.');
