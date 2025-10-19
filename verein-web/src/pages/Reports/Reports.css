@@ -4,6 +4,13 @@
   margin: 0 auto;
 }
 
+/* PDF Export Mode - Scale down content to fit in PDF */
+.pdf-export-mode {
+  transform: scale(0.85);
+  transform-origin: top left;
+  width: 117.65%; /* 100% / 0.85 to compensate for scale */
+}
+
 .reports-header {
   padding: 48px 24px 32px;
   max-width: 1400px;

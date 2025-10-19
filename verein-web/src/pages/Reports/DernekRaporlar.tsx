@@ -234,9 +234,18 @@ const DernekRaporlar: React.FC = () => {
   // PDF Export function with html2pdf.js (prevents element splitting)
   const handleExportPDF = async () => {
     setIsExporting(true);
+    const element = document.getElementById('reports-content');
+    if (!element) {
+      setIsExporting(false);
+      return;
+    }
+
     try {
-      const element = document.getElementById('reports-content');
-      if (!element) return;
+      // Add PDF export mode class to scale down content
+      element.classList.add('pdf-export-mode');
+
+      // Wait for CSS transform to apply
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const opt = {
         margin: [5, 5, 5, 5] as [number, number, number, number],
@@ -263,6 +272,8 @@ const DernekRaporlar: React.FC = () => {
       console.error('PDF export error:', error);
       alert('PDF oluşturulurken bir hata oluştu.');
     } finally {
+      // Remove PDF export mode class
+      element.classList.remove('pdf-export-mode');
       setIsExporting(false);
     }
   };
