@@ -1,0 +1,385 @@
+/* Finanz List Pages Styles */
+
+.finanz-list {
+  padding: var(--spacing-lg) 0;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Overdue Payment Highlighting */
+.row-overdue {
+  background-color: rgba(239, 68, 68, 0.05) !important;
+  border-left: 3px solid var(--color-error);
+}
+
+.row-overdue:hover {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.overdue-indicator {
+  margin-left: var(--spacing-xs);
+  font-size: 1rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.badge-error {
+  background-color: var(--color-error);
+  color: white;
+  padding: 4px 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* Header */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-lg);
+}
+
+.list-header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.list-subtitle {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Filters */
+.list-filters {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-box svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: var(--spacing-md) 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.filter-group {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.filter-select {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-select:hover {
+  border-color: var(--color-primary);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Table */
+.list-table-container {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: var(--spacing-lg);
+}
+
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.list-table thead {
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list-table th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.list-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.list-table tbody tr:hover {
+  background-color: var(--color-background);
+}
+
+.list-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+}
+
+.cell-number {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.cell-amount {
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.cell-amount.positive {
+  color: var(--color-success);
+}
+
+.cell-amount.negative {
+  color: var(--color-error);
+}
+
+.cell-date {
+  color: var(--color-text-secondary);
+}
+
+.cell-description {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+
+.cell-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-success {
+  background: rgba(5, 150, 105, 0.1);
+  color: var(--color-success);
+}
+
+.badge-warning {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--color-warning);
+}
+
+.badge-error {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-error);
+}
+
+/* Action Buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-lg);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-border);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+}
+
+/* Summary */
+.list-summary {
+  display: flex;
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-lg);
+  background: var(--color-background);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.list-summary p {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+}
+
+.list-summary strong {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .list-header button {
+    width: 100%;
+  }
+
+  .list-filters {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: auto;
+  }
+
+  .list-table {
+    font-size: var(--font-size-sm);
+  }
+
+  .list-table th,
+  .list-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .cell-description {
+    max-width: 100px;
+  }
+
+  .list-summary {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .finanz-list {
+    padding: var(--spacing-md) 0;
+  }
+
+  .list-table-container {
+    overflow-x: auto;
+  }
+
+  .list-table {
+    min-width: 600px;
+  }
+
+  .cell-actions {
+    gap: var(--spacing-xs);
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] .list-table-container {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .list-table thead {
+  background: var(--color-background);
+}
+
+[data-theme="dark"] .search-box {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .filter-select {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+

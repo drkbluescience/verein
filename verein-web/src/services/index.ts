@@ -26,12 +26,25 @@ export {
 } from './mitgliedService';
 
 // Veranstaltung Services
-export { 
-  veranstaltungService, 
+export {
+  veranstaltungService,
   veranstaltungAnmeldungService,
   veranstaltungBildService,
-  veranstaltungUtils 
+  veranstaltungUtils
 } from './veranstaltungService';
+
+// Finanz Services
+export {
+  bankBuchungService,
+  mitgliedForderungService,
+  mitgliedZahlungService,
+  mitgliedForderungZahlungService,
+  mitgliedVorauszahlungService,
+  veranstaltungZahlungService
+} from './finanzService';
+
+// Keytable Services
+export { default as keytableService } from './keytableService';
 
 // Re-export types for convenience
 export type {
@@ -72,6 +85,30 @@ export type {
   VeranstaltungSearchParams,
   EventStatus
 } from '../types/veranstaltung';
+
+export type {
+  // Finanz Types
+  BankBuchungDto,
+  CreateBankBuchungDto,
+  UpdateBankBuchungDto,
+  MitgliedForderungDto,
+  CreateMitgliedForderungDto,
+  UpdateMitgliedForderungDto,
+  MitgliedZahlungDto,
+  CreateMitgliedZahlungDto,
+  UpdateMitgliedZahlungDto,
+  MitgliedForderungZahlungDto,
+  CreateMitgliedForderungZahlungDto,
+  MitgliedVorauszahlungDto,
+  CreateMitgliedVorauszahlungDto,
+  VeranstaltungZahlungDto,
+  CreateVeranstaltungZahlungDto,
+  UpdateVeranstaltungZahlungDto,
+  FinanzSearchParams,
+  FinanzStats,
+  ZahlungStatus,
+  ZahlungTyp
+} from '../types/finanz.types';
 
 /**
  * Usage Examples:

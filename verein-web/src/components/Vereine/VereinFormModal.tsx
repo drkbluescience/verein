@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { VereinDto, UpdateVereinDto, CreateVereinDto } from '../../types/verein';
+import keytableService from '../../services/keytableService';
 import Modal from '../Common/Modal';
 import styles from './VereinFormModal.module.css';
+
+// Register locales for date picker
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 interface VereinFormModalProps {
   isOpen: boolean;
@@ -22,6 +31,13 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation(['vereine', 'common']);
 
+  // Fetch Keytable data
+  const { data: rechtsformen = [] } = useQuery({
+    queryKey: ['keytable', 'rechtsformen'],
+    queryFn: () => keytableService.getRechtsformen(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+
   const [formData, setFormData] = useState<UpdateVereinDto>({
     name: '',
     kurzname: '',
@@ -32,9 +48,11 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
     kontaktperson: '',
     gruendungsdatum: '',
     zweck: '',
+    rechtsformId: undefined,
     aktiv: true,
   });
 
+  const [gruendungsdatumDate, setGruendungsdatumDate] = useState<Date | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -50,8 +68,10 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
           kontaktperson: verein.kontaktperson || '',
           gruendungsdatum: verein.gruendungsdatum || '',
           zweck: verein.zweck || '',
+          rechtsformId: verein.rechtsformId,
           aktiv: verein.aktiv,
         });
+        setGruendungsdatumDate(verein.gruendungsdatum ? new Date(verein.gruendungsdatum) : null);
       } else {
         // Reset form for create mode
         setFormData({
@@ -64,18 +84,20 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
           kontaktperson: '',
           gruendungsdatum: '',
           zweck: '',
+          rechtsformId: undefined,
           aktiv: true,
         });
+        setGruendungsdatumDate(null);
       }
       setErrors({});
     }
   }, [isOpen, verein, mode]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
@@ -240,18 +262,49 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
               <label htmlFor="gruendungsdatum">
                 {t('vereine:fields.gruendungsdatum')}
               </label>
-              <input
-                type="date"
-                id="gruendungsdatum"
-                name="gruendungsdatum"
-                value={
-                  formData.gruendungsdatum
-                    ? new Date(formData.gruendungsdatum).toISOString().split('T')[0]
-                    : ''
-                }
-                onChange={handleChange}
-                lang={i18n.language}
+              <DatePicker
+                selected={gruendungsdatumDate}
+                onChange={(date) => {
+                  setGruendungsdatumDate(date);
+                  const dateStr = date ? date.toISOString().split('T')[0] : '';
+                  setFormData(prev => ({ ...prev, gruendungsdatum: dateStr }));
+                }}
+                locale={i18n.language}
+                dateFormat="dd.MM.yyyy"
+                placeholderText={t('vereine:fields.gruendungsdatum')}
+                className={styles.datePickerInput}
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={100}
+                maxDate={new Date()}
               />
+            </div>
+
+            {/* Hukuki Şekil */}
+            <div className={styles.formGroup}>
+              <label htmlFor="rechtsformId">
+                {t('vereine:fields.rechtsform')}
+              </label>
+              <select
+                id="rechtsformId"
+                name="rechtsformId"
+                value={formData.rechtsformId?.toString() || ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    rechtsformId: value ? parseInt(value) : undefined,
+                  }));
+                }}
+                className={styles.selectInput}
+              >
+                <option value="">Seçiniz</option>
+                {rechtsformen.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Zweck */}

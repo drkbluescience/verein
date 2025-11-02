@@ -4,6 +4,13 @@
 
 Bu dokümantasyon, tüm backend API endpointlerinin hangi frontend sayfalarında, hangi kullanıcı rolleri için kullanıldığını ve veritabanı yapısına uygunluğunu detaylı şekilde gösterir.
 
+### 📈 Güncellenmiş İstatistikler (2025-10-27)
+- **Backend Endpoint Sayısı**: 131
+- **Frontend Endpoint Sayısı**: 129
+- **Kullanım Oranı**: %98.5
+- **Kullanılmayan Endpoint**: 2 (GetByIban, ValidateIban)
+- **Controller Sayısı**: 15
+
 ---
 
 ## 🎯 Controller'lar ve Endpoint'ler

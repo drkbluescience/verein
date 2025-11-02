@@ -61,25 +61,6 @@ const FemaleIcon = () => (
   </svg>
 );
 
-const TrendUpIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-    <polyline points="17 6 23 6 23 12"/>
-  </svg>
-);
-
-const TrendDownIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-    <polyline points="17 18 23 18 23 12"/>
-  </svg>
-);
-
-const TrendNeutralIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-);
 
 const DownloadIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -91,29 +72,29 @@ const DownloadIcon = () => (
 
 const DernekRaporlar: React.FC = () => {
   const { user } = useAuth();
-  const vereinId = user?.vereinId || 0;
+  const vereinId = user?.vereinId;
   const [dateRange, setDateRange] = useState<'30days' | '3months' | '6months' | '1year'>('30days');
   const [isExporting, setIsExporting] = useState(false);
 
   // Fetch verein details
-  const { data: verein, isLoading: vereinLoading } = useQuery({
+  const { data: verein, isLoading: vereinLoading, error: vereinError } = useQuery({
     queryKey: ['verein', vereinId],
-    queryFn: () => vereinService.getById(vereinId),
-    enabled: !!vereinId,
+    queryFn: () => vereinService.getById(vereinId!),
+    enabled: !!vereinId && vereinId > 0,
   });
 
   // Fetch mitglieder for this verein
-  const { data: mitglieder, isLoading: mitgliederLoading } = useQuery({
+  const { data: mitglieder, isLoading: mitgliederLoading, error: mitgliederError } = useQuery({
     queryKey: ['mitglieder', vereinId],
-    queryFn: () => mitgliedService.getByVereinId(vereinId, false),
-    enabled: !!vereinId,
+    queryFn: () => mitgliedService.getByVereinId(vereinId!, false),
+    enabled: !!vereinId && vereinId > 0,
   });
 
   // Fetch veranstaltungen for this verein
-  const { data: veranstaltungen, isLoading: veranstaltungenLoading } = useQuery({
+  const { data: veranstaltungen, isLoading: veranstaltungenLoading, error: veranstaltungenError } = useQuery({
     queryKey: ['veranstaltungen', vereinId],
-    queryFn: () => veranstaltungService.getByVereinId(vereinId),
-    enabled: !!vereinId,
+    queryFn: () => veranstaltungService.getByVereinId(vereinId!),
+    enabled: !!vereinId && vereinId > 0,
   });
 
   // Calculate statistics with period comparison
@@ -184,13 +165,15 @@ const DernekRaporlar: React.FC = () => {
       other: mitglieder.filter((m: MitgliedDto) => !m.geschlechtId || (m.geschlechtId !== 1 && m.geschlechtId !== 2)).length,
     };
 
-    // Monthly registrations (last 12 months) - converted to array for Recharts
+    // Monthly registrations (January to current month) - converted to array for Recharts
     const monthlyData = [];
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
-      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+
+    for (let month = 0; month <= currentMonth; month++) {
+      const monthStart = new Date(currentYear, month, 1);
+      const monthEnd = new Date(currentYear, month + 1, 0);
 
       const monthRegistrations = mitglieder.filter((m: MitgliedDto) => {
         if (!m.eintrittsdatum) return false;
@@ -198,9 +181,8 @@ const DernekRaporlar: React.FC = () => {
         return entryDate >= monthStart && entryDate <= monthEnd;
       }).length;
 
-      const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
       monthlyData.push({
-        month: monthNames[date.getMonth()],
+        month: monthNames[month],
         registrations: monthRegistrations,
       });
     }
@@ -278,35 +260,55 @@ const DernekRaporlar: React.FC = () => {
     }
   };
 
-  // Trend badge component
-  const TrendBadge: React.FC<{ value: number }> = ({ value }) => {
-    const isPositive = value > 0;
-    const isNegative = value < 0;
-    const isNeutral = value === 0;
-
+  // Check if vereinId is missing
+  if (!vereinId || vereinId === 0) {
     return (
-      <span className={`stat-trend ${isPositive ? 'positive' : isNegative ? 'negative' : 'neutral'}`}>
-        {isPositive && <TrendUpIcon />}
-        {isNegative && <TrendDownIcon />}
-        {isNeutral && <TrendNeutralIcon />}
-        {Math.abs(value).toFixed(1)}%
-      </span>
+      <div className="reports-container">
+        <div className="reports-header">
+          <h1>Raporlar</h1>
+          <p style={{ color: 'var(--color-error)' }}>
+            Dernek bilgisi bulunamadı. Lütfen sistem yöneticisi ile iletişime geçin.
+          </p>
+        </div>
+      </div>
     );
-  };
+  }
 
   if (vereinLoading || mitgliederLoading || veranstaltungenLoading) {
     return <Loading text="Raporlar yükleniyor..." />;
   }
 
+  // Check for errors
+  if (vereinError || mitgliederError || veranstaltungenError) {
+    return (
+      <div className="reports-container">
+        <div className="reports-header">
+          <h1>Raporlar</h1>
+          <p style={{ color: 'var(--color-error)' }}>
+            Veri yüklenirken hata oluştu: {vereinError?.message || mitgliederError?.message || veranstaltungenError?.message}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!stats || !verein) {
-    return <div>Veri yüklenemedi</div>;
+    return (
+      <div className="reports-container">
+        <div className="reports-header">
+          <h1>Raporlar</h1>
+          <p style={{ color: 'var(--color-warning)' }}>
+            Veri yüklenemedi. Lütfen sayfayı yenileyin.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="reports-container">
       <div className="reports-header">
-        <h1>{verein.name} - Raporlar</h1>
-        <p>Derneğinizin detaylı istatistikleri</p>
+        <h1>Raporlar</h1>
       </div>
 
       {/* Toolbar */}
@@ -366,9 +368,11 @@ const DernekRaporlar: React.FC = () => {
                 <TrendingUpIcon />
               </div>
               <div className="stat-info">
-                <h3>Yeni Kayıtlar ({dateRange === '30days' ? '30 Gün' : dateRange === '3months' ? '3 Ay' : dateRange === '6months' ? '6 Ay' : '1 Yıl'})</h3>
+                <h3>Yeni Kayıt</h3>
                 <div className="stat-number">{stats.currentPeriodRegistrations}</div>
-                <TrendBadge value={stats.growthRate} />
+                <span className="stat-detail">
+                  {dateRange === '30days' ? 'Son 30 gün' : dateRange === '3months' ? 'Son 3 ay' : dateRange === '6months' ? 'Son 6 ay' : 'Son 1 yıl'}
+                </span>
               </div>
             </div>
 
@@ -393,118 +397,104 @@ const DernekRaporlar: React.FC = () => {
       <div className="chart-section">
         <h2>Aylık Üye Kayıt Trendi</h2>
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={stats.monthlyData} margin={{ bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-              <XAxis
-                dataKey="month"
-                stroke="#666"
-                style={{ fontSize: '0.75rem' }}
-                interval={0}
-                angle={-45}
-                textAnchor="end"
-                height={60}
-              />
-              <YAxis
-                stroke="#666"
-                style={{ fontSize: '0.875rem' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '8px',
-                }}
-              />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="registrations"
-                stroke="#2196F3"
-                strokeWidth={2}
-                name="Yeni Kayıtlar"
-                dot={{ fill: '#2196F3', r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+          <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={stats.monthlyData} margin={{ bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+            <XAxis
+              dataKey="month"
+              stroke="#666"
+              style={{ fontSize: '0.7rem' }}
+              interval={0}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis
+              stroke="#666"
+              style={{ fontSize: '0.875rem' }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: '8px',
+              }}
+            />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="registrations"
+              stroke="#2196F3"
+              strokeWidth={2}
+              name="Yeni Kayıtlar"
+              dot={{ fill: '#2196F3', r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
       </div>
 
       {/* Age Distribution */}
       <div className="chart-section">
         <h2>Yaş Dağılımı</h2>
         <div className="chart-container">
-          {Object.entries(stats.ageGroups).map(([group, count]) => {
-            const percentage = stats.totalMitglieder > 0 
-              ? Math.round((count / stats.totalMitglieder) * 100) 
-              : 0;
-            return (
-              <div key={group} className="chart-bar-item">
-                <div className="chart-label">
-                  <span>{group} yaş</span>
-                  <span className="chart-value">{count} ({percentage}%)</span>
-                </div>
-                <div className="chart-bar-bg">
-                  <div 
-                    className="chart-bar-fill" 
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
+        {Object.entries(stats.ageGroups).map(([group, count]) => {
+          const percentage = stats.totalMitglieder > 0
+            ? Math.round((count / stats.totalMitglieder) * 100)
+            : 0;
+          return (
+            <div key={group} className="chart-bar-item">
+              <div className="chart-label">
+                <span>{group} yaş</span>
+                <span className="chart-value">{count} ({percentage}%)</span>
               </div>
-            );
-          })}
-        </div>
+              <div className="chart-bar-bg">
+                <div
+                  className="chart-bar-fill"
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
       </div>
 
-      {/* Gender Distribution */}
+      {/* Gender Distribution - Redesigned */}
       <div className="chart-section">
         <h2>Cinsiyet Dağılımı</h2>
-        <div className="chart-container">
-          <div className="chart-bar-item">
-            <div className="chart-label">
+        <div className="gender-distribution-container">
+          <div className="gender-item">
+            <div className="gender-header">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <MaleIcon /> Erkek
               </span>
-              <span className="chart-value">
-                {stats.genderDistribution.male} (
-                {stats.totalMitglieder > 0
-                  ? Math.round((stats.genderDistribution.male / stats.totalMitglieder) * 100)
-                  : 0}%)
+              <span className="gender-value">
+                {stats.genderDistribution.male} ({stats.totalMitglieder > 0 ? Math.round((stats.genderDistribution.male / stats.totalMitglieder) * 100) : 0}%)
               </span>
             </div>
-            <div className="chart-bar-bg">
+            <div className="gender-bar-bg">
               <div
-                className="chart-bar-fill chart-bar-male"
-                style={{
-                  width: `${stats.totalMitglieder > 0
-                    ? (stats.genderDistribution.male / stats.totalMitglieder) * 100
-                    : 0}%`
-                }}
+                className="gender-bar-fill male-fill"
+                style={{ width: `${stats.totalMitglieder > 0 ? Math.round((stats.genderDistribution.male / stats.totalMitglieder) * 100) : 0}%` }}
               />
             </div>
           </div>
 
-          <div className="chart-bar-item">
-            <div className="chart-label">
+          <div className="gender-item">
+            <div className="gender-header">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FemaleIcon /> Kadın
               </span>
-              <span className="chart-value">
-                {stats.genderDistribution.female} (
-                {stats.totalMitglieder > 0 
-                  ? Math.round((stats.genderDistribution.female / stats.totalMitglieder) * 100) 
-                  : 0}%)
+              <span className="gender-value">
+                {stats.genderDistribution.female} ({stats.totalMitglieder > 0 ? Math.round((stats.genderDistribution.female / stats.totalMitglieder) * 100) : 0}%)
               </span>
             </div>
-            <div className="chart-bar-bg">
-              <div 
-                className="chart-bar-fill chart-bar-female" 
-                style={{ 
-                  width: `${stats.totalMitglieder > 0 
-                    ? (stats.genderDistribution.female / stats.totalMitglieder) * 100 
-                    : 0}%` 
-                }}
+            <div className="gender-bar-bg">
+              <div
+                className="gender-bar-fill female-fill"
+                style={{ width: `${stats.totalMitglieder > 0 ? Math.round((stats.genderDistribution.female / stats.totalMitglieder) * 100) : 0}%` }}
               />
             </div>
           </div>
@@ -514,37 +504,37 @@ const DernekRaporlar: React.FC = () => {
       {/* Upcoming Events */}
       {stats.upcomingEvents.length > 0 && (
         <div className="table-section">
-          <h2>Yaklaşan Etkinlikler (30 Gün)</h2>
-          <div className="table-container">
-            <table className="reports-table">
-              <thead>
-                <tr>
-                  <th>Etkinlik Adı</th>
-                  <th>Tarih</th>
-                  <th>Kayıt</th>
-                  <th>Üye</th>
+        <h2>Yaklaşan Etkinlikler (30 Gün)</h2>
+        <div className="table-container">
+          <table className="reports-table">
+            <thead>
+              <tr>
+                <th>Etkinlik Adı</th>
+                <th>Tarih</th>
+                <th>Kayıt</th>
+                <th>Üye</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.upcomingEvents.map((event: VeranstaltungDto) => (
+                <tr key={event.id}>
+                  <td><strong>{event.titel}</strong></td>
+                  <td>{new Date(event.startdatum).toLocaleDateString('tr-TR')}</td>
+                  <td>
+                    <span className={`badge ${event.anmeldeErforderlich ? 'badge-required' : 'badge-optional'}`}>
+                      {event.anmeldeErforderlich ? 'Gerekli' : 'Opsiyonel'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`badge ${event.nurFuerMitglieder ? 'badge-members' : 'badge-public'}`}>
+                      {event.nurFuerMitglieder ? 'Sadece Üye' : 'Herkese Açık'}
+                    </span>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {stats.upcomingEvents.map((event: VeranstaltungDto) => (
-                  <tr key={event.id}>
-                    <td><strong>{event.titel}</strong></td>
-                    <td>{new Date(event.startdatum).toLocaleDateString('tr-TR')}</td>
-                    <td>
-                      <span className={`badge ${event.anmeldeErforderlich ? 'badge-required' : 'badge-optional'}`}>
-                        {event.anmeldeErforderlich ? 'Gerekli' : 'Opsiyonel'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${event.nurFuerMitglieder ? 'badge-members' : 'badge-public'}`}>
-                        {event.nurFuerMitglieder ? 'Sadece Üye' : 'Herkese Açık'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
         </div>
       )}
       </div>

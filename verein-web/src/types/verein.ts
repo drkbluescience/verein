@@ -204,6 +204,16 @@ export interface CreateBankkontoDto {
   aktiv?: boolean;
 }
 
+// IBAN Validation Types
+export interface IbanValidationResult {
+  isValid: boolean;
+  message: string;
+}
+
+export interface IbanValidationRequest {
+  iban: string;
+}
+
 // API Response Types
 export interface ApiResponse<T> {
   data: T;

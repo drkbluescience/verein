@@ -79,8 +79,9 @@ public class VeranstaltungAnmeldungConfiguration : IEntityTypeConfiguration<Vera
             .HasDefaultValue(false)
             .HasColumnName("DeletedFlag");
 
-        // Aktiv column doesn't exist in VeranstaltungAnmeldung table - ignore it
-        builder.Ignore(va => va.Aktiv);
+        // Aktiv column - SQL dosyasında var
+        builder.Property(va => va.Aktiv)
+            .HasColumnName("Aktiv");
 
         // Indexes for performance
         builder.HasIndex(va => va.VeranstaltungId)
@@ -96,10 +97,17 @@ public class VeranstaltungAnmeldungConfiguration : IEntityTypeConfiguration<Vera
             .HasDatabaseName("IX_VeranstaltungAnmeldung_DeletedFlag");
 
         // Foreign key relationships
+        // SQL Server cascade cycle'ı önlemek için Veranstaltung NO ACTION yapıyoruz
 
         builder.HasOne(va => va.Veranstaltung)
             .WithMany(v => v.VeranstaltungAnmeldungen)
             .HasForeignKey(va => va.VeranstaltungId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict); // NO ACTION - cycle önleme
+
+        builder.HasOne(va => va.Mitglied)
+            .WithMany()
+            .HasForeignKey(va => va.MitgliedId)
+            .OnDelete(DeleteBehavior.SetNull) // SET NULL
+            .IsRequired(false);
     }
 }

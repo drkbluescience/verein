@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using VereinsApi.Data.Configurations;
+using VereinsApi.Data.Configurations.Keytable;
 using VereinsApi.Domain.Entities;
+using VereinsApi.Domain.Entities.Keytable;
 
 namespace VereinsApi.Data;
 
@@ -61,6 +63,200 @@ public class ApplicationDbContext : DbContext
     /// </summary>
     public DbSet<MitgliedFamilie> MitgliedFamilien { get; set; }
 
+    /// <summary>
+    /// Bank Buchungen table (Finanz schema)
+    /// </summary>
+    public DbSet<BankBuchung> BankBuchungen { get; set; }
+
+    /// <summary>
+    /// Mitglied Forderungen table (Finanz schema)
+    /// </summary>
+    public DbSet<MitgliedForderung> MitgliedForderungen { get; set; }
+
+    /// <summary>
+    /// Mitglied Zahlungen table (Finanz schema)
+    /// </summary>
+    public DbSet<MitgliedZahlung> MitgliedZahlungen { get; set; }
+
+    /// <summary>
+    /// Mitglied Forderung Zahlungen table (Finanz schema)
+    /// </summary>
+    public DbSet<MitgliedForderungZahlung> MitgliedForderungZahlungen { get; set; }
+
+    /// <summary>
+    /// Mitglied Vorauszahlungen table (Finanz schema)
+    /// </summary>
+    public DbSet<MitgliedVorauszahlung> MitgliedVorauszahlungen { get; set; }
+
+    /// <summary>
+    /// Veranstaltung Zahlungen table (Finanz schema)
+    /// </summary>
+    public DbSet<VeranstaltungZahlung> VeranstaltungZahlungen { get; set; }
+
+    #endregion
+
+    #region Keytable DbSets
+
+    /// <summary>
+    /// Geschlecht (Gender) lookup table
+    /// </summary>
+    public DbSet<Geschlecht> Geschlechter { get; set; }
+
+    /// <summary>
+    /// Geschlecht translations
+    /// </summary>
+    public DbSet<GeschlechtUebersetzung> GeschlechtUebersetzungen { get; set; }
+
+    /// <summary>
+    /// MitgliedStatus (Member Status) lookup table
+    /// </summary>
+    public DbSet<MitgliedStatus> MitgliedStatuse { get; set; }
+
+    /// <summary>
+    /// MitgliedStatus translations
+    /// </summary>
+    public DbSet<MitgliedStatusUebersetzung> MitgliedStatusUebersetzungen { get; set; }
+
+    /// <summary>
+    /// MitgliedTyp (Member Type) lookup table
+    /// </summary>
+    public DbSet<MitgliedTyp> MitgliedTypen { get; set; }
+
+    /// <summary>
+    /// MitgliedTyp translations
+    /// </summary>
+    public DbSet<MitgliedTypUebersetzung> MitgliedTypUebersetzungen { get; set; }
+
+    /// <summary>
+    /// FamilienbeziehungTyp (Family Relationship Type) lookup table
+    /// </summary>
+    public DbSet<FamilienbeziehungTyp> FamilienbeziehungTypen { get; set; }
+
+    /// <summary>
+    /// FamilienbeziehungTyp translations
+    /// </summary>
+    public DbSet<FamilienbeziehungTypUebersetzung> FamilienbeziehungTypUebersetzungen { get; set; }
+
+    /// <summary>
+    /// ZahlungTyp (Payment Type) lookup table
+    /// </summary>
+    public DbSet<ZahlungTyp> ZahlungTypen { get; set; }
+
+    /// <summary>
+    /// ZahlungTyp translations
+    /// </summary>
+    public DbSet<ZahlungTypUebersetzung> ZahlungTypUebersetzungen { get; set; }
+
+    /// <summary>
+    /// ZahlungStatus (Payment Status) lookup table
+    /// </summary>
+    public DbSet<ZahlungStatus> ZahlungStatuse { get; set; }
+
+    /// <summary>
+    /// ZahlungStatus translations
+    /// </summary>
+    public DbSet<ZahlungStatusUebersetzung> ZahlungStatusUebersetzungen { get; set; }
+
+    /// <summary>
+    /// Forderungsart (Claim Type) lookup table
+    /// </summary>
+    public DbSet<Forderungsart> Forderungsarten { get; set; }
+
+    /// <summary>
+    /// Forderungsart translations
+    /// </summary>
+    public DbSet<ForderungsartUebersetzung> ForderungsartUebersetzungen { get; set; }
+
+    /// <summary>
+    /// Forderungsstatus (Claim Status) lookup table
+    /// </summary>
+    public DbSet<Forderungsstatus> Forderungsstatuse { get; set; }
+
+    /// <summary>
+    /// Forderungsstatus translations
+    /// </summary>
+    public DbSet<ForderungsstatusUebersetzung> ForderungsstatusUebersetzungen { get; set; }
+
+    /// <summary>
+    /// Waehrung (Currency) lookup table
+    /// </summary>
+    public DbSet<Waehrung> Waehrungen { get; set; }
+
+    /// <summary>
+    /// Waehrung translations
+    /// </summary>
+    public DbSet<WaehrungUebersetzung> WaehrungUebersetzungen { get; set; }
+
+    /// <summary>
+    /// Rechtsform (Legal Form) lookup table
+    /// </summary>
+    public DbSet<Rechtsform> Rechtsformen { get; set; }
+
+    /// <summary>
+    /// Rechtsform translations
+    /// </summary>
+    public DbSet<RechtsformUebersetzung> RechtsformUebersetzungen { get; set; }
+
+    /// <summary>
+    /// AdresseTyp (Address Type) lookup table
+    /// </summary>
+    public DbSet<AdresseTyp> AdresseTypen { get; set; }
+
+    /// <summary>
+    /// AdresseTyp translations
+    /// </summary>
+    public DbSet<AdresseTypUebersetzung> AdresseTypUebersetzungen { get; set; }
+
+    /// <summary>
+    /// Kontotyp (Account Type) lookup table
+    /// </summary>
+    public DbSet<Kontotyp> Kontotypen { get; set; }
+
+    /// <summary>
+    /// Kontotyp translations
+    /// </summary>
+    public DbSet<KontotypUebersetzung> KontotypUebersetzungen { get; set; }
+
+    /// <summary>
+    /// MitgliedFamilieStatus (Family Member Status) lookup table
+    /// </summary>
+    public DbSet<MitgliedFamilieStatus> MitgliedFamilieStatuse { get; set; }
+
+    /// <summary>
+    /// MitgliedFamilieStatus translations
+    /// </summary>
+    public DbSet<MitgliedFamilieStatusUebersetzung> MitgliedFamilieStatusUebersetzungen { get; set; }
+
+    /// <summary>
+    /// Staatsangehoerigkeit (Nationality) lookup table
+    /// </summary>
+    public DbSet<Staatsangehoerigkeit> Staatsangehoerigkeiten { get; set; }
+
+    /// <summary>
+    /// Staatsangehoerigkeit translations
+    /// </summary>
+    public DbSet<StaatsangehoerigkeitUebersetzung> StaatsangehoerigkeitUebersetzungen { get; set; }
+
+    /// <summary>
+    /// BeitragPeriode (Contribution Period) lookup table
+    /// </summary>
+    public DbSet<BeitragPeriode> BeitragPerioden { get; set; }
+
+    /// <summary>
+    /// BeitragPeriode translations
+    /// </summary>
+    public DbSet<BeitragPeriodeUebersetzung> BeitragPeriodeUebersetzungen { get; set; }
+
+    /// <summary>
+    /// BeitragZahlungstagTyp (Contribution Payment Day Type) lookup table
+    /// </summary>
+    public DbSet<BeitragZahlungstagTyp> BeitragZahlungstagTypen { get; set; }
+
+    /// <summary>
+    /// BeitragZahlungstagTyp translations
+    /// </summary>
+    public DbSet<BeitragZahlungstagTypUebersetzung> BeitragZahlungstagTypUebersetzungen { get; set; }
+
     #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -77,6 +273,48 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MitgliedConfiguration());
         modelBuilder.ApplyConfiguration(new MitgliedAdresseConfiguration());
         modelBuilder.ApplyConfiguration(new MitgliedFamilieConfiguration());
+
+        // Apply Finanz entity configurations
+        modelBuilder.ApplyConfiguration(new BankBuchungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedForderungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedZahlungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedForderungZahlungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedVorauszahlungConfiguration());
+        modelBuilder.ApplyConfiguration(new VeranstaltungZahlungConfiguration());
+
+        // Apply Keytable entity configurations
+        modelBuilder.ApplyConfiguration(new GeschlechtConfiguration());
+        modelBuilder.ApplyConfiguration(new GeschlechtUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedStatusConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedStatusUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedTypConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedTypUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new FamilienbeziehungTypConfiguration());
+        modelBuilder.ApplyConfiguration(new FamilienbeziehungTypUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new ZahlungTypConfiguration());
+        modelBuilder.ApplyConfiguration(new ZahlungTypUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new ZahlungStatusConfiguration());
+        modelBuilder.ApplyConfiguration(new ZahlungStatusUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new ForderungsartConfiguration());
+        modelBuilder.ApplyConfiguration(new ForderungsartUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new ForderungsstatusConfiguration());
+        modelBuilder.ApplyConfiguration(new ForderungsstatusUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new WaehrungConfiguration());
+        modelBuilder.ApplyConfiguration(new WaehrungUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new RechtsformConfiguration());
+        modelBuilder.ApplyConfiguration(new RechtsformUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new AdresseTypConfiguration());
+        modelBuilder.ApplyConfiguration(new AdresseTypUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new KontotypConfiguration());
+        modelBuilder.ApplyConfiguration(new KontotypUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedFamilieStatusConfiguration());
+        modelBuilder.ApplyConfiguration(new MitgliedFamilieStatusUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new StaatsangehoerigkeitConfiguration());
+        modelBuilder.ApplyConfiguration(new StaatsangehoerigkeitUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new BeitragPeriodeConfiguration());
+        modelBuilder.ApplyConfiguration(new BeitragPeriodeUebersetzungConfiguration());
+        modelBuilder.ApplyConfiguration(new BeitragZahlungstagTypConfiguration());
+        modelBuilder.ApplyConfiguration(new BeitragZahlungstagTypUebersetzungConfiguration());
 
         // Apply global query filters for soft delete
         ApplyGlobalQueryFilters(modelBuilder);
@@ -127,8 +365,15 @@ public class ApplicationDbContext : DbContext
                     entry.Entity.DeletedFlag = false;
 
                     // Only set Aktiv for entities that have this column in database
-                    // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild don't have Aktiv column
-                    if (entry.Entity is not MitgliedFamilie
+                    // Finanz tables don't use Aktiv column - they use DeletedFlag for soft delete
+                    // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild also don't have Aktiv column
+                    if (entry.Entity is not BankBuchung
+                        && entry.Entity is not MitgliedForderung
+                        && entry.Entity is not MitgliedForderungZahlung
+                        && entry.Entity is not MitgliedZahlung
+                        && entry.Entity is not MitgliedVorauszahlung
+                        && entry.Entity is not VeranstaltungZahlung
+                        && entry.Entity is not MitgliedFamilie
                         && entry.Entity is not VeranstaltungAnmeldung
                         && entry.Entity is not VeranstaltungBild)
                     {

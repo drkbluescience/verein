@@ -93,7 +93,8 @@
     "kontaktperson": "İletişim Kişisi",
     "gruendungsdatum": "Kuruluş Tarihi",
     "zweck": "Amaç",
-    "aktiv": "Aktif"
+    "aktiv": "Aktif",
+    "rechtsform": "Hukuki Şekil"
   },
   "editVerein": "Dernek Bilgilerini Düzenle",
   "createVerein": "Yeni Dernek Ekle",

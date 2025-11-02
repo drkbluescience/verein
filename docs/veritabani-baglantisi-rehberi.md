@@ -9,12 +9,31 @@
 - **Dosya Konumu**: `VereinsApi/verein_dev.db`
 - **Connection String**: `"Data Source=verein_dev.db"`
 - **SQL Studio ile İlişkisi**: ❌ YOK
+- **Durum**: ✅ Aktif ve çalışıyor
 
 **Production Ortamında:**
 - **Veritabanı Türü**: SQL Server
 - **Veritabanı Adı**: VEREIN
 - **Connection String**: `"Server=localhost;Database=VEREIN;Trusted_Connection=true"`
 - **SQL Studio ile İlişkisi**: ✅ VAR
+- **Durum**: ✅ Hazır
+
+### 📊 Veritabanı Tabloları (15 Tablo)
+1. **Verein** - Dernek bilgileri
+2. **Adresse** - Dernek adresleri
+3. **Bankkonto** - Banka hesapları
+4. **Veranstaltung** - Etkinlikler
+5. **VeranstaltungAnmeldung** - Etkinlik kayıtları
+6. **VeranstaltungBild** - Etkinlik resimleri
+7. **Mitglied** - Üye bilgileri
+8. **MitgliedAdresse** - Üye adresleri
+9. **MitgliedFamilie** - Üye aile ilişkileri
+10. **BankBuchung** - Banka işlemleri
+11. **MitgliedForderung** - Üye talepleri/faturalar
+12. **MitgliedZahlung** - Üye ödemeleri
+13. **MitgliedForderungZahlung** - Talep-Ödeme eşleştirmesi
+14. **MitgliedVorauszahlung** - Üye ön ödemeleri
+15. **VeranstaltungZahlung** - Etkinlik ödemeleri
 
 ## 📋 Yapılandırma Dosyaları
 

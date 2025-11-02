@@ -170,9 +170,8 @@ const VereinList: React.FC = () => {
   return (
     <div className="verein-list">
       {/* Header */}
-      <div className="verein-list-header">
+      <div className="page-header">
         <h1 className="page-title">{t('vereine:title')}</h1>
-        <p className="page-subtitle">{t('vereine:subtitle')}</p>
       </div>
 
       {/* Actions Bar */}

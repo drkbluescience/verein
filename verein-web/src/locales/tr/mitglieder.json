@@ -215,8 +215,17 @@
       "other": "Diğer"
     },
     "yearsOld": "yaşında",
+    "gridView": "Kart Görünümü",
+    "tableView": "Tablo Görünümü",
     "stats": {
       "totalMembers": "Toplam Aile Üyesi"
+    },
+    "table": {
+      "fullName": "Ad Soyad",
+      "relationship": "İlişki",
+      "age": "Yaş",
+      "email": "E-posta",
+      "phone": "Telefon"
     }
   },
   "table": {

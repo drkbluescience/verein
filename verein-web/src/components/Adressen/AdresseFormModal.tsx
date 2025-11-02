@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { Adresse, CreateAdresseDto, UpdateAdresseDto } from '../../services/adresseService';
+import keytableService from '../../services/keytableService';
 import Modal from '../Common/Modal';
 import styles from './AdresseFormModal.module.css';
 
@@ -24,7 +26,15 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Fetch Keytable data
+  const { data: adresseTypen = [] } = useQuery({
+    queryKey: ['keytable', 'adressetypen'],
+    queryFn: () => keytableService.getAdresseTypen(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
   const [formData, setFormData] = useState({
+    adresseTypId: '',
     strasse: '',
     hausnummer: '',
     adresszusatz: '',
@@ -46,6 +56,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
   useEffect(() => {
     if (adresse) {
       setFormData({
+        adresseTypId: adresse.adresseTypId?.toString() || '',
         strasse: adresse.strasse || '',
         hausnummer: adresse.hausnummer || '',
         adresszusatz: adresse.adresszusatz || '',
@@ -65,6 +76,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
       });
     } else {
       setFormData({
+        adresseTypId: '',
         strasse: '',
         hausnummer: '',
         adresszusatz: '',
@@ -141,6 +153,7 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
     try {
       const submitData = {
         ...formData,
+        adresseTypId: formData.adresseTypId ? parseInt(formData.adresseTypId) : undefined,
         vereinId,
       };
 
@@ -189,6 +202,25 @@ const AdresseFormModal: React.FC<AdresseFormModalProps> = ({
     >
       <form id="adresse-form" onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGrid}>
+          {/* Address Type */}
+          <div className={styles.formGroup}>
+            <label htmlFor="adresseTypId">{t('adressen:fields.addressType')}</label>
+            <select
+              id="adresseTypId"
+              name="adresseTypId"
+              value={formData.adresseTypId}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            >
+              <option value="">Seçiniz</option>
+              {adresseTypen.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Basic Info Section */}
           <div className={styles.formSection}>
             <h3>{t('adressen:sections.basicInfo')}</h3>

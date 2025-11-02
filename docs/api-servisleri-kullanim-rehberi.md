@@ -17,12 +17,19 @@ Verein Web uygulaması, backend API ile iletişim kurmak için modüler bir serv
 ```
 verein-web/src/services/
 ├── api.ts                      # Merkezi API client
-├── authService.ts              # Kimlik doğrulama servisi
-├── vereinService.ts            # Dernek, adres, banka servisleri
-├── mitgliedService.ts          # Üye, adres, aile servisleri
-├── veranstaltungService.ts     # Etkinlik, kayıt, resim servisleri
+├── authService.ts              # Kimlik doğrulama servisi (5 endpoint)
+├── vereinService.ts            # Dernek, adres, banka servisleri (19 endpoint)
+├── mitgliedService.ts          # Üye, adres, aile servisleri (28 endpoint)
+├── adresseService.ts           # Adres yönetimi (6 endpoint)
+├── veranstaltungService.ts     # Etkinlik, kayıt, resim servisleri (24 endpoint)
+├── finanzService.ts            # Finansal yönetim servisleri (31 endpoint)
 └── index.ts                    # Merkezi export dosyası
 ```
+
+### 📊 Servis İstatistikleri
+- **Toplam Frontend Servis**: 8
+- **Toplam Frontend Endpoint**: 129
+- **Ortalama Endpoint/Servis**: 16.1
 
 ## 🏗️ Servis Yapısı
 

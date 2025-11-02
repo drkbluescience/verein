@@ -10,6 +10,18 @@ const Landing: React.FC = () => {
   const navigate = useNavigate();
   const [, forceUpdate] = useState({});
 
+  // Force light theme for landing page
+  useEffect(() => {
+    const originalTheme = document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', 'light');
+
+    return () => {
+      if (originalTheme) {
+        document.documentElement.setAttribute('data-theme', originalTheme);
+      }
+    };
+  }, []);
+
   // Force re-render when language changes
   useEffect(() => {
     const handleLanguageChange = () => {

@@ -6,13 +6,7 @@
   padding: 0;
 }
 
-/* Header */
-.dashboard-header {
-  padding: 48px 24px 32px;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
+/* Header - Using global styles from page-header.css */
 
 .dashboard-title {
   font-size: 42px;

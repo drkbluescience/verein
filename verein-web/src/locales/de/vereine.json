@@ -84,6 +84,8 @@
     "mitglieder": "Mitglieder"
   },
   "fields": {
+    "name": "Vereinsname",
+    "kurzname": "Kurzname",
     "email": "E-Mail",
     "telefon": "Telefon",
     "webseite": "Webseite",
@@ -91,7 +93,8 @@
     "kontaktperson": "Kontaktperson",
     "gruendungsdatum": "Gründungsdatum",
     "zweck": "Zweck",
-    "aktiv": "Aktiv"
+    "aktiv": "Aktiv",
+    "rechtsform": "Rechtsform"
   },
   "editVerein": "Vereinsinformationen bearbeiten",
   "createVerein": "Neuen Verein hinzufügen",

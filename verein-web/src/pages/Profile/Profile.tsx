@@ -86,7 +86,6 @@ const Profile: React.FC = () => {
       {/* Header */}
       <div className="profile-header">
         <h1 className="page-title">{t('profile:title')}</h1>
-        <p className="page-subtitle">{t('profile:subtitle')}</p>
       </div>
 
       {/* Actions Bar */}
@@ -133,50 +132,88 @@ const Profile: React.FC = () => {
             <h2>{t('profile:personalInfo.title')}</h2>
           </div>
 
-          <div className="info-grid">
-            <div className="info-item">
-              <label className="info-label">{t('profile:personalInfo.firstName')}</label>
-              <div className="info-value">{user?.firstName || t('profile:placeholders.notAvailable')}</div>
+          {isEditing ? (
+            <div className="edit-form">
+              <div className="form-group">
+                <label className="form-label">{t('profile:personalInfo.firstName')}</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  defaultValue={user?.firstName || ''}
+                  placeholder={t('profile:personalInfo.firstName')}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">{t('profile:personalInfo.lastName')}</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  defaultValue={user?.lastName || ''}
+                  placeholder={t('profile:personalInfo.lastName')}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  <MailIcon />
+                  <span>{t('profile:personalInfo.email')}</span>
+                </label>
+                <input
+                  type="email"
+                  className="form-input"
+                  defaultValue={user?.email || ''}
+                  placeholder={t('profile:personalInfo.email')}
+                  disabled
+                />
+              </div>
             </div>
+          ) : (
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">{t('profile:personalInfo.firstName')}</label>
+                <div className="info-value">{user?.firstName || t('profile:placeholders.notAvailable')}</div>
+              </div>
 
-            <div className="info-item">
-              <label className="info-label">{t('profile:personalInfo.lastName')}</label>
-              <div className="info-value">{user?.lastName || t('profile:placeholders.notAvailable')}</div>
+              <div className="info-item">
+                <label className="info-label">{t('profile:personalInfo.lastName')}</label>
+                <div className="info-value">{user?.lastName || t('profile:placeholders.notAvailable')}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">
+                  <MailIcon />
+                  <span>{t('profile:personalInfo.email')}</span>
+                </label>
+                <div className="info-value">{user?.email || t('profile:placeholders.notAvailable')}</div>
+              </div>
+
+              {user?.type === 'mitglied' && (
+                <>
+                  <div className="info-item">
+                    <label className="info-label">
+                      <PhoneIcon />
+                      <span>{t('profile:personalInfo.phone')}</span>
+                    </label>
+                    <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
+                  </div>
+
+                  <div className="info-item">
+                    <label className="info-label">
+                      <CalendarIcon />
+                      <span>{t('profile:personalInfo.birthDate')}</span>
+                    </label>
+                    <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
+                  </div>
+
+                  <div className="info-item">
+                    <label className="info-label">{t('profile:personalInfo.memberNumber')}</label>
+                    <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
+                  </div>
+                </>
+              )}
             </div>
-
-            <div className="info-item">
-              <label className="info-label">
-                <MailIcon />
-                <span>{t('profile:personalInfo.email')}</span>
-              </label>
-              <div className="info-value">{user?.email || t('profile:placeholders.notAvailable')}</div>
-            </div>
-
-            {user?.type === 'mitglied' && (
-              <>
-                <div className="info-item">
-                  <label className="info-label">
-                    <PhoneIcon />
-                    <span>{t('profile:personalInfo.phone')}</span>
-                  </label>
-                  <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
-                </div>
-
-                <div className="info-item">
-                  <label className="info-label">
-                    <CalendarIcon />
-                    <span>{t('profile:personalInfo.birthDate')}</span>
-                  </label>
-                  <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
-                </div>
-
-                <div className="info-item">
-                  <label className="info-label">{t('profile:personalInfo.memberNumber')}</label>
-                  <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
-                </div>
-              </>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Account Information */}

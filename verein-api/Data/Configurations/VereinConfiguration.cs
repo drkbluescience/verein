@@ -201,6 +201,6 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
         builder.HasMany(v => v.Bankkonten)
             .WithOne(b => b.Verein)
             .HasForeignKey(b => b.VereinId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict); // NO ACTION - cascade cycle önleme
     }
 }

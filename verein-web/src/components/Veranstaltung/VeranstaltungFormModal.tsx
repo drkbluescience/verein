@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { veranstaltungService } from '../../services/veranstaltungService';
+import keytableService from '../../services/keytableService';
 import { VeranstaltungDto, CreateVeranstaltungDto, UpdateVeranstaltungDto } from '../../types/veranstaltung';
 import { useAuth } from '../../contexts/AuthContext';
 import './VeranstaltungFormModal.css';
+
+// Register locales for date picker
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 interface VeranstaltungFormModalProps {
   isOpen: boolean;
@@ -23,6 +31,13 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
   const { i18n } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
+  // Fetch Keytable data
+  const { data: waehrungen = [] } = useQuery({
+    queryKey: ['keytable', 'waehrungen'],
+    queryFn: () => keytableService.getWaehrungen(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
   const [formData, setFormData] = useState({
     titel: '',
@@ -234,26 +249,38 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
 
               <div className="form-group">
                 <label>Başlangıç Tarihi *</label>
-                <input
-                  type="date"
-                  name="startdatum"
-                  value={formData.startdatum}
-                  onChange={handleChange}
-                  className={errors.startdatum ? 'error' : ''}
-                  lang={i18n.language}
+                <DatePicker
+                  selected={formData.startdatum ? new Date(formData.startdatum) : null}
+                  onChange={(date) => {
+                    const dateStr = date ? date.toISOString().split('T')[0] : '';
+                    setFormData(prev => ({ ...prev, startdatum: dateStr }));
+                  }}
+                  locale={i18n.language}
+                  dateFormat="dd.MM.yyyy"
+                  placeholderText="Başlangıç Tarihi"
+                  className={`veranstaltung-date-picker ${errors.startdatum ? 'error' : ''}`}
+                  showYearDropdown
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={100}
                 />
                 {errors.startdatum && <span className="error-message">{errors.startdatum}</span>}
               </div>
 
               <div className="form-group">
                 <label>Bitiş Tarihi</label>
-                <input
-                  type="date"
-                  name="enddatum"
-                  value={formData.enddatum}
-                  onChange={handleChange}
-                  className={errors.enddatum ? 'error' : ''}
-                  lang={i18n.language}
+                <DatePicker
+                  selected={formData.enddatum ? new Date(formData.enddatum) : null}
+                  onChange={(date) => {
+                    const dateStr = date ? date.toISOString().split('T')[0] : '';
+                    setFormData(prev => ({ ...prev, enddatum: dateStr }));
+                  }}
+                  locale={i18n.language}
+                  dateFormat="dd.MM.yyyy"
+                  placeholderText="Bitiş Tarihi"
+                  className={`veranstaltung-date-picker ${errors.enddatum ? 'error' : ''}`}
+                  showYearDropdown
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={100}
                 />
                 {errors.enddatum && <span className="error-message">{errors.enddatum}</span>}
               </div>
@@ -290,7 +317,7 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
               </div>
 
               <div className="form-group">
-                <label>Fiyat (€)</label>
+                <label>Fiyat</label>
                 <input
                   type="number"
                   name="preis"
@@ -302,6 +329,24 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
                   min="0"
                 />
                 {errors.preis && <span className="error-message">{errors.preis}</span>}
+              </div>
+
+              <div className="form-group">
+                <label>Para Birimi</label>
+                <select
+                  name="waehrungId"
+                  value={formData.waehrungId}
+                  onChange={handleChange}
+                  className={errors.waehrungId ? 'error' : ''}
+                >
+                  <option value="">Seçiniz</option>
+                  {waehrungen.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.name} ({w.code})
+                    </option>
+                  ))}
+                </select>
+                {errors.waehrungId && <span className="error-message">{errors.waehrungId}</span>}
               </div>
             </div>
 

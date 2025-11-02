@@ -134,9 +134,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h1>{t('dashboard:title')}</h1>
-        <p>{t('dashboard:subtitle')}</p>
+      <div className="page-header">
+        <h1 className="page-title">{t('dashboard:title')}</h1>
       </div>
 
       {/* System Status */}

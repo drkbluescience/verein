@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { mitgliedService } from '../../services/mitgliedService';
+import keytableService from '../../services/keytableService';
 import { MitgliedDto, CreateMitgliedDto, UpdateMitgliedDto } from '../../types/mitglied';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Common/Modal';
 import styles from './MitgliedFormModal.module.css';
+
+// Register locales for date picker
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 interface MitgliedFormModalProps {
   isOpen: boolean;
@@ -24,6 +32,49 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
   const { i18n } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
+  // Fetch Keytable data
+  const { data: geschlechter = [] } = useQuery({
+    queryKey: ['keytable', 'geschlechter'],
+    queryFn: () => keytableService.getGeschlechter(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+
+  const { data: mitgliedStatuse = [] } = useQuery({
+    queryKey: ['keytable', 'mitgliedstatuse'],
+    queryFn: () => keytableService.getMitgliedStatuse(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: mitgliedTypen = [] } = useQuery({
+    queryKey: ['keytable', 'mitgliedtypen'],
+    queryFn: () => keytableService.getMitgliedTypen(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: staatsangehoerigkeiten = [] } = useQuery({
+    queryKey: ['keytable', 'staatsangehoerigkeiten'],
+    queryFn: () => keytableService.getStaatsangehoerigkeiten(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: waehrungen = [] } = useQuery({
+    queryKey: ['keytable', 'waehrungen'],
+    queryFn: () => keytableService.getWaehrungen(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: beitragPerioden = [] } = useQuery({
+    queryKey: ['keytable', 'beitragperioden'],
+    queryFn: () => keytableService.getBeitragPerioden(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  const { data: beitragZahlungstagTypen = [] } = useQuery({
+    queryKey: ['keytable', 'beitragzahlungstagtypen'],
+    queryFn: () => keytableService.getBeitragZahlungstagTypen(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
   const [formData, setFormData] = useState({
     // Kişisel Bilgiler
@@ -315,14 +366,21 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
 
               <div className={styles.formGroup}>
                 <label htmlFor="geburtsdatum">Doğum Tarihi</label>
-                <input
-                  type="date"
-                  id="geburtsdatum"
-                  name="geburtsdatum"
-                  value={formData.geburtsdatum}
-                  onChange={handleChange}
+                <DatePicker
+                  selected={formData.geburtsdatum ? new Date(formData.geburtsdatum) : null}
+                  onChange={(date) => {
+                    const dateStr = date ? date.toISOString().split('T')[0] : '';
+                    setFormData(prev => ({ ...prev, geburtsdatum: dateStr }));
+                  }}
+                  locale={i18n.language}
+                  dateFormat="dd.MM.yyyy"
+                  placeholderText="Doğum Tarihi"
+                  className={styles.datePickerInput}
+                  showYearDropdown
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={100}
+                  maxDate={new Date()}
                   disabled={isLoading}
-                  lang={i18n.language}
                 />
               </div>
 
@@ -336,6 +394,42 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                   onChange={handleChange}
                   disabled={isLoading}
                 />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="geschlechtId">Cinsiyet</label>
+                <select
+                  id="geschlechtId"
+                  name="geschlechtId"
+                  value={formData.geschlechtId}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                >
+                  <option value="">Seçiniz</option>
+                  {geschlechter.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="staatsangehoerigkeitId">Uyruk</label>
+                <select
+                  id="staatsangehoerigkeitId"
+                  name="staatsangehoerigkeitId"
+                  value={formData.staatsangehoerigkeitId}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                >
+                  <option value="">Seçiniz</option>
+                  {staatsangehoerigkeiten.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -390,6 +484,42 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
               <h3 className={styles.sectionTitle}>Üyelik Bilgileri</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
+                  <label htmlFor="mitgliedStatusId">Üye Durumu</label>
+                  <select
+                    id="mitgliedStatusId"
+                    name="mitgliedStatusId"
+                    value={formData.mitgliedStatusId}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                  >
+                    <option value="">Seçiniz</option>
+                    {mitgliedStatuse.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="mitgliedTypId">Üye Tipi</label>
+                  <select
+                    id="mitgliedTypId"
+                    name="mitgliedTypId"
+                    value={formData.mitgliedTypId}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                  >
+                    <option value="">Seçiniz</option>
+                    {mitgliedTypen.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
                   <label htmlFor="eintrittsdatum">Giriş Tarihi</label>
                   <input
                     type="date"
@@ -404,14 +534,20 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
 
                 <div className={styles.formGroup}>
                   <label htmlFor="austrittsdatum">Çıkış Tarihi</label>
-                  <input
-                    type="date"
-                    id="austrittsdatum"
-                    name="austrittsdatum"
-                    value={formData.austrittsdatum}
-                    onChange={handleChange}
+                  <DatePicker
+                    selected={formData.austrittsdatum ? new Date(formData.austrittsdatum) : null}
+                    onChange={(date) => {
+                      const dateStr = date ? date.toISOString().split('T')[0] : '';
+                      setFormData(prev => ({ ...prev, austrittsdatum: dateStr }));
+                    }}
+                    locale={i18n.language}
+                    dateFormat="dd.MM.yyyy"
+                    placeholderText="Çıkış Tarihi"
+                    className={styles.datePickerInput}
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={100}
                     disabled={isLoading}
-                    lang={i18n.language}
                   />
                 </div>
 
@@ -437,7 +573,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
               <h3 className={styles.sectionTitle}>Aidat Bilgileri</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label htmlFor="beitragBetrag">Aidat Miktarı (€)</label>
+                  <label htmlFor="beitragBetrag">Aidat Miktarı</label>
                   <input
                     type="number"
                     id="beitragBetrag"
@@ -451,6 +587,24 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                 </div>
 
                 <div className={styles.formGroup}>
+                  <label htmlFor="beitragWaehrungId">Para Birimi</label>
+                  <select
+                    id="beitragWaehrungId"
+                    name="beitragWaehrungId"
+                    value={formData.beitragWaehrungId}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                  >
+                    <option value="">Seçiniz</option>
+                    {waehrungen.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name} ({w.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
                   <label htmlFor="beitragPeriodeCode">Ödeme Periyodu</label>
                   <select
                     id="beitragPeriodeCode"
@@ -460,14 +614,34 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
                     disabled={isLoading}
                   >
                     <option value="">Seçiniz</option>
-                    <option value="MONTHLY">Aylık</option>
-                    <option value="QUARTERLY">3 Aylık</option>
-                    <option value="YEARLY">Yıllık</option>
+                    {beitragPerioden.map((p) => (
+                      <option key={p.code} value={p.code}>
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="beitragZahlungsTag">Ödeme Günü</label>
+                  <label htmlFor="beitragZahlungstagTypCode">Ödeme Günü Tipi</label>
+                  <select
+                    id="beitragZahlungstagTypCode"
+                    name="beitragZahlungstagTypCode"
+                    value={formData.beitragZahlungstagTypCode}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                  >
+                    <option value="">Seçiniz</option>
+                    {beitragZahlungstagTypen.map((t) => (
+                      <option key={t.code} value={t.code}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="beitragZahlungsTag">Ödeme Günü (1-31)</label>
                   <input
                     type="number"
                     id="beitragZahlungsTag"

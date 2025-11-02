@@ -343,12 +343,6 @@ const VeranstaltungList: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <h1 className="page-title">{t('veranstaltungen:listPage.header.title')}</h1>
-        <p className="page-subtitle">
-          {user?.type === 'admin'
-            ? t('veranstaltungen:listPage.header.subtitleAdmin')
-            : t('veranstaltungen:listPage.header.subtitleDernek')
-          }
-        </p>
       </div>
 
       {/* Actions Bar */}

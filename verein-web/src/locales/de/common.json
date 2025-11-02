@@ -16,11 +16,12 @@
     "dashboard": "Startseite",
     "vereine": "Vereine",
     "mitglieder": "Mitglieder",
-    "mitgliederimiz": "Unsere Mitglieder",
+    "mitgliederimiz": "Mitglieder",
     "veranstaltungen": "Veranstaltungen",
-    "etkinliklerimiz": "Unsere Veranstaltungen",
+    "etkinliklerimiz": "Veranstaltungen",
+    "finanz": "Finanzen",
     "reports": "Berichte",
-    "raporlarimiz": "Unsere Berichte",
+    "raporlarimiz": "Berichte",
     "settings": "Einstellungen",
     "profile": "Profil",
     "logout": "Abmelden",
@@ -62,6 +63,19 @@
     "info": "Information",
     "comingSoon": "Demnächst..."
   },
+  "common": {
+    "search": "Suchen",
+    "back": "Zurück",
+    "view": "Ansehen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "saving": "Wird gespeichert...",
+    "created": "Erstellt am",
+    "createdBy": "Erstellt von",
+    "modified": "Geändert am",
+    "modifiedBy": "Geändert von",
+    "auditInfo": "Audit-Informationen"
+  },
   "messages": {
     "success": "Vorgang erfolgreich abgeschlossen",
     "error": "Ein Fehler ist aufgetreten",
@@ -74,7 +88,9 @@
     "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
     "minLength": "Muss mindestens {{count}} Zeichen lang sein",
     "maxLength": "Darf maximal {{count}} Zeichen lang sein",
-    "invalidFormat": "Ungültiges Format"
+    "invalidFormat": "Ungültiges Format",
+    "mustBePositive": "Muss ein positiver Wert sein",
+    "mustNotBeZero": "Darf nicht Null sein"
   },
   "date": {
     "today": "Heute",

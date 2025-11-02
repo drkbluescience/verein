@@ -60,11 +60,18 @@ const LogOutIcon = () => (
   </svg>
 );
 
+const CreditCardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+  </svg>
+);
+
 const adminMenuItems: MenuItem[] = [
   { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/vereine', labelKey: 'navigation.vereine', icon: <BuildingIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitglieder', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.veranstaltungen', icon: <CalendarIcon /> },
+  { path: '/finanz', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
   { path: '/reports', labelKey: 'navigation.reports', icon: <BarChartIcon /> },
   { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
@@ -73,6 +80,7 @@ const dernekMenuItems: MenuItem[] = [
   { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitgliederimiz', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.etkinliklerimiz', icon: <CalendarIcon /> },
+  { path: '/finanz', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
   { path: '/reports', labelKey: 'navigation.raporlarimiz', icon: <BarChartIcon /> },
   { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
@@ -81,6 +89,7 @@ const mitgliedMenuItems: MenuItem[] = [
   { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/etkinlikler', labelKey: 'navigation.etkinlikler', icon: <CalendarIcon /> },
   { path: '/ailem', labelKey: 'navigation.ailem', icon: <UsersIcon /> },
+  { path: '/finanz', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
   { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 

@@ -166,6 +166,33 @@ BEGIN
     PRINT '  ✓ MitgliedFamilieStatus AKTIV eklendi';
 END
 
+-- ZahlungStatus (Ödeme Durumu)
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatus] WHERE Code = 'BEZAHLT')
+BEGIN
+    INSERT INTO [Keytable].[ZahlungStatus] (Code) VALUES ('BEZAHLT');
+    PRINT '  ✓ ZahlungStatus BEZAHLT eklendi';
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatus] WHERE Code = 'OFFEN')
+BEGIN
+    INSERT INTO [Keytable].[ZahlungStatus] (Code) VALUES ('OFFEN');
+    PRINT '  ✓ ZahlungStatus OFFEN eklendi';
+END
+
+-- ZahlungTyp (Ödeme Tipi)
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTyp] WHERE Code = 'MITGLIEDSBEITRAG')
+BEGIN
+    INSERT INTO [Keytable].[ZahlungTyp] (Code) VALUES ('MITGLIEDSBEITRAG');
+    PRINT '  ✓ ZahlungTyp MITGLIEDSBEITRAG eklendi';
+END
+
+-- Waehrung (Para Birimi)
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Waehrung] WHERE Code = 'EUR')
+BEGIN
+    INSERT INTO [Keytable].[Waehrung] (Code) VALUES ('EUR');
+    PRINT '  ✓ Waehrung EUR eklendi';
+END
+
 PRINT '  ✓ Referans tabloları hazır';
 GO
 
@@ -815,6 +842,229 @@ BEGIN
 END
 GO
 
+-- =============================================
+-- 5. FINANZ - BANKA HESAPLARI VE İŞLEMLER
+-- =============================================
+
+PRINT '5. Finanz - Banka hesapları ve işlemler ekleniyor...';
+
+-- Önce Finanz verilerini temizle
+DELETE FROM [Finanz].[MitgliedForderungZahlung];
+DELETE FROM [Finanz].[MitgliedVorauszahlung];
+DELETE FROM [Finanz].[VeranstaltungZahlung];
+DELETE FROM [Finanz].[MitgliedZahlung];
+DELETE FROM [Finanz].[MitgliedForderung];
+DELETE FROM [Finanz].[BankBuchung];
+
+DECLARE @MuenchenVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'TDKV München');
+DECLARE @BerlinVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'DTF Berlin');
+
+-- Banka hesaplarını al (Bankkonto tablosundan)
+DECLARE @MuenchenBankkontoId INT = (SELECT TOP 1 Id FROM [Verein].[Bankkonto] WHERE VereinId = @MuenchenVereinId);
+DECLARE @BerlinBankkontoId INT = (SELECT TOP 1 Id FROM [Verein].[Bankkonto] WHERE VereinId = @BerlinVereinId);
+
+-- Eğer banka hesapları yoksa oluştur
+IF @MuenchenBankkontoId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Bankkonto] (
+        VereinId, Bankname, IBAN, BIC, Kontoinhaber,
+        Aktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        @MuenchenVereinId, 'Sparkasse München', 'DE89370400440532013000', 'COBADEFFXXX', N'TDKV München e.V.',
+        1, 0, GETDATE(), 1
+    );
+    SET @MuenchenBankkontoId = SCOPE_IDENTITY();
+    PRINT '  ✓ München banka hesabı oluşturuldu';
+END
+
+IF @BerlinBankkontoId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Bankkonto] (
+        VereinId, Bankname, IBAN, BIC, Kontoinhaber,
+        Aktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        @BerlinVereinId, 'Berliner Sparkasse', 'DE89100500000054540402', 'BELADEBEXXX', N'DTF Berlin e.V.',
+        1, 0, GETDATE(), 1
+    );
+    SET @BerlinBankkontoId = SCOPE_IDENTITY();
+    PRINT '  ✓ Berlin banka hesabı oluşturuldu';
+END
+
+-- Banka hareketleri ekle (BankBuchung)
+-- Waehrung ID: 1 = EUR (Keytable.Waehrung)
+-- Status ID: 1 = VERBUCHT (Keytable.ZahlungStatus)
+INSERT INTO [Finanz].[BankBuchung] (
+    VereinId, BankKontoId, Buchungsdatum, Betrag, WaehrungId, Verwendungszweck,
+    Empfaenger, StatusId, AngelegtAm,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+-- München banka hareketleri
+(@MuenchenVereinId, @MuenchenBankkontoId, DATEADD(DAY, -30, GETDATE()), 1500.00, 1, N'Mitgliedsbeitrag Januar 2025', N'TDKV München', 1, DATEADD(DAY, -30, GETDATE()), 0, GETDATE(), 1),
+(@MuenchenVereinId, @MuenchenBankkontoId, DATEADD(DAY, -25, GETDATE()), 800.00, 1, N'Spende', N'TDKV München', 1, DATEADD(DAY, -25, GETDATE()), 0, GETDATE(), 1),
+(@MuenchenVereinId, @MuenchenBankkontoId, DATEADD(DAY, -20, GETDATE()), -450.00, 1, N'Raummiete', N'Kulturzentrum München', 1, DATEADD(DAY, -20, GETDATE()), 0, GETDATE(), 1),
+(@MuenchenVereinId, @MuenchenBankkontoId, DATEADD(DAY, -15, GETDATE()), 250.00, 1, N'Veranstaltungsgebühr', N'TDKV München', 1, DATEADD(DAY, -15, GETDATE()), 0, GETDATE(), 1),
+(@MuenchenVereinId, @MuenchenBankkontoId, DATEADD(DAY, -10, GETDATE()), 600.00, 1, N'Mitgliedsbeitrag Februar 2025', N'TDKV München', 1, DATEADD(DAY, -10, GETDATE()), 0, GETDATE(), 1),
+-- Berlin banka hareketleri
+(@BerlinVereinId, @BerlinBankkontoId, DATEADD(DAY, -28, GETDATE()), 1200.00, 1, N'Mitgliedsbeitrag Januar 2025', N'DTF Berlin', 1, DATEADD(DAY, -28, GETDATE()), 0, GETDATE(), 1),
+(@BerlinVereinId, @BerlinBankkontoId, DATEADD(DAY, -22, GETDATE()), 500.00, 1, N'Spende', N'DTF Berlin', 1, DATEADD(DAY, -22, GETDATE()), 0, GETDATE(), 1),
+(@BerlinVereinId, @BerlinBankkontoId, DATEADD(DAY, -18, GETDATE()), -300.00, 1, N'Büromaterial', N'Office Depot', 1, DATEADD(DAY, -18, GETDATE()), 0, GETDATE(), 1),
+(@BerlinVereinId, @BerlinBankkontoId, DATEADD(DAY, -12, GETDATE()), 350.00, 1, N'Kursgebühr', N'DTF Berlin', 1, DATEADD(DAY, -12, GETDATE()), 0, GETDATE(), 1);
+
+PRINT '  ✓ 9 Banka hareketi eklendi';
+
+-- Üye alacakları ekle (MitgliedForderung)
+DECLARE @AhmetId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ahmet.yilmaz@email.com');
+DECLARE @FatmaId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'fatma.ozkan@email.com');
+DECLARE @CanId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'can.schmidt@email.com');
+DECLARE @MehmetDemirId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'mehmet.demir@email.com');
+DECLARE @AyseId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ayse.kaya@email.com');
+
+-- ZahlungTypId: 1 = Mitgliedsbeitrag (Keytable.ZahlungTyp)
+-- WaehrungId: 1 = EUR (Keytable.Waehrung)
+-- StatusId: 1 = BEZAHLT, 2 = OFFEN (Keytable.ZahlungStatus)
+INSERT INTO [Finanz].[MitgliedForderung] (
+    VereinId, MitgliedId, ZahlungTypId, Forderungsnummer, Betrag, WaehrungId, Faelligkeit,
+    Beschreibung, Jahr, Quartal, Monat, StatusId,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+-- München alacakları
+(@MuenchenVereinId, @AhmetId, 1, 'F-2025-001', 120.00, 1, DATEADD(DAY, -15, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, @FatmaId, 1, 'F-2025-002', 120.00, 1, DATEADD(DAY, 15, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
+(@MuenchenVereinId, @CanId, 1, 'F-2025-003', 120.00, 1, DATEADD(DAY, -5, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
+(@MuenchenVereinId, @AhmetId, 1, 'F-2025-004', 120.00, 1, DATEADD(DAY, 75, GETDATE()), N'Mitgliedsbeitrag Q2 2025', 2025, 2, NULL, 2, 0, GETDATE(), 1),
+-- Berlin alacakları
+(@BerlinVereinId, @MehmetDemirId, 1, 'F-2025-101', 100.00, 1, DATEADD(DAY, -20, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 1, 0, GETDATE(), 1),
+(@BerlinVereinId, @AyseId, 1, 'F-2025-102', 100.00, 1, DATEADD(DAY, 10, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1);
+
+DECLARE @Forderung1Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-001');
+DECLARE @Forderung5Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-101');
+
+PRINT '  ✓ 6 Üye alacağı eklendi';
+
+-- Üye ödemeleri ekle (MitgliedZahlung)
+-- ZahlungTypId: 1 = Mitgliedsbeitrag (Keytable.ZahlungTyp)
+-- WaehrungId: 1 = EUR (Keytable.Waehrung)
+-- StatusId: 1 = BEZAHLT, 2 = OFFEN (Keytable.ZahlungStatus)
+INSERT INTO [Finanz].[MitgliedZahlung] (
+    VereinId, MitgliedId, ZahlungTypId, Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg,
+    BankkontoId, Bemerkung, StatusId,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+-- München ödemeleri
+(@MuenchenVereinId, @AhmetId, 1, 120.00, 1, DATEADD(DAY, -15, GETDATE()), 'UEBERWEISUNG', @MuenchenBankkontoId, N'Mitgliedsbeitrag Q1 2025', 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, @FatmaId, 1, 50.00, 1, DATEADD(DAY, -10, GETDATE()), 'BAR', NULL, N'Teilzahlung', 2, 0, GETDATE(), 1),
+-- Berlin ödemeleri
+(@BerlinVereinId, @MehmetDemirId, 1, 100.00, 1, DATEADD(DAY, -20, GETDATE()), 'UEBERWEISUNG', @BerlinBankkontoId, N'Mitgliedsbeitrag Q1 2025', 1, 0, GETDATE(), 1);
+
+PRINT '  ✓ 3 Üye ödemesi eklendi';
+
+-- Ödeme-Alacak eşleştirmeleri (MitgliedForderungZahlung)
+DECLARE @Zahlung1Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @AhmetId AND Betrag = 120.00);
+DECLARE @Zahlung3Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @MehmetDemirId);
+
+IF @Forderung1Id IS NOT NULL AND @Zahlung1Id IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[MitgliedForderungZahlung] (
+        ForderungId, ZahlungId, Betrag,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@Forderung1Id, @Zahlung1Id, 120.00, 0, GETDATE(), 1);
+END
+
+IF @Forderung5Id IS NOT NULL AND @Zahlung3Id IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[MitgliedForderungZahlung] (
+        ForderungId, ZahlungId, Betrag,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@Forderung5Id, @Zahlung3Id, 100.00, 0, GETDATE(), 1);
+END
+
+PRINT '  ✓ 2 Ödeme-Alacak eşleştirmesi eklendi';
+
+-- Ön ödemeler (MitgliedVorauszahlung)
+-- WaehrungId: 1 = EUR (Keytable.Waehrung)
+DECLARE @Zahlung2Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @FatmaId AND Betrag = 50.00);
+
+IF @Zahlung2Id IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[MitgliedVorauszahlung] (
+        VereinId, MitgliedId, ZahlungId, Betrag, WaehrungId,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@MuenchenVereinId, @FatmaId, @Zahlung2Id, 50.00, 1, 0, GETDATE(), 1);
+END
+
+PRINT '  ✓ 1 Ön ödeme eklendi';
+
+-- Etkinlik ödemeleri (VeranstaltungZahlung)
+-- WaehrungId: 1 = EUR (Keytable.Waehrung)
+-- StatusId: 1 = BEZAHLT, 2 = AUSSTEHEND (Keytable.ZahlungStatus)
+-- AnmeldungId: VeranstaltungAnmeldung tablosundan alınacak
+DECLARE @VeranstaltungMuenchen1 INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE VereinId = @MuenchenVereinId AND Titel = N'Türkischer Kulturabend');
+DECLARE @VeranstaltungBerlin1 INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE VereinId = @BerlinVereinId AND Titel = N'Türkisch-Deutsche Kochkurs');
+
+-- Anmeldung ID'lerini al
+DECLARE @AnmeldungMuenchen1 INT = (SELECT TOP 1 Id FROM [Verein].[VeranstaltungAnmeldung] WHERE VeranstaltungId = @VeranstaltungMuenchen1 ORDER BY Id ASC);
+DECLARE @AnmeldungMuenchen2 INT = (SELECT TOP 1 Id FROM [Verein].[VeranstaltungAnmeldung] WHERE VeranstaltungId = @VeranstaltungMuenchen1 ORDER BY Id DESC);
+DECLARE @AnmeldungBerlin1 INT = (SELECT TOP 1 Id FROM [Verein].[VeranstaltungAnmeldung] WHERE VeranstaltungId = @VeranstaltungBerlin1 ORDER BY Id ASC);
+DECLARE @AnmeldungBerlin2 INT = (SELECT TOP 1 Id FROM [Verein].[VeranstaltungAnmeldung] WHERE VeranstaltungId = @VeranstaltungBerlin1 ORDER BY Id DESC);
+
+-- Sadece geçerli AnmeldungId'leri olan kayıtları ekle
+IF @AnmeldungMuenchen1 IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[VeranstaltungZahlung] (
+        VeranstaltungId, AnmeldungId, Name, Email,
+        Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg, StatusId,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@VeranstaltungMuenchen1, @AnmeldungMuenchen1, 'Ahmet Yılmaz', 'ahmet.yilmaz@email.com', 25.00, 1, DATEADD(DAY, -5, GETDATE()), 'UEBERWEISUNG', 1, 0, GETDATE(), 1);
+END
+
+IF @AnmeldungMuenchen2 IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[VeranstaltungZahlung] (
+        VeranstaltungId, AnmeldungId, Name, Email,
+        Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg, StatusId,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@VeranstaltungMuenchen1, @AnmeldungMuenchen2, 'Fatma Özkan', 'fatma.ozkan@email.com', 25.00, 1, DATEADD(DAY, -3, GETDATE()), 'BAR', 1, 0, GETDATE(), 1);
+END
+
+IF @AnmeldungBerlin1 IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[VeranstaltungZahlung] (
+        VeranstaltungId, AnmeldungId, Name, Email,
+        Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg, StatusId,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@VeranstaltungBerlin1, @AnmeldungBerlin1, 'Mehmet Demir', 'mehmet.demir@email.com', 20.00, 1, DATEADD(DAY, -2, GETDATE()), 'UEBERWEISUNG', 1, 0, GETDATE(), 1);
+END
+
+IF @AnmeldungBerlin2 IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[VeranstaltungZahlung] (
+        VeranstaltungId, AnmeldungId, Name, Email,
+        Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg, StatusId,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@VeranstaltungBerlin1, @AnmeldungBerlin2, 'Ayşe Kaya', 'ayse.kaya@email.com', 20.00, 1, NULL, NULL, 2, 0, GETDATE(), 1);
+END
+
+PRINT '  ✓ 4 Etkinlik ödemesi eklendi';
+
+-- Forderung'ları güncelle (BezahltAm)
+UPDATE [Finanz].[MitgliedForderung]
+SET BezahltAm = DATEADD(DAY, -15, GETDATE())
+WHERE Forderungsnummer = 'F-2025-001';
+
+UPDATE [Finanz].[MitgliedForderung]
+SET BezahltAm = DATEADD(DAY, -20, GETDATE())
+WHERE Forderungsnummer = 'F-2025-101';
+
+PRINT '  ✓ Finanz verileri tamamlandı';
+GO
+
 PRINT '';
 PRINT '==============================================';
 PRINT 'TÜM DEMO VERİLERİ BAŞARIYLA EKLENDİ!';
@@ -825,11 +1075,24 @@ PRINT '  ✓ 2 Dernek';
 PRINT '  ✓ 15 Üye (12 temel + 3 aile)';
 PRINT '  ✓ 11 Etkinlik';
 PRINT '  ✓ 8 Aile ilişkisi';
+PRINT '  ✓ 2 Banka hesabı';
+PRINT '  ✓ 9 Banka hareketi';
+PRINT '  ✓ 6 Üye alacağı';
+PRINT '  ✓ 3 Üye ödemesi';
+PRINT '  ✓ 2 Ödeme-Alacak eşleştirmesi';
+PRINT '  ✓ 1 Ön ödeme';
+PRINT '  ✓ 4 Etkinlik ödemesi';
 PRINT '';
 PRINT 'Demo Hesaplar:';
 PRINT '  1. ahmet.yilmaz@email.com (Dernek Yöneticisi - München)';
 PRINT '  2. fatma.ozkan@email.com (Üye - München) - Ailem sayfasını test edin!';
 PRINT '  3. mehmet.demir@email.com (Dernek Yöneticisi - Berlin)';
+PRINT '';
+PRINT 'Finanz Test Senaryoları:';
+PRINT '  - Ahmet Yılmaz: Ödeme yapılmış alacak (F-2025-001)';
+PRINT '  - Fatma Özkan: Açık alacak + Ön ödeme (50 EUR)';
+PRINT '  - Can Schmidt: Vadesi geçmiş alacak (F-2025-003)';
+PRINT '  - Mehmet Demir: Ödeme yapılmış alacak (F-2025-101)';
 PRINT '';
 PRINT 'Raporlar Sayfası:';
 PRINT '  - Admin: admin@dernek.com → Tüm dernekler için raporlar';

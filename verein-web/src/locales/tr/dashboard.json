@@ -133,7 +133,15 @@
       }
     },
     "recentActivities": {
-      "title": "Son Aktivitelerim"
+      "title": "Son Aktivitelerim",
+      "membershipStart": "Üyelik Başlangıcı",
+      "joinedOn": "Derneğe katıldı:",
+      "eventParticipation": "Etkinlik Katılımı",
+      "familyMembers": "Aile Üyeleri",
+      "familyMembersCount": "aile üyesi",
+      "today": "Bugün",
+      "oneDayAgo": "1 gün önce",
+      "daysAgo": "gün önce"
     }
   }
 }

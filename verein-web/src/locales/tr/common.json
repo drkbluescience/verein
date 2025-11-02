@@ -16,11 +16,12 @@
     "dashboard": "Ana Sayfa",
     "vereine": "Dernekler",
     "mitglieder": "Üyeler",
-    "mitgliederimiz": "Üyelerimiz",
+    "mitgliederimiz": "Üyeler",
     "veranstaltungen": "Etkinlikler",
-    "etkinliklerimiz": "Etkinliklerimiz",
+    "etkinliklerimiz": "Etkinlikler",
+    "finanz": "Finans",
     "reports": "Raporlar",
-    "raporlarimiz": "Raporlarımız",
+    "raporlarimiz": "Raporlar",
     "settings": "Ayarlar",
     "profile": "Profil",
     "logout": "Çıkış Yap",
@@ -62,6 +63,19 @@
     "info": "Bilgi",
     "comingSoon": "Yakında..."
   },
+  "common": {
+    "search": "Ara",
+    "back": "Geri",
+    "view": "Görüntüle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "saving": "Kaydediliyor...",
+    "created": "Oluşturulma Tarihi",
+    "createdBy": "Oluşturan",
+    "modified": "Güncellenme Tarihi",
+    "modifiedBy": "Güncelleyen",
+    "auditInfo": "Denetim Bilgileri"
+  },
   "messages": {
     "success": "İşlem başarıyla tamamlandı",
     "error": "Bir hata oluştu",
@@ -74,7 +88,9 @@
     "email": "Geçerli bir e-posta adresi giriniz",
     "minLength": "En az {{count}} karakter olmalıdır",
     "maxLength": "En fazla {{count}} karakter olmalıdır",
-    "invalidFormat": "Geçersiz format"
+    "invalidFormat": "Geçersiz format",
+    "mustBePositive": "Pozitif bir değer olmalıdır",
+    "mustNotBeZero": "Sıfır olamaz"
   },
   "date": {
     "today": "Bugün",

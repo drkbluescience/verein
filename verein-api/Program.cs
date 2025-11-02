@@ -49,10 +49,29 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     });
 });
 
-
+// Memory Cache Configuration
+builder.Services.AddMemoryCache();
 
 // AutoMapper Configuration
-builder.Services.AddAutoMapper(typeof(VereinsApi.Profiles.AdresseProfile), typeof(VereinsApi.Profiles.BankkontoProfile), typeof(VereinsApi.Profiles.VeranstaltungProfile), typeof(VereinsApi.Profiles.VeranstaltungAnmeldungProfile), typeof(VereinsApi.Profiles.VeranstaltungBildProfile), typeof(VereinsApi.Profiles.VereinProfile), typeof(VereinsApi.Profiles.MitgliedProfile), typeof(VereinsApi.Profiles.MitgliedAdresseProfile), typeof(VereinsApi.Profiles.MitgliedFamilieProfile));
+builder.Services.AddAutoMapper(
+    typeof(VereinsApi.Profiles.AdresseProfile),
+    typeof(VereinsApi.Profiles.BankkontoProfile),
+    typeof(VereinsApi.Profiles.VeranstaltungProfile),
+    typeof(VereinsApi.Profiles.VeranstaltungAnmeldungProfile),
+    typeof(VereinsApi.Profiles.VeranstaltungBildProfile),
+    typeof(VereinsApi.Profiles.VereinProfile),
+    typeof(VereinsApi.Profiles.MitgliedProfile),
+    typeof(VereinsApi.Profiles.MitgliedAdresseProfile),
+    typeof(VereinsApi.Profiles.MitgliedFamilieProfile),
+    // Finanz Profiles
+    typeof(VereinsApi.Profiles.BankBuchungProfile),
+    typeof(VereinsApi.Profiles.MitgliedForderungProfile),
+    typeof(VereinsApi.Profiles.MitgliedZahlungProfile),
+    typeof(VereinsApi.Profiles.MitgliedForderungZahlungProfile),
+    typeof(VereinsApi.Profiles.MitgliedVorauszahlungProfile),
+    typeof(VereinsApi.Profiles.VeranstaltungZahlungProfile),
+    // Keytable Profile
+    typeof(VereinsApi.Profiles.KeytableProfile));
 
 // FluentValidation Configuration - TEMPORARILY DISABLED FOR MIGRATION
 // builder.Services.AddFluentValidationAutoValidation();
@@ -75,6 +94,12 @@ builder.Services.AddScoped<IVeranstaltungRepository, VereinsApi.Data.Repositorie
 builder.Services.AddScoped<IVeranstaltungAnmeldungRepository, VereinsApi.Data.Repositories.VeranstaltungAnmeldungRepository>();
 builder.Services.AddScoped<IVeranstaltungBildRepository, VereinsApi.Data.Repositories.VeranstaltungBildRepository>();
 
+// Finanz Repositories
+builder.Services.AddScoped<IBankBuchungRepository, VereinsApi.Data.Repositories.BankBuchungRepository>();
+builder.Services.AddScoped<IMitgliedForderungRepository, VereinsApi.Data.Repositories.MitgliedForderungRepository>();
+builder.Services.AddScoped<IMitgliedZahlungRepository, VereinsApi.Data.Repositories.MitgliedZahlungRepository>();
+builder.Services.AddScoped<IVeranstaltungZahlungRepository, VereinsApi.Data.Repositories.VeranstaltungZahlungRepository>();
+
 // Service Registration
 // Mitglied Services
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedService, VereinsApi.Services.MitgliedService>();
@@ -88,6 +113,15 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankkontoService, Ver
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungService, VereinsApi.Services.VeranstaltungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungAnmeldungService, VereinsApi.Services.VeranstaltungAnmeldungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungBildService, VereinsApi.Services.VeranstaltungBildService>();
+
+// Finanz Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankBuchungService, VereinsApi.Services.BankBuchungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedForderungService, VereinsApi.Services.MitgliedForderungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedZahlungService, VereinsApi.Services.MitgliedZahlungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungZahlungService, VereinsApi.Services.VeranstaltungZahlungService>();
+
+// Keytable Service
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IKeytableService, VereinsApi.Services.KeytableService>();
 
 // JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();

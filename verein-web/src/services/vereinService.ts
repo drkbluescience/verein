@@ -111,6 +111,16 @@ export const bankkontoService = {
   delete: async (id: number): Promise<void> => {
     return api.delete<void>(`/api/Bankkonten/${id}`);
   },
+
+  // Get Bankkonto by IBAN
+  getByIban: async (iban: string): Promise<BankkontoDto> => {
+    return api.get<BankkontoDto>(`/api/Bankkonten/iban/${iban}`);
+  },
+
+  // Validate IBAN
+  validateIban: async (iban: string): Promise<{ isValid: boolean; message: string }> => {
+    return api.post<{ isValid: boolean; message: string }>('/api/Bankkonten/validate-iban', { iban });
+  },
 };
 
 // Health Service

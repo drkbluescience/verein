@@ -1,0 +1,90 @@
+{
+  "dashboard": {
+    "title": "Finanzverwaltung",
+    "subtitle": "Überwachen Sie die finanzielle Situation des Vereins",
+    "totalClaims": "Gesamtforderungen",
+    "paidClaims": "Bezahlte Forderungen",
+    "openClaims": "Offene Forderungen",
+    "totalPayments": "Gesamtzahlungen",
+    "bankTransactions": "Banktransaktionen",
+    "totalTransactions": "Gesamttransaktionen",
+    "totalAmount": "Gesamtbetrag",
+    "info": "Das Finanzmodul hilft Ihnen, alle finanziellen Transaktionen des Vereins zu verwalten."
+  },
+  "claims": {
+    "title": "Forderungen",
+    "subtitle": "Verwalten Sie Mitgliederforderungen",
+    "detail": "Forderungsdetails",
+    "new": "Neue Forderung",
+    "create": "Neue Forderung erstellen",
+    "edit": "Forderung bearbeiten",
+    "number": "Forderungsnummer",
+    "member": "Mitglied",
+    "amount": "Betrag",
+    "dueDate": "Fälligkeitsdatum",
+    "status": "Status",
+    "description": "Beschreibung",
+    "information": "Forderungsinformationen",
+    "empty": "Noch keine Forderungseinträge",
+    "total": "Gesamtforderungen",
+    "totalAmount": "Gesamtbetrag",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Forderungseintrag löschen möchten?"
+  },
+  "payments": {
+    "title": "Zahlungen",
+    "subtitle": "Verwalten Sie Mitgliederzahlungen",
+    "detail": "Zahlungsdetails",
+    "new": "Neue Zahlung",
+    "create": "Neue Zahlung erstellen",
+    "edit": "Zahlung bearbeiten",
+    "number": "Zahlungsnummer",
+    "member": "Mitglied",
+    "amount": "Betrag",
+    "date": "Zahlungsdatum",
+    "method": "Zahlungsart",
+    "methodPlaceholder": "z.B. Banküberweisung, Bar",
+    "reference": "Referenz",
+    "description": "Beschreibung",
+    "information": "Zahlungsinformationen",
+    "empty": "Noch keine Zahlungseinträge",
+    "total": "Gesamtzahlungen",
+    "totalAmount": "Gesamtbetrag",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Zahlungseintrag löschen möchten?"
+  },
+  "bankTransactions": {
+    "title": "Banktransaktionen",
+    "subtitle": "Verwalten Sie Banktransaktionen",
+    "detail": "Banktransaktionsdetails",
+    "new": "Neue Transaktion",
+    "create": "Neue Banktransaktion erstellen",
+    "edit": "Banktransaktion bearbeiten",
+    "account": "Bankkonto",
+    "reference": "Referenznummer",
+    "recipient": "Empfänger/Absender",
+    "amount": "Betrag",
+    "date": "Transaktionsdatum",
+    "type": "Typ",
+    "status": "Status",
+    "description": "Beschreibung",
+    "information": "Banktransaktionsinformationen",
+    "empty": "Noch keine Banktransaktionseinträge",
+    "total": "Gesamttransaktionen",
+    "totalAmount": "Gesamtbetrag",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Banktransaktionseintrag löschen möchten?"
+  },
+  "status": {
+    "paid": "Bezahlt",
+    "open": "Offen"
+  },
+  "transaction": {
+    "income": "Einnahme",
+    "expense": "Ausgabe"
+  },
+  "filter": {
+    "allStatus": "Alle Status",
+    "allTypes": "Alle Typen",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum"
+  }
+}
+

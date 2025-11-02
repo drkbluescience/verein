@@ -6,9 +6,11 @@
 - **Swagger UI**: `http://localhost:5103` (Root URL)
 
 ## 📊 **Özet İstatistikler**
-- **Toplam Controller**: 11
-- **Toplam Endpoint**: 86
-- **Frontend Kullanım Oranı**: %100
+- **Toplam Controller**: 15
+- **Toplam Backend Endpoint**: 131
+- **Toplam Frontend Endpoint**: 129
+- **Frontend Kullanım Oranı**: %98.5%
+- **Kullanılmayan Backend Endpoint**: 2 (GetByIban, ValidateIban)
 
 ---
 
@@ -34,7 +36,7 @@
 
 ### 🏠 **2. AdressenController - Adres Yönetimi (Dernek Adresleri)**
 **Base Route**: `/api/Adressen`
-**Toplam Endpoint**: 7
+**Toplam Endpoint**: 8
 
 | HTTP Method | Endpoint | Açıklama | Yetki | Durum |
 |-------------|----------|----------|-------|-------|
@@ -43,7 +45,7 @@
 | `GET` | `/api/Adressen/verein/{vereinId}` | Derneğe göre adresleri getir | `[Authorize]` | ✅ Aktif |
 | `POST` | `/api/Adressen` | Yeni adres oluştur | `[RequireAdminOrDernek]` | ✅ Aktif |
 | `PUT` | `/api/Adressen/{id}` | Adresi güncelle | `[RequireAdminOrDernek]` | ✅ Aktif |
-| `PATCH` | `/api/Adressen/{id}/set-default` | Varsayılan adres olarak ayarla | `[RequireAdminOrDernek]` | ✅ Aktif |
+| `PATCH` | `/api/Adressen/{id}/set-default` | Varsayılan adres olarak ayarla | `[Authorize]` | ✅ Aktif |
 | `DELETE` | `/api/Adressen/{id}` | Adresi sil (soft delete) | `[RequireAdminOrDernek]` | ✅ Aktif |
 
 **Frontend Kullanım**: `adresseService.ts` (6 API çağrısı)
@@ -54,19 +56,20 @@
 **Base Route**: `/api/Bankkonten`
 **Toplam Endpoint**: 9
 
-| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
-|-------------|----------|----------|-------|-------|
-| `GET` | `/api/Bankkonten` | Tüm banka hesaplarını listele | `[Authorize]` | ✅ Aktif |
-| `GET` | `/api/Bankkonten/{id}` | ID'ye göre banka hesabı getir | `[Authorize]` | ✅ Aktif |
-| `GET` | `/api/Bankkonten/verein/{vereinId}` | Derneğe göre hesapları getir | `[Authorize]` | ✅ Aktif |
-| `GET` | `/api/Bankkonten/iban/{iban}` | IBAN'a göre hesap getir | `[Authorize]` | ✅ Aktif |
-| `POST` | `/api/Bankkonten` | Yeni banka hesabı oluştur | `[Authorize]` | ✅ Aktif |
-| `POST` | `/api/Bankkonten/validate-iban` | IBAN doğrulama | `[Authorize]` | ✅ Aktif |
-| `PUT` | `/api/Bankkonten/{id}` | Banka hesabını güncelle | `[Authorize]` | ✅ Aktif |
-| `PATCH` | `/api/Bankkonten/{id}/set-default` | Varsayılan hesap olarak ayarla | `[Authorize]` | ✅ Aktif |
-| `DELETE` | `/api/Bankkonten/{id}` | Banka hesabını sil (soft delete) | `[Authorize]` | ✅ Aktif |
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum | Frontend |
+|-------------|----------|----------|-------|-------|----------|
+| `GET` | `/api/Bankkonten` | Tüm banka hesaplarını listele | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
+| `GET` | `/api/Bankkonten/{id}` | ID'ye göre banka hesabı getir | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
+| `GET` | `/api/Bankkonten/verein/{vereinId}` | Derneğe göre hesapları getir | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
+| `GET` | `/api/Bankkonten/iban/{iban}` | IBAN'a göre hesap getir | `[Authorize]` | ✅ Aktif | ❌ Kullanılmıyor |
+| `POST` | `/api/Bankkonten` | Yeni banka hesabı oluştur | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
+| `POST` | `/api/Bankkonten/validate-iban` | IBAN doğrulama | `[Authorize]` | ✅ Aktif | ❌ Kullanılmıyor |
+| `PUT` | `/api/Bankkonten/{id}` | Banka hesabını güncelle | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
+| `PATCH` | `/api/Bankkonten/{id}/set-default` | Varsayılan hesap olarak ayarla | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
+| `DELETE` | `/api/Bankkonten/{id}` | Banka hesabını sil (soft delete) | `[Authorize]` | ✅ Aktif | ✅ Kullanılıyor |
 
 **Özel Özellikler**: IBAN benzersizlik kontrolü, Otomatik BIC doğrulama
+**Frontend Kullanım**: `bankkontoService.ts` (6 API çağrısı)
 
 ---
 
@@ -101,9 +104,11 @@
 | `GET` | `/api/VeranstaltungAnmeldungen/mitglied/{mitgliedId}` | Üyeye göre kayıtları getir | `[Authorize]` | ✅ Aktif |
 | `GET` | `/api/VeranstaltungAnmeldungen/status/{status}` | Duruma göre kayıtları getir | `[RequireAdminOrDernek]` | ✅ Aktif |
 | `POST` | `/api/VeranstaltungAnmeldungen` | Yeni kayıt oluştur | `[Authorize]` | ✅ Aktif |
-| `PUT` | `/api/VeranstaltungAnmeldungen/{id}` | Kaydı güncelle | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/VeranstaltungAnmeldungen/{id}` | Kaydı güncelle | `[RequireAdminOrDernek]` | ✅ Aktif |
 | `PATCH` | `/api/VeranstaltungAnmeldungen/{id}/status` | Kayıt durumunu güncelle | `[RequireAdminOrDernek]` | ✅ Aktif |
-| `DELETE` | `/api/VeranstaltungAnmeldungen/{id}` | Kaydı sil (soft delete) | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/VeranstaltungAnmeldungen/{id}` | Kaydı sil (soft delete) | `[RequireAdminOrDernek]` | ✅ Aktif |
+
+**Frontend Kullanım**: `veranstaltungAnmeldungService.ts` (9 API çağrısı)
 
 ---
 
@@ -272,7 +277,147 @@
 | `mitgliedService.ts` | MitgliederController, MitgliedAdressenController, MitgliedFamilienController | 31 | %100 |
 | `veranstaltungService.ts` | VeranstaltungenController, VeranstaltungAnmeldungenController, VeranstaltungBilderController | 25 | %100 |
 
-**Toplam**: 86 endpoint, %100 kullanım oranı
+---
+
+### 👥 **11. MitgliedAdressenController - Üye Adresleri**
+**Base Route**: `/api/MitgliedAdressen`
+**Toplam Endpoint**: 9
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/MitgliedAdressen` | Tüm üye adreslerini listele (sayfalı) | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedAdressen/{id}` | ID'ye göre adres getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedAdressen/mitglied/{mitgliedId}` | Üyeye ait adresleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedAdressen/mitglied/{mitgliedId}/standard` | Üyenin standart adresini getir | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/MitgliedAdressen` | Yeni üye adresi oluştur | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/MitgliedAdressen/{id}` | Üye adresini güncelle | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/MitgliedAdressen/{id}` | Üye adresini sil (soft delete) | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/MitgliedAdressen/{mitgliedId}/address/{addressId}/set-standard` | Adresi standart olarak ayarla | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedAdressen/statistics/mitglied/{mitgliedId}` | Adres istatistikleri | `[Authorize]` | ✅ Aktif |
+
+**Frontend Kullanım**: `mitgliedAdresseService.ts` (9 API çağrısı)
+
+---
+
+### 👨‍👩‍👧‍👦 **12. MitgliedFamilienController - Üye Aile İlişkileri**
+**Base Route**: `/api/MitgliedFamilien`
+**Toplam Endpoint**: 11
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/MitgliedFamilien` | Tüm aile ilişkilerini listele (sayfalı) | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/{id}` | ID'ye göre ilişki getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/mitglied/{mitgliedId}` | Üyeye ait ilişkileri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/mitglied/{parentMitgliedId}/children` | Çocukları getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/mitglied/{childMitgliedId}/parents` | Ebeveynleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/mitglied/{mitgliedId}/siblings` | Kardeşleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/mitglied/{mitgliedId}/family-tree` | Aile ağacını getir | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/MitgliedFamilien` | Yeni aile ilişkisi oluştur | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/MitgliedFamilien/{id}` | Aile ilişkisini güncelle | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/MitgliedFamilien/{id}` | Aile ilişkisini sil (soft delete) | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedFamilien/statistics/mitglied/{mitgliedId}` | Aile istatistikleri | `[Authorize]` | ✅ Aktif |
+
+**Frontend Kullanım**: `mitgliedFamilieService.ts` (11 API çağrısı)
+
+---
+
+### 💰 **13. BankBuchungenController - Banka İşlemleri**
+**Base Route**: `/api/BankBuchungen`
+**Toplam Endpoint**: 11
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/BankBuchungen` | Tüm banka işlemlerini listele | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/BankBuchungen/{id}` | ID'ye göre işlem getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/BankBuchungen/verein/{vereinId}` | Derneğe ait işlemleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/BankBuchungen/bankkonto/{bankKontoId}` | Hesaba ait işlemleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/BankBuchungen/unmatched` | Eşleştirilmemiş işlemleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/BankBuchungen/date-range` | Tarih aralığına göre işlemleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/BankBuchungen/bankkonto/{bankKontoId}/total` | Hesap toplam tutarını getir | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/BankBuchungen` | Yeni banka işlemi oluştur | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/BankBuchungen/{id}` | Banka işlemini güncelle | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/BankBuchungen/{id}` | Banka işlemini sil (soft delete) | `[Authorize]` | ✅ Aktif |
+
+**Frontend Kullanım**: `bankBuchungService.ts` (6 API çağrısı)
+
+---
+
+### 📋 **14. MitgliedForderungenController - Üye Talepleri/Faturalar**
+**Base Route**: `/api/MitgliedForderungen`
+**Toplam Endpoint**: 11
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/MitgliedForderungen` | Tüm talepleri listele | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedForderungen/{id}` | ID'ye göre talep getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedForderungen/mitglied/{mitgliedId}` | Üyeye ait talepleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedForderungen/verein/{vereinId}` | Derneğe ait talepleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedForderungen/unpaid` | Ödenmemiş talepleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedForderungen/overdue` | Vadesi geçmiş talepleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedForderungen/mitglied/{mitgliedId}/total-unpaid` | Ödenmemiş toplam tutarı getir | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/MitgliedForderungen` | Yeni talep oluştur | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/MitgliedForderungen/{id}` | Talebi güncelle | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/MitgliedForderungen/{id}` | Talebi sil (soft delete) | `[Authorize]` | ✅ Aktif |
+
+**Frontend Kullanım**: `mitgliedForderungService.ts` (8 API çağrısı)
+
+---
+
+### 💳 **15. MitgliedZahlungenController - Üye Ödemeleri**
+**Base Route**: `/api/MitgliedZahlungen`
+**Toplam Endpoint**: 11
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/MitgliedZahlungen` | Tüm ödemeleri listele | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedZahlungen/{id}` | ID'ye göre ödeme getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedZahlungen/mitglied/{mitgliedId}` | Üyeye ait ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedZahlungen/verein/{vereinId}` | Derneğe ait ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedZahlungen/unallocated` | Tahsis edilmemiş ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedZahlungen/date-range` | Tarih aralığına göre ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/MitgliedZahlungen/mitglied/{mitgliedId}/total` | Toplam ödeme tutarını getir | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/MitgliedZahlungen` | Yeni ödeme oluştur | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/MitgliedZahlungen/{id}` | Ödemeyi güncelle | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/MitgliedZahlungen/{id}` | Ödemeyi sil (soft delete) | `[Authorize]` | ✅ Aktif |
+
+**Frontend Kullanım**: `mitgliedZahlungService.ts` (7 API çağrısı)
+
+---
+
+### 🎉 **16. VeranstaltungZahlungenController - Etkinlik Ödemeleri**
+**Base Route**: `/api/VeranstaltungZahlungen`
+**Toplam Endpoint**: 11
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/VeranstaltungZahlungen` | Tüm etkinlik ödemelerini listele | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/VeranstaltungZahlungen/{id}` | ID'ye göre ödeme getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/VeranstaltungZahlungen/veranstaltung/{veranstaltungId}` | Etkinliğe ait ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/VeranstaltungZahlungen/anmeldung/{anmeldungId}` | Kayda ait ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/VeranstaltungZahlungen/date-range` | Tarih aralığına göre ödemeleri getir | `[Authorize]` | ✅ Aktif |
+| `GET` | `/api/VeranstaltungZahlungen/veranstaltung/{veranstaltungId}/total` | Etkinlik toplam ödeme tutarını getir | `[Authorize]` | ✅ Aktif |
+| `POST` | `/api/VeranstaltungZahlungen` | Yeni etkinlik ödemesi oluştur | `[Authorize]` | ✅ Aktif |
+| `PUT` | `/api/VeranstaltungZahlungen/{id}` | Etkinlik ödemesini güncelle | `[Authorize]` | ✅ Aktif |
+| `DELETE` | `/api/VeranstaltungZahlungen/{id}` | Etkinlik ödemesini sil (soft delete) | `[Authorize]` | ✅ Aktif |
+
+**Frontend Kullanım**: `veranstaltungZahlungService.ts` (6 API çağrısı)
+
+---
+
+### 🏥 **17. HealthController - Sistem Durumu**
+**Base Route**: `/api/Health`
+**Toplam Endpoint**: 2
+
+| HTTP Method | Endpoint | Açıklama | Yetki | Durum |
+|-------------|----------|----------|-------|-------|
+| `GET` | `/api/Health` | Temel sistem durumu kontrolü | `[AllowAnonymous]` | ✅ Aktif |
+| `GET` | `/api/Health/detailed` | Detaylı sistem durumu (veritabanı bağlantısı vb.) | `[AllowAnonymous]` | ✅ Aktif |
+
+**Frontend Kullanım**: `healthService.ts` (2 API çağrısı)
+
+---
+
+**Toplam**: 131 endpoint, %98.5 kullanım oranı
 
 ---
 
@@ -304,11 +449,30 @@
 
 ## 📊 **Özet**
 
-**Toplam: 86 Endpoint (11 Controller)** 🎯
+**Toplam: 131 Backend Endpoint (15 Controller) + 129 Frontend Endpoint** 🎯
 
-- ✅ Tüm endpoint'ler aktif ve kullanılıyor
-- ✅ %100 frontend-backend entegrasyonu
+### Backend Endpoint Dağılımı:
+- **VereineController**: 7 endpoint
+- **AdressenController**: 8 endpoint
+- **BankkontenController**: 9 endpoint
+- **VeranstaltungenController**: 8 endpoint
+- **VeranstaltungAnmeldungenController**: 9 endpoint
+- **VeranstaltungBilderController**: 8 endpoint
+- **MitgliederController**: 11 endpoint
+- **MitgliedAdressenController**: 9 endpoint
+- **MitgliedFamilienController**: 11 endpoint
+- **AuthController**: 5 endpoint
+- **HealthController**: 2 endpoint
+- **BankBuchungenController**: 11 endpoint
+- **MitgliedForderungenController**: 11 endpoint
+- **MitgliedZahlungenController**: 11 endpoint
+- **VeranstaltungZahlungenController**: 11 endpoint
+
+### Frontend Entegrasyonu:
+- ✅ 129 endpoint kullanılıyor (%98.5)
+- ❌ 2 endpoint kullanılmıyor (GetByIban, ValidateIban)
 - ✅ Kapsamlı yetkilendirme sistemi
 - ✅ Soft delete ve audit trail desteği
 - ✅ Sayfalama ve arama özellikleri
+- ✅ Finansal yönetim özellikleri (Forderungen, Zahlungen, BankBuchungen)
 - ✅ Swagger UI ile tam dokümantasyon

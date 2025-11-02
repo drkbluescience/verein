@@ -51,7 +51,8 @@
 }
 
 .formGroup input,
-.formGroup textarea {
+.formGroup textarea,
+.formGroup select {
   padding: 12px 16px;
   border: 2px solid #d1d5db;
   border-radius: var(--radius-md, 8px);
@@ -63,19 +64,22 @@
 }
 
 .formGroup input:focus,
-.formGroup textarea:focus {
+.formGroup textarea:focus,
+.formGroup select:focus {
   outline: none;
   border-color: var(--color-primary, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .formGroup input.error,
-.formGroup textarea.error {
+.formGroup textarea.error,
+.formGroup select.error {
   border-color: var(--color-error, #dc2626);
 }
 
 .formGroup input.error:focus,
-.formGroup textarea.error:focus {
+.formGroup textarea.error:focus,
+.formGroup select.error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
@@ -88,6 +92,125 @@
   font-size: var(--font-size-sm, 14px);
   color: var(--color-error, #dc2626);
   margin-top: var(--spacing-xs, 4px);
+}
+
+/* DatePicker Input Styles */
+.datePickerInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-md, 16px);
+  color: #1f2937;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.datePickerInput:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.datePickerInput::placeholder {
+  color: #9ca3af;
+}
+
+/* Select Input Styles - Matches MitgliedFormModal */
+.selectInput {
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-md, 16px);
+  color: #1f2937;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231f2937' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.selectInput:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* React DatePicker Calendar Styles */
+:global(.react-datepicker) {
+  font-family: inherit;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+:global(.react-datepicker__header) {
+  background-color: var(--color-primary, #3b82f6);
+  border-bottom: none;
+  padding-top: 16px;
+  border-radius: 12px 12px 0 0;
+}
+
+:global(.react-datepicker__current-month),
+:global(.react-datepicker__day-name) {
+  color: white;
+  font-weight: 600;
+}
+
+:global(.react-datepicker__day) {
+  color: #1f2937;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+:global(.react-datepicker__day:hover) {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary, #3b82f6);
+}
+
+:global(.react-datepicker__day--selected),
+:global(.react-datepicker__day--keyboard-selected) {
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+  font-weight: 600;
+}
+
+:global(.react-datepicker__day--today) {
+  font-weight: 600;
+  color: var(--color-primary, #3b82f6);
+}
+
+:global(.react-datepicker__navigation) {
+  top: 16px;
+}
+
+:global(.react-datepicker__navigation-icon::before) {
+  border-color: white;
+}
+
+:global(.react-datepicker__year-dropdown),
+:global(.react-datepicker__month-dropdown) {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+:global(.react-datepicker__year-option:hover),
+:global(.react-datepicker__month-option:hover) {
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .footer {
@@ -154,15 +277,26 @@
 }
 
 [data-theme="dark"] .formGroup input,
-[data-theme="dark"] .formGroup textarea {
+[data-theme="dark"] .formGroup textarea,
+[data-theme="dark"] .formGroup select {
   background-color: #1e293b !important;
   color: #ffffff !important;
   border-color: #475569 !important;
 }
 
 [data-theme="dark"] .formGroup input:focus,
-[data-theme="dark"] .formGroup textarea:focus {
+[data-theme="dark"] .formGroup textarea:focus,
+[data-theme="dark"] .formGroup select:focus {
   border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .selectInput {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+}
+
+[data-theme="dark"] .selectInput:disabled {
+  background-color: #0f172a !important;
+  color: #64748b !important;
 }
 
 [data-theme="dark"] .formGroup input:-webkit-autofill,
@@ -182,5 +316,39 @@
 
 [data-theme="dark"] .btnSecondary:hover:not(:disabled) {
   background-color: #475569 !important;
+}
+
+/* Dark Mode DatePicker */
+[data-theme="dark"] :global(.react-datepicker) {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] :global(.react-datepicker__header) {
+  background-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] :global(.react-datepicker__day) {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] :global(.react-datepicker__day:hover) {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  color: #3b82f6 !important;
+}
+
+[data-theme="dark"] :global(.react-datepicker__year-dropdown),
+[data-theme="dark"] :global(.react-datepicker__month-dropdown) {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] :global(.react-datepicker__year-option),
+[data-theme="dark"] :global(.react-datepicker__month-option) {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] :global(.react-datepicker__year-option:hover),
+[data-theme="dark"] :global(.react-datepicker__month-option:hover) {
+  background-color: rgba(59, 130, 246, 0.2) !important;
 }
 

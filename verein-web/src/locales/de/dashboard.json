@@ -133,7 +133,15 @@
       }
     },
     "recentActivities": {
-      "title": "Meine letzten Aktivitäten"
+      "title": "Meine letzten Aktivitäten",
+      "membershipStart": "Mitgliedschaftsbeginn",
+      "joinedOn": "Dem Verein beigetreten:",
+      "eventParticipation": "Veranstaltungsteilnahme",
+      "familyMembers": "Familienmitglieder",
+      "familyMembersCount": "Familienmitglied",
+      "today": "Heute",
+      "oneDayAgo": "1 Tag her",
+      "daysAgo": "Tage her"
     }
   }
 }

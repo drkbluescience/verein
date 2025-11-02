@@ -220,6 +220,14 @@ const VeranstaltungDetail: React.FC = () => {
     enabled: !!eventId,
   });
 
+  // Check if user can manage event (edit, delete, see participants)
+  const canManageEvent = () => {
+    if (!user) return false;
+    if (user.type === 'admin') return true;
+    if (user.type === 'dernek' && user.vereinId === veranstaltung?.vereinId) return true;
+    return false;
+  };
+
   // Fetch event registrations
   const {
     data: anmeldungen,
@@ -228,7 +236,8 @@ const VeranstaltungDetail: React.FC = () => {
   } = useQuery({
     queryKey: ['veranstaltung-anmeldungen', eventId],
     queryFn: () => veranstaltungAnmeldungService.getByVeranstaltungId(eventId),
-    enabled: !!eventId,
+    enabled: !!eventId && canManageEvent(),
+    retry: false, // Don't retry on error
   });
 
   // Fetch user's registrations to check if already registered
@@ -334,14 +343,6 @@ const VeranstaltungDetail: React.FC = () => {
       return isSameVerein || isPublicEvent;
     }
 
-    return false;
-  };
-
-  // Check if user can manage event (edit, delete, see participants)
-  const canManageEvent = () => {
-    if (!user) return false;
-    if (user.type === 'admin') return true;
-    if (user.type === 'dernek' && user.vereinId === veranstaltung?.vereinId) return true;
     return false;
   };
 
@@ -736,18 +737,26 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                   {t('veranstaltungen:detailPage.sections.participants')} ({anmeldungen?.length || 0})
                 </h2>
                 <div className="section-actions">
-                  <button className="btn-secondary" onClick={handleExportReport}>
-                    <ChartIcon />
-                    <span>{t('veranstaltungen:detailPage.actions.getReport')}</span>
-                  </button>
-                  <button className="btn-primary" onClick={() => setShowAddParticipantModal(true)}>
-                    <PlusIcon />
-                    <span>{t('veranstaltungen:detailPage.actions.addParticipant')}</span>
-                  </button>
+                  {anmeldungen && anmeldungen.length > 0 && (
+                    <button className="btn-secondary" onClick={handleExportReport}>
+                      <ChartIcon />
+                      <span>{t('veranstaltungen:detailPage.actions.getReport')}</span>
+                    </button>
+                  )}
+                  {veranstaltung && !veranstaltungUtils.isPast(veranstaltung.startdatum, veranstaltung.enddatum) && (
+                    <button className="btn-primary" onClick={() => setShowAddParticipantModal(true)}>
+                      <PlusIcon />
+                      <span>{t('veranstaltungen:detailPage.actions.addParticipant')}</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {anmeldungenError ? (
+              {anmeldungenLoading ? (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <p>Katılımcılar yükleniyor...</p>
+                </div>
+              ) : anmeldungenError ? (
                 <ErrorMessage
                   title={t('veranstaltungen:detailPage.participantsError.title')}
                   message={t('veranstaltungen:detailPage.participantsError.message')}
@@ -773,10 +782,12 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                   </div>
                   <h3>{t('veranstaltungen:detailPage.emptyParticipants.title')}</h3>
                   <p>{t('veranstaltungen:detailPage.emptyParticipants.message')}</p>
-                  <button className="btn-primary" onClick={() => setShowAddParticipantModal(true)}>
-                    <PlusIcon />
-                    <span>{t('veranstaltungen:detailPage.emptyParticipants.addButton')}</span>
-                  </button>
+                  {veranstaltung && !veranstaltungUtils.isPast(veranstaltung.startdatum, veranstaltung.enddatum) && (
+                    <button className="btn-primary" onClick={() => setShowAddParticipantModal(true)}>
+                      <PlusIcon />
+                      <span>{t('veranstaltungen:detailPage.emptyParticipants.addButton')}</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

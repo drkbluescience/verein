@@ -205,7 +205,7 @@ const MitgliedList: React.FC = () => {
   return (
     <div className="mitglied-list">
       {/* Header */}
-      <div className="mitglied-list-header">
+      <div className="page-header">
         <h1 className="page-title">
           {user?.type === 'admin' ? t('mitglieder:listPage.header.titleAll') : t('mitglieder:listPage.header.titleOur')}
         </h1>

@@ -1,0 +1,204 @@
+/* Finanz Form Modal Styles */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg, 24px);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg, 24px);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 4px);
+}
+
+.formGroup.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formGroup label {
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.formGroup label .required {
+  color: var(--color-error, #dc2626);
+  margin-left: 2px;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 14px);
+  font-family: inherit;
+  background-color: var(--color-bg-input, #ffffff);
+  color: var(--color-text-primary, #1f2937);
+  transition: all 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.formGroup input:disabled,
+.formGroup select:disabled,
+.formGroup textarea:disabled {
+  background-color: var(--color-bg-disabled, #f3f4f6);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+.formGroup input.error,
+.formGroup select.error,
+.formGroup textarea.error {
+  border-color: var(--color-error, #dc2626);
+}
+
+.formGroup input.error:focus,
+.formGroup select.error:focus,
+.formGroup textarea.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.errorMessage {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-error, #dc2626);
+  margin-top: 2px;
+}
+
+.successMessage {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-success, #16a34a);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.infoMessage {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-info, #0284c7);
+  margin-top: 2px;
+}
+
+.formGroup input.success {
+  border-color: var(--color-success, #16a34a);
+}
+
+.formGroup input.success:focus {
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+/* Footer Buttons */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md, 16px);
+}
+
+.btnPrimary,
+.btnSecondary {
+  padding: var(--spacing-sm, 8px) var(--spacing-lg, 24px);
+  border: none;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnPrimary {
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btnPrimary:disabled {
+  background-color: var(--color-bg-disabled, #f3f4f6);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  background-color: var(--color-bg-secondary, #f3f4f6);
+  color: var(--color-text-primary, #1f2937);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.btnSecondary:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary, #e5e7eb);
+  transform: translateY(-1px);
+}
+
+.btnSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md, 16px);
+  }
+
+  .footer {
+    flex-direction: column-reverse;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+  }
+}
+
+/* Dark Mode */
+[data-theme="dark"] .formGroup input,
+[data-theme="dark"] .formGroup select,
+[data-theme="dark"] .formGroup textarea {
+  background-color: var(--color-bg-input-dark, #1f2937);
+  color: var(--color-text-primary-dark, #f3f4f6);
+  border-color: var(--color-border-dark, #374151);
+}
+
+[data-theme="dark"] .formGroup input:focus,
+[data-theme="dark"] .formGroup select:focus,
+[data-theme="dark"] .formGroup textarea:focus {
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .formGroup input:disabled,
+[data-theme="dark"] .formGroup select:disabled,
+[data-theme="dark"] .formGroup textarea:disabled {
+  background-color: var(--color-bg-disabled-dark, #111827);
+  color: var(--color-text-disabled-dark, #6b7280);
+}
+
+[data-theme="dark"] .btnSecondary {
+  background-color: var(--color-bg-secondary-dark, #374151);
+  color: var(--color-text-primary-dark, #f3f4f6);
+  border-color: var(--color-border-dark, #4b5563);
+}
+
+[data-theme="dark"] .btnSecondary:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary-dark, #4b5563);
+}
+

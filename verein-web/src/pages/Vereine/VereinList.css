@@ -6,28 +6,9 @@
   padding: 0;
 }
 
-/* Header */
+/* Header - Using global styles from page-header.css */
 .verein-list-header {
-  padding: 48px 24px 32px;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.page-title {
-  font-size: 42px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 12px 0;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 18px;
-  color: var(--color-text-secondary);
-  margin: 0;
-  font-weight: 400;
-  line-height: 1.6;
+  /* Inherits from .page-header global styles */
 }
 
 /* Actions Bar */
@@ -485,14 +466,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .page-title {
-    font-size: 32px;
-  }
-
-  .page-subtitle {
-    font-size: 16px;
-  }
-
   .actions-bar {
     flex-direction: column;
     align-items: stretch;
@@ -530,14 +503,6 @@
 }
 
 @media (max-width: 480px) {
-  .verein-list-header {
-    padding: 32px 16px 24px;
-  }
-
-  .page-title {
-    font-size: 28px;
-  }
-
   .actions-bar,
   .stats-bar {
     padding-left: 16px;

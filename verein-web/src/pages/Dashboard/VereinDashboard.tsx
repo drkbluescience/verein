@@ -21,18 +21,6 @@ const CalendarIcon = () => (
   </svg>
 );
 
-const TrendingUpIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-  </svg>
-);
-
-const ActivityIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-  </svg>
-);
-
 const SettingsIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m5.2-13.2l-4.2 4.2m0 6l4.2 4.2M23 12h-6m-6 0H1m18.2 5.2l-4.2-4.2m0-6l4.2-4.2"/>
@@ -219,9 +207,8 @@ const VereinDashboard: React.FC = () => {
   return (
     <div className="verein-dashboard">
       {/* Welcome Header */}
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">{t('dashboard:verein.header.title')}</h1>
-        <p className="dashboard-subtitle">{t('dashboard:verein.header.subtitle')}</p>
+      <div className="page-header">
+        <h1 className="page-title">{t('dashboard:verein.header.title')}</h1>
       </div>
 
       {/* Stats Grid */}
@@ -229,9 +216,6 @@ const VereinDashboard: React.FC = () => {
         <h2>{t('dashboard:verein.overview.title')}</h2>
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">
-              <UsersIcon />
-            </div>
             <div className="stat-info">
               <h3>{t('dashboard:verein.overview.totalMembers')}</h3>
               <div className="stat-number">{stats.totalMitglieder}</div>
@@ -240,9 +224,6 @@ const VereinDashboard: React.FC = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">
-              <CalendarIcon />
-            </div>
             <div className="stat-info">
               <h3>{t('dashboard:verein.overview.events')}</h3>
               <div className="stat-number">{stats.totalVeranstaltungen}</div>
@@ -251,9 +232,6 @@ const VereinDashboard: React.FC = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">
-              <TrendingUpIcon />
-            </div>
             <div className="stat-info">
               <h3>{t('dashboard:verein.overview.thisMonth')}</h3>
               <div className="stat-number">{stats.thisMonthRegistrations}</div>
@@ -262,9 +240,6 @@ const VereinDashboard: React.FC = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">
-              <ActivityIcon />
-            </div>
             <div className="stat-info">
               <h3>{t('dashboard:verein.overview.eventActivity')}</h3>
               <div className="stat-number">{stats.thisMonthEvents}</div>

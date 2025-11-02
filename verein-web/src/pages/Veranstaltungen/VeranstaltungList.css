@@ -5,29 +5,7 @@
   padding: 0;
 }
 
-/* Header */
-.page-header {
-  padding: 48px 24px 32px;
-  max-width: 1400px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.page-title {
-  font-size: 42px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 12px 0;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 18px;
-  color: var(--color-text-secondary);
-  margin: 0;
-  font-weight: 400;
-  line-height: 1.6;
-}
+/* Header - Using global styles from page-header.css */
 
 /* Actions Bar */
 .actions-bar {

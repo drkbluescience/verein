@@ -112,6 +112,6 @@ public class BankkontoConfiguration : IEntityTypeConfiguration<Bankkonto>
         builder.HasOne(b => b.Verein)
             .WithMany(v => v.Bankkonten)
             .HasForeignKey(b => b.VereinId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict); // NO ACTION - cascade cycle önleme
     }
 }

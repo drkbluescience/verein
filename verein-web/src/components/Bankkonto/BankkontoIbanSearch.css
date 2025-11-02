@@ -1,0 +1,217 @@
+.bankkonto-iban-search {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.iban-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.iban-input-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.iban-input {
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+}
+
+.iban-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.iban-input.valid {
+  border-color: #28a745;
+  background-color: #f0f9f6;
+}
+
+.iban-input.invalid {
+  border-color: #dc3545;
+  background-color: #fdf6f6;
+}
+
+.iban-formatted {
+  padding: 6px 12px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #666;
+}
+
+.validation-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.validation-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.validation-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.validation-message .icon {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.country-info {
+  padding: 8px 12px;
+  background-color: #e7f3ff;
+  border-left: 3px solid #007bff;
+  border-radius: 4px;
+  color: #004085;
+  font-size: 13px;
+}
+
+.loading {
+  padding: 8px 12px;
+  background-color: #fff3cd;
+  border-left: 3px solid #ffc107;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffc107;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  padding: 8px 12px;
+  background-color: #f8d7da;
+  border-left: 3px solid #dc3545;
+  border-radius: 4px;
+  color: #721c24;
+  font-size: 13px;
+}
+
+.bankkonto-result {
+  margin-top: 8px;
+}
+
+.bankkonto-info {
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid #28a745;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.bankkonto-info h4 {
+  margin: 0 0 12px 0;
+  color: #28a745;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.info-row:last-of-type {
+  border-bottom: none;
+}
+
+.info-row label {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+}
+
+.info-row span {
+  color: #333;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.btn-select {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-select:hover {
+  background-color: #218838;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-select:active {
+  transform: scale(0.98);
+}
+
+.btn-select:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bankkonto-iban-search {
+    padding: 12px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .info-row label {
+    min-width: auto;
+  }
+}
+

@@ -28,7 +28,7 @@ const Settings: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation(['settings', 'common']);
   const [settings, setSettings] = useState<ThemeSettings>({
-    theme: 'dark',
+    theme: 'light',
     language: 'tr',
     notifications: true,
     compactMode: true,
@@ -108,7 +108,7 @@ const Settings: React.FC = () => {
 
   const resetSettings = () => {
     const defaultSettings: ThemeSettings = {
-      theme: 'dark',
+      theme: 'light',
       language: 'tr',
       notifications: true,
       compactMode: true,
@@ -128,9 +128,8 @@ const Settings: React.FC = () => {
   return (
     <div className="settings-page">
       {/* Header */}
-      <div className="settings-header">
+      <div className="page-header settings-header">
         <h1 className="page-title">{t('settings:title')}</h1>
-        <p className="page-subtitle">{t('settings:subtitle')}</p>
       </div>
 
       {/* Actions Bar */}

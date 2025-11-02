@@ -154,6 +154,6 @@ public class AdresseConfiguration : IEntityTypeConfiguration<Adresse>
         builder.HasOne(a => a.Verein)
             .WithMany(v => v.Adressen)
             .HasForeignKey(a => a.VereinId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict); // NO ACTION - cascade cycle önleme
     }
 }

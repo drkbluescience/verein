@@ -51,7 +51,8 @@
 }
 
 .formGroup input,
-.formGroup textarea {
+.formGroup textarea,
+.formGroup select {
   padding: 12px 16px;
   border: 2px solid #d1d5db;
   border-radius: var(--radius-md, 8px);
@@ -62,20 +63,32 @@
   font-family: inherit;
 }
 
+.formGroup select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231f2937' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
 .formGroup input:focus,
-.formGroup textarea:focus {
+.formGroup textarea:focus,
+.formGroup select:focus {
   outline: none;
   border-color: var(--color-primary, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .formGroup input.error,
-.formGroup textarea.error {
+.formGroup textarea.error,
+.formGroup select.error {
   border-color: var(--color-error, #dc2626);
 }
 
 .formGroup input.error:focus,
-.formGroup textarea.error:focus {
+.formGroup textarea.error:focus,
+.formGroup select.error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
@@ -88,6 +101,26 @@
   font-size: var(--font-size-sm, 14px);
   color: var(--color-error, #dc2626);
   margin-top: var(--spacing-xs, 4px);
+}
+
+/* DatePicker Styling */
+.datePickerInput {
+  padding: 12px 16px !important;
+  border: 2px solid #d1d5db !important;
+  border-radius: var(--radius-md, 8px) !important;
+  font-size: var(--font-size-md, 16px) !important;
+  color: #1f2937 !important;
+  background: #ffffff !important;
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+.datePickerInput:focus {
+  outline: none !important;
+  border-color: var(--color-primary, #3b82f6) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 .footer {
@@ -154,14 +187,20 @@
 }
 
 [data-theme="dark"] .formGroup input,
-[data-theme="dark"] .formGroup textarea {
+[data-theme="dark"] .formGroup textarea,
+[data-theme="dark"] .formGroup select {
   background-color: #1e293b !important;
   color: #ffffff !important;
   border-color: #475569 !important;
 }
 
+[data-theme="dark"] .formGroup select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+}
+
 [data-theme="dark"] .formGroup input:focus,
-[data-theme="dark"] .formGroup textarea:focus {
+[data-theme="dark"] .formGroup textarea:focus,
+[data-theme="dark"] .formGroup select:focus {
   border-color: #3b82f6 !important;
 }
 
@@ -182,5 +221,16 @@
 
 [data-theme="dark"] .btnSecondary:hover:not(:disabled) {
   background-color: #475569 !important;
+}
+
+/* Dark Mode DatePicker */
+[data-theme="dark"] .datePickerInput {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .datePickerInput:focus {
+  border-color: #3b82f6 !important;
 }
 

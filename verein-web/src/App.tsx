@@ -20,6 +20,14 @@ import Profile from './pages/Profile/Profile';
 import Login from './pages/Auth/Login';
 import Landing from './pages/Landing/Landing';
 import Reports from './pages/Reports/Reports';
+import FinanzDashboard from './pages/Finanz/FinanzDashboard';
+import MitgliedFinanz from './pages/Finanz/MitgliedFinanz';
+import MitgliedForderungList from './pages/Finanz/MitgliedForderungList';
+import MitgliedForderungDetail from './pages/Finanz/MitgliedForderungDetail';
+import MitgliedZahlungList from './pages/Finanz/MitgliedZahlungList';
+import MitgliedZahlungDetail from './pages/Finanz/MitgliedZahlungDetail';
+import BankBuchungList from './pages/Finanz/BankBuchungList';
+import BankBuchungDetail from './pages/Finanz/BankBuchungDetail';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
 
@@ -47,21 +55,27 @@ const AppContent: React.FC = () => {
         if (savedSettings) {
           const parsed = JSON.parse(savedSettings);
           if (parsed.theme) {
-            document.documentElement.setAttribute('data-theme', parsed.theme);
+            // Always use light theme as default (migrate from dark if needed)
+            const theme = parsed.theme === 'dark' ? 'light' : parsed.theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            // Update localStorage with light theme if it was dark
+            if (parsed.theme === 'dark') {
+              localStorage.setItem(settingsKey, JSON.stringify({ ...parsed, theme: 'light' }));
+            }
           }
         } else {
-          // Default to dark theme
-          document.documentElement.setAttribute('data-theme', 'dark');
+          // Default to light theme
+          document.documentElement.setAttribute('data-theme', 'light');
         }
       } catch (error) {
         console.error('Error loading saved theme:', error);
-        // Default to dark theme on error
-        document.documentElement.setAttribute('data-theme', 'dark');
+        // Default to light theme on error
+        document.documentElement.setAttribute('data-theme', 'light');
       }
     };
 
     loadSavedTheme();
-  }, [getUserSettingsKey]);
+  }, [user, getUserSettingsKey]);
 
   // Determine which dashboard to show based on user type
   const DashboardComponent = user?.type === 'admin' ? Dashboard :
@@ -134,6 +148,47 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
+          {/* Finanz Routes - Admin and Dernek only */}
+          {(user?.type === 'admin' || user?.type === 'dernek') && (
+            <>
+              <Route path="/finanz" element={
+                <Layout>
+                  <FinanzDashboard />
+                </Layout>
+              } />
+              <Route path="/finanz/forderungen" element={
+                <Layout>
+                  <MitgliedForderungList />
+                </Layout>
+              } />
+              <Route path="/finanz/forderungen/:id" element={
+                <Layout>
+                  <MitgliedForderungDetail />
+                </Layout>
+              } />
+              <Route path="/finanz/zahlungen" element={
+                <Layout>
+                  <MitgliedZahlungList />
+                </Layout>
+              } />
+              <Route path="/finanz/zahlungen/:id" element={
+                <Layout>
+                  <MitgliedZahlungDetail />
+                </Layout>
+              } />
+              <Route path="/finanz/bank" element={
+                <Layout>
+                  <BankBuchungList />
+                </Layout>
+              } />
+              <Route path="/finanz/bank/:id" element={
+                <Layout>
+                  <BankBuchungDetail />
+                </Layout>
+              } />
+            </>
+          )}
+
           {/* Settings - Available for all user types */}
           <Route path="/ayarlar" element={
             <Layout>
@@ -174,6 +229,15 @@ const AppContent: React.FC = () => {
               <MitgliedAilem />
             </Layout>
           } />
+
+          {/* Mitglied Finanz - Member's personal finance page */}
+          {user?.type === 'mitglied' && (
+            <Route path="/finanz" element={
+              <Layout>
+                <MitgliedFinanz />
+              </Layout>
+            } />
+          )}
 
           {/* Redirect any other route to dashboard */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

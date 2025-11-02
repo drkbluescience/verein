@@ -1,0 +1,208 @@
+.bankkonto-iban-search-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.page-header p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+.page-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.search-section {
+  grid-column: 1;
+}
+
+.selected-section {
+  grid-column: 2;
+  padding: 20px;
+  background-color: #f0f8f0;
+  border: 2px solid #28a745;
+  border-radius: 8px;
+}
+
+.selected-section h2 {
+  margin-top: 0;
+  color: #28a745;
+  font-size: 18px;
+}
+
+.selected-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+}
+
+.info-item span {
+  color: #333;
+  text-align: right;
+  flex: 1;
+}
+
+.info-item .monospace {
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.status-active {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.btn-clear {
+  width: 100%;
+  padding: 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-clear:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.info-section {
+  grid-column: 1 / -1;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.info-section h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 20px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.info-content h3 {
+  color: #333;
+  font-size: 16px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.info-content p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.info-content ul,
+.info-content ol {
+  color: #666;
+  line-height: 1.8;
+  margin: 0 0 12px 20px;
+  padding: 0;
+}
+
+.info-content li {
+  margin-bottom: 8px;
+}
+
+.info-content code {
+  background-color: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #d63384;
+  font-size: 13px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .page-content {
+    grid-template-columns: 1fr;
+  }
+
+  .search-section {
+    grid-column: 1;
+  }
+
+  .selected-section {
+    grid-column: 1;
+  }
+
+  .info-section {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .bankkonto-iban-search-page {
+    padding: 12px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+  }
+
+  .page-content {
+    gap: 20px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .info-item label {
+    min-width: auto;
+  }
+
+  .info-item span {
+    text-align: left;
+  }
+}
+

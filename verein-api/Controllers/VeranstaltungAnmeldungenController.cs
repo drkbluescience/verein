@@ -123,6 +123,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="status">Registration status</param>
     /// <returns>List of VeranstaltungAnmeldungen with the specified status</returns>
     [HttpGet("status/{status}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungAnmeldungDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VeranstaltungAnmeldungDto>>> GetByStatus(string status)
     {
