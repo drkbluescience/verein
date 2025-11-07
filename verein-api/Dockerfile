@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
-COPY ["VereinsApi.csproj", "./"]
+COPY ["verein-api/VereinsApi.csproj", "./"]
 RUN dotnet restore "VereinsApi.csproj"
 
 # Copy everything else and build
-COPY . .
+COPY verein-api/ .
 RUN dotnet build "VereinsApi.csproj" -c Release -o /app/build
 
 # Publish stage
