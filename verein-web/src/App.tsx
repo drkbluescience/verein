@@ -97,43 +97,38 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
-          {/* Vereine List - Sadece Admin */}
-          {user?.type === 'admin' && (
-            <Route path="/vereine" element={
-              <Layout>
-                <VereinList />
-              </Layout>
-            } />
-          )}
+          {/* Vereine List */}
+          <Route path="/vereine" element={
+            <Layout>
+              <VereinList />
+            </Layout>
+          } />
 
-          {/* Verein Detail - Admin ve Dernek */}
-          {(user?.type === 'admin' || user?.type === 'dernek') && (
-            <Route path="/vereine/:id" element={
-              <Layout>
-                <VereinDetail />
-              </Layout>
-            } />
-          )}
+          {/* Verein Detail */}
+          <Route path="/vereine/:id" element={
+            <Layout>
+              <VereinDetail />
+            </Layout>
+          } />
 
-          {(user?.type === 'admin' || user?.type === 'dernek') && (
-            <>
-              <Route path="/mitglieder" element={
-                <Layout>
-                  <MitgliedList />
-                </Layout>
-              } />
-              <Route path="/mitglieder/:id" element={
-                <Layout>
-                  <MitgliedDetail />
-                </Layout>
-              } />
-              <Route path="/veranstaltungen" element={
-                <Layout>
-                  <VeranstaltungList />
-                </Layout>
-              } />
-            </>
-          )}
+          {/* Mitglieder */}
+          <Route path="/mitglieder" element={
+            <Layout>
+              <MitgliedList />
+            </Layout>
+          } />
+          <Route path="/mitglieder/:id" element={
+            <Layout>
+              <MitgliedDetail />
+            </Layout>
+          } />
+
+          {/* Veranstaltungen */}
+          <Route path="/veranstaltungen" element={
+            <Layout>
+              <VeranstaltungList />
+            </Layout>
+          } />
 
           {/* Veranstaltung Detail - Available for all user types */}
           <Route path="/veranstaltungen/:id" element={
@@ -148,46 +143,42 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
-          {/* Finanz Routes - Admin and Dernek only */}
-          {(user?.type === 'admin' || user?.type === 'dernek') && (
-            <>
-              <Route path="/finanz" element={
-                <Layout>
-                  <FinanzDashboard />
-                </Layout>
-              } />
-              <Route path="/finanz/forderungen" element={
-                <Layout>
-                  <MitgliedForderungList />
-                </Layout>
-              } />
-              <Route path="/finanz/forderungen/:id" element={
-                <Layout>
-                  <MitgliedForderungDetail />
-                </Layout>
-              } />
-              <Route path="/finanz/zahlungen" element={
-                <Layout>
-                  <MitgliedZahlungList />
-                </Layout>
-              } />
-              <Route path="/finanz/zahlungen/:id" element={
-                <Layout>
-                  <MitgliedZahlungDetail />
-                </Layout>
-              } />
-              <Route path="/finanz/bank" element={
-                <Layout>
-                  <BankBuchungList />
-                </Layout>
-              } />
-              <Route path="/finanz/bank/:id" element={
-                <Layout>
-                  <BankBuchungDetail />
-                </Layout>
-              } />
-            </>
-          )}
+          {/* Finanz Routes */}
+          <Route path="/finanz" element={
+            <Layout>
+              <FinanzDashboard />
+            </Layout>
+          } />
+          <Route path="/finanz/forderungen" element={
+            <Layout>
+              <MitgliedForderungList />
+            </Layout>
+          } />
+          <Route path="/finanz/forderungen/:id" element={
+            <Layout>
+              <MitgliedForderungDetail />
+            </Layout>
+          } />
+          <Route path="/finanz/zahlungen" element={
+            <Layout>
+              <MitgliedZahlungList />
+            </Layout>
+          } />
+          <Route path="/finanz/zahlungen/:id" element={
+            <Layout>
+              <MitgliedZahlungDetail />
+            </Layout>
+          } />
+          <Route path="/finanz/bank" element={
+            <Layout>
+              <BankBuchungList />
+            </Layout>
+          } />
+          <Route path="/finanz/bank/:id" element={
+            <Layout>
+              <BankBuchungDetail />
+            </Layout>
+          } />
 
           {/* Settings - Available for all user types */}
           <Route path="/ayarlar" element={
@@ -230,17 +221,7 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
-          {/* Mitglied Finanz - Member's personal finance page */}
-          {user?.type === 'mitglied' && (
-            <Route path="/finanz" element={
-              <Layout>
-                <MitgliedFinanz />
-              </Layout>
-            } />
-          )}
-
-          {/* Redirect any other route to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Catch-all - show nothing, let React Router handle it */}
         </>
       ) : (
         /* Redirect unauthenticated users to auth page */

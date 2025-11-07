@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/AuthContext';
 import './Header.css';
 
@@ -10,11 +11,14 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, logout } = useAuth();
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation('common');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Force re-render when language changes
   useEffect(() => {
@@ -42,6 +46,18 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
     return t('app.name');
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Invalidate all queries to refresh data
+      await queryClient.invalidateQueries();
+      // Refresh the current page by navigating to it
+      navigate(location.pathname + location.search, { replace: true });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -58,6 +74,14 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         
         <div className="header-right">
           <div className="header-actions">
+            <button
+              className="header-btn"
+              title={t('actions.refresh')}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <span className={`btn-icon ${isRefreshing ? 'rotating' : ''}`}>🔄</span>
+            </button>
             <button className="header-btn" title={t('header.notifications')}>
               <span className="btn-icon">🔔</span>
             </button>

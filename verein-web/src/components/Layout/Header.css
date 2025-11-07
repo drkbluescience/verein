@@ -99,6 +99,24 @@
   font-size: 18px;
 }
 
+.btn-icon.rotating {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.header-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* User Menu */
 .user-menu {
   margin-left: var(--spacing-sm);

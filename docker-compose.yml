@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # MSSQL Database
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: verein-mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ./docs:/docker-entrypoint-initdb.d:ro
+    networks:
+      - verein-network
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # .NET API
+  api:
+    build:
+      context: ./verein-api
+      dockerfile: Dockerfile
+    container_name: verein-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=VEREIN;User Id=sa;Password=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd};TrustServerCertificate=true;MultipleActiveResultSets=true;
+    ports:
+      - "5103:8080"
+    depends_on:
+      mssql:
+        condition: service_healthy
+    networks:
+      - verein-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # React Frontend (Production Build)
+  web:
+    build:
+      context: ./verein-web
+      dockerfile: Dockerfile
+    container_name: verein-web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - verein-network
+    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=http://api:8080
+
+networks:
+  verein-network:
+    driver: bridge
+
+volumes:
+  mssql-data:
+    driver: local
+
