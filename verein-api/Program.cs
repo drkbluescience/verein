@@ -37,35 +37,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Determine database provider based on environment or connection string
-var usePostgreSQL = builder.Configuration.GetValue<bool>("UsePostgreSQL", false)
-    || connectionString.Contains("Host=")
-    || connectionString.Contains("postgres");
-
+// Use Azure SQL Server only
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    if (usePostgreSQL)
+    options.UseSqlServer(connectionString, sqlOptions =>
     {
-        // Use PostgreSQL (for Railway, Supabase, etc.)
-        options.UseNpgsql(connectionString, npgsqlOptions =>
-        {
-            npgsqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30));
-            npgsqlOptions.CommandTimeout(120);
-        });
-    }
-    else
-    {
-        // Use SQL Server (for Azure SQL, local development and Docker)
-        options.UseSqlServer(connectionString, sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-            sqlOptions.CommandTimeout(120);
-        });
-    }
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null);
+        sqlOptions.CommandTimeout(120);
+    });
 });
 
 // Memory Cache Configuration

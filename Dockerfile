@@ -1,6 +1,5 @@
 # Railway Deployment Dockerfile for Verein API
-# Updated: 2025-11-10 - Force rebuild to get latest Program.cs fix
-# Build stage
+# Azure SQL Server + verein.qubbe.ba
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
@@ -9,21 +8,10 @@ COPY verein-api/VereinsApi.csproj ./verein-api/
 WORKDIR /src/verein-api
 RUN dotnet restore "VereinsApi.csproj"
 
-# Copy everything else and build
+# Copy source code and publish
 WORKDIR /src
 COPY verein-api/ ./verein-api/
 WORKDIR /src/verein-api
-
-# Build and publish in one step (skip separate build to avoid cache issues)
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS publish
-WORKDIR /src
-COPY verein-api/ ./verein-api/
-WORKDIR /src/verein-api
-
-# Fix PostgreSQL EnableRetryOnFailure issue (remove errorCodesToAdd parameter)
-RUN sed -i 's/errorCodesToAdd: null);//g' Program.cs || true
-
-RUN dotnet restore "VereinsApi.csproj"
 RUN dotnet publish "VereinsApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
