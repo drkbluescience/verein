@@ -179,17 +179,36 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // CORS Configuration
+var corsSettings = builder.Configuration.GetSection("CorsSettings");
+var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var allowCredentials = corsSettings.GetValue<bool>("AllowCredentials");
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000", "https://localhost:3000",
-                "http://localhost:3001", "https://localhost:3001",
-                "http://localhost:3002", "https://localhost:3002") // Add your frontend URLs
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        if (allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+
+            if (allowCredentials)
+            {
+                policy.AllowCredentials();
+            }
+        }
+        else
+        {
+            // Fallback for development
+            policy.WithOrigins(
+                    "http://localhost:3000", "https://localhost:3000",
+                    "http://localhost:3001", "https://localhost:3001",
+                    "http://localhost:3002", "https://localhost:3002")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
