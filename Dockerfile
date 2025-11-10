@@ -14,6 +14,10 @@ COPY verein-api/ ./verein-api/
 WORKDIR /src/verein-api
 RUN dotnet publish "VereinsApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
+# Copy startup script to publish directory
+COPY verein-api/startup.sh /app/publish/startup.sh
+RUN chmod +x /app/publish/startup.sh
+
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
@@ -22,10 +26,6 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/publish .
-
-# Copy startup script
-COPY verein-api/startup.sh /app/startup.sh
-RUN chmod +x /app/startup.sh
 
 # Create logs directory
 RUN mkdir -p /app/logs && chmod 777 /app/logs
