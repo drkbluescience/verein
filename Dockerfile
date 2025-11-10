@@ -23,6 +23,10 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/publish .
 
+# Copy startup script
+COPY verein-api/startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
 # Create logs directory
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 
@@ -30,9 +34,8 @@ RUN mkdir -p /app/logs && chmod 777 /app/logs
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Railway will set PORT environment variable at runtime
-# We'll use it in the ENTRYPOINT
 EXPOSE 8080
 
-# Use shell form to allow environment variable expansion
-CMD dotnet VereinsApi.dll --urls "http://0.0.0.0:${PORT:-8080}"
+# Use startup script to properly handle PORT environment variable
+ENTRYPOINT ["/app/startup.sh"]
 
