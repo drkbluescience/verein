@@ -29,6 +29,15 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Test endpoint to verify AuthController is working
+    /// </summary>
+    [HttpGet("test")]
+    public IActionResult Test()
+    {
+        return Ok(new { message = "AuthController is working!", timestamp = DateTime.UtcNow });
+    }
+
+    /// <summary>
     /// Login with email and password (simplified for demo)
     /// </summary>
     /// <param name="request">Login request</param>
