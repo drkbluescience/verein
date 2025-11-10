@@ -84,6 +84,9 @@
   "filter": {
     "allStatus": "Tüm Durumlar",
     "allTypes": "Tüm Türler",
+    "allVereine": "Tüm Dernekler",
+    "allYears": "Tüm Yıllar",
+    "allMonths": "Tüm Aylar",
     "startDate": "Başlangıç Tarihi",
     "endDate": "Bitiş Tarihi"
   },

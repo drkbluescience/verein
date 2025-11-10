@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { bankBuchungService } from '../../services/finanzService';
+import { vereinService } from '../../services/vereinService';
 import { BankBuchungDto } from '../../types/finanz.types';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
@@ -48,6 +49,9 @@ const BankBuchungList: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBuchung, setSelectedBuchung] = useState<BankBuchungDto | null>(null);
 
@@ -56,6 +60,13 @@ const BankBuchungList: React.FC = () => {
     if (user?.type === 'dernek') return user.vereinId;
     return null; // Admin sees all
   }, [user]);
+
+  // Fetch Vereine (for Admin dropdown)
+  const { data: vereine = [] } = useQuery({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
 
   // Fetch bank transactions
   const { data: bankBuchungen = [], isLoading, error } = useQuery({
@@ -71,12 +82,56 @@ const BankBuchungList: React.FC = () => {
     enabled: !!user,
   });
 
+  // Generate year options (last 5 years + current + next year)
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear - 5; i <= currentYear + 1; i++) {
+      years.push(i.toString());
+    }
+    return years;
+  }, []);
+
+  // Month options
+  const monthOptions = [
+    { value: '1', label: t('common:months.january') },
+    { value: '2', label: t('common:months.february') },
+    { value: '3', label: t('common:months.march') },
+    { value: '4', label: t('common:months.april') },
+    { value: '5', label: t('common:months.may') },
+    { value: '6', label: t('common:months.june') },
+    { value: '7', label: t('common:months.july') },
+    { value: '8', label: t('common:months.august') },
+    { value: '9', label: t('common:months.september') },
+    { value: '10', label: t('common:months.october') },
+    { value: '11', label: t('common:months.november') },
+    { value: '12', label: t('common:months.december') },
+  ];
+
   // Filter and search
   const filteredBankBuchungen = useMemo(() => {
     return bankBuchungen.filter(b => {
+      // Verein filter (Admin only)
+      if (selectedVereinId && b.vereinId !== selectedVereinId) return false;
+
       // Type filter
       if (typeFilter === 'income' && b.betrag < 0) return false;
       if (typeFilter === 'expense' && b.betrag > 0) return false;
+
+      // Month/Year filter
+      if (selectedMonth || selectedYear) {
+        const buchungDate = new Date(b.buchungsdatum);
+
+        if (selectedYear) {
+          const year = buchungDate.getFullYear();
+          if (year !== parseInt(selectedYear)) return false;
+        }
+
+        if (selectedMonth) {
+          const month = buchungDate.getMonth() + 1; // JavaScript months are 0-indexed
+          if (month !== parseInt(selectedMonth)) return false;
+        }
+      }
 
       // Search filter
       if (searchTerm) {
@@ -89,7 +144,7 @@ const BankBuchungList: React.FC = () => {
 
       return true;
     });
-  }, [bankBuchungen, typeFilter, searchTerm]);
+  }, [bankBuchungen, selectedVereinId, typeFilter, selectedMonth, selectedYear, searchTerm]);
 
   const getTransactionType = (betrag: number) => {
     if (betrag > 0) {
@@ -132,6 +187,23 @@ const BankBuchungList: React.FC = () => {
         </div>
 
         <div className="filter-group">
+          {/* Admin: Verein Filter */}
+          {user?.type === 'admin' && (
+            <select
+              value={selectedVereinId || ''}
+              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+              className="filter-select"
+            >
+              <option value="">{t('finanz:filter.allVereine')}</option>
+              {vereine.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Type Filter */}
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as any)}
@@ -140,6 +212,34 @@ const BankBuchungList: React.FC = () => {
             <option value="all">{t('finanz:filter.allTypes')}</option>
             <option value="income">{t('finanz:transaction.income')}</option>
             <option value="expense">{t('finanz:transaction.expense')}</option>
+          </select>
+
+          {/* Year Filter */}
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">{t('finanz:filter.allYears')}</option>
+            {yearOptions.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+
+          {/* Month Filter */}
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">{t('finanz:filter.allMonths')}</option>
+            {monthOptions.map((month) => (
+              <option key={month.value} value={month.value}>
+                {month.label}
+              </option>
+            ))}
           </select>
         </div>
       </div>

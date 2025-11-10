@@ -83,6 +83,9 @@
   "filter": {
     "allStatus": "Alle Status",
     "allTypes": "Alle Typen",
+    "allVereine": "Alle Vereine",
+    "allYears": "Alle Jahre",
+    "allMonths": "Alle Monate",
     "startDate": "Startdatum",
     "endDate": "Enddatum"
   },

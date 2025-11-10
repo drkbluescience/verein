@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedZahlungService } from '../../services/finanzService';
+import { vereinService } from '../../services/vereinService';
 import { MitgliedZahlungDto } from '../../types/finanz.types';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
@@ -54,8 +55,9 @@ const MitgliedZahlungList: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedZahlung, setSelectedZahlung] = useState<MitgliedZahlungDto | null>(null);
 
@@ -64,6 +66,13 @@ const MitgliedZahlungList: React.FC = () => {
     if (user?.type === 'dernek') return user.vereinId;
     return null; // Admin sees all
   }, [user]);
+
+  // Fetch Vereine (for Admin dropdown)
+  const { data: vereine = [] } = useQuery({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
 
   // Fetch payments
   const { data: zahlungen = [], isLoading, error } = useQuery({
@@ -80,21 +89,51 @@ const MitgliedZahlungList: React.FC = () => {
     enabled: !!user,
   });
 
+  // Generate year options (last 5 years + current + next year)
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear - 5; i <= currentYear + 1; i++) {
+      years.push(i.toString());
+    }
+    return years;
+  }, []);
+
+  // Month options
+  const monthOptions = [
+    { value: '1', label: t('common:months.january') },
+    { value: '2', label: t('common:months.february') },
+    { value: '3', label: t('common:months.march') },
+    { value: '4', label: t('common:months.april') },
+    { value: '5', label: t('common:months.may') },
+    { value: '6', label: t('common:months.june') },
+    { value: '7', label: t('common:months.july') },
+    { value: '8', label: t('common:months.august') },
+    { value: '9', label: t('common:months.september') },
+    { value: '10', label: t('common:months.october') },
+    { value: '11', label: t('common:months.november') },
+    { value: '12', label: t('common:months.december') },
+  ];
+
   // Filter and search
   const filteredZahlungen = useMemo(() => {
     return zahlungen.filter(z => {
-      // Date range filter
-      if (startDate) {
-        const paymentDate = new Date(z.zahlungsdatum);
-        const filterStart = new Date(startDate);
-        if (paymentDate < filterStart) return false;
-      }
+      // Verein filter (Admin only)
+      if (selectedVereinId && z.vereinId !== selectedVereinId) return false;
 
-      if (endDate) {
+      // Month/Year filter
+      if (selectedMonth || selectedYear) {
         const paymentDate = new Date(z.zahlungsdatum);
-        const filterEnd = new Date(endDate);
-        filterEnd.setHours(23, 59, 59, 999);
-        if (paymentDate > filterEnd) return false;
+
+        if (selectedYear) {
+          const year = paymentDate.getFullYear();
+          if (year !== parseInt(selectedYear)) return false;
+        }
+
+        if (selectedMonth) {
+          const month = paymentDate.getMonth() + 1; // JavaScript months are 0-indexed
+          if (month !== parseInt(selectedMonth)) return false;
+        }
       }
 
       // Search filter
@@ -108,7 +147,7 @@ const MitgliedZahlungList: React.FC = () => {
 
       return true;
     });
-  }, [zahlungen, startDate, endDate, searchTerm]);
+  }, [zahlungen, selectedVereinId, selectedMonth, selectedYear, searchTerm]);
 
   // Export to Excel
   const exportToExcel = () => {
@@ -166,20 +205,49 @@ const MitgliedZahlungList: React.FC = () => {
         </div>
 
         <div className="filter-group">
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+          {/* Admin: Verein Filter */}
+          {user?.type === 'admin' && (
+            <select
+              value={selectedVereinId || ''}
+              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+              className="filter-select"
+            >
+              <option value="">{t('finanz:filter.allVereine')}</option>
+              {vereine.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Year Filter */}
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
             className="filter-select"
-            title={t('finanz:filter.startDate')}
-          />
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+          >
+            <option value="">{t('finanz:filter.allYears')}</option>
+            {yearOptions.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+
+          {/* Month Filter */}
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
             className="filter-select"
-            title={t('finanz:filter.endDate')}
-          />
+          >
+            <option value="">{t('finanz:filter.allMonths')}</option>
+            {monthOptions.map((month) => (
+              <option key={month.value} value={month.value}>
+                {month.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
