@@ -263,24 +263,40 @@ app.MapControllers();
 // Health Checks
 app.MapHealthChecks("/health");
 
-// Database Migration (in Development)
-// Note: Demo data is now managed via SQL scripts (docs/DEMO_DATA.sql)
-// Run APPLICATION_H_101.sql first, then DEMO_DATA.sql
-if (app.Environment.IsDevelopment())
+// Database Migration and Health Check
+// Ensure database connection is working
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
     try
     {
-        // Ensure database is created
-        await context.Database.EnsureCreatedAsync();
+        // Test database connection
+        await context.Database.CanConnectAsync();
+        Log.Information("Database connection successful");
 
-        Log.Information("Database initialized successfully. Run docs/DEMO_DATA.sql for demo data.");
+        // Apply pending migrations in Production
+        if (app.Environment.IsProduction())
+        {
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+            {
+                Log.Information("Applying {Count} pending migrations", pendingMigrations.Count());
+                await context.Database.MigrateAsync();
+                Log.Information("Migrations applied successfully");
+            }
+        }
+        else
+        {
+            // Development: Ensure database is created
+            await context.Database.EnsureCreatedAsync();
+            Log.Information("Database initialized successfully. Run docs/DEMO_DATA.sql for demo data.");
+        }
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "An error occurred while initializing the database");
+        Log.Error(ex, "Database connection or migration failed");
+        throw; // Fail fast if database is not accessible
     }
 }
 

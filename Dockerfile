@@ -26,12 +26,13 @@ COPY --from=build /app/publish .
 # Create logs directory
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 
-# Railway uses PORT environment variable
-ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
+# Set environment
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Expose port (Railway will override this)
+# Railway will set PORT environment variable at runtime
+# We'll use it in the ENTRYPOINT
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "VereinsApi.dll"]
+# Use shell form to allow environment variable expansion
+CMD dotnet VereinsApi.dll --urls "http://0.0.0.0:${PORT:-8080}"
 
