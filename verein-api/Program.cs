@@ -50,14 +50,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
             npgsqlOptions.EnableRetryOnFailure(
                 maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorCodesToAdd: null);
+                maxRetryDelay: TimeSpan.FromSeconds(30));
             npgsqlOptions.CommandTimeout(120);
         });
     }
     else
     {
-        // Use SQL Server (for local development and Docker)
+        // Use SQL Server (for Azure SQL, local development and Docker)
         options.UseSqlServer(connectionString, sqlOptions =>
         {
             sqlOptions.EnableRetryOnFailure(
