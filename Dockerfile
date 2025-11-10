@@ -12,10 +12,13 @@ RUN dotnet restore "VereinsApi.csproj"
 WORKDIR /src
 COPY verein-api/ ./verein-api/
 WORKDIR /src/verein-api
-RUN dotnet build "VereinsApi.csproj" -c Release -o /app/build
 
-# Publish stage
-FROM build AS publish
+# Build and publish in one step (skip separate build to avoid cache issues)
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS publish
+WORKDIR /src
+COPY verein-api/ ./verein-api/
+WORKDIR /src/verein-api
+RUN dotnet restore "VereinsApi.csproj"
 RUN dotnet publish "VereinsApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
