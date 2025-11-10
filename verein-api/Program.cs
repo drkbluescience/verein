@@ -263,8 +263,9 @@ app.MapControllers();
 // Health Checks
 app.MapHealthChecks("/health");
 
-// Database Migration and Health Check
-// Ensure database connection is working
+// Database Connection Health Check
+// Note: Database schema is managed via SQL scripts (database/APPLICATION_H_101_AZURE.sql)
+// EF Core Migrations are NOT used in Production
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -272,30 +273,31 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Test database connection
-        await context.Database.CanConnectAsync();
+        var canConnect = await context.Database.CanConnectAsync();
+        if (!canConnect)
+        {
+            Log.Fatal("Cannot connect to database");
+            throw new InvalidOperationException("Database connection failed");
+        }
+
         Log.Information("Database connection successful");
 
-        // Apply pending migrations in Production
-        if (app.Environment.IsProduction())
+        // Development only: Ensure database is created
+        if (app.Environment.IsDevelopment())
         {
-            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-            if (pendingMigrations.Any())
-            {
-                Log.Information("Applying {Count} pending migrations", pendingMigrations.Count());
-                await context.Database.MigrateAsync();
-                Log.Information("Migrations applied successfully");
-            }
+            await context.Database.EnsureCreatedAsync();
+            Log.Information("Database initialized successfully. Run docs/DEMO_DATA.sql for demo data.");
         }
         else
         {
-            // Development: Ensure database is created
-            await context.Database.EnsureCreatedAsync();
-            Log.Information("Database initialized successfully. Run docs/DEMO_DATA.sql for demo data.");
+            // Production: Just verify connection, do NOT run migrations
+            // Database schema is managed via SQL scripts
+            Log.Information("Production mode: Database schema managed via SQL scripts");
         }
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Database connection or migration failed");
+        Log.Fatal(ex, "Database initialization failed");
         throw; // Fail fast if database is not accessible
     }
 }
