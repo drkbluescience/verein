@@ -121,6 +121,10 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedForderungServ
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedZahlungService, VereinsApi.Services.MitgliedZahlungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungZahlungService, VereinsApi.Services.VeranstaltungZahlungService>();
 
+// Excel Upload Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IExcelParserService, VereinsApi.Services.ExcelParserService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankUploadService, VereinsApi.Services.BankUploadService>();
+
 // Keytable Service
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IKeytableService, VereinsApi.Services.KeytableService>();
 

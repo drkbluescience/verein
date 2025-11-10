@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.BankBuchung;
+using VereinsApi.DTOs.Finanz;
 using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
@@ -15,13 +16,16 @@ namespace VereinsApi.Controllers;
 public class BankBuchungenController : ControllerBase
 {
     private readonly IBankBuchungService _service;
+    private readonly IBankUploadService _uploadService;
     private readonly ILogger<BankBuchungenController> _logger;
 
     public BankBuchungenController(
         IBankBuchungService service,
+        IBankUploadService uploadService,
         ILogger<BankBuchungenController> logger)
     {
         _service = service;
+        _uploadService = uploadService;
         _logger = logger;
     }
 
@@ -251,6 +255,69 @@ public class BankBuchungenController : ControllerBase
         {
             _logger.LogError(ex, "Error deleting bank buchung {Id}", id);
             return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Upload bank transaction Excel file
+    /// </summary>
+    /// <remarks>
+    /// Upload an Excel file containing bank transactions.
+    /// The system will:
+    /// 1. Parse the Excel file
+    /// 2. Create BankBuchung records
+    /// 3. Match transactions to members (by IBAN, name, or reference)
+    /// 4. Create MitgliedZahlung records for matched members
+    /// 5. Update MitgliedForderung status (mark as paid)
+    /// 6. Create MitgliedForderungZahlung allocations
+    ///
+    /// Expected Excel columns (flexible order):
+    /// - Buchungsdatum / Datum / Date / Valuta
+    /// - Betrag / Amount / Wert
+    /// - Empfänger / Auftraggeber / Name / Recipient
+    /// - Verwendungszweck / Purpose / Beschreibung
+    /// - Referenz / Reference / Ref
+    /// - IBAN / Konto
+    /// </remarks>
+    [HttpPost("upload-excel")]
+    [ProducesResponseType(typeof(BankUploadResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<BankUploadResponseDto>> UploadExcel(
+        [FromForm] int vereinId,
+        [FromForm] int bankKontoId,
+        [FromForm] IFormFile file)
+    {
+        try
+        {
+            _logger.LogInformation("Received Excel upload request for Verein {VereinId}, BankKonto {BankKontoId}",
+                vereinId, bankKontoId);
+
+            var request = new BankUploadRequestDto
+            {
+                VereinId = vereinId,
+                BankKontoId = bankKontoId,
+                File = file
+            };
+
+            var response = await _uploadService.ProcessBankUploadAsync(request);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing Excel upload");
+            return StatusCode(500, new BankUploadResponseDto
+            {
+                Success = false,
+                Message = "Internal server error",
+                Errors = new List<string> { ex.Message }
+            });
         }
     }
 }
