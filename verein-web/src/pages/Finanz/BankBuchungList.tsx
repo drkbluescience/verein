@@ -177,7 +177,7 @@ const BankBuchungList: React.FC = () => {
                   <td className="cell-actions">
                     <button
                       className="action-btn"
-                      onClick={() => navigate(`/finanz/bank/${buchung.id}`)}
+                      onClick={() => navigate(`/finanzen/bank/${buchung.id}`)}
                       title={t('common:view')}
                     >
                       <EyeIcon />

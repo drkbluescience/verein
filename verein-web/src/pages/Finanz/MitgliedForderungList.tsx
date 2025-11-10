@@ -228,7 +228,7 @@ const MitgliedForderungList: React.FC = () => {
                   <td className="cell-actions">
                     <button
                       className="action-btn"
-                      onClick={() => navigate(`/finanz/forderungen/${forderung.id}`)}
+                      onClick={() => navigate(`/meine-finanzen/forderungen/${forderung.id}`)}
                       title={t('common:view')}
                     >
                       <EyeIcon />

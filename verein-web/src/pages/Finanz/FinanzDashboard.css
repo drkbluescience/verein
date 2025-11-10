@@ -19,6 +19,12 @@
   text-align: center;
 }
 
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 /* Stats Grid - Main 4 KPIs */
 .stats-grid {
   display: grid;

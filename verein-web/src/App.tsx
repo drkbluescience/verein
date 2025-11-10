@@ -28,6 +28,7 @@ import MitgliedZahlungList from './pages/Finanz/MitgliedZahlungList';
 import MitgliedZahlungDetail from './pages/Finanz/MitgliedZahlungDetail';
 import BankBuchungList from './pages/Finanz/BankBuchungList';
 import BankBuchungDetail from './pages/Finanz/BankBuchungDetail';
+import BankUpload from './pages/Finanz/BankUpload';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
 
@@ -86,12 +87,12 @@ const AppContent: React.FC = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
-      <Route path="/auth" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/auth" element={isAuthenticated ? <Navigate to="/startseite" replace /> : <Login />} />
 
       {/* Protected Routes */}
       {isAuthenticated ? (
         <>
-          <Route path="/dashboard" element={
+          <Route path="/startseite" element={
             <Layout>
               <DashboardComponent />
             </Layout>
@@ -123,7 +124,7 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
-          {/* Veranstaltungen */}
+          {/* Veranstaltungen (Admin/Dernek için) */}
           <Route path="/veranstaltungen" element={
             <Layout>
               <VeranstaltungList />
@@ -137,85 +138,82 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
-          <Route path="/reports" element={
+          <Route path="/berichte" element={
             <Layout>
               <Reports />
             </Layout>
           } />
 
-          {/* Finanz Routes */}
-          <Route path="/finanz" element={
+          {/* Finanzen Routes - Admin/Dernek */}
+          <Route path="/finanzen" element={
             <Layout>
               <FinanzDashboard />
             </Layout>
           } />
-          <Route path="/finanz/forderungen" element={
-            <Layout>
-              <MitgliedForderungList />
-            </Layout>
-          } />
-          <Route path="/finanz/forderungen/:id" element={
-            <Layout>
-              <MitgliedForderungDetail />
-            </Layout>
-          } />
-          <Route path="/finanz/zahlungen" element={
-            <Layout>
-              <MitgliedZahlungList />
-            </Layout>
-          } />
-          <Route path="/finanz/zahlungen/:id" element={
-            <Layout>
-              <MitgliedZahlungDetail />
-            </Layout>
-          } />
-          <Route path="/finanz/bank" element={
+          <Route path="/finanzen/bank" element={
             <Layout>
               <BankBuchungList />
             </Layout>
           } />
-          <Route path="/finanz/bank/:id" element={
+          <Route path="/finanzen/bank/:id" element={
             <Layout>
               <BankBuchungDetail />
             </Layout>
           } />
-
-          {/* Settings - Available for all user types */}
-          <Route path="/ayarlar" element={
+          <Route path="/finanzen/bank-upload" element={
             <Layout>
-              <Settings />
-            </Layout>
-          } />
-          <Route path="/verein/settings" element={
-            <Layout>
-              <Settings />
-            </Layout>
-          } />
-          <Route path="/settings" element={
-            <Layout>
-              <Settings />
+              <BankUpload />
             </Layout>
           } />
 
-          {/* Profile - Available for all user types */}
+          {/* Meine Finanzen Routes - Mitglied */}
+          <Route path="/meine-finanzen" element={
+            <Layout>
+              <MitgliedFinanz />
+            </Layout>
+          } />
+          <Route path="/meine-finanzen/forderungen" element={
+            <Layout>
+              <MitgliedForderungList />
+            </Layout>
+          } />
+          <Route path="/meine-finanzen/forderungen/:id" element={
+            <Layout>
+              <MitgliedForderungDetail />
+            </Layout>
+          } />
+          <Route path="/meine-finanzen/zahlungen" element={
+            <Layout>
+              <MitgliedZahlungList />
+            </Layout>
+          } />
+          <Route path="/meine-finanzen/zahlungen/:id" element={
+            <Layout>
+              <MitgliedZahlungDetail />
+            </Layout>
+          } />
+
+          {/* Einstellungen - Available for all user types */}
+          <Route path="/einstellungen" element={
+            <Layout>
+              <Settings />
+            </Layout>
+          } />
+
+          {/* Profil - Available for all user types */}
           <Route path="/profil" element={
-            <Layout>
-              <Profile />
-            </Layout>
-          } />
-          <Route path="/profile" element={
             <Layout>
               <Profile />
             </Layout>
           } />
 
           {/* Mitglied specific routes */}
-          <Route path="/etkinlikler" element={
+          <Route path="/meine-veranstaltungen" element={
             <Layout>
               <MitgliedEtkinlikler />
             </Layout>
           } />
-          <Route path="/ailem" element={
+          <Route path="/meine-familie" element={
             <Layout>
               <MitgliedAilem />
             </Layout>

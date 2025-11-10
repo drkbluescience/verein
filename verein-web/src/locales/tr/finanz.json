@@ -88,7 +88,7 @@
     "endDate": "Bitiş Tarihi"
   },
   "mitgliedFinanz": {
-    "title": "Mali Durumum",
+    "title": "Finansal Durum",
     "subtitle": "Aidat ve ödeme bilgilerinizi görüntüleyin",
     "currentBalance": "Güncel Bakiye",
     "totalDebt": "Toplam Borcum",
@@ -113,6 +113,25 @@
     "exportPDF": "PDF İndir",
     "exportSuccess": "PDF başarıyla indirildi",
     "summary": "Özet"
+  },
+  "bankUpload": {
+    "title": "Banka Ödemeleri Yükle",
+    "description": "Bankadan aldığınız ödeme Excel dosyasını yükleyerek üye ödemelerini otomatik olarak işleyin",
+    "selectBankAccount": "Banka Hesabı Seçin",
+    "chooseBankAccount": "Banka hesabı seçin...",
+    "dragDrop": "Excel dosyasını buraya sürükleyin",
+    "orClickToSelect": "veya dosya seçmek için tıklayın",
+    "downloadTemplate": "Şablon İndir",
+    "upload": "Yükle",
+    "uploading": "Yükleniyor...",
+    "selectFileAndBank": "Lütfen dosya ve banka hesabı seçin",
+    "invalidFileType": "Geçersiz dosya türü. Sadece Excel (.xlsx, .xls) veya CSV dosyaları kabul edilir.",
+    "fileTooLarge": "Dosya çok büyük. Maksimum dosya boyutu 10MB'dir.",
+    "uploadFailed": "Yükleme başarısız oldu",
+    "successful": "Başarılı",
+    "failed": "Başarısız",
+    "skipped": "Atlanan",
+    "details": "Detaylar"
   }
 }
 

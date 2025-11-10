@@ -60,7 +60,7 @@ const BankBuchungDetail: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bankBuchungen'] });
-      navigate('/finanz/bank');
+      navigate('/finanzen/bank');
     },
   });
 
@@ -83,7 +83,7 @@ const BankBuchungDetail: React.FC = () => {
     <div className="finanz-detail">
       {/* Header */}
       <div className="detail-header">
-        <button className="back-btn" onClick={() => navigate('/finanz/bank')}>
+        <button className="back-btn" onClick={() => navigate('/finanzen/bank')}>
           <BackIcon />
           {t('common:back')}
         </button>
@@ -94,7 +94,7 @@ const BankBuchungDetail: React.FC = () => {
         <div className="header-actions">
           <button
             className="btn btn-secondary"
-            onClick={() => navigate(`/finanz/bank/${id}/edit`)}
+            onClick={() => navigate(`/finanzen/bank/${id}/edit`)}
           >
             <EditIcon />
             {t('common:edit')}

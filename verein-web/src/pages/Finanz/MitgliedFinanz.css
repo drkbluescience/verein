@@ -253,28 +253,6 @@
   color: var(--color-text-primary);
 }
 
-.claim-action {
-  margin-left: var(--spacing-md);
-}
-
-.btn-pay {
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-pay:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-}
-
 /* Simple Table */
 .simple-table {
   overflow-x: auto;
@@ -341,194 +319,6 @@
   color: var(--color-warning);
 }
 
-/* Payment Modal */
-.mitglied-finanz .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--modal-overlay-bg, rgba(0, 0, 0, 0.5));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: var(--spacing-md);
-  backdrop-filter: blur(4px);
-}
-
-.mitglied-finanz .modal-content {
-  background: var(--color-background-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  max-width: 500px;
-  width: 100%;
-  box-shadow: var(--shadow-xl);
-  animation: modalSlideIn 0.3s ease;
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.mitglied-finanz .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
-}
-
-.mitglied-finanz .modal-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.mitglied-finanz .modal-close {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: var(--color-text-tertiary);
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease;
-  line-height: 1;
-}
-
-.mitglied-finanz .modal-close:hover {
-  background: var(--color-surface-secondary);
-  color: var(--color-text-primary);
-}
-
-.mitglied-finanz .modal-body {
-  padding: var(--spacing-lg);
-}
-
-.mitglied-finanz .payment-info {
-  background: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-}
-
-.mitglied-finanz .payment-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.mitglied-finanz .payment-info-row:last-child {
-  border-bottom: none;
-}
-
-.mitglied-finanz .payment-label {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-}
-
-.mitglied-finanz .payment-value {
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
-  font-weight: 600;
-}
-
-.mitglied-finanz .payment-amount-row {
-  padding-top: var(--spacing-md);
-  margin-top: var(--spacing-sm);
-  border-top: 2px solid var(--color-border);
-}
-
-.mitglied-finanz .payment-amount-value {
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  font-weight: 700;
-}
-
-.mitglied-finanz .payment-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  color: var(--color-primary);
-}
-
-.mitglied-finanz .payment-notice svg {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.mitglied-finanz .payment-notice p {
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.mitglied-finanz .modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
-}
-
-.mitglied-finanz .btn-primary,
-.mitglied-finanz .btn-secondary {
-  padding: 0.625rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-}
-
-.mitglied-finanz .btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
-}
-
-.mitglied-finanz .btn-primary:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.mitglied-finanz .btn-secondary {
-  background: var(--color-surface-secondary);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-}
-
-.mitglied-finanz .btn-secondary:hover {
-  background: var(--color-background-secondary);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .finance-summary {
@@ -551,14 +341,6 @@
     gap: var(--spacing-xs);
   }
 
-  .claim-action {
-    width: 100%;
-  }
-
-  .btn-pay {
-    width: 100%;
-  }
-
   .simple-table table {
     font-size: 0.8125rem;
   }
@@ -566,14 +348,6 @@
   .simple-table th,
   .simple-table td {
     padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .modal-footer {
-    flex-direction: column-reverse;
-  }
-
-  .modal-footer button {
-    width: 100%;
   }
 }
 

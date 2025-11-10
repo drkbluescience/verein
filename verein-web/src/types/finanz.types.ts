@@ -119,6 +119,38 @@ export interface UpdateBankBuchungDto {
 }
 
 // ============================================================================
+// BANK UPLOAD (Excel Upload)
+// ============================================================================
+
+export interface BankUploadRequestDto {
+  vereinId: number;
+  bankKontoId: number;
+  file: File;
+}
+
+export interface BankUploadResponseDto {
+  success: boolean;
+  message: string;
+  successCount: number;
+  failedCount: number;
+  skippedCount: number;
+  details: BankUploadDetailDto[];
+  errors: string[];
+}
+
+export interface BankUploadDetailDto {
+  rowNumber: number;
+  datum?: string;
+  betrag?: number;
+  empfaenger?: string;
+  verwendungszweck?: string;
+  status: 'Success' | 'Failed' | 'Skipped';
+  message: string;
+  mitgliedId?: number;
+  mitgliedName?: string;
+}
+
+// ============================================================================
 // MITGLIED FORDERUNG (Member Claim/Invoice)
 // ============================================================================
 

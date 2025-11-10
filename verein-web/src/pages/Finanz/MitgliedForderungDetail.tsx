@@ -61,7 +61,7 @@ const MitgliedForderungDetail: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['forderungen'] });
-      navigate('/finanz/forderungen');
+      navigate('/meine-finanzen/forderungen');
     },
   });
 
@@ -84,7 +84,7 @@ const MitgliedForderungDetail: React.FC = () => {
     <div className="finanz-detail">
       {/* Header */}
       <div className="detail-header">
-        <button className="back-btn" onClick={() => navigate('/finanz/forderungen')}>
+        <button className="back-btn" onClick={() => navigate('/meine-finanzen/forderungen')}>
           <BackIcon />
           {t('common:back')}
         </button>
@@ -95,7 +95,7 @@ const MitgliedForderungDetail: React.FC = () => {
         <div className="header-actions">
           <button
             className="btn btn-secondary"
-            onClick={() => navigate(`/finanz/forderungen/${id}/edit`)}
+            onClick={() => navigate(`/meine-finanzen/forderungen/${id}/edit`)}
           >
             <EditIcon />
             {t('common:edit')}

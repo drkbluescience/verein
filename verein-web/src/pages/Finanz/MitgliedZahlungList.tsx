@@ -214,7 +214,7 @@ const MitgliedZahlungList: React.FC = () => {
                   <td className="cell-actions">
                     <button
                       className="action-btn"
-                      onClick={() => navigate(`/finanz/zahlungen/${zahlung.id}`)}
+                      onClick={() => navigate(`/meine-finanzen/zahlungen/${zahlung.id}`)}
                       title={t('common:view')}
                     >
                       <EyeIcon />

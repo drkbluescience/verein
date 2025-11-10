@@ -11,6 +11,7 @@ import {
   BankBuchungDto,
   CreateBankBuchungDto,
   UpdateBankBuchungDto,
+  BankUploadResponseDto,
   MitgliedForderungDto,
   CreateMitgliedForderungDto,
   UpdateMitgliedForderungDto,
@@ -95,6 +96,29 @@ export const bankBuchungService = {
   // Delete bank transaction (soft delete)
   delete: async (id: number): Promise<void> => {
     return api.delete<void>(`/api/BankBuchungen/${id}`);
+  },
+
+  // Upload Excel file with bank transactions
+  uploadExcel: async (vereinId: number, bankKontoId: number, file: File): Promise<BankUploadResponseDto> => {
+    const formData = new FormData();
+    formData.append('vereinId', vereinId.toString());
+    formData.append('bankKontoId', bankKontoId.toString());
+    formData.append('file', file);
+
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5103'}/api/BankBuchungen/upload-excel`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Upload failed');
+    }
+
+    return response.json();
   },
 };
 

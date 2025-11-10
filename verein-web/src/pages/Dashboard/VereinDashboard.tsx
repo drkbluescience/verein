@@ -283,7 +283,7 @@ const VereinDashboard: React.FC = () => {
             </div>
           </Link>
 
-          <Link to="/reports" className="action-card">
+          <Link to="/berichte" className="action-card">
             <div className="action-icon">
               <BarChartIcon />
             </div>

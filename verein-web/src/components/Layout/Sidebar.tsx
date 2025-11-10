@@ -67,30 +67,30 @@ const CreditCardIcon = () => (
 );
 
 const adminMenuItems: MenuItem[] = [
-  { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/vereine', labelKey: 'navigation.vereine', icon: <BuildingIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitglieder', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.veranstaltungen', icon: <CalendarIcon /> },
-  { path: '/finanz', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
-  { path: '/reports', labelKey: 'navigation.reports', icon: <BarChartIcon /> },
-  { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
+  { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
+  { path: '/berichte', labelKey: 'navigation.reports', icon: <BarChartIcon /> },
+  { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 
 const dernekMenuItems: MenuItem[] = [
-  { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitgliederimiz', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.etkinliklerimiz', icon: <CalendarIcon /> },
-  { path: '/finanz', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
-  { path: '/reports', labelKey: 'navigation.raporlarimiz', icon: <BarChartIcon /> },
-  { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
+  { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
+  { path: '/berichte', labelKey: 'navigation.raporlarimiz', icon: <BarChartIcon /> },
+  { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 
 const mitgliedMenuItems: MenuItem[] = [
-  { path: '/dashboard', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
-  { path: '/etkinlikler', labelKey: 'navigation.etkinlikler', icon: <CalendarIcon /> },
-  { path: '/ailem', labelKey: 'navigation.ailem', icon: <UsersIcon /> },
-  { path: '/finanz', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
-  { path: '/ayarlar', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
+  { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/meine-veranstaltungen', labelKey: 'navigation.etkinlikler', icon: <CalendarIcon /> },
+  { path: '/meine-familie', labelKey: 'navigation.ailem', icon: <UsersIcon /> },
+  { path: '/meine-finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
+  { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];
 
 interface SidebarProps {
@@ -190,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             <NavLink
               key={item.path}
               to={item.path}
-              end={item.path === '/dashboard'}
+              end={item.path === '/startseite'}
               className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
             >
               <span className="nav-icon">{item.icon}</span>

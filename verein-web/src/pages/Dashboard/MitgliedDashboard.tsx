@@ -365,7 +365,7 @@ const MitgliedDashboard: React.FC = () => {
             </div>
           </Link>
 
-          <Link to="/etkinlikler" className="action-card">
+          <Link to="/meine-veranstaltungen" className="action-card">
             <div className="action-icon">
               <CalendarIcon />
             </div>
@@ -375,7 +375,7 @@ const MitgliedDashboard: React.FC = () => {
             </div>
           </Link>
 
-          <Link to="/ailem" className="action-card">
+          <Link to="/meine-familie" className="action-card">
             <div className="action-icon">
               <UsersIcon />
             </div>

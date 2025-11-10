@@ -574,7 +574,7 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
   // Determine back navigation based on user type
   const getBackPath = () => {
     if (user?.type === 'mitglied') {
-      return '/etkinlikler';
+      return '/meine-veranstaltungen';
     }
     return '/veranstaltungen';
   };

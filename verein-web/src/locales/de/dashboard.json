@@ -1,5 +1,5 @@
 {
-  "title": "Dashboard",
+  "title": "Startseite",
   "subtitle": "Allgemeiner Status des Vereinsverwaltungssystems",
   "systemStatus": {
     "title": "Systemstatus",
@@ -42,9 +42,9 @@
     "apiError": "Verbindung zum Backend-API nicht möglich. Bitte stellen Sie sicher, dass die API läuft."
   },
   "verein": {
-    "loading": "Dashboard wird geladen...",
+    "loading": "Startseite wird geladen...",
     "header": {
-      "title": "Dashboard",
+      "title": "Startseite",
       "subtitle": "Willkommen! Verwalten Sie Ihren Verein einfach und verfolgen Sie Ihre Aktivitäten."
     },
     "overview": {
@@ -89,7 +89,7 @@
     }
   },
   "mitglied": {
-    "loading": "Dashboard wird geladen...",
+    "loading": "Startseite wird geladen...",
     "noData": "Mitgliederdaten konnten nicht geladen werden.",
     "vereinSelector": {
       "title": "Verein auswählen",

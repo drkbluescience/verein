@@ -5,6 +5,7 @@
  */
 
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -92,6 +93,14 @@ const DownloadIcon = () => (
   </svg>
 );
 
+const UploadIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+);
+
 interface StatCardProps {
   title: string;
   value: string | number;
@@ -115,6 +124,7 @@ const FinanzDashboard: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Get vereinId based on user type
   const vereinId = useMemo(() => {
@@ -358,10 +368,16 @@ const FinanzDashboard: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <h1 className="page-title">{t('finanz:dashboard.title')}</h1>
-        <button className="btn btn-primary" onClick={exportToExcel}>
-          <DownloadIcon />
-          Excel'e Aktar
-        </button>
+        <div className="header-actions">
+          <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
+            <UploadIcon />
+            {t('finanz:bankUpload.title')}
+          </button>
+          <button className="btn btn-primary" onClick={exportToExcel}>
+            <DownloadIcon />
+            Excel'e Aktar
+          </button>
+        </div>
       </div>
 
       {/* Main Stats Grid - 4 columns */}

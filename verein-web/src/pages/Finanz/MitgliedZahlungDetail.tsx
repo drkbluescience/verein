@@ -60,7 +60,7 @@ const MitgliedZahlungDetail: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['zahlungen'] });
-      navigate('/finanz/zahlungen');
+      navigate('/meine-finanzen/zahlungen');
     },
   });
 
@@ -76,7 +76,7 @@ const MitgliedZahlungDetail: React.FC = () => {
     <div className="finanz-detail">
       {/* Header */}
       <div className="detail-header">
-        <button className="back-btn" onClick={() => navigate('/finanz/zahlungen')}>
+        <button className="back-btn" onClick={() => navigate('/meine-finanzen/zahlungen')}>
           <BackIcon />
           {t('common:back')}
         </button>
@@ -87,7 +87,7 @@ const MitgliedZahlungDetail: React.FC = () => {
         <div className="header-actions">
           <button
             className="btn btn-secondary"
-            onClick={() => navigate(`/finanz/zahlungen/${id}/edit`)}
+            onClick={() => navigate(`/meine-finanzen/zahlungen/${id}/edit`)}
           >
             <EditIcon />
             {t('common:edit')}

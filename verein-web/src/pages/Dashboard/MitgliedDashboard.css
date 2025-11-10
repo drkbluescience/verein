@@ -348,7 +348,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  color: var(--color-text-primary);
   flex-shrink: 0;
   font-size: 28px;
 }

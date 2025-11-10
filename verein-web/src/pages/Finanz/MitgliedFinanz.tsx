@@ -4,7 +4,7 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -20,14 +20,6 @@ import autoTable from 'jspdf-autotable';
 import './MitgliedFinanz.css';
 
 // Icons
-const AlertCircleIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-  </svg>
-);
-
-
-
 const CalendarIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
@@ -50,10 +42,6 @@ const MitgliedFinanz: React.FC = () => {
   const { showToast } = useToast();
 
   const mitgliedId = user?.mitgliedId;
-
-  // Payment modal state
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedClaim, setSelectedClaim] = useState<any>(null);
 
   // Fetch member's claims
   const { data: forderungen = [], isLoading: forderungenLoading } = useQuery({
@@ -115,7 +103,7 @@ const MitgliedFinanz: React.FC = () => {
 
   // Redirect if not a member
   if (user?.type !== 'mitglied') {
-    navigate('/dashboard');
+    navigate('/startseite');
     return null;
   }
 
@@ -152,20 +140,6 @@ const MitgliedFinanz: React.FC = () => {
   const isOverdue = (faelligkeit: string, statusId: number) => {
     if (statusId === 1) return false; // Already paid
     return new Date(faelligkeit) < new Date();
-  };
-
-  // Handle payment button click
-  const handlePayNow = (forderung: any) => {
-    setSelectedClaim(forderung);
-    setShowPaymentModal(true);
-  };
-
-  // Handle payment submission
-  const handlePaymentSubmit = () => {
-    // In a real application, this would integrate with a payment gateway
-    showToast(t('finanz:mitgliedFinanz.paymentRedirect'), 'info');
-    setShowPaymentModal(false);
-    setSelectedClaim(null);
   };
 
   // Export payment history to PDF
@@ -395,11 +369,6 @@ const MitgliedFinanz: React.FC = () => {
                       <div className="claim-amount">{formatCurrency(forderung.betrag)}</div>
                     </div>
                   </div>
-                  <div className="claim-action">
-                    <button className="btn-pay" onClick={() => handlePayNow(forderung)}>
-                      {t('finanz:mitgliedFinanz.payNow')}
-                    </button>
-                  </div>
                 </div>
               ))}
           </div>
@@ -488,61 +457,6 @@ const MitgliedFinanz: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Payment Modal */}
-      {showPaymentModal && selectedClaim && (
-        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{t('finanz:mitgliedFinanz.paymentModalTitle')}</h2>
-              <button
-                className="modal-close"
-                onClick={() => setShowPaymentModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="payment-info">
-                <div className="payment-info-row">
-                  <span className="payment-label">{t('finanz:claims.description')}:</span>
-                  <span className="payment-value">{selectedClaim.beschreibung || t('finanz:claims.title')}</span>
-                </div>
-                <div className="payment-info-row">
-                  <span className="payment-label">{t('finanz:claims.number')}:</span>
-                  <span className="payment-value">#{selectedClaim.forderungsnummer || selectedClaim.id}</span>
-                </div>
-                <div className="payment-info-row">
-                  <span className="payment-label">{t('finanz:claims.dueDate')}:</span>
-                  <span className="payment-value">{formatDate(selectedClaim.faelligkeit)}</span>
-                </div>
-                <div className="payment-info-row payment-amount-row">
-                  <span className="payment-label">{t('finanz:claims.amount')}:</span>
-                  <span className="payment-amount-value">{formatCurrency(selectedClaim.betrag)}</span>
-                </div>
-              </div>
-              <div className="payment-notice">
-                <AlertCircleIcon />
-                <p>{t('finanz:mitgliedFinanz.paymentNotice')}</p>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                className="btn-secondary"
-                onClick={() => setShowPaymentModal(false)}
-              >
-                {t('common:actions.cancel')}
-              </button>
-              <button
-                className="btn-primary"
-                onClick={handlePaymentSubmit}
-              >
-                {t('finanz:mitgliedFinanz.proceedToPayment')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

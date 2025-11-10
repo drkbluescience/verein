@@ -37,11 +37,16 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
     if (title) return title;
 
     const path = location.pathname;
-    if (path === '/') return t('navigation.dashboard');
+    if (path === '/startseite') return t('navigation.dashboard');
     if (path.startsWith('/vereine')) return t('navigation.vereine');
     if (path.startsWith('/mitglieder')) return t('navigation.mitglieder');
     if (path.startsWith('/veranstaltungen')) return t('navigation.veranstaltungen');
-    if (path.startsWith('/reports')) return t('navigation.reports');
+    if (path.startsWith('/meine-veranstaltungen')) return t('navigation.etkinlikler');
+    if (path.startsWith('/meine-familie')) return t('navigation.ailem');
+    if (path.startsWith('/berichte')) return t('navigation.reports');
+    if (path.startsWith('/finanzen')) return t('navigation.finanz');
+    if (path.startsWith('/einstellungen')) return t('navigation.settings');
+    if (path.startsWith('/profil')) return t('navigation.profile');
 
     return t('app.name');
   };

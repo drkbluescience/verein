@@ -1,5 +1,5 @@
 {
-  "title": "Dashboard",
+  "title": "Ana Sayfa",
   "subtitle": "Dernek yönetim sistemi genel durumu",
   "systemStatus": {
     "title": "Sistem Durumu",
@@ -42,9 +42,9 @@
     "apiError": "Backend API'ye bağlanılamıyor. Lütfen API'nin çalıştığından emin olun."
   },
   "verein": {
-    "loading": "Dashboard yükleniyor...",
+    "loading": "Ana Sayfa yükleniyor...",
     "header": {
-      "title": "Dashboard",
+      "title": "Ana Sayfa",
       "subtitle": "Hoş geldiniz! Derneğinizi kolayca yönetin ve aktivitelerinizi takip edin."
     },
     "overview": {
@@ -89,7 +89,7 @@
     }
   },
   "mitglied": {
-    "loading": "Dashboard yükleniyor...",
+    "loading": "Ana Sayfa yükleniyor...",
     "noData": "Üye bilgileri yüklenemedi.",
     "vereinSelector": {
       "title": "Dernek Seçin",
