@@ -5,8 +5,10 @@
 -- Çalıştırma sırası: APPLICATION_H_101.sql → COMPLETE_DEMO_DATA.sql
 -- ============================================================================
 
-USE [VEREIN];
-GO
+-- ÖNEMLİ: Azure SQL Database'de USE komutu desteklenmez!
+-- Bu scripti çalıştırmadan ÖNCE VereinDB veritabanına bağlanın
+-- USE [VEREIN];
+-- GO
 
 PRINT '';
 PRINT 'Demo verileri ekleniyor...';

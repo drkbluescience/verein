@@ -1,61 +1,19 @@
-/****** Object:  Database [VEREIN]    Script Date: 23.08.2025 - FIXED VERSION ******/
--- VEREIN Database - D?zeltilmi? ve Tamamlanm?? Versiyon
--- Bu dosya APPLICATION_H_101.sql dosyas?n?n d?zeltilmi? versiyonudur
--- D?zeltilen sorunlar:
--- 1. Naming convention standardizasyonu
--- 2. Eksik tablo tan?mlar? tamamland?
--- 3. Foreign key ili?kileri eklendi
--- 4. Performans indexleri eklendi
--- 5. Eksik tablolar eklendi
+﻿/****** Object:  Database [VereinDB]    Script Date: 23.08.2025 - AZURE VERSION ******/
+-- VereinDB Database - Azure SQL Database için uyarlanmış versiyon
+-- Bu dosya APPLICATION_H_101.sql dosyasının Azure SQL için uyarlanmış versiyonudur
+-- Değişiklikler:
+-- 1. CREATE DATABASE komutu kaldırıldı (Azure Portal'dan oluşturulmalı)
+-- 2. ALTER DATABASE komutları kaldırıldı (Azure tarafından yönetilir)
+-- 3. USE komutu kaldırıldı (Azure SQL Database'de desteklenmez)
+-- 4. Sadece schema, tablo, index, constraint komutları korundu
 
-CREATE DATABASE [VEREIN]  (EDITION = 'Standard', SERVICE_OBJECTIVE = 'ElasticPool', MAXSIZE = 250 GB) WITH CATALOG_COLLATION = SQL_Latin1_General_CP1_CI_AS, LEDGER = OFF;
-GO
-ALTER DATABASE [VEREIN] SET COMPATIBILITY_LEVEL = 160
-GO
-ALTER DATABASE [VEREIN] SET ANSI_NULL_DEFAULT OFF 
-GO
-ALTER DATABASE [VEREIN] SET ANSI_NULLS OFF 
-GO
-ALTER DATABASE [VEREIN] SET ANSI_PADDING OFF 
-GO
-ALTER DATABASE [VEREIN] SET ANSI_WARNINGS OFF 
-GO
-ALTER DATABASE [VEREIN] SET ARITHABORT OFF 
-GO
-ALTER DATABASE [VEREIN] SET AUTO_SHRINK OFF 
-GO
-ALTER DATABASE [VEREIN] SET AUTO_UPDATE_STATISTICS ON 
-GO
-ALTER DATABASE [VEREIN] SET CURSOR_CLOSE_ON_COMMIT OFF 
-GO
-ALTER DATABASE [VEREIN] SET CONCAT_NULL_YIELDS_NULL OFF 
-GO
-ALTER DATABASE [VEREIN] SET NUMERIC_ROUNDABORT OFF 
-GO
-ALTER DATABASE [VEREIN] SET QUOTED_IDENTIFIER OFF 
-GO
-ALTER DATABASE [VEREIN] SET RECURSIVE_TRIGGERS OFF 
-GO
-ALTER DATABASE [VEREIN] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
-GO
-ALTER DATABASE [VEREIN] SET ALLOW_SNAPSHOT_ISOLATION ON 
-GO
-ALTER DATABASE [VEREIN] SET PARAMETERIZATION SIMPLE 
-GO
-ALTER DATABASE [VEREIN] SET READ_COMMITTED_SNAPSHOT ON 
-GO
-ALTER DATABASE [VEREIN] SET  MULTI_USER 
-GO
-ALTER DATABASE [VEREIN] SET ENCRYPTION ON
-GO
-ALTER DATABASE [VEREIN] SET QUERY_STORE = ON
-GO
-ALTER DATABASE [VEREIN] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 100, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
-GO
-/*** Die Skripts f?r datenbankweit g?ltige Konfigurationen in Azure m?ssen innerhalb der Zieldatenbankverbindung ausgef?hrt werden. ***/
-GO
--- ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = 8;
-GO
+-- ÖNEMLİ: Azure SQL Database'de USE komutu desteklenmez!
+-- Bu scripti çalıştırmadan ÖNCE VereinDB veritabanına bağlanın:
+-- Server: Verein08112025.database.windows.net
+-- Database: VereinDB
+-- User: vereinsa
+
+
 
 
 
@@ -111,7 +69,7 @@ CREATE TABLE [Finanz].[BankBuchung](
 	[Referenz] [nvarchar](100) NULL,
 	[StatusId] [int] NOT NULL,
 	[AngelegtAm] [datetime] NULL,
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -142,7 +100,7 @@ CREATE TABLE [Finanz].[MitgliedForderung](
 	[Beschreibung] [nvarchar](250) NULL,
 	[StatusId] [int] NOT NULL,
 	[BezahltAm] [date] NULL,
- CONSTRAINT [PK__Mitglied__3214EC0737752A33] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK__Mitglied__3214EC0737752A33] PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -163,7 +121,7 @@ CREATE TABLE [Finanz].[MitgliedForderungZahlung](
 	[ForderungId] [int] NOT NULL,
 	[ZahlungId] [int] NOT NULL,
 	[Betrag] [decimal](18, 2) NOT NULL,
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -1478,5 +1436,98 @@ REFERENCES [Keytable].[Rechtsform] ([Id])
 GO
 ALTER TABLE [Verein].[Verein] CHECK CONSTRAINT [FK_Verein_Rechtsform]
 GO
-ALTER DATABASE [VEREIN] SET  READ_WRITE 
+
+-- Finanz Schema Foreign Keys
+-- BankBuchung FK constraints
+ALTER TABLE [Finanz].[BankBuchung] WITH CHECK ADD FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
 GO
+ALTER TABLE [Finanz].[BankBuchung] WITH CHECK ADD FOREIGN KEY([BankKontoId])
+REFERENCES [Verein].[Bankkonto] ([Id])
+GO
+ALTER TABLE [Finanz].[BankBuchung] WITH CHECK ADD FOREIGN KEY([WaehrungId])
+REFERENCES [Keytable].[Waehrung] ([Id])
+GO
+ALTER TABLE [Finanz].[BankBuchung] WITH CHECK ADD FOREIGN KEY([StatusId])
+REFERENCES [Keytable].[ZahlungStatus] ([Id])
+GO
+
+-- MitgliedForderung FK constraints
+ALTER TABLE [Finanz].[MitgliedForderung] WITH CHECK ADD FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedForderung] WITH CHECK ADD FOREIGN KEY([MitgliedId])
+REFERENCES [Mitglied].[Mitglied] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedForderung] WITH CHECK ADD FOREIGN KEY([ZahlungTypId])
+REFERENCES [Keytable].[ZahlungTyp] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedForderung] WITH CHECK ADD FOREIGN KEY([WaehrungId])
+REFERENCES [Keytable].[Waehrung] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedForderung] WITH CHECK ADD FOREIGN KEY([StatusId])
+REFERENCES [Keytable].[ZahlungStatus] ([Id])
+GO
+
+-- MitgliedZahlung FK constraints
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([MitgliedId])
+REFERENCES [Mitglied].[Mitglied] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([ZahlungTypId])
+REFERENCES [Keytable].[ZahlungTyp] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([WaehrungId])
+REFERENCES [Keytable].[Waehrung] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([StatusId])
+REFERENCES [Keytable].[ZahlungStatus] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([ForderungId])
+REFERENCES [Finanz].[MitgliedForderung] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([BankkontoId])
+REFERENCES [Verein].[Bankkonto] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([BankBuchungId])
+REFERENCES [Finanz].[BankBuchung] ([Id])
+GO
+
+-- MitgliedForderungZahlung FK constraints
+ALTER TABLE [Finanz].[MitgliedForderungZahlung] WITH CHECK ADD FOREIGN KEY([ForderungId])
+REFERENCES [Finanz].[MitgliedForderung] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedForderungZahlung] WITH CHECK ADD FOREIGN KEY([ZahlungId])
+REFERENCES [Finanz].[MitgliedZahlung] ([Id])
+GO
+
+-- MitgliedVorauszahlung FK constraints
+ALTER TABLE [Finanz].[MitgliedVorauszahlung] WITH CHECK ADD FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedVorauszahlung] WITH CHECK ADD FOREIGN KEY([MitgliedId])
+REFERENCES [Mitglied].[Mitglied] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedVorauszahlung] WITH CHECK ADD FOREIGN KEY([ZahlungId])
+REFERENCES [Finanz].[MitgliedZahlung] ([Id])
+GO
+ALTER TABLE [Finanz].[MitgliedVorauszahlung] WITH CHECK ADD FOREIGN KEY([WaehrungId])
+REFERENCES [Keytable].[Waehrung] ([Id])
+GO
+
+-- VeranstaltungZahlung FK constraints
+ALTER TABLE [Finanz].[VeranstaltungZahlung] WITH CHECK ADD FOREIGN KEY([VeranstaltungId])
+REFERENCES [Verein].[Veranstaltung] ([Id])
+GO
+ALTER TABLE [Finanz].[VeranstaltungZahlung] WITH CHECK ADD FOREIGN KEY([AnmeldungId])
+REFERENCES [Verein].[VeranstaltungAnmeldung] ([Id])
+GO
+ALTER TABLE [Finanz].[VeranstaltungZahlung] WITH CHECK ADD FOREIGN KEY([WaehrungId])
+REFERENCES [Keytable].[Waehrung] ([Id])
+GO
+ALTER TABLE [Finanz].[VeranstaltungZahlung] WITH CHECK ADD FOREIGN KEY([StatusId])
+REFERENCES [Keytable].[ZahlungStatus] ([Id])
+GO
+

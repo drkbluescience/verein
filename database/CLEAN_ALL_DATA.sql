@@ -5,8 +5,10 @@
 -- ⚠️ UYARI: Bu işlem GERİ ALINAMAZ! Lütfen dikkatli kullanın!
 -- ============================================================================
 
-USE [VEREIN];
-GO
+-- ÖNEMLİ: Azure SQL Database'de USE komutu desteklenmez!
+-- Bu scripti çalıştırmadan ÖNCE VereinDB veritabanına bağlanın
+-- USE [VEREIN];
+-- GO
 
 PRINT '╔════════════════════════════════════════════════════════════════╗';
 PRINT '║         ⚠️  TÜÜN VERİTABANI VERİLERİ SİLİNİYOR...             ║';
