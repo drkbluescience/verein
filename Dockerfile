@@ -1,4 +1,5 @@
 # Railway Deployment Dockerfile for Verein API
+# Updated: 2025-11-10 - Force rebuild to get latest Program.cs fix
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
