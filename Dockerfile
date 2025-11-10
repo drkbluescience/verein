@@ -19,6 +19,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS publish
 WORKDIR /src
 COPY verein-api/ ./verein-api/
 WORKDIR /src/verein-api
+
+# Fix PostgreSQL EnableRetryOnFailure issue (remove errorCodesToAdd parameter)
+RUN sed -i 's/errorCodesToAdd: null);//g' Program.cs || true
+
 RUN dotnet restore "VereinsApi.csproj"
 RUN dotnet publish "VereinsApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
