@@ -328,7 +328,8 @@ public class ApplicationDbContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             // This will be overridden by DI configuration in Program.cs
-            optionsBuilder.UseSqlite("Data Source=verein.db");
+            // Fallback to Azure SQL Server if not configured
+            optionsBuilder.UseSqlServer("Server=Verein08112025.database.windows.net;Database=VereinDB;User Id=vereinsa;Password=]L1iGfZJ*34iw9;TrustServerCertificate=true;MultipleActiveResultSets=true;Encrypt=true;");
         }
 
         // Suppress migration warnings for development
