@@ -49,6 +49,12 @@ const DownloadIcon = () => (
   </svg>
 );
 
+const ArrowLeftIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const MitgliedZahlungList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
@@ -152,17 +158,17 @@ const MitgliedZahlungList: React.FC = () => {
   // Export to Excel
   const exportToExcel = () => {
     const exportData = filteredZahlungen.map(z => ({
-      'Referans': z.referenz || '-',
-      'Tutar': z.betrag,
-      'Ödeme Tarihi': new Date(z.zahlungsdatum).toLocaleDateString('tr-TR'),
-      'Ödeme Yöntemi': z.zahlungsweg || '-',
-      'Açıklama': z.bemerkung || '-',
+      [t('finanz:export.referenceColumn')]: z.referenz || '-',
+      [t('finanz:export.amountColumn')]: z.betrag,
+      [t('finanz:export.paymentDateColumn')]: new Date(z.zahlungsdatum).toLocaleDateString('tr-TR'),
+      [t('finanz:export.paymentMethodColumn')]: z.zahlungsweg || '-',
+      [t('finanz:export.descriptionColumn')]: z.bemerkung || '-',
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Ödemeler');
-    XLSX.writeFile(wb, `Odemeler_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, t('finanz:export.paymentsSheet'));
+    XLSX.writeFile(wb, `${t('finanz:export.paymentsFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   if (isLoading) return <Loading />;
@@ -171,24 +177,32 @@ const MitgliedZahlungList: React.FC = () => {
   return (
     <div className="finanz-list">
       {/* Header */}
-      <div className="list-header">
-        <div>
-          <h1>{t('finanz:payments.title')}</h1>
-          <p className="list-subtitle">{t('finanz:payments.subtitle')}</p>
-        </div>
-        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-          <button className="btn btn-secondary" onClick={exportToExcel}>
-            <DownloadIcon />
-            Excel
-          </button>
-          <button className="btn btn-primary" onClick={() => {
-            setSelectedZahlung(null);
-            setIsModalOpen(true);
-          }}>
-            <PlusIcon />
-            {t('finanz:payments.new')}
-          </button>
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">{t('finanz:payments.title')}</h1>
+        <p className="page-subtitle">{t('finanz:payments.subtitle')}</p>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/finanzen')}
+          title={t('common:back')}
+        >
+          <ArrowLeftIcon />
+        </button>
+        <div style={{ flex: 1 }}></div>
+        <button className="btn btn-secondary" onClick={exportToExcel}>
+          <DownloadIcon />
+          Excel
+        </button>
+        <button className="btn btn-primary" onClick={() => {
+          setSelectedZahlung(null);
+          setIsModalOpen(true);
+        }}>
+          <PlusIcon />
+          {t('finanz:payments.new')}
+        </button>
       </div>
 
       {/* Filters */}
@@ -197,7 +211,7 @@ const MitgliedZahlungList: React.FC = () => {
           <SearchIcon />
           <input
             type="text"
-            placeholder={t('common:search')}
+            placeholder={t('common:actions.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -266,7 +280,7 @@ const MitgliedZahlungList: React.FC = () => {
                 <th>{t('finanz:payments.date')}</th>
                 <th>{t('finanz:payments.method')}</th>
                 <th>{t('finanz:payments.description')}</th>
-                <th>{t('common:actions')}</th>
+                <th>{t('common:common.actionsColumn')}</th>
               </tr>
             </thead>
             <tbody>

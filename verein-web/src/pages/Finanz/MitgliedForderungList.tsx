@@ -48,6 +48,12 @@ const DownloadIcon = () => (
   </svg>
 );
 
+const ArrowLeftIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const MitgliedForderungList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
@@ -124,19 +130,19 @@ const MitgliedForderungList: React.FC = () => {
   // Export to Excel
   const exportToExcel = () => {
     const exportData = filteredForderungen.map(f => ({
-      'Fatura No': f.forderungsnummer || '-',
-      'Tutar': f.betrag,
-      'Vade Tarihi': new Date(f.faelligkeit).toLocaleDateString('tr-TR'),
-      'Durum': f.statusId === 1 ? 'Ödendi' : 'Açık',
-      'Gecikmiş': isOverdue(f.faelligkeit, f.statusId) ? 'Evet' : 'Hayır',
-      'Açıklama': f.beschreibung || '-',
-      'Ödeme Tarihi': f.bezahltAm ? new Date(f.bezahltAm).toLocaleDateString('tr-TR') : '-',
+      [t('finanz:export.invoiceNoColumn')]: f.forderungsnummer || '-',
+      [t('finanz:export.amountColumn')]: f.betrag,
+      [t('finanz:export.dueDateColumn')]: new Date(f.faelligkeit).toLocaleDateString('tr-TR'),
+      [t('finanz:export.statusColumn')]: f.statusId === 1 ? t('finanz:export.statusPaid') : t('finanz:export.statusOpen'),
+      [t('finanz:export.overdueColumn')]: isOverdue(f.faelligkeit, f.statusId) ? t('finanz:export.yes') : t('finanz:export.no'),
+      [t('finanz:export.descriptionColumn')]: f.beschreibung || '-',
+      [t('finanz:export.paidDateColumn')]: f.bezahltAm ? new Date(f.bezahltAm).toLocaleDateString('tr-TR') : '-',
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Alacaklar');
-    XLSX.writeFile(wb, `Alacaklar_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, t('finanz:export.claimsSheet'));
+    XLSX.writeFile(wb, `${t('finanz:export.claimsFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   if (isLoading) return <Loading />;
@@ -145,24 +151,32 @@ const MitgliedForderungList: React.FC = () => {
   return (
     <div className="finanz-list">
       {/* Header */}
-      <div className="list-header">
-        <div>
-          <h1>{t('finanz:claims.title')}</h1>
-          <p className="list-subtitle">{t('finanz:claims.subtitle')}</p>
-        </div>
-        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-          <button className="btn btn-secondary" onClick={exportToExcel}>
-            <DownloadIcon />
-            Excel
-          </button>
-          <button className="btn btn-primary" onClick={() => {
-            setSelectedForderung(null);
-            setIsModalOpen(true);
-          }}>
-            <PlusIcon />
-            {t('finanz:claims.new')}
-          </button>
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">{t('finanz:claims.title')}</h1>
+        <p className="page-subtitle">{t('finanz:claims.subtitle')}</p>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/finanzen')}
+          title={t('common:back')}
+        >
+          <ArrowLeftIcon />
+        </button>
+        <div style={{ flex: 1 }}></div>
+        <button className="btn btn-secondary" onClick={exportToExcel}>
+          <DownloadIcon />
+          Excel
+        </button>
+        <button className="btn btn-primary" onClick={() => {
+          setSelectedForderung(null);
+          setIsModalOpen(true);
+        }}>
+          <PlusIcon />
+          {t('finanz:claims.new')}
+        </button>
       </div>
 
       {/* Filters */}
@@ -171,7 +185,7 @@ const MitgliedForderungList: React.FC = () => {
           <SearchIcon />
           <input
             type="text"
-            placeholder={t('common:search')}
+            placeholder={t('common:actions.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -206,7 +220,7 @@ const MitgliedForderungList: React.FC = () => {
                 <th>{t('finanz:claims.dueDate')}</th>
                 <th>{t('finanz:claims.status')}</th>
                 <th>{t('finanz:claims.description')}</th>
-                <th>{t('common:actions')}</th>
+                <th>{t('common:common.actionsColumn')}</th>
               </tr>
             </thead>
             <tbody>

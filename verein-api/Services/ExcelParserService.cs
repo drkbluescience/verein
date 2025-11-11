@@ -21,8 +21,14 @@ public class ExcelParserService : IExcelParserService
 
     /// <summary>
     /// Parse bank transaction Excel file
-    /// Supports standard German bank export formats
-    /// Expected columns: Buchungsdatum, Betrag, Empfänger/Auftraggeber, Verwendungszweck, Referenz, IBAN
+    /// Supports German, English, and Turkish bank export formats
+    /// Expected columns (German/English/Turkish):
+    /// - Buchungsdatum/Date/Tarih
+    /// - Betrag/Amount/Tutar
+    /// - Empfänger/Recipient/Alıcı
+    /// - Verwendungszweck/Purpose/Açıklama
+    /// - Referenz/Reference/Referans
+    /// - IBAN/Account/Hesap
     /// </summary>
     public async Task<List<ExcelTransactionRow>> ParseBankTransactionsAsync(Stream fileStream)
     {
@@ -88,21 +94,25 @@ public class ExcelParserService : IExcelParserService
 
     /// <summary>
     /// Find the header row in the worksheet
+    /// Supports German, English, and Turkish headers
     /// </summary>
     private int FindHeaderRow(ExcelWorksheet worksheet)
     {
         var maxRowsToCheck = Math.Min(10, worksheet.Dimension?.Rows ?? 0);
-        
+
         for (int row = 1; row <= maxRowsToCheck; row++)
         {
             var cellValue = worksheet.Cells[row, 1].Text?.Trim().ToLowerInvariant();
-            
-            // Check if this row contains typical header keywords
+
+            // Check if this row contains typical header keywords (German, English, Turkish)
             if (cellValue != null && (
-                cellValue.Contains("buchung") || 
+                cellValue.Contains("buchung") ||
                 cellValue.Contains("datum") ||
                 cellValue.Contains("date") ||
-                cellValue.Contains("valuta")))
+                cellValue.Contains("valuta") ||
+                cellValue.Contains("tarih") ||
+                cellValue.Contains("tutar") ||
+                cellValue.Contains("betrag")))
             {
                 return row;
             }
@@ -114,6 +124,7 @@ public class ExcelParserService : IExcelParserService
 
     /// <summary>
     /// Map column names to indices
+    /// Supports German, English, and Turkish column names
     /// </summary>
     private Dictionary<string, int> MapColumns(ExcelWorksheet worksheet, int headerRow)
     {
@@ -125,28 +136,62 @@ public class ExcelParserService : IExcelParserService
             var headerText = worksheet.Cells[headerRow, col].Text?.Trim().ToLowerInvariant();
             if (string.IsNullOrWhiteSpace(headerText)) continue;
 
-            // Map common German bank column names
-            if (headerText.Contains("buchung") || headerText.Contains("datum") || headerText.Contains("date") || headerText.Contains("valuta"))
+            // Map common German, English, and Turkish bank column names
+            // Date column (Tarih / Datum / Date)
+            if (headerText.Contains("buchung") ||
+                headerText.Contains("datum") ||
+                headerText.Contains("date") ||
+                headerText.Contains("valuta") ||
+                headerText.Contains("tarih"))
             {
                 columnMap["Buchungsdatum"] = col;
             }
-            else if (headerText.Contains("betrag") || headerText.Contains("amount") || headerText.Contains("wert"))
+            // Amount column (Tutar / Betrag / Amount)
+            else if (headerText.Contains("betrag") ||
+                     headerText.Contains("amount") ||
+                     headerText.Contains("wert") ||
+                     headerText.Contains("tutar") ||
+                     headerText.Contains("miktar"))
             {
                 columnMap["Betrag"] = col;
             }
-            else if (headerText.Contains("empfänger") || headerText.Contains("auftraggeber") || headerText.Contains("name") || headerText.Contains("recipient"))
+            // Recipient/Sender column (Alıcı/Gönderen / Empfänger/Auftraggeber / Recipient)
+            else if (headerText.Contains("empfänger") ||
+                     headerText.Contains("empfaenger") ||
+                     headerText.Contains("auftraggeber") ||
+                     headerText.Contains("name") ||
+                     headerText.Contains("recipient") ||
+                     headerText.Contains("alıcı") ||
+                     headerText.Contains("alici") ||
+                     headerText.Contains("gönderen") ||
+                     headerText.Contains("gonderen"))
             {
                 columnMap["Empfaenger"] = col;
             }
-            else if (headerText.Contains("verwendung") || headerText.Contains("zweck") || headerText.Contains("purpose") || headerText.Contains("beschreibung"))
+            // Description/Purpose column (Açıklama / Verwendungszweck / Purpose)
+            else if (headerText.Contains("verwendung") ||
+                     headerText.Contains("zweck") ||
+                     headerText.Contains("purpose") ||
+                     headerText.Contains("beschreibung") ||
+                     headerText.Contains("açıklama") ||
+                     headerText.Contains("aciklama") ||
+                     headerText.Contains("açiklama"))
             {
                 columnMap["Verwendungszweck"] = col;
             }
-            else if (headerText.Contains("referenz") || headerText.Contains("reference") || headerText.Contains("ref"))
+            // Reference column (Referans / Referenz / Reference)
+            else if (headerText.Contains("referenz") ||
+                     headerText.Contains("reference") ||
+                     headerText.Contains("ref") ||
+                     headerText.Contains("referans"))
             {
                 columnMap["Referenz"] = col;
             }
-            else if (headerText.Contains("iban") || headerText.Contains("konto"))
+            // IBAN/Account column (Hesap / IBAN / Konto)
+            else if (headerText.Contains("iban") ||
+                     headerText.Contains("konto") ||
+                     headerText.Contains("hesap") ||
+                     headerText.Contains("account"))
             {
                 columnMap["IBAN"] = col;
             }

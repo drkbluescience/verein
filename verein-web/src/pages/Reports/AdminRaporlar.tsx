@@ -58,7 +58,7 @@ const AdminRaporlar: React.FC = () => {
 
       const opt = {
         margin: [5, 5, 5, 5] as [number, number, number, number],
-        filename: `admin-raporlar-${new Date().toISOString().split('T')[0]}.pdf`,
+        filename: `${t('export.adminReportsFileName')}-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.95 },
         html2canvas: {
           scale: 2,
@@ -79,7 +79,7 @@ const AdminRaporlar: React.FC = () => {
       await html2pdf().set(opt).from(element).save();
     } catch (error) {
       console.error('PDF export error:', error);
-      alert('PDF oluşturulurken bir hata oluştu.');
+      alert(t('export.pdfExportError'));
     } finally {
       // Remove PDF export mode class
       element.classList.remove('pdf-export-mode');
@@ -95,8 +95,8 @@ const AdminRaporlar: React.FC = () => {
 
   return (
     <div className="reports-container">
-      <div className="reports-header">
-        <h1>{selectedVerein ? `${selectedVerein.name} - Raporlar` : t('admin.title')}</h1>
+      <div className="page-header">
+        <h1 className="page-title">{selectedVerein ? `${selectedVerein.name} - Raporlar` : t('admin.title')}</h1>
       </div>
 
       {/* Tabs */}
@@ -111,7 +111,7 @@ const AdminRaporlar: React.FC = () => {
             <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
-          Üye Analitiği
+          {t('tabs.memberAnalytics')}
         </button>
         <button
           className={`tab-button ${activeTab === 'finance' ? 'active' : ''}`}
@@ -121,7 +121,7 @@ const AdminRaporlar: React.FC = () => {
             <line x1="12" y1="1" x2="12" y2="23"/>
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
           </svg>
-          Finansal Analiz
+          {t('tabs.financeAnalytics')}
         </button>
       </div>
 
@@ -129,12 +129,12 @@ const AdminRaporlar: React.FC = () => {
       <div className="reports-toolbar">
         <div className="toolbar-left">
           <div className="date-range-selector">
-            <label>Dernek:</label>
+            <label>{t('toolbar.verein')}</label>
             <select
               value={selectedVereinId || ''}
               onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
             >
-              <option value="">Tüm Dernekler</option>
+              <option value="">{t('toolbar.allVereine')}</option>
               {vereine?.map(verein => (
                 <option key={verein.id} value={verein.id}>
                   {verein.name}
@@ -144,12 +144,12 @@ const AdminRaporlar: React.FC = () => {
           </div>
           {activeTab === 'members' && (
             <div className="date-range-selector">
-              <label>Dönem:</label>
+              <label>{t('toolbar.period')}</label>
               <select value={dateRange} onChange={(e) => setDateRange(e.target.value as any)}>
-                <option value="30days">Son 30 Gün</option>
-                <option value="3months">Son 3 Ay</option>
-                <option value="6months">Son 6 Ay</option>
-                <option value="1year">Son 1 Yıl</option>
+                <option value="30days">{t('toolbar.last30Days')}</option>
+                <option value="3months">{t('toolbar.last3Months')}</option>
+                <option value="6months">{t('toolbar.last6Months')}</option>
+                <option value="1year">{t('toolbar.last1Year')}</option>
               </select>
             </div>
           )}
@@ -161,7 +161,7 @@ const AdminRaporlar: React.FC = () => {
             disabled={isExporting}
           >
             <DownloadIcon />
-            {isExporting ? 'Dışa Aktarılıyor...' : 'PDF İndir'}
+            {isExporting ? t('toolbar.exportingPDF') : t('toolbar.downloadPDF')}
           </button>
         </div>
       </div>

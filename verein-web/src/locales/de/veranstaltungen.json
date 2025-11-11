@@ -168,6 +168,13 @@
       "registering": "Wird angemeldet...",
       "success": "Sie haben sich erfolgreich für die Veranstaltung angemeldet!",
       "error": "Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "imageGallery": {
+      "title": "Veranstaltungsbilder",
+      "addImage": "Bild hinzufügen",
+      "noImagesYet": "Noch keine Bilder hinzugefügt",
+      "noImagesForEvent": "Für diese Veranstaltung sind keine Bilder vorhanden",
+      "addFirstImage": "Erstes Bild hinzufügen"
     }
   },
   "table": {
@@ -179,6 +186,11 @@
     "price": "Preis",
     "status": "Status",
     "actions": "Aktionen"
+  },
+  "export": {
+    "participantReportSuffix": "Teilnehmerbericht",
+    "reportDownloadSuccess": "Bericht erfolgreich heruntergeladen",
+    "reportDownloadError": "Fehler beim Erstellen des Berichts"
   }
 }
 

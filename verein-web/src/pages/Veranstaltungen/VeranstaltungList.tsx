@@ -214,7 +214,7 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, on
         {canEdit && onEdit && (
           <button className="action-btn" onClick={() => onEdit(veranstaltung)}>
             <EditIcon />
-            <span>Düzenle</span>
+            <span>{t('veranstaltungen:actions.edit')}</span>
           </button>
         )}
         {canRegister && isUpcoming && veranstaltung.anmeldeErforderlich && (

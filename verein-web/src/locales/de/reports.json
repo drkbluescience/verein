@@ -88,6 +88,84 @@
       "eventCount": "Anzahl Veranstaltungen",
       "lastActivity": "Letzte Aktivität"
     }
+  },
+
+  "tabs": {
+    "memberAnalytics": "Mitgliederanalyse",
+    "financeAnalytics": "Finanzanalyse"
+  },
+
+  "toolbar": {
+    "verein": "Verein:",
+    "allVereine": "Alle Vereine",
+    "period": "Zeitraum:",
+    "last30Days": "Letzte 30 Tage",
+    "last3Months": "Letzte 3 Monate",
+    "last6Months": "Letzte 6 Monate",
+    "last1Year": "Letztes Jahr",
+    "exportingPDF": "Wird exportiert...",
+    "downloadPDF": "PDF herunterladen"
+  },
+
+  "memberAnalytics": {
+    "newRegistrations": "Neue Registrierungen",
+    "last30Days": "Letzte 30 Tage",
+    "last3Months": "Letzte 3 Monate",
+    "last6Months": "Letzte 6 Monate",
+    "last1Year": "Letztes Jahr",
+    "monthlyTrend": "Monatlicher Mitgliederregistrierungstrend",
+    "newRegistrationsLabel": "Neue Registrierungen",
+    "cumulativeGrowth": "Kumulatives Mitgliederwachstum",
+    "totalMembers": "Mitglieder Gesamt"
+  },
+
+  "financeAnalytics": {
+    "financialSummary": "Finanzübersicht",
+    "downloadExcel": "Excel herunterladen",
+    "totalRevenue": "Gesamteinnahmen",
+    "allPayments": "Alle Zahlungen",
+    "netProfitLoss": "Nettogewinn/-verlust",
+    "revenueMinusClaims": "Einnahmen - Forderungen",
+    "collectionRate": "Inkassoquote",
+    "paidVsTotal": "Bezahlt / Gesamt",
+    "growthRate": "Wachstumsrate",
+    "last6MonthsComparison": "Letzte 6 Monate vs. vorherige 6 Monate",
+    "vereinPerformance": "Vereinsbasierte Finanzleistung",
+    "revenue": "Einnahmen",
+    "claims": "Forderungen",
+    "detailedTable": "Detaillierte Vereinsleistungstabelle",
+    "verein": "Verein",
+    "openClaims": "Offene Forderungen",
+    "arpu": "ARPU",
+    "activeMembers": "Aktive Mitglieder",
+    "insights": "💡 Wichtige Erkenntnisse",
+    "highestRevenue": "🏆 Höchste Einnahmen",
+    "highestCollectionRate": "📊 Höchste Inkassoquote",
+    "highestARPU": "💰 Höchster ARPU",
+    "attentionNeeded": "⚠️ Vereine, die Aufmerksamkeit benötigen",
+    "lowCollectionRateWarning": "Es gibt Vereine mit einer Inkassoquote unter 60%",
+    "vereinCount": "Verein(e)"
+  },
+
+  "export": {
+    "financialAnalysisFileName": "Finanzanalyse",
+    "adminReportsFileName": "admin-berichte",
+    "financialAnalysisReport": "FINANZANALYSEBERICHT",
+    "date": "Datum:",
+    "generalSummary": "ALLGEMEINE ZUSAMMENFASSUNG",
+    "summarySheet": "Zusammenfassung",
+    "performanceSheet": "Vereinsleistung",
+    "pdfExportError": "Beim Erstellen der PDF ist ein Fehler aufgetreten.",
+    "totalRevenueLabel": "Gesamteinnahmen",
+    "totalClaimsLabel": "Gesamtforderungen",
+    "netProfitLossLabel": "Nettogewinn/-verlust",
+    "collectionRateLabel": "Inkassoquote",
+    "growthRateYoY": "Wachstumsrate (YoY)",
+    "vereinColumn": "Verein",
+    "openClaimsColumn": "Offene Forderungen",
+    "collectionRatePercent": "Inkassoquote (%)",
+    "arpuColumn": "ARPU",
+    "activeMembersColumn": "Anzahl aktiver Mitglieder"
   }
 }
 

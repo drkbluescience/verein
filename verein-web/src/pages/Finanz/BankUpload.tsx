@@ -160,15 +160,15 @@ const BankUpload: React.FC = () => {
   };
 
   const handleDownloadTemplate = () => {
-    // Create a simple CSV template
-    const headers = ['Datum', 'Betrag', 'Empfänger', 'Verwendungszweck', 'Referenz', 'IBAN'];
-    const example = ['2024-01-15', '50.00', 'Max Mustermann', 'Mitgliedsbeitrag Januar', 'MB-001', 'DE89370400440532013000'];
-    
+    // Create a simple CSV template with Turkish headers
+    const headers = ['Tarih', 'Tutar', 'Alıcı', 'Açıklama', 'Referans', 'IBAN'];
+    const example = ['2024-01-15', '50.00', 'Ahmet Yılmaz', 'Üyelik Aidatı Ocak', 'UYE-001', 'TR330006100519786457841326'];
+
     const csv = [headers.join(','), example.join(',')].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'bank-upload-template.csv';
+    link.download = 'banka-yukleme-sablonu.csv';
     link.click();
   };
 

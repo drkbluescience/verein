@@ -277,7 +277,7 @@ const FinanzDashboard: React.FC = () => {
   // Monthly Revenue Trend (Son 12 ay)
   const monthlyRevenueData = useMemo(() => {
     const data = [];
-    const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
     for (let i = 11; i >= 0; i--) {
       const date = new Date();
@@ -296,13 +296,13 @@ const FinanzDashboard: React.FC = () => {
       }).reduce((sum, f) => sum + f.betrag, 0);
 
       data.push({
-        month: monthNames[date.getMonth()],
+        month: t(`common:monthsShort.${monthKeys[date.getMonth()]}`),
         gelir: Math.round(monthPayments),
         alacak: Math.round(monthClaims),
       });
     }
     return data;
-  }, [zahlungen, forderungen]);
+  }, [zahlungen, forderungen, t]);
 
   // Payment Methods Distribution
   const paymentMethodsData = useMemo(() => {
@@ -332,35 +332,35 @@ const FinanzDashboard: React.FC = () => {
 
     // Summary Sheet
     const summaryData = [
-      ['Finans Özeti', ''],
+      [t('finanz:export.financialSummaryReport'), ''],
       ['', ''],
-      ['Toplam Alacak', stats.totalForderungen],
-      ['Toplam Alacak Tutarı', `€${stats.totalForderungsBetrag.toFixed(2)}`],
-      ['Ödenen Alacaklar', stats.bezahlteForderungen],
-      ['Ödenen Tutar', `€${stats.bezahlteForderungenBetrag.toFixed(2)}`],
-      ['Açık Alacaklar', stats.offeneForderungen],
-      ['Açık Tutar', `€${stats.offeneForderungenBetrag.toFixed(2)}`],
-      ['Gecikmiş Ödemeler', stats.overdueForderungenCount],
-      ['Gecikmiş Tutar', `€${stats.overdueForderungenBetrag.toFixed(2)}`],
+      [t('finanz:dashboard.totalClaims'), stats.totalForderungen],
+      [t('finanz:dashboard.totalAmount'), `€${stats.totalForderungsBetrag.toFixed(2)}`],
+      [t('finanz:dashboard.paidClaims'), stats.bezahlteForderungen],
+      [t('finanz:export.amountColumn'), `€${stats.bezahlteForderungenBetrag.toFixed(2)}`],
+      [t('finanz:dashboard.openClaims'), stats.offeneForderungen],
+      [t('finanz:export.amountColumn'), `€${stats.offeneForderungenBetrag.toFixed(2)}`],
+      [t('finanz:dashboard.overduePayments'), stats.overdueForderungenCount],
+      [t('finanz:export.amountColumn'), `€${stats.overdueForderungenBetrag.toFixed(2)}`],
       ['', ''],
-      ['Tahsilat Oranı', `${stats.collectionRate.toFixed(1)}%`],
-      ['Ortalama Ödeme Süresi', `${stats.avgPaymentDays.toFixed(0)} gün`],
-      ['Beklenen Gelir (Bu Ay)', `€${stats.expectedRevenue.toFixed(2)}`],
-      ['Nakit Pozisyonu', `€${stats.cashPosition.toFixed(2)}`],
-      ['Üye Başına Ortalama Gelir', `€${stats.arpu.toFixed(2)}`],
+      [t('finanz:dashboard.collectionRate'), `${stats.collectionRate.toFixed(1)}%`],
+      [t('finanz:dashboard.avgPaymentDays'), `${stats.avgPaymentDays.toFixed(0)} ${t('common:common.days')}`],
+      [t('finanz:dashboard.expectedRevenue'), `€${stats.expectedRevenue.toFixed(2)}`],
+      [t('finanz:dashboard.cashPosition'), `€${stats.cashPosition.toFixed(2)}`],
+      [t('finanz:dashboard.arpu'), `€${stats.arpu.toFixed(2)}`],
     ];
     const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, ws1, 'Özet');
+    XLSX.utils.book_append_sheet(wb, ws1, t('finanz:export.summarySheet'));
 
     // Monthly Data Sheet
     const ws2 = XLSX.utils.json_to_sheet(monthlyRevenueData);
-    XLSX.utils.book_append_sheet(wb, ws2, 'Aylık Veriler');
+    XLSX.utils.book_append_sheet(wb, ws2, t('finanz:export.monthlyDataSheet'));
 
     // Payment Methods Sheet
     const ws3 = XLSX.utils.json_to_sheet(paymentMethodsData);
-    XLSX.utils.book_append_sheet(wb, ws3, 'Ödeme Yöntemleri');
+    XLSX.utils.book_append_sheet(wb, ws3, t('finanz:export.paymentMethodsSheet'));
 
-    XLSX.writeFile(wb, `Finans_Raporu_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `${t('finanz:export.financeReportFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -368,101 +368,351 @@ const FinanzDashboard: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <h1 className="page-title">{t('finanz:dashboard.title')}</h1>
-        <div className="header-actions">
-          <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
-            <UploadIcon />
-            {t('finanz:bankUpload.title')}
-          </button>
-          <button className="btn btn-primary" onClick={exportToExcel}>
-            <DownloadIcon />
-            Excel'e Aktar
-          </button>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+        <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
+          <UploadIcon />
+          {t('finanz:bankUpload.title')}
+        </button>
+        <button className="btn btn-primary" onClick={exportToExcel}>
+          <DownloadIcon />
+          {t('finanz:dashboard.exportToExcel')}
+        </button>
+      </div>
+
+      {/* Important Metrics - 2x2 Grid */}
+      <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.importantMetrics')}</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: stats.collectionRate >= 80 ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : stats.collectionRate >= 60 ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: stats.collectionRate >= 80 ? '0 4px 12px rgba(16, 185, 129, 0.3)' : stats.collectionRate >= 60 ? '0 4px 12px rgba(245, 158, 11, 0.3)' : '0 4px 12px rgba(239, 68, 68, 0.3)'
+              }}>
+                <PercentIcon />
+              </div>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.collectionRate')}</p>
+              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.collectionRate.toFixed(1)}%</p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{t('finanz:dashboard.paymentSuccessRate')}</p>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: stats.overdueForderungenCount === 0 ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: stats.overdueForderungenCount === 0 ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(239, 68, 68, 0.3)'
+              }}>
+                <AlertCircleIcon />
+              </div>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.overduePayments')}</p>
+              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.overdueForderungenCount}</p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.overdueForderungenBetrag.toFixed(2)}</p>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+              }}>
+                <DollarSignIcon />
+              </div>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.expectedRevenue')}</p>
+              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>€ {stats.expectedRevenue.toFixed(0)}</p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{t('finanz:dashboard.dueThisMonth')}</p>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: stats.cashPosition >= 0 ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: stats.cashPosition >= 0 ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(245, 158, 11, 0.3)'
+              }}>
+                <WalletIcon />
+              </div>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.cashPosition')}</p>
+              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>€ {Math.abs(stats.cashPosition).toFixed(0)}</p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{stats.cashPosition >= 0 ? t('finanz:dashboard.positive') : t('finanz:dashboard.negative')}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main Stats Grid - 4 columns */}
-      <div className="stats-grid">
-        <StatCard
-          title={t('finanz:dashboard.totalClaims')}
-          value={stats.totalForderungen}
-          icon={<CreditCardIcon />}
-          color="primary"
-          subtitle={`€ ${stats.totalForderungsBetrag.toFixed(2)}`}
-        />
-        <StatCard
-          title={t('finanz:dashboard.paidClaims')}
-          value={stats.bezahlteForderungen}
-          icon={<CheckCircleIcon />}
-          color="success"
-          subtitle={`€ ${stats.bezahlteForderungenBetrag.toFixed(2)}`}
-        />
-        <StatCard
-          title={t('finanz:dashboard.openClaims')}
-          value={stats.offeneForderungen}
-          icon={<AlertCircleIcon />}
-          color={stats.offeneForderungen > 0 ? 'warning' : 'success'}
-          subtitle={`€ ${stats.offeneForderungenBetrag.toFixed(2)}`}
-        />
-        <StatCard
-          title={t('finanz:dashboard.totalPayments')}
-          value={stats.totalZahlungen}
-          icon={<TrendingUpIcon />}
-          color="primary"
-          subtitle={`€ ${stats.totalZahlungsBetrag.toFixed(2)}`}
-        />
-      </div>
+      {/* Quick Access Buttons */}
+      <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.quickAccess')}</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <button
+            className="action-card"
+            style={{
+              cursor: 'pointer',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              padding: '1.25rem',
+              borderRadius: '12px',
+              textAlign: 'left',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}
+            onClick={() => navigate('/finanzen/forderungen')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+              e.currentTarget.style.borderColor = '#667eea';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+              }}>
+                <CreditCardIcon />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-text)' }}>
+                {stats.totalForderungen}
+              </div>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-text)' }}>{t('finanz:dashboard.forderungen')}</h3>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem' }}>{t('finanz:dashboard.forderungenDesc')}</p>
+              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                €{stats.totalForderungsBetrag.toFixed(2)}
+              </div>
+            </div>
+          </button>
 
-      {/* Advanced KPIs Grid - 6 new cards */}
-      <div className="stats-grid stats-grid-advanced">
-        <StatCard
-          title="Tahsilat Oranı"
-          value={`${stats.collectionRate.toFixed(1)}%`}
-          icon={<PercentIcon />}
-          color={stats.collectionRate >= 80 ? 'success' : stats.collectionRate >= 60 ? 'warning' : 'error'}
-          subtitle="Ödeme başarı oranı"
-        />
-        <StatCard
-          title="Ortalama Ödeme Süresi"
-          value={`${Math.abs(stats.avgPaymentDays).toFixed(0)}`}
-          icon={<ClockIcon />}
-          color={stats.avgPaymentDays <= 0 ? 'success' : stats.avgPaymentDays <= 7 ? 'warning' : 'error'}
-          subtitle={stats.avgPaymentDays <= 0 ? 'Zamanında' : 'Gün gecikme'}
-        />
-        <StatCard
-          title="Gecikmiş Ödemeler"
-          value={stats.overdueForderungenCount}
-          icon={<AlertCircleIcon />}
-          color={stats.overdueForderungenCount === 0 ? 'success' : 'error'}
-          subtitle={`€ ${stats.overdueForderungenBetrag.toFixed(2)}`}
-        />
-        <StatCard
-          title="Beklenen Gelir (Bu Ay)"
-          value={`€ ${stats.expectedRevenue.toFixed(0)}`}
-          icon={<DollarSignIcon />}
-          color="primary"
-          subtitle="Vadesi bu ay"
-        />
-        <StatCard
-          title="Nakit Pozisyonu"
-          value={`€ ${Math.abs(stats.cashPosition).toFixed(0)}`}
-          icon={<WalletIcon />}
-          color={stats.cashPosition >= 0 ? 'success' : 'warning'}
-          subtitle={stats.cashPosition >= 0 ? 'Pozitif' : 'Negatif'}
-        />
-        <StatCard
-          title="Üye Başına Gelir (ARPU)"
-          value={`€ ${stats.arpu.toFixed(2)}`}
-          icon={<UsersIcon />}
-          color="primary"
-          subtitle={`${stats.activeMitglieder} aktif üye`}
-        />
+          <button
+            className="action-card"
+            style={{
+              cursor: 'pointer',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              padding: '1.25rem',
+              borderRadius: '12px',
+              textAlign: 'left',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}
+            onClick={() => navigate('/finanzen/zahlungen')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+              e.currentTarget.style.borderColor = '#f093fb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(240, 147, 251, 0.3)'
+              }}>
+                <CheckCircleIcon />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-text)' }}>
+                {stats.totalZahlungen}
+              </div>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-text)' }}>{t('finanz:dashboard.zahlungen')}</h3>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem' }}>{t('finanz:dashboard.zahlungenDesc')}</p>
+              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                €{stats.totalZahlungsBetrag.toFixed(2)}
+              </div>
+            </div>
+          </button>
+
+          <button
+            className="action-card"
+            style={{
+              cursor: 'pointer',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              padding: '1.25rem',
+              borderRadius: '12px',
+              textAlign: 'left',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}
+            onClick={() => navigate('/finanzen/bank')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+              e.currentTarget.style.borderColor = '#4facfe';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+              e.currentTarget.style.borderColor = 'var(--color-border)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)'
+              }}>
+                <WalletIcon />
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-text)' }}>
+                {stats.totalBankBuchungen}
+              </div>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-text)' }}>{t('finanz:dashboard.bankBuchungen')}</h3>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem' }}>{t('finanz:dashboard.bankBuchungenDesc')}</p>
+              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                €{stats.totalBankBetrag.toFixed(2)}
+              </div>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Charts Section */}
       <div className="charts-grid">
         {/* Monthly Revenue Trend */}
         <div className="chart-section chart-section-large">
-          <h2>Aylık Gelir Trendi (Son 12 Ay)</h2>
+          <h2>{t('finanz:dashboard.monthlyRevenueTrend')}</h2>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyRevenueData} margin={{ bottom: 20, left: 10, right: 10 }}>
@@ -495,7 +745,7 @@ const FinanzDashboard: React.FC = () => {
                   dataKey="gelir"
                   stroke="#10B981"
                   strokeWidth={2}
-                  name="Gelir"
+                  name={t('finanz:dashboard.revenue')}
                   dot={{ fill: '#10B981', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -504,7 +754,7 @@ const FinanzDashboard: React.FC = () => {
                   dataKey="alacak"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  name="Alacak"
+                  name={t('finanz:dashboard.claims')}
                   dot={{ fill: '#3B82F6', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -515,7 +765,7 @@ const FinanzDashboard: React.FC = () => {
 
         {/* Payment Methods Distribution */}
         <div className="chart-section">
-          <h2>Ödeme Yöntemleri Dağılımı</h2>
+          <h2>{t('finanz:dashboard.paymentMethodsDistribution')}</h2>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -524,8 +774,8 @@ const FinanzDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }: any) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  label={({ percent }: any) => `${(percent * 100).toFixed(0)}%`}
+                  outerRadius={90}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -533,35 +783,124 @@ const FinanzDashboard: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: any) => `€${value}`} />
+                <Tooltip
+                  formatter={(value: any) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  formatter={(value: string) => value.toUpperCase()}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* Bank Transactions Summary */}
-      <div className="dashboard-section">
-        <h2>{t('finanz:dashboard.bankTransactions')}</h2>
-        <div className="section-content">
-          <p className="section-stat">
-            {t('finanz:dashboard.totalTransactions')}: <strong>{stats.totalBankBuchungen}</strong>
-          </p>
-          <p className="section-stat">
-            {t('finanz:dashboard.totalAmount')}: <strong>€ {stats.totalBankBetrag.toFixed(2)}</strong>
-          </p>
+      {/* Detailed Statistics - Collapsible */}
+      <details className="dashboard-section" style={{ marginBottom: '2rem' }}>
+        <summary style={{
+          fontSize: '1.125rem',
+          fontWeight: '600',
+          padding: '1.25rem 1.5rem',
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+          borderRadius: '12px',
+          listStyle: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          color: 'var(--color-text)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'var(--color-background)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--color-surface)';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+        }}>
+          <span style={{ fontSize: '0.875rem', opacity: 0.7 }}>▼</span>
+          <span>{t('finanz:dashboard.detailedStatistics')}</span>
+        </summary>
+        <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+          <StatCard
+            title={t('finanz:dashboard.totalClaims')}
+            value={stats.totalForderungen}
+            icon={<CreditCardIcon />}
+            color="primary"
+            subtitle={`€ ${stats.totalForderungsBetrag.toFixed(2)}`}
+          />
+          <StatCard
+            title={t('finanz:dashboard.paidClaims')}
+            value={stats.bezahlteForderungen}
+            icon={<CheckCircleIcon />}
+            color="success"
+            subtitle={`€ ${stats.bezahlteForderungenBetrag.toFixed(2)}`}
+          />
+          <StatCard
+            title={t('finanz:dashboard.openClaims')}
+            value={stats.offeneForderungen}
+            icon={<AlertCircleIcon />}
+            color={stats.offeneForderungen > 0 ? 'warning' : 'success'}
+            subtitle={`€ ${stats.offeneForderungenBetrag.toFixed(2)}`}
+          />
+          <StatCard
+            title={t('finanz:dashboard.totalPayments')}
+            value={stats.totalZahlungen}
+            icon={<TrendingUpIcon />}
+            color="primary"
+            subtitle={`€ ${stats.totalZahlungsBetrag.toFixed(2)}`}
+          />
+          <StatCard
+            title={t('finanz:dashboard.avgPaymentDays')}
+            value={`${Math.abs(stats.avgPaymentDays).toFixed(0)}`}
+            icon={<ClockIcon />}
+            color={stats.avgPaymentDays <= 0 ? 'success' : stats.avgPaymentDays <= 7 ? 'warning' : 'error'}
+            subtitle={stats.avgPaymentDays <= 0 ? t('finanz:dashboard.onTime') : t('finanz:dashboard.daysDelay')}
+          />
+          <StatCard
+            title={t('finanz:dashboard.arpu')}
+            value={`€ ${stats.arpu.toFixed(2)}`}
+            icon={<UsersIcon />}
+            color="primary"
+            subtitle={`${stats.activeMitglieder} ${t('finanz:dashboard.activeMembers')}`}
+          />
         </div>
-      </div>
+      </details>
 
       {/* Info Message */}
-      <div className="dashboard-info">
-        <p>{t('finanz:dashboard.info')}</p>
-        <p style={{ marginTop: '8px', fontSize: '0.875rem', opacity: 0.8 }}>
-          💡 Tahsilat oranınız {stats.collectionRate.toFixed(1)}%,
-          {stats.overdueForderungenCount > 0
-            ? ` ${stats.overdueForderungenCount} gecikmiş ödeme var.`
-            : ' tüm ödemeler güncel!'}
-        </p>
+      <div style={{
+        background: stats.overdueForderungenCount > 0
+          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)'
+          : 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+        border: `1px solid ${stats.overdueForderungenCount > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
+        borderRadius: '12px',
+        padding: '1.5rem',
+        marginBottom: '2rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+          <div style={{ fontSize: '1.5rem' }}>
+            {stats.overdueForderungenCount > 0 ? '⚠️' : '✅'}
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--color-text)' }}>
+              {t('finanz:dashboard.collectionRateMessage', {
+                rate: stats.collectionRate.toFixed(1),
+                overdueMessage: stats.overdueForderungenCount > 0
+                  ? t('finanz:dashboard.overdueExists', { count: stats.overdueForderungenCount })
+                  : t('finanz:dashboard.allPaymentsCurrent'),
+                interpolation: { escapeValue: false }
+              })}
+            </p>
+            <p style={{ fontSize: '0.875rem', opacity: 0.8, color: 'var(--color-text-secondary)' }}>
+              {t('finanz:dashboard.info')}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

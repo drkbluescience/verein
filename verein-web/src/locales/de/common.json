@@ -74,7 +74,8 @@
     "createdBy": "Erstellt von",
     "modified": "Geändert am",
     "modifiedBy": "Geändert von",
-    "auditInfo": "Audit-Informationen"
+    "auditInfo": "Audit-Informationen",
+    "actionsColumn": "Aktionen"
   },
   "messages": {
     "success": "Vorgang erfolgreich abgeschlossen",
@@ -120,6 +121,20 @@
     "october": "Oktober",
     "november": "November",
     "december": "Dezember"
+  },
+  "monthsShort": {
+    "january": "Jan",
+    "february": "Feb",
+    "march": "Mär",
+    "april": "Apr",
+    "may": "Mai",
+    "june": "Jun",
+    "july": "Jul",
+    "august": "Aug",
+    "september": "Sep",
+    "october": "Okt",
+    "november": "Nov",
+    "december": "Dez"
   }
 }
 

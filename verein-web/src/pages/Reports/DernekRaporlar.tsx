@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
@@ -71,6 +72,8 @@ const DownloadIcon = () => (
 );
 
 const DernekRaporlar: React.FC = () => {
+  // @ts-ignore - i18next type definitions
+  const { t } = useTranslation('reports');
   const { user } = useAuth();
   const vereinId = user?.vereinId;
   const [dateRange, setDateRange] = useState<'30days' | '3months' | '6months' | '1year'>('30days');
@@ -231,7 +234,7 @@ const DernekRaporlar: React.FC = () => {
 
       const opt = {
         margin: [5, 5, 5, 5] as [number, number, number, number],
-        filename: `dernek-raporlar-${new Date().toISOString().split('T')[0]}.pdf`,
+        filename: `${t('export.adminReportsFileName')}-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.95 },
         html2canvas: {
           scale: 2,

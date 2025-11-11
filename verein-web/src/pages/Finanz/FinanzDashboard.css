@@ -5,24 +5,9 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Header - Enhanced with action button */
+/* Header - Uses global page-header styles from page-header.css */
 .finanz-dashboard .page-header {
-  margin-bottom: var(--spacing-2xl);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-lg);
-}
-
-.finanz-dashboard .page-title {
-  flex: 1;
-  text-align: center;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+  /* Inherits from global .page-header */
 }
 
 /* Stats Grid - Main 4 KPIs */

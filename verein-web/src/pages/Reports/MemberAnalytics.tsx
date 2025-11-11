@@ -259,10 +259,10 @@ const MemberAnalytics: React.FC<MemberAnalyticsProps> = ({
               <TrendingUpIcon />
             </div>
             <div className="stat-info">
-              <h3>Yeni Kayıt</h3>
+              <h3>{t('memberAnalytics.newRegistrations')}</h3>
               <div className="stat-number">{stats.currentPeriodRegistrations}</div>
               <span className="stat-detail">
-                {dateRange === '30days' ? 'Son 30 gün' : dateRange === '3months' ? 'Son 3 ay' : dateRange === '6months' ? 'Son 6 ay' : 'Son 1 yıl'}
+                {dateRange === '30days' ? t('memberAnalytics.last30Days') : dateRange === '3months' ? t('memberAnalytics.last3Months') : dateRange === '6months' ? t('memberAnalytics.last6Months') : t('memberAnalytics.last1Year')}
               </span>
             </div>
           </div>
@@ -284,7 +284,7 @@ const MemberAnalytics: React.FC<MemberAnalyticsProps> = ({
 
       {/* Monthly Trend Chart */}
       <div className="chart-section">
-        <h2>Aylık Üye Kayıt Trendi</h2>
+        <h2>{t('memberAnalytics.monthlyTrend')}</h2>
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={stats.monthlyData} margin={{ bottom: 60 }}>
@@ -312,7 +312,7 @@ const MemberAnalytics: React.FC<MemberAnalyticsProps> = ({
                 dataKey="registrations"
                 stroke="#2196F3"
                 strokeWidth={2}
-                name="Yeni Kayıtlar"
+                name={t('memberAnalytics.newRegistrationsLabel')}
                 dot={{ fill: '#2196F3', r: 4 }}
                 activeDot={{ r: 6 }}
               />
@@ -323,7 +323,7 @@ const MemberAnalytics: React.FC<MemberAnalyticsProps> = ({
 
       {/* Cumulative Growth Chart */}
       <div className="chart-section">
-        <h2>Kümülatif Üye Artışı</h2>
+        <h2>{t('memberAnalytics.cumulativeGrowth')}</h2>
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={stats.monthlyData} margin={{ bottom: 60 }}>
@@ -359,7 +359,7 @@ const MemberAnalytics: React.FC<MemberAnalyticsProps> = ({
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorCumulative)"
-                name="Toplam Üye"
+                name={t('memberAnalytics.totalMembers')}
               />
             </AreaChart>
           </ResponsiveContainer>

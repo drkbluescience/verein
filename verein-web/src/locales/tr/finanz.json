@@ -9,7 +9,14 @@
     "bankTransactions": "Banka Hareketleri",
     "totalTransactions": "Toplam İşlem",
     "totalAmount": "Toplam Tutar",
-    "info": "Finans modülü, derneğin tüm finansal işlemlerini yönetmenize yardımcı olur."
+    "info": "Finans modülü, derneğin tüm finansal işlemlerini yönetmenize yardımcı olur.",
+    "quickAccess": "Hızlı Erişim",
+    "forderungen": "Alacaklar",
+    "forderungenDesc": "Alacakları yönet",
+    "zahlungen": "Ödemeler",
+    "zahlungenDesc": "Ödemeleri filtrele",
+    "bankBuchungen": "Banka Kayıtları",
+    "bankBuchungenDesc": "Banka işlemleri"
   },
   "claims": {
     "title": "Alacaklar",
@@ -135,6 +142,34 @@
     "failed": "Başarısız",
     "skipped": "Atlanan",
     "details": "Detaylar"
+  },
+  "export": {
+    "financeReportFileName": "Finans_Raporu",
+    "paymentsFileName": "Odemeler",
+    "claimsFileName": "Alacaklar",
+    "paymentHistoryFileName": "odeme-gecmisi",
+    "financialSummaryReport": "FİNANSAL ÖZET RAPORU",
+    "date": "Tarih:",
+    "generalSummary": "GENEL ÖZET",
+    "summarySheet": "Özet",
+    "monthlyDataSheet": "Aylık Veriler",
+    "paymentMethodsSheet": "Ödeme Yöntemleri",
+    "paymentsSheet": "Ödemeler",
+    "claimsSheet": "Alacaklar",
+    "referenceColumn": "Referans",
+    "amountColumn": "Tutar",
+    "paymentDateColumn": "Ödeme Tarihi",
+    "paymentMethodColumn": "Ödeme Yöntemi",
+    "descriptionColumn": "Açıklama",
+    "invoiceNoColumn": "Fatura No",
+    "dueDateColumn": "Vade Tarihi",
+    "statusColumn": "Durum",
+    "overdueColumn": "Gecikmiş",
+    "paidDateColumn": "Ödeme Tarihi",
+    "statusPaid": "Ödendi",
+    "statusOpen": "Açık",
+    "yes": "Evet",
+    "no": "Hayır"
   }
 }
 

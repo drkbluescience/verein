@@ -179,6 +179,11 @@
     "price": "Ücret",
     "status": "Durum",
     "actions": "İşlemler"
+  },
+  "export": {
+    "participantReportSuffix": "Katilimci_Raporu",
+    "reportDownloadSuccess": "Rapor başarıyla indirildi",
+    "reportDownloadError": "Rapor oluşturulurken hata oluştu"
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { VereinDto } from '../../types/verein';
 import { MitgliedDto } from '../../types/mitglied';
 import { MitgliedForderungDto, MitgliedZahlungDto } from '../../types/finanz.types';
@@ -58,6 +59,9 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
   allMitglieder,
   selectedVereinId,
 }) => {
+  // @ts-ignore - i18next type definitions
+  const { t } = useTranslation('reports');
+
   // Fetch financial data
   const { data: forderungen, isLoading: forderungenLoading } = useQuery({
     queryKey: ['all-forderungen'],
@@ -169,34 +173,34 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
 
     // Summary Sheet
     const summaryData = [
-      ['FİNANSAL ANALİZ RAPORU', ''],
-      ['Tarih:', new Date().toLocaleDateString('tr-TR')],
+      [t('export.financialAnalysisReport'), ''],
+      [t('export.date'), new Date().toLocaleDateString('tr-TR')],
       ['', ''],
-      ['GENEL ÖZET', ''],
-      ['Toplam Gelir', `€${financialKPIs.totalRevenue.toFixed(2)}`],
-      ['Toplam Alacak', `€${financialKPIs.totalClaims.toFixed(2)}`],
-      ['Net Kar/Zarar', `€${financialKPIs.netProfit.toFixed(2)}`],
-      ['Tahsilat Oranı', `${financialKPIs.collectionRate.toFixed(1)}%`],
-      ['Büyüme Oranı (YoY)', `${financialKPIs.growthRate.toFixed(1)}%`],
+      [t('export.generalSummary'), ''],
+      [t('export.totalRevenueLabel'), `€${financialKPIs.totalRevenue.toFixed(2)}`],
+      [t('export.totalClaimsLabel'), `€${financialKPIs.totalClaims.toFixed(2)}`],
+      [t('export.netProfitLossLabel'), `€${financialKPIs.netProfit.toFixed(2)}`],
+      [t('export.collectionRateLabel'), `${financialKPIs.collectionRate.toFixed(1)}%`],
+      [t('export.growthRateYoY'), `${financialKPIs.growthRate.toFixed(1)}%`],
     ];
     const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, ws1, 'Özet');
+    XLSX.utils.book_append_sheet(wb, ws1, t('export.summarySheet'));
 
     // Dernek Performance Sheet
     const performanceData = vereinFinanceStats.map(stat => ({
-      'Dernek': stat.vereinName,
-      'Toplam Gelir': stat.totalRevenue.toFixed(2),
-      'Toplam Alacak': stat.totalClaims.toFixed(2),
-      'Net Kar/Zarar': stat.netProfit.toFixed(2),
-      'Açık Alacak': stat.openClaims.toFixed(2),
-      'Tahsilat Oranı (%)': stat.collectionRate.toFixed(1),
-      'ARPU': stat.arpu.toFixed(2),
-      'Aktif Üye Sayısı': stat.memberCount,
+      [t('export.vereinColumn')]: stat.vereinName,
+      [t('export.totalRevenueLabel')]: stat.totalRevenue.toFixed(2),
+      [t('export.totalClaimsLabel')]: stat.totalClaims.toFixed(2),
+      [t('export.netProfitLossLabel')]: stat.netProfit.toFixed(2),
+      [t('export.openClaimsColumn')]: stat.openClaims.toFixed(2),
+      [t('export.collectionRatePercent')]: stat.collectionRate.toFixed(1),
+      [t('export.arpuColumn')]: stat.arpu.toFixed(2),
+      [t('export.activeMembersColumn')]: stat.memberCount,
     }));
     const ws2 = XLSX.utils.json_to_sheet(performanceData);
-    XLSX.utils.book_append_sheet(wb, ws2, 'Dernek Performansı');
+    XLSX.utils.book_append_sheet(wb, ws2, t('export.performanceSheet'));
 
-    XLSX.writeFile(wb, `Finansal_Analiz_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `${t('export.financialAnalysisFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   if (forderungenLoading || zahlungenLoading) {
@@ -208,10 +212,10 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
       {/* Financial KPIs */}
       <div className="stats-section">
         <div className="section-header">
-          <h2>Finansal Özet</h2>
+          <h2>{t('financeAnalytics.financialSummary')}</h2>
           <button className="btn btn-secondary" onClick={exportToExcel}>
             <DownloadIcon />
-            Excel İndir
+            {t('financeAnalytics.downloadExcel')}
           </button>
         </div>
         <div className="stats-grid">
@@ -220,9 +224,9 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
               <DollarSignIcon />
             </div>
             <div className="stat-info">
-              <h3>Toplam Gelir</h3>
+              <h3>{t('financeAnalytics.totalRevenue')}</h3>
               <div className="stat-number">€{financialKPIs.totalRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</div>
-              <span className="stat-detail">Tüm ödemeler</span>
+              <span className="stat-detail">{t('financeAnalytics.allPayments')}</span>
             </div>
           </div>
 
@@ -231,11 +235,11 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
               <DollarSignIcon />
             </div>
             <div className="stat-info">
-              <h3>Net Kar/Zarar</h3>
+              <h3>{t('financeAnalytics.netProfitLoss')}</h3>
               <div className="stat-number" style={{ color: financialKPIs.netProfit >= 0 ? '#4CAF50' : '#F44336' }}>
                 €{financialKPIs.netProfit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
               </div>
-              <span className="stat-detail">Gelir - Alacak</span>
+              <span className="stat-detail">{t('financeAnalytics.revenueMinusClaims')}</span>
             </div>
           </div>
 
@@ -244,9 +248,9 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
               <PercentIcon />
             </div>
             <div className="stat-info">
-              <h3>Tahsilat Oranı</h3>
+              <h3>{t('financeAnalytics.collectionRate')}</h3>
               <div className="stat-number">{financialKPIs.collectionRate.toFixed(1)}%</div>
-              <span className="stat-detail">Ödenen / Toplam</span>
+              <span className="stat-detail">{t('financeAnalytics.paidVsTotal')}</span>
             </div>
           </div>
 
@@ -255,11 +259,11 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
               {financialKPIs.growthRate >= 0 ? <TrendingUpIcon /> : <TrendingDownIcon />}
             </div>
             <div className="stat-info">
-              <h3>Büyüme Oranı</h3>
+              <h3>{t('financeAnalytics.growthRate')}</h3>
               <div className="stat-number" style={{ color: financialKPIs.growthRate >= 0 ? '#4CAF50' : '#F44336' }}>
                 {financialKPIs.growthRate >= 0 ? '+' : ''}{financialKPIs.growthRate.toFixed(1)}%
               </div>
-              <span className="stat-detail">Son 6 ay vs önceki 6 ay</span>
+              <span className="stat-detail">{t('financeAnalytics.last6MonthsComparison')}</span>
             </div>
           </div>
         </div>
@@ -267,7 +271,7 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
 
       {/* Dernek Performance Chart */}
       <div className="chart-section">
-        <h2>Dernek Bazlı Finansal Performans</h2>
+        <h2>{t('financeAnalytics.vereinPerformance')}</h2>
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={chartData} margin={{ bottom: 80, left: 20, right: 20, top: 20 }}>
@@ -291,9 +295,9 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
                 formatter={(value: any) => `€${value.toLocaleString('de-DE')}`}
               />
               <Legend />
-              <Bar dataKey="gelir" fill="#4CAF50" name="Gelir" />
-              <Bar dataKey="alacak" fill="#2196F3" name="Alacak" />
-              <Bar dataKey="kar" fill="#FF9800" name="Net Kar/Zarar" />
+              <Bar dataKey="gelir" fill="#4CAF50" name={t('financeAnalytics.revenue')} />
+              <Bar dataKey="alacak" fill="#2196F3" name={t('financeAnalytics.claims')} />
+              <Bar dataKey="kar" fill="#FF9800" name={t('financeAnalytics.netProfitLoss')} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -301,19 +305,19 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
 
       {/* Detailed Table */}
       <div className="table-section">
-        <h2>Detaylı Dernek Performans Tablosu</h2>
+        <h2>{t('financeAnalytics.detailedTable')}</h2>
         <div className="table-container">
           <table className="reports-table">
             <thead>
               <tr>
-                <th>Dernek</th>
-                <th>Toplam Gelir</th>
-                <th>Toplam Alacak</th>
-                <th>Net Kar/Zarar</th>
-                <th>Açık Alacak</th>
-                <th>Tahsilat Oranı</th>
-                <th>ARPU</th>
-                <th>Aktif Üye</th>
+                <th>{t('financeAnalytics.verein')}</th>
+                <th>{t('financeAnalytics.totalRevenue')}</th>
+                <th>{t('financeAnalytics.claims')}</th>
+                <th>{t('financeAnalytics.netProfitLoss')}</th>
+                <th>{t('financeAnalytics.openClaims')}</th>
+                <th>{t('financeAnalytics.collectionRate')}</th>
+                <th>{t('financeAnalytics.arpu')}</th>
+                <th>{t('financeAnalytics.activeMembers')}</th>
               </tr>
             </thead>
             <tbody>
@@ -364,33 +368,33 @@ const FinanceAnalytics: React.FC<FinanceAnalyticsProps> = ({
 
       {/* Insights Section */}
       <div className="chart-section">
-        <h2>💡 Önemli Bulgular</h2>
+        <h2>{t('financeAnalytics.insights')}</h2>
         <div className="insights-container">
           {vereinFinanceStats.length > 0 && (
             <>
               <div className="insight-card insight-success">
-                <h4>🏆 En Yüksek Gelir</h4>
+                <h4>{t('financeAnalytics.highestRevenue')}</h4>
                 <p><strong>{vereinFinanceStats[0].vereinName}</strong></p>
                 <p>€{vereinFinanceStats[0].totalRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
               </div>
 
               <div className="insight-card insight-info">
-                <h4>📊 En Yüksek Tahsilat Oranı</h4>
+                <h4>{t('financeAnalytics.highestCollectionRate')}</h4>
                 <p><strong>{[...vereinFinanceStats].sort((a, b) => b.collectionRate - a.collectionRate)[0].vereinName}</strong></p>
                 <p>{[...vereinFinanceStats].sort((a, b) => b.collectionRate - a.collectionRate)[0].collectionRate.toFixed(1)}%</p>
               </div>
 
               <div className="insight-card insight-warning">
-                <h4>💰 En Yüksek ARPU</h4>
+                <h4>{t('financeAnalytics.highestARPU')}</h4>
                 <p><strong>{[...vereinFinanceStats].sort((a, b) => b.arpu - a.arpu)[0].vereinName}</strong></p>
                 <p>€{[...vereinFinanceStats].sort((a, b) => b.arpu - a.arpu)[0].arpu.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
               </div>
 
               {vereinFinanceStats.some(s => s.collectionRate < 60) && (
                 <div className="insight-card insight-error">
-                  <h4>⚠️ Dikkat Gereken Dernekler</h4>
-                  <p>Tahsilat oranı %60'ın altında olan dernekler var</p>
-                  <p>{vereinFinanceStats.filter(s => s.collectionRate < 60).length} dernek</p>
+                  <h4>{t('financeAnalytics.attentionNeeded')}</h4>
+                  <p>{t('financeAnalytics.lowCollectionRateWarning')}</p>
+                  <p>{vereinFinanceStats.filter(s => s.collectionRate < 60).length} {t('financeAnalytics.vereinCount')}</p>
                 </div>
               )}
             </>

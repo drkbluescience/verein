@@ -510,17 +510,17 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
       const url = URL.createObjectURL(blob);
 
       link.setAttribute('href', url);
-      link.setAttribute('download', `${veranstaltung.titel}_Katilimci_Raporu_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `${veranstaltung.titel}_${t('veranstaltungen:export.participantReportSuffix')}_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      showToast('Rapor başarıyla indirildi', 'success');
+      showToast(t('veranstaltungen:export.reportDownloadSuccess'), 'success');
     } catch (error) {
       console.error('Export error:', error);
-      showToast('Rapor oluşturulurken hata oluştu', 'error');
+      showToast(t('veranstaltungen:export.reportDownloadError'), 'error');
     }
   };
 

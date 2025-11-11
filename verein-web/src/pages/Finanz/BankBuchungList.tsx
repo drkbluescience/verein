@@ -42,6 +42,12 @@ const EditIcon = () => (
   </svg>
 );
 
+const ArrowLeftIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const BankBuchungList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
@@ -159,11 +165,21 @@ const BankBuchungList: React.FC = () => {
   return (
     <div className="finanz-list">
       {/* Header */}
-      <div className="list-header">
-        <div>
-          <h1>{t('finanz:bankTransactions.title')}</h1>
-          <p className="list-subtitle">{t('finanz:bankTransactions.subtitle')}</p>
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">{t('finanz:bankTransactions.title')}</h1>
+        <p className="page-subtitle">{t('finanz:bankTransactions.subtitle')}</p>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/finanzen')}
+          title={t('common:back')}
+        >
+          <ArrowLeftIcon />
+        </button>
+        <div style={{ flex: 1 }}></div>
         <button className="btn btn-primary" onClick={() => {
           setSelectedBuchung(null);
           setIsModalOpen(true);
@@ -179,7 +195,7 @@ const BankBuchungList: React.FC = () => {
           <SearchIcon />
           <input
             type="text"
-            placeholder={t('common:search')}
+            placeholder={t('common:actions.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -259,7 +275,7 @@ const BankBuchungList: React.FC = () => {
                 <th>{t('finanz:bankTransactions.date')}</th>
                 <th>{t('finanz:bankTransactions.type')}</th>
                 <th>{t('finanz:bankTransactions.description')}</th>
-                <th>{t('common:actions')}</th>
+                <th>{t('common:common.actionsColumn')}</th>
               </tr>
             </thead>
             <tbody>

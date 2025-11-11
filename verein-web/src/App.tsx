@@ -150,6 +150,26 @@ const AppContent: React.FC = () => {
               <FinanzDashboard />
             </Layout>
           } />
+          <Route path="/finanzen/forderungen" element={
+            <Layout>
+              <MitgliedForderungList />
+            </Layout>
+          } />
+          <Route path="/finanzen/forderungen/:id" element={
+            <Layout>
+              <MitgliedForderungDetail />
+            </Layout>
+          } />
+          <Route path="/finanzen/zahlungen" element={
+            <Layout>
+              <MitgliedZahlungList />
+            </Layout>
+          } />
+          <Route path="/finanzen/zahlungen/:id" element={
+            <Layout>
+              <MitgliedZahlungDetail />
+            </Layout>
+          } />
           <Route path="/finanzen/bank" element={
             <Layout>
               <BankBuchungList />

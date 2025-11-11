@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { veranstaltungBildService } from '../../services/veranstaltungService';
 import { VeranstaltungBildDto } from '../../types/veranstaltung';
 import { useToast } from '../../contexts/ToastContext';
@@ -38,6 +39,8 @@ const ImageIcon = () => (
 );
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage }) => {
+  // @ts-ignore - i18next type definitions
+  const { t } = useTranslation(['veranstaltungen', 'common']);
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -110,11 +113,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
   return (
     <div className="image-gallery">
       <div className="gallery-header">
-        <h3>📸 Etkinlik Resimleri ({sortedImages.length})</h3>
+        <h3>📸 {t('veranstaltungen:detailPage.imageGallery.title')} ({sortedImages.length})</h3>
         {canManage && (
           <button className="btn-primary" onClick={() => setShowUploadModal(true)}>
             <PlusIcon />
-            <span>Resim Ekle</span>
+            <span>{t('veranstaltungen:detailPage.imageGallery.addImage')}</span>
           </button>
         )}
       </div>
@@ -124,12 +127,12 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
           <div className="empty-icon">
             <ImageIcon />
           </div>
-          <h4>Henüz resim eklenmemiş</h4>
-          <p>Bu etkinliğe ait resim bulunmuyor</p>
+          <h4>{t('veranstaltungen:detailPage.imageGallery.noImagesYet')}</h4>
+          <p>{t('veranstaltungen:detailPage.imageGallery.noImagesForEvent')}</p>
           {canManage && (
             <button className="btn-primary" onClick={() => setShowUploadModal(true)}>
               <PlusIcon />
-              <span>İlk Resmi Ekle</span>
+              <span>{t('veranstaltungen:detailPage.imageGallery.addFirstImage')}</span>
             </button>
           )}
         </div>

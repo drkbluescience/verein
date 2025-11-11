@@ -74,7 +74,8 @@
     "createdBy": "Oluşturan",
     "modified": "Güncellenme Tarihi",
     "modifiedBy": "Güncelleyen",
-    "auditInfo": "Denetim Bilgileri"
+    "auditInfo": "Denetim Bilgileri",
+    "actionsColumn": "İşlemler"
   },
   "messages": {
     "success": "İşlem başarıyla tamamlandı",
@@ -120,6 +121,20 @@
     "october": "Ekim",
     "november": "Kasım",
     "december": "Aralık"
+  },
+  "monthsShort": {
+    "january": "Oca",
+    "february": "Şub",
+    "march": "Mar",
+    "april": "Nis",
+    "may": "May",
+    "june": "Haz",
+    "july": "Tem",
+    "august": "Ağu",
+    "september": "Eyl",
+    "october": "Eki",
+    "november": "Kas",
+    "december": "Ara"
   }
 }
 

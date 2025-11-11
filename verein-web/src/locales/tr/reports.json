@@ -88,6 +88,84 @@
       "eventCount": "Etkinlik Sayısı",
       "lastActivity": "Son Aktivite"
     }
+  },
+
+  "tabs": {
+    "memberAnalytics": "Üye Analitiği",
+    "financeAnalytics": "Finansal Analiz"
+  },
+
+  "toolbar": {
+    "verein": "Dernek:",
+    "allVereine": "Tüm Dernekler",
+    "period": "Dönem:",
+    "last30Days": "Son 30 Gün",
+    "last3Months": "Son 3 Ay",
+    "last6Months": "Son 6 Ay",
+    "last1Year": "Son 1 Yıl",
+    "exportingPDF": "Dışa Aktarılıyor...",
+    "downloadPDF": "PDF İndir"
+  },
+
+  "memberAnalytics": {
+    "newRegistrations": "Yeni Kayıt",
+    "last30Days": "Son 30 gün",
+    "last3Months": "Son 3 ay",
+    "last6Months": "Son 6 ay",
+    "last1Year": "Son 1 yıl",
+    "monthlyTrend": "Aylık Üye Kayıt Trendi",
+    "newRegistrationsLabel": "Yeni Kayıtlar",
+    "cumulativeGrowth": "Kümülatif Üye Artışı",
+    "totalMembers": "Toplam Üye"
+  },
+
+  "financeAnalytics": {
+    "financialSummary": "Finansal Özet",
+    "downloadExcel": "Excel İndir",
+    "totalRevenue": "Toplam Gelir",
+    "allPayments": "Tüm ödemeler",
+    "netProfitLoss": "Net Kar/Zarar",
+    "revenueMinusClaims": "Gelir - Alacak",
+    "collectionRate": "Tahsilat Oranı",
+    "paidVsTotal": "Ödenen / Toplam",
+    "growthRate": "Büyüme Oranı",
+    "last6MonthsComparison": "Son 6 ay vs önceki 6 ay",
+    "vereinPerformance": "Dernek Bazlı Finansal Performans",
+    "revenue": "Gelir",
+    "claims": "Alacak",
+    "detailedTable": "Detaylı Dernek Performans Tablosu",
+    "verein": "Dernek",
+    "openClaims": "Açık Alacak",
+    "arpu": "ARPU",
+    "activeMembers": "Aktif Üye",
+    "insights": "💡 Önemli Bulgular",
+    "highestRevenue": "🏆 En Yüksek Gelir",
+    "highestCollectionRate": "📊 En Yüksek Tahsilat Oranı",
+    "highestARPU": "💰 En Yüksek ARPU",
+    "attentionNeeded": "⚠️ Dikkat Gereken Dernekler",
+    "lowCollectionRateWarning": "Tahsilat oranı %60'ın altında olan dernekler var",
+    "vereinCount": "dernek"
+  },
+
+  "export": {
+    "financialAnalysisFileName": "Finansal_Analiz",
+    "adminReportsFileName": "admin-raporlar",
+    "financialAnalysisReport": "FİNANSAL ANALİZ RAPORU",
+    "date": "Tarih:",
+    "generalSummary": "GENEL ÖZET",
+    "summarySheet": "Özet",
+    "performanceSheet": "Dernek Performansı",
+    "pdfExportError": "PDF oluşturulurken bir hata oluştu.",
+    "totalRevenueLabel": "Toplam Gelir",
+    "totalClaimsLabel": "Toplam Alacak",
+    "netProfitLossLabel": "Net Kar/Zarar",
+    "collectionRateLabel": "Tahsilat Oranı",
+    "growthRateYoY": "Büyüme Oranı (YoY)",
+    "vereinColumn": "Dernek",
+    "openClaimsColumn": "Açık Alacak",
+    "collectionRatePercent": "Tahsilat Oranı (%)",
+    "arpuColumn": "ARPU",
+    "activeMembersColumn": "Aktif Üye Sayısı"
   }
 }
 

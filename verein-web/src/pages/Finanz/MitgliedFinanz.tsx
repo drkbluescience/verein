@@ -296,7 +296,7 @@ const MitgliedFinanz: React.FC = () => {
     }
 
     // Save PDF
-    const fileName = `odeme-gecmisi-${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `${t('finanz:export.paymentHistoryFileName')}-${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
 
     showToast(t('finanz:mitgliedFinanz.exportSuccess'), 'success');
