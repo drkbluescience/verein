@@ -887,15 +887,16 @@ const FinanzDashboard: React.FC = () => {
             {stats.overdueForderungenCount > 0 ? '⚠️' : '✅'}
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--color-text)' }}>
-              {t('finanz:dashboard.collectionRateMessage', {
-                rate: stats.collectionRate.toFixed(1),
-                overdueMessage: stats.overdueForderungenCount > 0
-                  ? t('finanz:dashboard.overdueExists', { count: stats.overdueForderungenCount })
-                  : t('finanz:dashboard.allPaymentsCurrent'),
-                interpolation: { escapeValue: false }
-              })}
-            </p>
+            <p
+              style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--color-text)' }}
+              dangerouslySetInnerHTML={{
+                __html: t('finanz:dashboard.collectionRateMessage')
+                  .replace('{rate}', stats.collectionRate.toFixed(1))
+                  .replace('{overdueMessage}', stats.overdueForderungenCount > 0
+                    ? t('finanz:dashboard.overdueExists').replace('{count}', stats.overdueForderungenCount.toString())
+                    : t('finanz:dashboard.allPaymentsCurrent'))
+              }}
+            />
             <p style={{ fontSize: '0.875rem', opacity: 0.8, color: 'var(--color-text-secondary)' }}>
               {t('finanz:dashboard.info')}
             </p>

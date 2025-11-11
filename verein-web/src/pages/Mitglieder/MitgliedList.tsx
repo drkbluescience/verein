@@ -471,6 +471,20 @@ const MitgliedCard: React.FC<MitgliedCardProps> = ({ mitglied, onEdit, onDelete 
   const statusText = mitgliedUtils.getStatusText(mitglied);
   const statusColor = mitgliedUtils.getStatusColor(mitglied);
 
+  // Format membership duration with i18n
+  const formatMembershipDuration = () => {
+    if (membershipDuration.unit === 'unknown') {
+      return t('common:duration.unknown');
+    }
+    if (membershipDuration.unit === 'new') {
+      return t('common:duration.newMember');
+    }
+    const unitKey = membershipDuration.value === 1
+      ? membershipDuration.unit.slice(0, -1) // 'years' -> 'year', 'months' -> 'month'
+      : membershipDuration.unit;
+    return `${membershipDuration.value} ${t(`common:duration.${unitKey}`)}`;
+  };
+
   return (
     <div className="mitglied-card">
       <div className="mitglied-card-header">
@@ -511,7 +525,7 @@ const MitgliedCard: React.FC<MitgliedCardProps> = ({ mitglied, onEdit, onDelete 
 
           <div className="detail-item">
             <CalendarIcon />
-            <span className="detail-text">{t('mitglieder:listPage.card.membership')}: {membershipDuration}</span>
+            <span className="detail-text">{t('mitglieder:listPage.card.membership')}: {formatMembershipDuration()}</span>
           </div>
         </div>
       </div>

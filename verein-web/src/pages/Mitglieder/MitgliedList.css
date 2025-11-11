@@ -352,7 +352,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 10px;
   border: 2px solid var(--color-border);
   background: var(--color-surface);
   border-radius: 10px;
@@ -361,6 +361,10 @@
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.card-action-btn span {
+  display: none;
 }
 
 .card-action-btn:hover {

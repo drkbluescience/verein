@@ -104,6 +104,7 @@
   },
   "status": {
     "paid": "Bezahlt",
+    "unpaid": "Unbezahlt",
     "open": "Offen"
   },
   "transaction": {
@@ -129,6 +130,8 @@
     "overdueClaims": "Überfällige Forderungen",
     "unpaidClaims": "unbezahlt",
     "paidClaims": "bezahlt",
+    "payments": "Zahlung(en)",
+    "overdueCount": "überfällig",
     "payments": "Zahlungen",
     "overdueCount": "überfällig",
     "unpaidClaimsTitle": "Unbezahlte Forderungen",
@@ -143,7 +146,18 @@
     "proceedToPayment": "Zur Zahlung fortfahren",
     "paymentRedirect": "Sie werden zur Zahlungsseite weitergeleitet...",
     "exportPDF": "PDF herunterladen",
-    "exportSuccess": "PDF erfolgreich heruntergeladen"
+    "exportSuccess": "PDF erfolgreich heruntergeladen",
+    "summary": "Zusammenfassung",
+    "pdfTitle": "Zahlungshistorie",
+    "pdfMember": "Mitglied:",
+    "pdfTotalClaims": "Gesamtforderungen",
+    "pdfTotalPaid": "Gesamt bezahlt",
+    "pdfTotalPayments": "Gesamtzahlungen",
+    "pdfPaymentDetails": "Zahlungsdetails",
+    "pdfDate": "Datum",
+    "pdfAmount": "Betrag",
+    "pdfPaymentMethod": "Zahlungsmethode",
+    "pdfReference": "Referenz"
   },
   "bankUpload": {
     "title": "Bankzahlungen hochladen",

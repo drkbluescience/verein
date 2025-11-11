@@ -172,7 +172,7 @@ const DernekRaporlar: React.FC = () => {
     const monthlyData = [];
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
-    const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const monthNames = t('months.short', { returnObjects: true }) as string[];
 
     for (let month = 0; month <= currentMonth; month++) {
       const monthStart = new Date(currentYear, month, 1);
@@ -214,7 +214,7 @@ const DernekRaporlar: React.FC = () => {
       monthlyData,
       upcomingEvents,
     };
-  }, [mitglieder, veranstaltungen, dateRange]);
+  }, [mitglieder, veranstaltungen, dateRange, t]);
 
   // PDF Export function with html2pdf.js (prevents element splitting)
   const handleExportPDF = async () => {
@@ -255,7 +255,7 @@ const DernekRaporlar: React.FC = () => {
       await html2pdf().set(opt).from(element).save();
     } catch (error) {
       console.error('PDF export error:', error);
-      alert('PDF oluşturulurken bir hata oluştu.');
+      alert(t('export.pdfExportError'));
     } finally {
       // Remove PDF export mode class
       element.classList.remove('pdf-export-mode');
@@ -268,9 +268,9 @@ const DernekRaporlar: React.FC = () => {
     return (
       <div className="reports-container">
         <div className="reports-header">
-          <h1>Raporlar</h1>
+          <h1>{t('dernek.title')}</h1>
           <p style={{ color: 'var(--color-error)' }}>
-            Dernek bilgisi bulunamadı. Lütfen sistem yöneticisi ile iletişime geçin.
+            {t('dernek.noVereinInfo')}
           </p>
         </div>
       </div>
@@ -278,7 +278,7 @@ const DernekRaporlar: React.FC = () => {
   }
 
   if (vereinLoading || mitgliederLoading || veranstaltungenLoading) {
-    return <Loading text="Raporlar yükleniyor..." />;
+    return <Loading text={t('dernek.loadingReports')} />;
   }
 
   // Check for errors
@@ -286,9 +286,9 @@ const DernekRaporlar: React.FC = () => {
     return (
       <div className="reports-container">
         <div className="reports-header">
-          <h1>Raporlar</h1>
+          <h1>{t('dernek.title')}</h1>
           <p style={{ color: 'var(--color-error)' }}>
-            Veri yüklenirken hata oluştu: {vereinError?.message || mitgliederError?.message || veranstaltungenError?.message}
+            {t('dernek.dataLoadError')} {vereinError?.message || mitgliederError?.message || veranstaltungenError?.message}
           </p>
         </div>
       </div>
@@ -299,9 +299,9 @@ const DernekRaporlar: React.FC = () => {
     return (
       <div className="reports-container">
         <div className="reports-header">
-          <h1>Raporlar</h1>
+          <h1>{t('dernek.title')}</h1>
           <p style={{ color: 'var(--color-warning)' }}>
-            Veri yüklenemedi. Lütfen sayfayı yenileyin.
+            {t('dernek.dataNotLoaded')}
           </p>
         </div>
       </div>
@@ -311,19 +311,19 @@ const DernekRaporlar: React.FC = () => {
   return (
     <div className="reports-container">
       <div className="reports-header">
-        <h1>Raporlar</h1>
+        <h1>{t('dernek.title')}</h1>
       </div>
 
       {/* Toolbar */}
       <div className="reports-toolbar">
         <div className="toolbar-left">
           <div className="date-range-selector">
-            <label>Dönem:</label>
+            <label>{t('dernek.period')}</label>
             <select value={dateRange} onChange={(e) => setDateRange(e.target.value as any)}>
-              <option value="30days">Son 30 Gün</option>
-              <option value="3months">Son 3 Ay</option>
-              <option value="6months">Son 6 Ay</option>
-              <option value="1year">Son 1 Yıl</option>
+              <option value="30days">{t('toolbar.last30Days')}</option>
+              <option value="3months">{t('toolbar.last3Months')}</option>
+              <option value="6months">{t('toolbar.last6Months')}</option>
+              <option value="1year">{t('toolbar.last1Year')}</option>
             </select>
           </div>
         </div>
@@ -334,7 +334,7 @@ const DernekRaporlar: React.FC = () => {
             disabled={isExporting}
           >
             <DownloadIcon />
-            {isExporting ? 'Dışa Aktarılıyor...' : 'PDF İndir'}
+            {isExporting ? t('dernek.exporting') : t('dernek.downloadPDF')}
           </button>
         </div>
       </div>
@@ -342,16 +342,16 @@ const DernekRaporlar: React.FC = () => {
       <div id="reports-content">
         {/* Overall Statistics */}
         <div className="stats-section">
-          <h2>Genel Bakış</h2>
+          <h2>{t('dernek.overview')}</h2>
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-icon">
                 <UsersIcon />
               </div>
               <div className="stat-info">
-                <h3>Toplam Üye</h3>
+                <h3>{t('dernek.stats.totalMembers')}</h3>
                 <div className="stat-number">{stats.totalMitglieder}</div>
-                <span className="stat-detail">{stats.activeMitglieder} aktif</span>
+                <span className="stat-detail">{stats.activeMitglieder} {t('dernek.stats.active')}</span>
               </div>
             </div>
 
@@ -360,9 +360,9 @@ const DernekRaporlar: React.FC = () => {
                 <CalendarIcon />
               </div>
               <div className="stat-info">
-                <h3>Toplam Etkinlik</h3>
+                <h3>{t('dernek.stats.totalEvents')}</h3>
                 <div className="stat-number">{stats.totalVeranstaltungen}</div>
-                <span className="stat-detail">{stats.upcomingVeranstaltungen} yaklaşan</span>
+                <span className="stat-detail">{stats.upcomingVeranstaltungen} {t('dernek.stats.upcoming')}</span>
               </div>
             </div>
 
@@ -371,10 +371,13 @@ const DernekRaporlar: React.FC = () => {
                 <TrendingUpIcon />
               </div>
               <div className="stat-info">
-                <h3>Yeni Kayıt</h3>
+                <h3>{t('dernek.stats.newRegistration')}</h3>
                 <div className="stat-number">{stats.currentPeriodRegistrations}</div>
                 <span className="stat-detail">
-                  {dateRange === '30days' ? 'Son 30 gün' : dateRange === '3months' ? 'Son 3 ay' : dateRange === '6months' ? 'Son 6 ay' : 'Son 1 yıl'}
+                  {dateRange === '30days' ? t('dernek.stats.last30Days') :
+                   dateRange === '3months' ? t('dernek.stats.last3Months') :
+                   dateRange === '6months' ? t('dernek.stats.last6Months') :
+                   t('dernek.stats.last1Year')}
                 </span>
               </div>
             </div>
@@ -384,13 +387,13 @@ const DernekRaporlar: React.FC = () => {
                 <CheckCircleIcon />
               </div>
               <div className="stat-info">
-                <h3>Aktif Oran</h3>
+                <h3>{t('dernek.stats.activeRate')}</h3>
                 <div className="stat-number">
                   {stats.totalMitglieder > 0
                     ? Math.round((stats.activeMitglieder / stats.totalMitglieder) * 100)
                     : 0}%
                 </div>
-                <span className="stat-detail">Aktif üye oranı</span>
+                <span className="stat-detail">{t('dernek.stats.activeMemberRate')}</span>
               </div>
             </div>
           </div>
@@ -398,7 +401,7 @@ const DernekRaporlar: React.FC = () => {
 
       {/* Monthly Trend Chart */}
       <div className="chart-section">
-        <h2>Aylık Üye Kayıt Trendi</h2>
+        <h2>{t('dernek.monthlyTrend.title')}</h2>
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={300}>
           <LineChart data={stats.monthlyData} margin={{ bottom: 60 }}>
@@ -429,7 +432,7 @@ const DernekRaporlar: React.FC = () => {
               dataKey="registrations"
               stroke="#2196F3"
               strokeWidth={2}
-              name="Yeni Kayıtlar"
+              name={t('dernek.monthlyTrend.newRegistrations')}
               dot={{ fill: '#2196F3', r: 4 }}
               activeDot={{ r: 6 }}
             />
@@ -440,7 +443,7 @@ const DernekRaporlar: React.FC = () => {
 
       {/* Age Distribution */}
       <div className="chart-section">
-        <h2>Yaş Dağılımı</h2>
+        <h2>{t('dernek.ageDistribution.title')}</h2>
         <div className="chart-container">
         {Object.entries(stats.ageGroups).map(([group, count]) => {
           const percentage = stats.totalMitglieder > 0
@@ -449,7 +452,7 @@ const DernekRaporlar: React.FC = () => {
           return (
             <div key={group} className="chart-bar-item">
               <div className="chart-label">
-                <span>{group} yaş</span>
+                <span>{group} {t('dernek.ageDistribution.years')}</span>
                 <span className="chart-value">{count} ({percentage}%)</span>
               </div>
               <div className="chart-bar-bg">
@@ -466,12 +469,12 @@ const DernekRaporlar: React.FC = () => {
 
       {/* Gender Distribution - Redesigned */}
       <div className="chart-section">
-        <h2>Cinsiyet Dağılımı</h2>
+        <h2>{t('dernek.genderDistribution.title')}</h2>
         <div className="gender-distribution-container">
           <div className="gender-item">
             <div className="gender-header">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MaleIcon /> Erkek
+                <MaleIcon /> {t('dernek.genderDistribution.male')}
               </span>
               <span className="gender-value">
                 {stats.genderDistribution.male} ({stats.totalMitglieder > 0 ? Math.round((stats.genderDistribution.male / stats.totalMitglieder) * 100) : 0}%)
@@ -488,7 +491,7 @@ const DernekRaporlar: React.FC = () => {
           <div className="gender-item">
             <div className="gender-header">
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FemaleIcon /> Kadın
+                <FemaleIcon /> {t('dernek.genderDistribution.female')}
               </span>
               <span className="gender-value">
                 {stats.genderDistribution.female} ({stats.totalMitglieder > 0 ? Math.round((stats.genderDistribution.female / stats.totalMitglieder) * 100) : 0}%)
@@ -507,15 +510,15 @@ const DernekRaporlar: React.FC = () => {
       {/* Upcoming Events */}
       {stats.upcomingEvents.length > 0 && (
         <div className="table-section">
-        <h2>Yaklaşan Etkinlikler (30 Gün)</h2>
+        <h2>{t('dernek.upcomingEvents.title')}</h2>
         <div className="table-container">
           <table className="reports-table">
             <thead>
               <tr>
-                <th>Etkinlik Adı</th>
-                <th>Tarih</th>
-                <th>Kayıt</th>
-                <th>Üye</th>
+                <th>{t('dernek.upcomingEvents.eventName')}</th>
+                <th>{t('dernek.upcomingEvents.date')}</th>
+                <th>{t('dernek.upcomingEvents.registration')}</th>
+                <th>{t('dernek.upcomingEvents.member')}</th>
               </tr>
             </thead>
             <tbody>
@@ -525,12 +528,12 @@ const DernekRaporlar: React.FC = () => {
                   <td>{new Date(event.startdatum).toLocaleDateString('tr-TR')}</td>
                   <td>
                     <span className={`badge ${event.anmeldeErforderlich ? 'badge-required' : 'badge-optional'}`}>
-                      {event.anmeldeErforderlich ? 'Gerekli' : 'Opsiyonel'}
+                      {event.anmeldeErforderlich ? t('dernek.upcomingEvents.required') : t('dernek.upcomingEvents.optional')}
                     </span>
                   </td>
                   <td>
                     <span className={`badge ${event.nurFuerMitglieder ? 'badge-members' : 'badge-public'}`}>
-                      {event.nurFuerMitglieder ? 'Sadece Üye' : 'Herkese Açık'}
+                      {event.nurFuerMitglieder ? t('dernek.upcomingEvents.membersOnly') : t('dernek.upcomingEvents.public')}
                     </span>
                   </td>
                 </tr>

@@ -40,29 +40,62 @@
     }
   },
   
+  "months": {
+    "short": ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+  },
+
   "dernek": {
-    "title": "Dernek Raporları",
+    "title": "Raporlar",
     "subtitle": "için istatistikler",
-    
+    "overview": "Genel Bakış",
+    "period": "Dönem:",
+    "downloadPDF": "PDF İndir",
+    "exporting": "Dışa Aktarılıyor...",
+    "noVereinInfo": "Dernek bilgisi bulunamadı. Lütfen sistem yöneticisi ile iletişime geçin.",
+    "loadingReports": "Raporlar yükleniyor...",
+    "dataLoadError": "Veri yüklenirken hata oluştu:",
+    "dataNotLoaded": "Veri yüklenemedi. Lütfen sayfayı yenileyin.",
+
     "stats": {
       "totalMembers": "Toplam Üye",
       "totalEvents": "Toplam Etkinlik",
-      "last30Days": "Son 30 Gün",
-      "newRegistrations": "Yeni üye kaydı",
-      "upcomingEvents": "Yaklaşan Etkinlik",
+      "newRegistration": "Yeni Kayıt",
+      "activeRate": "Aktif Oran",
+      "last30Days": "Son 30 gün",
+      "last3Months": "Son 3 ay",
+      "last6Months": "Son 6 ay",
+      "last1Year": "Son 1 yıl",
       "active": "aktif",
-      "upcoming": "yaklaşan"
+      "upcoming": "yaklaşan",
+      "activeMemberRate": "Aktif üye oranı"
     },
     
+    "monthlyTrend": {
+      "title": "Aylık Üye Kayıt Trendi",
+      "newRegistrations": "Yeni Kayıtlar"
+    },
+
     "ageDistribution": {
       "title": "Yaş Dağılımı",
       "years": "yaş"
     },
-    
+
     "genderDistribution": {
       "title": "Cinsiyet Dağılımı",
       "male": "Erkek",
       "female": "Kadın"
+    },
+
+    "upcomingEvents": {
+      "title": "Yaklaşan Etkinlikler (30 Gün)",
+      "eventName": "Etkinlik Adı",
+      "date": "Tarih",
+      "registration": "Kayıt",
+      "member": "Üye",
+      "required": "Gerekli",
+      "optional": "Opsiyonel",
+      "membersOnly": "Sadece Üye",
+      "public": "Herkese Açık"
     },
     
     "membershipStatus": {

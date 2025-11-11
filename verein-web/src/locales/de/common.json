@@ -135,6 +135,14 @@
     "october": "Okt",
     "november": "Nov",
     "december": "Dez"
+  },
+  "duration": {
+    "year": "Jahr",
+    "years": "Jahre",
+    "month": "Monat",
+    "months": "Monate",
+    "newMember": "Neues Mitglied",
+    "unknown": "Unbekannt"
   }
 }
 

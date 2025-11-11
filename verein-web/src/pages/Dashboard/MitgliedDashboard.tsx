@@ -7,6 +7,7 @@ import { mitgliedService, mitgliedFamilieService } from '../../services/mitglied
 import { veranstaltungService, veranstaltungUtils } from '../../services/veranstaltungService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
+import { getCurrencySymbol } from '../../utils/currencyUtils';
 import './MitgliedDashboard.css';
 
 // Icon Components
@@ -39,6 +40,7 @@ interface MitgliedInfo {
   vereinName: string;
   mitgliedStatus: string;
   beitragBetrag?: number;
+  beitragWaehrungId?: number;
 }
 
 interface MitgliedStats {
@@ -226,7 +228,8 @@ const MitgliedDashboard: React.FC = () => {
     eintrittsdatum: mitgliedData.eintrittsdatum,
     vereinName: selectedVerein?.name || t('dashboard:mitglied.vereinSelector.placeholder'),
     mitgliedStatus: mitgliedData.aktiv ? t('dashboard:mitglied.status.active') : t('dashboard:mitglied.status.inactive'),
-    beitragBetrag: mitgliedData.beitragBetrag
+    beitragBetrag: mitgliedData.beitragBetrag,
+    beitragWaehrungId: mitgliedData.beitragWaehrungId
   };
 
   return (
@@ -280,7 +283,7 @@ const MitgliedDashboard: React.FC = () => {
                     </option>
                   ))}
                 </select>
-                <div className={`status-badge ${mitgliedInfo.mitgliedStatus === 'Aktif' ? 'status-active' : 'status-inactive'}`}>
+                <div className={`status-badge ${mitgliedData.aktiv ? 'status-active' : 'status-inactive'}`}>
                   {mitgliedInfo.mitgliedStatus}
                 </div>
               </div>
@@ -342,7 +345,9 @@ const MitgliedDashboard: React.FC = () => {
           <div className="stat-card">
             <div className="stat-info">
               <h3>{t('dashboard:mitglied.overview.monthlyFee')}</h3>
-              <p className="stat-number">{mitgliedInfo.beitragBetrag || 0}₺</p>
+              <p className="stat-number">
+                {mitgliedInfo.beitragBetrag || 0}{getCurrencySymbol(mitgliedInfo.beitragWaehrungId)}
+              </p>
               <p className="stat-detail">
                 {t('dashboard:mitglied.overview.currentFee')}
               </p>

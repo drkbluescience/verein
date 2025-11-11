@@ -236,21 +236,21 @@ export const mitgliedUtils = {
     return age;
   },
 
-  // Format membership duration
-  getMembershipDuration: (eintrittsdatum?: string): string => {
-    if (!eintrittsdatum) return 'Bilinmiyor';
-    
+  // Get membership duration data (returns object for i18n formatting)
+  getMembershipDuration: (eintrittsdatum?: string): { value: number; unit: 'years' | 'months' | 'new' | 'unknown' } => {
+    if (!eintrittsdatum) return { value: 0, unit: 'unknown' };
+
     const joinDate = new Date(eintrittsdatum);
     const today = new Date();
     const years = today.getFullYear() - joinDate.getFullYear();
     const months = today.getMonth() - joinDate.getMonth();
-    
+
     if (years > 0) {
-      return `${years} yıl`;
+      return { value: years, unit: 'years' };
     } else if (months > 0) {
-      return `${months} ay`;
+      return { value: months, unit: 'months' };
     } else {
-      return 'Yeni üye';
+      return { value: 0, unit: 'new' };
     }
   },
 

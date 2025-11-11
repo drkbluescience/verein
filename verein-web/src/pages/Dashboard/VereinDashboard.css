@@ -36,30 +36,34 @@
 .stats-section h2,
 .actions-section h2,
 .activities-section h2 {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--color-text-primary);
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   letter-spacing: -0.01em;
 }
 
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 .stat-card {
   background: var(--color-surface);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px 18px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 2px solid transparent;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+  min-height: 130px;
 }
 
 .stat-card:hover {
@@ -151,44 +155,54 @@
   color: var(--color-text-primary);
 }
 
-.stat-info {
-  flex: 1;
+.verein-dashboard .stat-card .stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
 }
 
-.stat-info h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin: 0 0 8px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.verein-dashboard .stat-card .stat-info h3 {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--color-text-primary) !important;
+  margin: 0 0 2px 0 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  line-height: 1.3 !important;
+  text-align: center !important;
 }
 
-.stat-number {
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 4px 0;
-  line-height: 1;
+.verein-dashboard .stat-card .stat-number {
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  color: var(--color-text-primary) !important;
+  line-height: 1 !important;
+  margin: 4px 0 !important;
+  text-align: center !important;
 }
 
-.stat-detail {
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  font-weight: 500;
+.verein-dashboard .stat-card .stat-detail {
+  font-size: 13px !important;
+  color: var(--color-text-secondary) !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  text-align: center !important;
 }
 
 /* Actions Grid */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 .action-card {
   background: var(--color-surface);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 2px solid transparent;
   transition: all 0.3s ease;
@@ -196,6 +210,7 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
+  min-height: 100px;
 }
 
 .action-card:hover {
@@ -311,7 +326,15 @@
     grid-template-columns: 1fr;
   }
 
-  .stat-number {
-    font-size: 28px;
+  .verein-dashboard .stat-card .stat-info h3 {
+    font-size: 16px !important;
+  }
+
+  .verein-dashboard .stat-card .stat-number {
+    font-size: 42px !important;
+  }
+
+  .verein-dashboard .stat-card .stat-detail {
+    font-size: 14px !important;
   }
 }

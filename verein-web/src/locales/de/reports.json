@@ -40,29 +40,62 @@
     }
   },
   
+  "months": {
+    "short": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
+  },
+
   "dernek": {
-    "title": "Vereinsberichte",
+    "title": "Berichte",
     "subtitle": "Statistiken für",
-    
+    "overview": "Übersicht",
+    "period": "Zeitraum:",
+    "downloadPDF": "PDF herunterladen",
+    "exporting": "Wird exportiert...",
+    "noVereinInfo": "Vereinsinformationen nicht gefunden. Bitte kontaktieren Sie den Systemadministrator.",
+    "loadingReports": "Berichte werden geladen...",
+    "dataLoadError": "Fehler beim Laden der Daten:",
+    "dataNotLoaded": "Daten konnten nicht geladen werden. Bitte aktualisieren Sie die Seite.",
+
     "stats": {
       "totalMembers": "Mitglieder Gesamt",
       "totalEvents": "Veranstaltungen Gesamt",
+      "newRegistration": "Neue Registrierung",
+      "activeRate": "Aktivitätsrate",
       "last30Days": "Letzte 30 Tage",
-      "newRegistrations": "Neue Mitgliederregistrierungen",
-      "upcomingEvents": "Bevorstehende Veranstaltungen",
+      "last3Months": "Letzte 3 Monate",
+      "last6Months": "Letzte 6 Monate",
+      "last1Year": "Letztes Jahr",
       "active": "aktiv",
-      "upcoming": "bevorstehend"
+      "upcoming": "bevorstehend",
+      "activeMemberRate": "Aktive Mitgliederrate"
     },
     
+    "monthlyTrend": {
+      "title": "Monatlicher Mitgliederregistrierungstrend",
+      "newRegistrations": "Neue Registrierungen"
+    },
+
     "ageDistribution": {
       "title": "Altersverteilung",
       "years": "Jahre"
     },
-    
+
     "genderDistribution": {
       "title": "Geschlechterverteilung",
       "male": "Männlich",
       "female": "Weiblich"
+    },
+
+    "upcomingEvents": {
+      "title": "Bevorstehende Veranstaltungen (30 Tage)",
+      "eventName": "Veranstaltungsname",
+      "date": "Datum",
+      "registration": "Registrierung",
+      "member": "Mitglied",
+      "required": "Erforderlich",
+      "optional": "Optional",
+      "membersOnly": "Nur Mitglieder",
+      "public": "Öffentlich"
     },
     
     "membershipStatus": {

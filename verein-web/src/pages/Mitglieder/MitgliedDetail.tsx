@@ -148,6 +148,20 @@ const MitgliedDetail: React.FC = () => {
   const statusText = mitgliedUtils.getStatusText(mitglied);
   const statusColor = mitgliedUtils.getStatusColor(mitglied);
 
+  // Format membership duration with i18n
+  const formatMembershipDuration = () => {
+    if (membershipDuration.unit === 'unknown') {
+      return t('common:duration.unknown');
+    }
+    if (membershipDuration.unit === 'new') {
+      return t('common:duration.newMember');
+    }
+    const unitKey = membershipDuration.value === 1
+      ? membershipDuration.unit.slice(0, -1) // 'years' -> 'year', 'months' -> 'month'
+      : membershipDuration.unit;
+    return `${membershipDuration.value} ${t(`common:duration.${unitKey}`)}`;
+  };
+
   return (
     <div className="mitglied-detail">
       {/* Header */}
@@ -299,7 +313,7 @@ const MitgliedDetail: React.FC = () => {
                 </div>
                 <div className="info-item">
                   <label>{t('mitglieder:detailPage.fields.membershipDuration')}</label>
-                  <p>{membershipDuration}</p>
+                  <p>{formatMembershipDuration()}</p>
                 </div>
               </>
             )}

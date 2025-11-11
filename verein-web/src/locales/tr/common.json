@@ -135,6 +135,14 @@
     "october": "Eki",
     "november": "Kas",
     "december": "Ara"
+  },
+  "duration": {
+    "year": "yıl",
+    "years": "yıl",
+    "month": "ay",
+    "months": "ay",
+    "newMember": "Yeni üye",
+    "unknown": "Bilinmiyor"
   }
 }
 

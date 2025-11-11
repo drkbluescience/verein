@@ -215,8 +215,17 @@
       "other": "Andere"
     },
     "yearsOld": "Jahre alt",
+    "gridView": "Kartenansicht",
+    "tableView": "Tabellenansicht",
     "stats": {
       "totalMembers": "Familienmitglieder gesamt"
+    },
+    "table": {
+      "fullName": "Name",
+      "relationship": "Beziehung",
+      "age": "Alter",
+      "email": "E-Mail",
+      "phone": "Telefon"
     }
   },
   "table": {

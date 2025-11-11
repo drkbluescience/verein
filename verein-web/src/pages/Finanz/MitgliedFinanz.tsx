@@ -36,7 +36,7 @@ const DownloadIcon = () => (
 
 const MitgliedFinanz: React.FC = () => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t, i18n } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -119,9 +119,10 @@ const MitgliedFinanz: React.FC = () => {
     }).format(amount);
   };
 
-  // Format date
+  // Format date - Dynamic locale based on current language
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR', {
+    const locale = i18n.language === 'de' ? 'de-DE' : 'tr-TR';
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -168,12 +169,12 @@ const MitgliedFinanz: React.FC = () => {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text(toAscii('Ödeme Geçmişi'), 14, 20);
+    doc.text(toAscii(t('finanz:mitgliedFinanz.pdfTitle')), 14, 20);
 
     // Member info
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text(toAscii(`Üye: ${user?.firstName || ''} ${user?.lastName || ''}`), 14, 30);
+    doc.text(toAscii(`${t('finanz:mitgliedFinanz.pdfMember')} ${user?.firstName || ''} ${user?.lastName || ''}`), 14, 30);
     doc.text(toAscii(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`), 14, 37);
 
     // Reset text color
@@ -197,7 +198,7 @@ const MitgliedFinanz: React.FC = () => {
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(120, 53, 15);
-    doc.text(toAscii('Toplam Borç'), 14 + boxWidth / 2, yPos + 8, { align: 'center' });
+    doc.text(toAscii(t('finanz:mitgliedFinanz.pdfTotalClaims')), 14 + boxWidth / 2, yPos + 8, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text(formatCurrency(stats.unpaidClaimsAmount), 14 + boxWidth / 2, yPos + 18, { align: 'center' });
@@ -208,7 +209,7 @@ const MitgliedFinanz: React.FC = () => {
     doc.setTextColor(22, 101, 52);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(toAscii('Toplam Ödenen'), 14 + boxWidth + boxSpacing + boxWidth / 2, yPos + 8, { align: 'center' });
+    doc.text(toAscii(t('finanz:mitgliedFinanz.pdfTotalPaid')), 14 + boxWidth + boxSpacing + boxWidth / 2, yPos + 8, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text(formatCurrency(stats.paidClaimsAmount), 14 + boxWidth + boxSpacing + boxWidth / 2, yPos + 18, { align: 'center' });
@@ -219,7 +220,7 @@ const MitgliedFinanz: React.FC = () => {
     doc.setTextColor(30, 64, 175);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(toAscii('Toplam Ödeme'), 14 + (boxWidth + boxSpacing) * 2 + boxWidth / 2, yPos + 8, { align: 'center' });
+    doc.text(toAscii(t('finanz:mitgliedFinanz.pdfTotalPayments')), 14 + (boxWidth + boxSpacing) * 2 + boxWidth / 2, yPos + 8, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text(formatCurrency(stats.totalPaymentsAmount), 14 + (boxWidth + boxSpacing) * 2 + boxWidth / 2, yPos + 18, { align: 'center' });
@@ -231,7 +232,7 @@ const MitgliedFinanz: React.FC = () => {
     yPos += 35;
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text(toAscii('Ödeme Detayları'), 14, yPos);
+    doc.text(toAscii(t('finanz:mitgliedFinanz.pdfPaymentDetails')), 14, yPos);
 
     const tableData = zahlungen
       .sort((a, b) => new Date(b.zahlungsdatum).getTime() - new Date(a.zahlungsdatum).getTime())
@@ -245,10 +246,10 @@ const MitgliedFinanz: React.FC = () => {
     autoTable(doc, {
       startY: yPos + 5,
       head: [[
-        toAscii('Tarih'),
-        toAscii('Tutar'),
-        toAscii('Ödeme Yöntemi'),
-        toAscii('Referans'),
+        toAscii(t('finanz:mitgliedFinanz.pdfDate')),
+        toAscii(t('finanz:mitgliedFinanz.pdfAmount')),
+        toAscii(t('finanz:mitgliedFinanz.pdfPaymentMethod')),
+        toAscii(t('finanz:mitgliedFinanz.pdfReference')),
       ]],
       body: tableData,
       theme: 'striped',
@@ -329,7 +330,7 @@ const MitgliedFinanz: React.FC = () => {
           </div>
           <div className="summary-stat">
             <div className="stat-label">{t('finanz:mitgliedFinanz.totalPayments')}</div>
-            <div className="stat-amount">{stats.totalPayments} ödeme</div>
+            <div className="stat-amount">{stats.totalPayments} {t('finanz:mitgliedFinanz.payments')}</div>
           </div>
           {stats.overdueClaims > 0 && (
             <div className="summary-stat alert">
