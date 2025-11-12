@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { veranstaltungService, veranstaltungUtils } from '../../services/veranstaltungService';
+import { vereinService } from '../../services/vereinService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import { VeranstaltungDto } from '../../types/veranstaltung';
+import { VereinDto } from '../../types/verein';
 import VeranstaltungFormModal from '../../components/Veranstaltung/VeranstaltungFormModal';
 import './VeranstaltungList.css';
 
@@ -238,6 +240,14 @@ const VeranstaltungList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVeranstaltung, setSelectedVeranstaltung] = useState<VeranstaltungDto | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
+
+  // Fetch Vereine (for Admin dropdown)
+  const { data: vereine = [] } = useQuery<VereinDto[]>({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
 
   // Determine data fetching based on user type
   const {
@@ -264,14 +274,19 @@ const VeranstaltungList: React.FC = () => {
 
   // Filter events based on search and filter criteria
   const filteredVeranstaltungen = veranstaltungen?.filter(veranstaltung => {
+    // Verein filter (Admin only)
+    if (user?.type === 'admin' && selectedVereinId && veranstaltung.vereinId !== selectedVereinId) {
+      return false;
+    }
+
     // Search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      const matchesSearch = 
+      const matchesSearch =
         veranstaltung.titel.toLowerCase().includes(searchLower) ||
         veranstaltung.beschreibung?.toLowerCase().includes(searchLower) ||
         veranstaltung.ort?.toLowerCase().includes(searchLower);
-      
+
       if (!matchesSearch) return false;
     }
 
@@ -367,27 +382,45 @@ const VeranstaltungList: React.FC = () => {
           )}
         </div>
 
-        <div className="view-toggle">
-          <button
-            className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-            onClick={() => setViewMode('grid')}
-            title={t('veranstaltungen:listPage.gridView')}
-          >
-            <GridIcon />
-          </button>
-          <button
-            className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-            onClick={() => setViewMode('table')}
-            title={t('veranstaltungen:listPage.tableView')}
-          >
-            <TableIcon />
+        <div className="filter-controls">
+          {/* Admin: Verein Filter */}
+          {user?.type === 'admin' && (
+            <select
+              value={selectedVereinId || ''}
+              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+              className="filter-select"
+            >
+              <option value="">{t('common:filter.allVereine')}</option>
+              {vereine.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <div className="view-toggle">
+            <button
+              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title={t('veranstaltungen:listPage.gridView')}
+            >
+              <GridIcon />
+            </button>
+            <button
+              className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              title={t('veranstaltungen:listPage.tableView')}
+            >
+              <TableIcon />
+            </button>
+          </div>
+
+          <button className="btn-primary" onClick={handleOpenCreateModal}>
+            <PlusIcon />
+            <span>{t('veranstaltungen:listPage.actions.newEvent')}</span>
           </button>
         </div>
-
-        <button className="btn-primary" onClick={handleOpenCreateModal}>
-          <PlusIcon />
-          <span>{t('veranstaltungen:listPage.actions.newEvent')}</span>
-        </button>
       </div>
 
       {/* Filter Tabs */}

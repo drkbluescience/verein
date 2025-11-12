@@ -48,6 +48,10 @@
     "upload": "Hochladen",
     "refresh": "Aktualisieren"
   },
+  "verein": "Verein",
+  "filter": {
+    "allVereine": "Alle Vereine"
+  },
   "status": {
     "active": "Aktiv",
     "inactive": "Inaktiv",

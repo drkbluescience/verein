@@ -174,7 +174,18 @@ GO
 -- ============================================================================
 -- 11. DERNEKLERİ SİL
 -- ============================================================================
-PRINT '1️⃣1️⃣ Dernekler siliniyor...';
+PRINT '1️⃣1️⃣ Dernek yasal verileri siliniyor...';
+
+DECLARE @DeletedRechtlicheDatenCount INT = 0;
+
+DELETE FROM [Verein].[RechtlicheDaten];
+SET @DeletedRechtlicheDatenCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedRechtlicheDatenCount AS VARCHAR(10)) + ' yasal veri silindi';
+GO
+
+-- ============================================================================
+PRINT '1️⃣2️⃣ Dernekler siliniyor...';
 
 DECLARE @DeletedVereinCount INT = 0;
 

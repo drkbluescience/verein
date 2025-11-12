@@ -234,6 +234,63 @@ PRINT '  ✓ 2 Dernek eklendi';
 GO
 
 -- =============================================
+-- 1.1 RECHTLICHE DATEN (Yasal Veriler)
+-- =============================================
+
+PRINT '1.1 Dernek yasal verileri ekleniyor...';
+
+DECLARE @MuenchenVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'TDKV München');
+DECLARE @BerlinVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'DTF Berlin');
+
+INSERT INTO [Verein].[RechtlicheDaten] (
+    VereinId,
+    RegistergerichtName, RegistergerichtNummer, RegistergerichtOrt, RegistergerichtEintragungsdatum,
+    FinanzamtName, FinanzamtNummer, FinanzamtOrt,
+    Steuerpflichtig, Steuerbefreit, GemeinnuetzigAnerkannt, GemeinnuetzigkeitBis,
+    SteuererklaerungJahr,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+(
+    @MuenchenVereinId,
+    N'Amtsgericht München',
+    N'VR 12345',
+    N'München',
+    '1985-03-15',
+    N'Finanzamt München',
+    N'143/123/45678',
+    N'München',
+    0,
+    1,
+    1,
+    '2025-12-31',
+    2024,
+    0,
+    GETDATE(),
+    1
+),
+(
+    @BerlinVereinId,
+    N'Amtsgericht Charlottenburg',
+    N'VR 67890',
+    N'Berlin',
+    '1992-08-22',
+    N'Finanzamt Berlin-Charlottenburg',
+    N'27/456/78901',
+    N'Berlin',
+    0,
+    1,
+    1,
+    '2025-12-31',
+    2024,
+    0,
+    GETDATE(),
+    1
+);
+
+PRINT '  ✓ 2 Dernek yasal verisi eklendi';
+GO
+
+-- =============================================
 -- 2. MITGLIEDER (Üyeler)
 -- =============================================
 

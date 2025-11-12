@@ -271,6 +271,7 @@ const BankBuchungList: React.FC = () => {
             <thead>
               <tr>
                 <th>{t('finanz:bankTransactions.reference')}</th>
+                {user?.type === 'admin' && <th>{t('common:verein')}</th>}
                 <th>{t('finanz:bankTransactions.amount')}</th>
                 <th>{t('finanz:bankTransactions.date')}</th>
                 <th>{t('finanz:bankTransactions.type')}</th>
@@ -279,18 +280,23 @@ const BankBuchungList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredBankBuchungen.map((buchung) => (
-                <tr key={buchung.id}>
-                  <td className="cell-number">{buchung.referenz || '-'}</td>
-                  <td className={`cell-amount ${buchung.betrag > 0 ? 'positive' : 'negative'}`}>
-                    {buchung.betrag > 0 ? '+' : ''}€ {Math.abs(buchung.betrag).toFixed(2)}
-                  </td>
-                  <td className="cell-date">
-                    {new Date(buchung.buchungsdatum).toLocaleDateString()}
-                  </td>
-                  <td>{getTransactionType(buchung.betrag)}</td>
-                  <td className="cell-description">{buchung.verwendungszweck || '-'}</td>
-                  <td className="cell-actions">
+              {filteredBankBuchungen.map((buchung) => {
+                const verein = vereine.find(v => v.id === buchung.vereinId);
+                return (
+                  <tr key={buchung.id}>
+                    <td className="cell-number">{buchung.referenz || '-'}</td>
+                    {user?.type === 'admin' && (
+                      <td className="cell-verein">{verein?.name || '-'}</td>
+                    )}
+                    <td className={`cell-amount ${buchung.betrag > 0 ? 'positive' : 'negative'}`}>
+                      {buchung.betrag > 0 ? '+' : ''}€ {Math.abs(buchung.betrag).toFixed(2)}
+                    </td>
+                    <td className="cell-date">
+                      {new Date(buchung.buchungsdatum).toLocaleDateString()}
+                    </td>
+                    <td>{getTransactionType(buchung.betrag)}</td>
+                    <td className="cell-description">{buchung.verwendungszweck || '-'}</td>
+                    <td className="cell-actions">
                     <button
                       className="action-btn"
                       onClick={() => navigate(`/finanzen/bank/${buchung.id}`)}
@@ -310,7 +316,8 @@ const BankBuchungList: React.FC = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

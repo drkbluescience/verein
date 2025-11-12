@@ -28,7 +28,8 @@ public class VereinProfile : Profile
             .ForMember(dest => dest.HauptBankkonto, opt => opt.Ignore())
             .ForMember(dest => dest.Adressen, opt => opt.Ignore())
             .ForMember(dest => dest.Bankkonten, opt => opt.Ignore())
-            .ForMember(dest => dest.Veranstaltungen, opt => opt.Ignore());
+            .ForMember(dest => dest.Veranstaltungen, opt => opt.Ignore())
+            .ForMember(dest => dest.RechtlicheDaten, opt => opt.Ignore());
             
         // UpdateDTO -> Entity (for updating existing entity)
         CreateMap<UpdateVereinDto, Verein>()
@@ -44,6 +45,7 @@ public class VereinProfile : Profile
             .ForMember(dest => dest.Adressen, opt => opt.Ignore())
             .ForMember(dest => dest.Bankkonten, opt => opt.Ignore())
             .ForMember(dest => dest.Veranstaltungen, opt => opt.Ignore())
+            .ForMember(dest => dest.RechtlicheDaten, opt => opt.Ignore())
             // Handle nullable properties from UpdateDto - only update if provided
             .ForMember(dest => dest.Name, opt => opt.Condition(src => !string.IsNullOrEmpty(src.Name)))
             .ForMember(dest => dest.Kurzname, opt => opt.Condition(src => src.Kurzname != null))

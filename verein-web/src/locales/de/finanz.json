@@ -39,7 +39,11 @@
     "activeMembers": "aktive Mitglieder",
     "collectionRateMessage": "Ihre Inkassoquote beträgt <strong>{rate}%</strong>{overdueMessage}",
     "overdueExists": ", {count} überfällige Zahlung(en) vorhanden.",
-    "allPaymentsCurrent": ", alle Zahlungen sind aktuell!"
+    "allPaymentsCurrent": ", alle Zahlungen sind aktuell!",
+    "vereinComparison": "Vereinsvergleich",
+    "overdueClaims": "Überfällige Forderungen",
+    "bankBalance": "Banksaldo",
+    "total": "GESAMT"
   },
   "claims": {
     "title": "Forderungen",

@@ -4,7 +4,7 @@
  * Accessible by: Admin, Dernek (organization admin)
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,7 @@ import {
   bankBuchungService,
 } from '../../services/finanzService';
 import { mitgliedService } from '../../services/mitgliedService';
+import { vereinService } from '../../services/vereinService';
 import Loading from '../../components/Common/Loading';
 import {
   LineChart,
@@ -125,12 +126,22 @@ const FinanzDashboard: React.FC = () => {
   const { t } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
 
   // Get vereinId based on user type
   const vereinId = useMemo(() => {
     if (user?.type === 'dernek') return user.vereinId;
-    return null; // Admin sees all
-  }, [user]);
+    // Admin: use selected filter or null for all
+    if (user?.type === 'admin') return selectedVereinId;
+    return null;
+  }, [user, selectedVereinId]);
+
+  // Fetch Vereine (for Admin dropdown)
+  const { data: vereine = [] } = useQuery({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
 
   // Fetch claims
   const { data: forderungen = [], isLoading: forderungenLoading } = useQuery({
@@ -319,6 +330,58 @@ const FinanzDashboard: React.FC = () => {
     }));
   }, [zahlungen]);
 
+  // Dernek Comparison Data (for Admin when no filter selected)
+  const vereinComparisonData = useMemo(() => {
+    if (user?.type !== 'admin' || selectedVereinId !== null) return [];
+
+    return vereine.map(verein => {
+      const vereinForderungen = forderungen.filter(f => f.vereinId === verein.id);
+      const vereinZahlungen = zahlungen.filter(z => z.vereinId === verein.id);
+      const vereinBankBuchungen = bankBuchungen.filter(b => b.vereinId === verein.id);
+
+      const totalForderungen = vereinForderungen.length;
+      const totalForderungsBetrag = vereinForderungen.reduce((sum, f) => sum + f.betrag, 0);
+      const bezahlteForderungen = vereinForderungen.filter(f => f.statusId === 1).length;
+      const bezahlteForderungenBetrag = vereinForderungen.filter(f => f.statusId === 1).reduce((sum, f) => sum + f.betrag, 0);
+      const offeneForderungen = vereinForderungen.filter(f => f.statusId === 2).length;
+      const offeneForderungenBetrag = vereinForderungen.filter(f => f.statusId === 2).reduce((sum, f) => sum + f.betrag, 0);
+
+      const today = new Date();
+      const overdueForderungen = vereinForderungen.filter(f => {
+        if (f.statusId === 1) return false;
+        return new Date(f.faelligkeit) < today;
+      });
+      const overdueForderungenCount = overdueForderungen.length;
+      const overdueForderungenBetrag = overdueForderungen.reduce((sum, f) => sum + f.betrag, 0);
+
+      const totalZahlungen = vereinZahlungen.length;
+      const totalZahlungsBetrag = vereinZahlungen.reduce((sum, z) => sum + z.betrag, 0);
+
+      const totalBankBetrag = vereinBankBuchungen.reduce((sum, b) => sum + b.betrag, 0);
+
+      const collectionRate = totalForderungsBetrag > 0
+        ? (bezahlteForderungenBetrag / totalForderungsBetrag) * 100
+        : 0;
+
+      return {
+        vereinId: verein.id,
+        vereinName: verein.name,
+        totalForderungen,
+        totalForderungsBetrag,
+        bezahlteForderungen,
+        bezahlteForderungenBetrag,
+        offeneForderungen,
+        offeneForderungenBetrag,
+        overdueForderungenCount,
+        overdueForderungenBetrag,
+        totalZahlungen,
+        totalZahlungsBetrag,
+        totalBankBetrag,
+        collectionRate,
+      };
+    });
+  }, [user, selectedVereinId, vereine, forderungen, zahlungen, bankBuchungen]);
+
   // Colors for pie chart
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
@@ -370,8 +433,34 @@ const FinanzDashboard: React.FC = () => {
         <h1 className="page-title">{t('finanz:dashboard.title')}</h1>
       </div>
 
-      {/* Actions Bar */}
-      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+      {/* Filters & Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        {/* Admin: Verein Filter */}
+        {user?.type === 'admin' && (
+          <select
+            value={selectedVereinId || ''}
+            onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+            style={{
+              padding: '10px 16px',
+              border: '2px solid var(--color-border)',
+              borderRadius: '12px',
+              background: 'var(--color-surface)',
+              color: 'var(--color-text-primary)',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              minWidth: '200px',
+            }}
+          >
+            <option value="">{t('common:filter.allVereine')}</option>
+            {vereine.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.name}
+              </option>
+            ))}
+          </select>
+        )}
+        <div style={{ flex: 1 }}></div>
         <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
           <UploadIcon />
           {t('finanz:bankUpload.title')}
@@ -539,6 +628,156 @@ const FinanzDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Verein Comparison Table (Admin only, when no filter selected) */}
+      {user?.type === 'admin' && selectedVereinId === null && vereinComparisonData.length > 0 && (
+        <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
+            {t('finanz:dashboard.vereinComparison')}
+          </h2>
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '0.875rem'
+              }}>
+                <thead>
+                  <tr style={{ background: 'var(--color-background)', borderBottom: '2px solid var(--color-border)' }}>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('common:verein')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.totalClaims')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.paidClaims')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.openClaims')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.overdueClaims')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.collectionRate')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.totalPayments')}
+                    </th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.bankBalance')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vereinComparisonData.map((verein, index) => (
+                    <tr
+                      key={verein.vereinId}
+                      style={{
+                        borderBottom: '1px solid var(--color-border)',
+                        background: index % 2 === 0 ? 'var(--color-surface)' : 'var(--color-background)',
+                        transition: 'background 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = index % 2 === 0 ? 'var(--color-surface)' : 'var(--color-background)'}
+                    >
+                      <td style={{ padding: '12px 16px', fontWeight: '500', color: 'var(--color-text-primary)' }}>
+                        {verein.vereinName}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>
+                        {verein.totalForderungen} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                          (€{verein.totalForderungsBetrag.toFixed(2)})
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: '#10B981' }}>
+                        {verein.bezahlteForderungen} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                          (€{verein.bezahlteForderungenBetrag.toFixed(2)})
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: '#F59E0B' }}>
+                        {verein.offeneForderungen} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                          (€{verein.offeneForderungenBetrag.toFixed(2)})
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: '#EF4444' }}>
+                        {verein.overdueForderungenCount} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                          (€{verein.overdueForderungenBetrag.toFixed(2)})
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600' }}>
+                        <span style={{
+                          color: verein.collectionRate >= 80 ? '#10B981' : verein.collectionRate >= 60 ? '#F59E0B' : '#EF4444'
+                        }}>
+                          {verein.collectionRate.toFixed(1)}%
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>
+                        {verein.totalZahlungen} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                          (€{verein.totalZahlungsBetrag.toFixed(2)})
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600' }}>
+                        <span style={{ color: verein.totalBankBetrag >= 0 ? '#10B981' : '#EF4444' }}>
+                          €{verein.totalBankBetrag.toFixed(2)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {/* Totals Row */}
+                  <tr style={{
+                    borderTop: '2px solid var(--color-border)',
+                    background: 'var(--color-background)',
+                    fontWeight: '600'
+                  }}>
+                    <td style={{ padding: '12px 16px', color: 'var(--color-text-primary)' }}>
+                      {t('finanz:dashboard.total')}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-primary)' }}>
+                      {vereinComparisonData.reduce((sum, v) => sum + v.totalForderungen, 0)} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                        (€{vereinComparisonData.reduce((sum, v) => sum + v.totalForderungsBetrag, 0).toFixed(2)})
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: '#10B981' }}>
+                      {vereinComparisonData.reduce((sum, v) => sum + v.bezahlteForderungen, 0)} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                        (€{vereinComparisonData.reduce((sum, v) => sum + v.bezahlteForderungenBetrag, 0).toFixed(2)})
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: '#F59E0B' }}>
+                      {vereinComparisonData.reduce((sum, v) => sum + v.offeneForderungen, 0)} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                        (€{vereinComparisonData.reduce((sum, v) => sum + v.offeneForderungenBetrag, 0).toFixed(2)})
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: '#EF4444' }}>
+                      {vereinComparisonData.reduce((sum, v) => sum + v.overdueForderungenCount, 0)} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                        (€{vereinComparisonData.reduce((sum, v) => sum + v.overdueForderungenBetrag, 0).toFixed(2)})
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-primary)' }}>
+                      {(vereinComparisonData.reduce((sum, v) => sum + v.bezahlteForderungenBetrag, 0) /
+                        vereinComparisonData.reduce((sum, v) => sum + v.totalForderungsBetrag, 0) * 100).toFixed(1)}%
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-primary)' }}>
+                      {vereinComparisonData.reduce((sum, v) => sum + v.totalZahlungen, 0)} <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
+                        (€{vereinComparisonData.reduce((sum, v) => sum + v.totalZahlungsBetrag, 0).toFixed(2)})
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-primary)' }}>
+                      €{vereinComparisonData.reduce((sum, v) => sum + v.totalBankBetrag, 0).toFixed(2)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Access Buttons */}
       <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>

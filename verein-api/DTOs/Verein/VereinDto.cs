@@ -210,4 +210,10 @@ public class VereinDto
     /// </summary>
     [JsonPropertyName("deletedFlag")]
     public bool? DeletedFlag { get; set; }
+
+    /// <summary>
+    /// Legal and official data for this verein
+    /// </summary>
+    [JsonPropertyName("rechtlicheDaten")]
+    public RechtlicheDaten.RechtlicheDatenDto? RechtlicheDaten { get; set; }
 }

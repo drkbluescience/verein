@@ -39,7 +39,11 @@
     "claims": "Alacaklar",
     "revenue": "Gelir",
     "paymentMethodsDistribution": "Ödeme Yöntemleri Dağılımı",
-    "detailedStatistics": "Detaylı İstatistikler"
+    "detailedStatistics": "Detaylı İstatistikler",
+    "vereinComparison": "Dernek Karşılaştırması",
+    "overdueClaims": "Gecikmiş Alacaklar",
+    "bankBalance": "Banka Bakiyesi",
+    "total": "TOPLAM"
   },
   "claims": {
     "title": "Alacaklar",

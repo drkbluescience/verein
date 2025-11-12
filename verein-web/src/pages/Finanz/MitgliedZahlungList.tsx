@@ -276,6 +276,7 @@ const MitgliedZahlungList: React.FC = () => {
             <thead>
               <tr>
                 <th>{t('finanz:payments.number')}</th>
+                {user?.type === 'admin' && <th>{t('common:verein')}</th>}
                 <th>{t('finanz:payments.amount')}</th>
                 <th>{t('finanz:payments.date')}</th>
                 <th>{t('finanz:payments.method')}</th>
@@ -284,16 +285,21 @@ const MitgliedZahlungList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredZahlungen.map((zahlung) => (
-                <tr key={zahlung.id}>
-                  <td className="cell-number">{zahlung.referenz || '-'}</td>
-                  <td className="cell-amount">€ {zahlung.betrag.toFixed(2)}</td>
-                  <td className="cell-date">
-                    {new Date(zahlung.zahlungsdatum).toLocaleDateString()}
-                  </td>
-                  <td>{zahlung.zahlungsweg || '-'}</td>
-                  <td className="cell-description">{zahlung.bemerkung || '-'}</td>
-                  <td className="cell-actions">
+              {filteredZahlungen.map((zahlung) => {
+                const verein = vereine.find(v => v.id === zahlung.vereinId);
+                return (
+                  <tr key={zahlung.id}>
+                    <td className="cell-number">{zahlung.referenz || '-'}</td>
+                    {user?.type === 'admin' && (
+                      <td className="cell-verein">{verein?.name || '-'}</td>
+                    )}
+                    <td className="cell-amount">€ {zahlung.betrag.toFixed(2)}</td>
+                    <td className="cell-date">
+                      {new Date(zahlung.zahlungsdatum).toLocaleDateString()}
+                    </td>
+                    <td>{zahlung.zahlungsweg || '-'}</td>
+                    <td className="cell-description">{zahlung.bemerkung || '-'}</td>
+                    <td className="cell-actions">
                     <button
                       className="action-btn"
                       onClick={() => navigate(`/meine-finanzen/zahlungen/${zahlung.id}`)}
@@ -313,7 +319,8 @@ const MitgliedZahlungList: React.FC = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

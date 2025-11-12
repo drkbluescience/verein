@@ -71,6 +71,37 @@
   color: var(--color-text-primary);
 }
 
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Filter Select */
+.filter-select {
+  padding: 10px 16px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 200px;
+}
+
+.filter-select:hover {
+  border-color: var(--color-text-tertiary);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 /* Primary Button */
 .btn-primary {
   display: flex;

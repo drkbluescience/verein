@@ -48,6 +48,10 @@
     "upload": "Yükle",
     "refresh": "Yenile"
   },
+  "verein": "Dernek",
+  "filter": {
+    "allVereine": "Tüm Dernekler"
+  },
   "status": {
     "active": "Aktif",
     "inactive": "Pasif",

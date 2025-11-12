@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedForderungService } from '../../services/finanzService';
+import { vereinService } from '../../services/vereinService';
 import { MitgliedForderungDto, ZahlungStatus } from '../../types/finanz.types';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
@@ -61,6 +62,7 @@ const MitgliedForderungList: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'open'>('all');
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedForderung, setSelectedForderung] = useState<MitgliedForderungDto | null>(null);
 
@@ -69,6 +71,13 @@ const MitgliedForderungList: React.FC = () => {
     if (user?.type === 'dernek') return user.vereinId;
     return null; // Admin sees all
   }, [user]);
+
+  // Fetch Vereine (for Admin dropdown)
+  const { data: vereine = [] } = useQuery({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
 
   // Fetch claims
   const { data: forderungen = [], isLoading, error } = useQuery({
@@ -88,6 +97,9 @@ const MitgliedForderungList: React.FC = () => {
   // Filter and search
   const filteredForderungen = useMemo(() => {
     return forderungen.filter(f => {
+      // Verein filter (Admin only)
+      if (selectedVereinId && f.vereinId !== selectedVereinId) return false;
+
       // Status filter
       if (statusFilter === 'paid' && f.statusId !== ZahlungStatus.BEZAHLT) return false;
       if (statusFilter === 'open' && f.statusId !== ZahlungStatus.OFFEN) return false;
@@ -103,7 +115,7 @@ const MitgliedForderungList: React.FC = () => {
 
       return true;
     });
-  }, [forderungen, statusFilter, searchTerm]);
+  }, [forderungen, statusFilter, searchTerm, selectedVereinId]);
 
   const getStatusBadge = (statusId: number, faelligkeit: string) => {
     if (statusId === ZahlungStatus.BEZAHLT) {
@@ -193,6 +205,22 @@ const MitgliedForderungList: React.FC = () => {
         </div>
 
         <div className="filter-group">
+          {/* Admin: Verein Filter */}
+          {user?.type === 'admin' && (
+            <select
+              value={selectedVereinId || ''}
+              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+              className="filter-select"
+            >
+              <option value="">{t('finanz:filter.allVereine')}</option>
+              {vereine.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -216,6 +244,7 @@ const MitgliedForderungList: React.FC = () => {
             <thead>
               <tr>
                 <th>{t('finanz:claims.number')}</th>
+                {user?.type === 'admin' && <th>{t('common:verein')}</th>}
                 <th>{t('finanz:claims.amount')}</th>
                 <th>{t('finanz:claims.dueDate')}</th>
                 <th>{t('finanz:claims.status')}</th>
@@ -224,22 +253,27 @@ const MitgliedForderungList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredForderungen.map((forderung) => (
-                <tr
-                  key={forderung.id}
-                  className={isOverdue(forderung.faelligkeit, forderung.statusId) ? 'row-overdue' : ''}
-                >
-                  <td className="cell-number">{forderung.forderungsnummer || '-'}</td>
-                  <td className="cell-amount">€ {forderung.betrag.toFixed(2)}</td>
-                  <td className="cell-date">
-                    {new Date(forderung.faelligkeit).toLocaleDateString()}
-                    {isOverdue(forderung.faelligkeit, forderung.statusId) && (
-                      <span className="overdue-indicator" title="Gecikmiş">⚠️</span>
+              {filteredForderungen.map((forderung) => {
+                const verein = vereine.find(v => v.id === forderung.vereinId);
+                return (
+                  <tr
+                    key={forderung.id}
+                    className={isOverdue(forderung.faelligkeit, forderung.statusId) ? 'row-overdue' : ''}
+                  >
+                    <td className="cell-number">{forderung.forderungsnummer || '-'}</td>
+                    {user?.type === 'admin' && (
+                      <td className="cell-verein">{verein?.name || '-'}</td>
                     )}
-                  </td>
-                  <td>{getStatusBadge(forderung.statusId, forderung.faelligkeit)}</td>
-                  <td className="cell-description">{forderung.beschreibung || '-'}</td>
-                  <td className="cell-actions">
+                    <td className="cell-amount">€ {forderung.betrag.toFixed(2)}</td>
+                    <td className="cell-date">
+                      {new Date(forderung.faelligkeit).toLocaleDateString()}
+                      {isOverdue(forderung.faelligkeit, forderung.statusId) && (
+                        <span className="overdue-indicator" title="Gecikmiş">⚠️</span>
+                      )}
+                    </td>
+                    <td>{getStatusBadge(forderung.statusId, forderung.faelligkeit)}</td>
+                    <td className="cell-description">{forderung.beschreibung || '-'}</td>
+                    <td className="cell-actions">
                     <button
                       className="action-btn"
                       onClick={() => navigate(`/meine-finanzen/forderungen/${forderung.id}`)}
@@ -259,7 +293,8 @@ const MitgliedForderungList: React.FC = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

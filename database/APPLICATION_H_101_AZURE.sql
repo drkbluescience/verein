@@ -1058,7 +1058,43 @@ CREATE TABLE [Verein].[Verein](
 	[UstIdNr] [nvarchar](30) NULL,
 	[ElektronischeSignaturKey] [nvarchar](100) NULL,
 	[Aktiv] [bit] NULL,
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [Verein].[RechtlicheDaten]    Script Date: 21.08.2025 13:03:24 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Verein].[RechtlicheDaten](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [int] NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [int] NULL,
+	[DeletedFlag] [bit] NULL,
+	[VereinId] [int] NOT NULL,
+	[RegistergerichtName] [nvarchar](200) NULL,
+	[RegistergerichtNummer] [nvarchar](50) NULL,
+	[RegistergerichtOrt] [nvarchar](100) NULL,
+	[RegistergerichtEintragungsdatum] [date] NULL,
+	[FinanzamtName] [nvarchar](200) NULL,
+	[FinanzamtNummer] [nvarchar](50) NULL,
+	[FinanzamtOrt] [nvarchar](100) NULL,
+	[Steuerpflichtig] [bit] NULL,
+	[Steuerbefreit] [bit] NULL,
+	[GemeinnuetzigAnerkannt] [bit] NULL,
+	[GemeinnuetzigkeitBis] [date] NULL,
+	[SteuererklaerungPfad] [nvarchar](500) NULL,
+	[SteuererklaerungJahr] [int] NULL,
+	[SteuerbefreiungPfad] [nvarchar](500) NULL,
+	[GemeinnuetzigkeitsbescheidPfad] [nvarchar](500) NULL,
+	[RegisterauszugPfad] [nvarchar](500) NULL,
+	[Bemerkung] [nvarchar](1000) NULL,
+PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -1529,5 +1565,35 @@ REFERENCES [Keytable].[Waehrung] ([Id])
 GO
 ALTER TABLE [Finanz].[VeranstaltungZahlung] WITH CHECK ADD FOREIGN KEY([StatusId])
 REFERENCES [Keytable].[ZahlungStatus] ([Id])
+GO
+
+-- RechtlicheDaten FK constraints
+ALTER TABLE [Verein].[RechtlicheDaten] WITH CHECK ADD CONSTRAINT [FK_RechtlicheDaten_Verein]
+FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [Verein].[RechtlicheDaten] CHECK CONSTRAINT [FK_RechtlicheDaten_Verein]
+GO
+
+-- RechtlicheDaten Indexes
+CREATE NONCLUSTERED INDEX [IX_RechtlicheDaten_VereinId] ON [Verein].[RechtlicheDaten]
+(
+	[VereinId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_RechtlicheDaten_DeletedFlag] ON [Verein].[RechtlicheDaten]
+(
+	[DeletedFlag] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_RechtlicheDaten_VereinId_Unique] ON [Verein].[RechtlicheDaten]
+(
+	[VereinId] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 

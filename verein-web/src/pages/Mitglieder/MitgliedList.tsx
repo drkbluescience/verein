@@ -4,7 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedService, mitgliedUtils } from '../../services/mitgliedService';
+import { vereinService } from '../../services/vereinService';
 import { MitgliedDto } from '../../types/mitglied';
+import { VereinDto } from '../../types/verein';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import MitgliedFormModal from '../../components/Mitglied/MitgliedFormModal';
@@ -99,6 +101,7 @@ const MitgliedList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
   const pageSize = 20;
 
   // Modal states
@@ -106,6 +109,13 @@ const MitgliedList: React.FC = () => {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [selectedMitglied, setSelectedMitglied] = useState<MitgliedDto | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Fetch Vereine (for Admin dropdown)
+  const { data: vereine = [] } = useQuery<VereinDto[]>({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
 
   // Determine which Mitglieder to fetch based on user type
   const shouldFetchByVerein = user?.type === 'dernek' && user?.vereinId;
@@ -154,6 +164,11 @@ const MitgliedList: React.FC = () => {
   const filteredMitglieder = useMemo(() => {
     let filtered = mitglieder;
 
+    // Verein filter (Admin only)
+    if (user?.type === 'admin' && selectedVereinId) {
+      filtered = filtered.filter(mitglied => mitglied.vereinId === selectedVereinId);
+    }
+
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
@@ -177,7 +192,7 @@ const MitgliedList: React.FC = () => {
     }
 
     return filtered;
-  }, [mitglieder, searchTerm, statusFilter]);
+  }, [mitglieder, searchTerm, statusFilter, selectedVereinId, user?.type]);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -233,36 +248,54 @@ const MitgliedList: React.FC = () => {
           )}
         </div>
 
-        <div className="view-toggle">
-          <button
-            className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-            onClick={() => setViewMode('grid')}
-            title={t('mitglieder:listPage.gridView')}
-          >
-            <GridIcon />
-          </button>
-          <button
-            className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-            onClick={() => setViewMode('table')}
-            title={t('mitglieder:listPage.tableView')}
-          >
-            <TableIcon />
-          </button>
-        </div>
+        <div className="filter-controls">
+          {/* Admin: Verein Filter */}
+          {user?.type === 'admin' && (
+            <select
+              value={selectedVereinId || ''}
+              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+              className="filter-select"
+            >
+              <option value="">{t('common:filter.allVereine')}</option>
+              {vereine.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          )}
 
-        {user?.type === 'dernek' && (
-          <button
-            className="btn-primary"
-            onClick={() => {
-              setFormMode('create');
-              setSelectedMitglied(null);
-              setIsFormModalOpen(true);
-            }}
-          >
-            <PlusIcon />
-            <span>{t('mitglieder:listPage.actions.newMember')}</span>
-          </button>
-        )}
+          <div className="view-toggle">
+            <button
+              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title={t('mitglieder:listPage.gridView')}
+            >
+              <GridIcon />
+            </button>
+            <button
+              className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              title={t('mitglieder:listPage.tableView')}
+            >
+              <TableIcon />
+            </button>
+          </div>
+
+          {user?.type === 'dernek' && (
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setFormMode('create');
+                setSelectedMitglied(null);
+                setIsFormModalOpen(true);
+              }}
+            >
+              <PlusIcon />
+              <span>{t('mitglieder:listPage.actions.newMember')}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Filter Tabs */}

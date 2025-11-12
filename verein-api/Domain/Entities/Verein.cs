@@ -206,4 +206,9 @@ public class Verein : AuditableEntity
     /// Family relationships within this verein
     /// </summary>
     public virtual ICollection<MitgliedFamilie> MitgliedFamilien { get; set; } = new List<MitgliedFamilie>();
+
+    /// <summary>
+    /// Legal and official data for this verein (1-to-1 relationship)
+    /// </summary>
+    public virtual RechtlicheDaten? RechtlicheDaten { get; set; }
 }
