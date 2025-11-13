@@ -202,5 +202,11 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
             .WithOne(b => b.Verein)
             .HasForeignKey(b => b.VereinId)
             .OnDelete(DeleteBehavior.Restrict); // NO ACTION - cascade cycle önleme
+
+        // One-to-one relationship with RechtlicheDaten
+        builder.HasOne(v => v.RechtlicheDaten)
+            .WithOne(r => r.Verein)
+            .HasForeignKey<RechtlicheDaten>(r => r.VereinId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

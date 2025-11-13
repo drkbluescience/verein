@@ -69,8 +69,8 @@
         "description": "Veranstaltungen planen und verwalten"
       },
       "vereinSettings": {
-        "title": "Vereinseinstellungen",
-        "description": "Vereinsinformationen aktualisieren"
+        "title": "Vereinsinformationen",
+        "description": "Vereinsinformationen anzeigen und bearbeiten"
       },
       "reports": {
         "title": "Berichte",

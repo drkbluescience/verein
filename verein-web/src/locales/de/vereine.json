@@ -41,6 +41,10 @@
     "email": "E-Mail",
     "phone": "Telefon",
     "president": "Vorsitzender",
+    "court": "Registergericht",
+    "taxOffice": "Finanzamt",
+    "donationPermission": "Gemeinnützigkeit",
+    "lastDeclaration": "Letzte Erklärung",
     "status": "Status",
     "actions": "Aktionen"
   },
@@ -76,7 +80,8 @@
     "updateSuccess": "Verein erfolgreich aktualisiert",
     "deleteSuccess": "Verein erfolgreich gelöscht",
     "deleteConfirm": "Sind Sie sicher, dass Sie diesen Verein löschen möchten?",
-    "error": "Ein Fehler ist während des Vorgangs aufgetreten"
+    "error": "Ein Fehler ist während des Vorgangs aufgetreten",
+    "donationPermissionUpdated": "Gemeinnützigkeit erfolgreich aktualisiert"
   },
   "tabs": {
     "info": "Informationen",
@@ -106,7 +111,43 @@
   "errors": {
     "loadFailed": "Verein konnte nicht geladen werden",
     "vereinNotFound": "Verein nicht gefunden",
-    "updateFailed": "Beim Aktualisieren des Vereins ist ein Fehler aufgetreten"
+    "updateFailed": "Beim Aktualisieren des Vereins ist ein Fehler aufgetreten",
+    "donationPermissionUpdateFailed": "Fehler beim Aktualisieren der Gemeinnützigkeit"
+  },
+  "legal": {
+    "title": "Rechtliche Informationen",
+    "donationPermission": "Gemeinnützigkeit",
+    "noPermission": "Keine Anerkennung",
+    "expired": "Abgelaufen",
+    "expiringSoon": "Läuft bald ab",
+    "daysLeft": "Tage übrig",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "validUntil": "Gültig bis",
+    "court": "Registergericht",
+    "courtNumber": "Registernummer",
+    "taxOffice": "Finanzamt",
+    "taxNumber": "Steuernummer",
+    "lastDeclaration": "Letzte Steuererklärung",
+    "taxLiable": "Steuerpflichtig",
+    "taxExempt": "Steuerbefreit",
+    "notes": "Bemerkungen",
+    "noData": "Keine rechtlichen Daten vorhanden",
+    "yes": "Ja",
+    "no": "Nein",
+    "courtRegistration": "Registergericht",
+    "courtName": "Gerichtsname",
+    "courtCity": "Gerichtsstadt",
+    "registrationDate": "Eintragungsdatum",
+    "taxOfficeInfo": "Finanzamt Informationen",
+    "taxOfficeName": "Finanzamtname",
+    "taxOfficeNumber": "Finanzamtnummer",
+    "taxOfficeCity": "Finanzamtstadt",
+    "taxStatus": "Steuerstatus",
+    "donationPermissionActive": "Gemeinnützigkeit Anerkannt",
+    "documents": "Dokumente",
+    "statuteDocument": "Satzung",
+    "donationCertificate": "Gemeinnützigkeitsbescheid"
   }
 }
 

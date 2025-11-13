@@ -13,7 +13,7 @@ namespace VereinsApi.Services;
 /// </summary>
 public class VereinService : IVereinService
 {
-    private readonly IRepository<Verein> _vereinRepository;
+    private readonly IVereinRepository _vereinRepository;
     private readonly IRepository<Mitglied> _mitgliedRepository;
     private readonly IRepository<Veranstaltung> _veranstaltungRepository;
     private readonly IRepository<Adresse> _adresseRepository;
@@ -22,7 +22,7 @@ public class VereinService : IVereinService
     private readonly ILogger<VereinService> _logger;
 
     public VereinService(
-        IRepository<Verein> vereinRepository,
+        IVereinRepository vereinRepository,
         IRepository<Mitglied> mitgliedRepository,
         IRepository<Veranstaltung> veranstaltungRepository,
         IRepository<Adresse> adresseRepository,

@@ -10,12 +10,15 @@ export { api, apiClient } from './api';
 export { authService } from './authService';
 
 // Verein Services
-export { 
-  vereinService, 
-  adresseService, 
-  bankkontoService, 
-  healthService 
+export {
+  vereinService,
+  adresseService,
+  bankkontoService,
+  healthService
 } from './vereinService';
+
+// RechtlicheDaten Service
+export { rechtlicheDatenService } from './rechtlicheDatenService';
 
 // Mitglied Services
 export { 
@@ -57,6 +60,13 @@ export type {
   BankkontoDto,
   CreateBankkontoDto
 } from '../types/verein';
+
+export type {
+  // RechtlicheDaten Types
+  RechtlicheDatenDto,
+  CreateRechtlicheDatenDto,
+  UpdateRechtlicheDatenDto
+} from '../types/rechtlicheDaten';
 
 export type {
   // Mitglied Types

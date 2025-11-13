@@ -9,8 +9,11 @@ import { VereinDto, UpdateVereinDto } from '../../types/verein';
 import adresseService, { Adresse, CreateAdresseDto, UpdateAdresseDto } from '../../services/adresseService';
 import { mitgliedService } from '../../services/mitgliedService';
 import { MitgliedDto } from '../../types/mitglied';
+import { rechtlicheDatenService } from '../../services/rechtlicheDatenService';
+import { UpdateRechtlicheDatenDto } from '../../types/rechtlicheDaten';
 import AdresseFormModal from '../../components/Adressen/AdresseFormModal';
 import VereinFormModal from '../../components/Vereine/VereinFormModal';
+import RechtlicheDatenDetails from '../../components/Vereine/RechtlicheDatenDetails';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import './VereinDetail.css';
@@ -46,6 +49,19 @@ const UsersIcon = () => (
   </svg>
 );
 
+const GridIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const TableIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/>
+  </svg>
+);
+
 const VereinDetail: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['vereine', 'adressen', 'common']);
@@ -55,6 +71,7 @@ const VereinDetail: React.FC = () => {
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'info' | 'adressen' | 'mitglieder'>('info');
+  const [mitgliederViewMode, setMitgliederViewMode] = useState<'grid' | 'table'>('grid');
   const [isAdresseModalOpen, setIsAdresseModalOpen] = useState(false);
   const [isVereinModalOpen, setIsVereinModalOpen] = useState(false);
   const [editingAdresse, setEditingAdresse] = useState<Adresse | null>(null);
@@ -147,8 +164,37 @@ const VereinDetail: React.FC = () => {
     },
   });
 
+  // Update Donation Permission Mutation
+  const updateDonationPermissionMutation = useMutation({
+    mutationFn: (enabled: boolean) => {
+      if (!verein?.rechtlicheDaten?.id) {
+        throw new Error('RechtlicheDaten not found');
+      }
+      const updateData: UpdateRechtlicheDatenDto = {
+        gemeinnuetzigAnerkannt: enabled
+      };
+      return rechtlicheDatenService.update(verein.rechtlicheDaten.id, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['verein', id] });
+      showSuccess(t('vereine:messages.donationPermissionUpdated'));
+    },
+    onError: () => {
+      showError(t('vereine:errors.donationPermissionUpdateFailed'));
+    },
+  });
+
+  // Determine back navigation based on user type
   const handleBack = () => {
-    navigate('/vereine');
+    if (user?.type === 'admin') {
+      navigate('/vereine');
+    } else {
+      navigate('/startseite');
+    }
+  };
+
+  const handleToggleDonationPermission = (enabled: boolean) => {
+    updateDonationPermissionMutation.mutate(enabled);
   };
 
   const handleEditVerein = () => {
@@ -338,6 +384,26 @@ const VereinDetail: React.FC = () => {
                 <p>{verein.zweck}</p>
               </div>
             )}
+
+            {/* Yasal Bilgiler - Admin ve Dernek Yöneticisi için */}
+            {(user?.type === 'admin' || (user?.type === 'dernek' && user.vereinId === Number(id))) && (
+              <div className="legal-info-section">
+                <h2 style={{ marginTop: '2rem', marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                  {t('vereine:legal.title')}
+                </h2>
+                {verein.rechtlicheDaten ? (
+                  <RechtlicheDatenDetails
+                    rechtlicheDaten={verein.rechtlicheDaten}
+                    editable={user?.type === 'dernek' && user.vereinId === Number(id)}
+                    onToggleDonationPermission={handleToggleDonationPermission}
+                  />
+                ) : (
+                  <div className="empty-state" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                    <p>{t('vereine:legal.noData')}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -429,6 +495,24 @@ const VereinDetail: React.FC = () => {
           <div className="mitglieder-section">
             <div className="section-header">
               <h2>{t('vereine:tabs.mitglieder')} ({mitglieder.length})</h2>
+              {mitglieder.length > 0 && (
+                <div className="view-toggle">
+                  <button
+                    className={`view-toggle-btn ${mitgliederViewMode === 'grid' ? 'active' : ''}`}
+                    onClick={() => setMitgliederViewMode('grid')}
+                    title="Kart Görünümü"
+                  >
+                    <GridIcon />
+                  </button>
+                  <button
+                    className={`view-toggle-btn ${mitgliederViewMode === 'table' ? 'active' : ''}`}
+                    onClick={() => setMitgliederViewMode('table')}
+                    title="Tablo Görünümü"
+                  >
+                    <TableIcon />
+                  </button>
+                </div>
+              )}
             </div>
 
             {mitgliederLoading && <Loading />}
@@ -445,44 +529,94 @@ const VereinDetail: React.FC = () => {
             )}
 
             {!mitgliederLoading && !mitgliederError && mitglieder.length > 0 && (
-              <div className="mitglieder-list">
-                {mitglieder.map((mitglied) => (
-                  <div key={mitglied.id} className="mitglied-card">
-                    <div className="mitglied-card-header">
-                      <div className="mitglied-avatar">
-                        {mitglied.vorname?.[0]}{mitglied.nachname?.[0]}
-                      </div>
-                      <div className="mitglied-info">
-                        <h3>{mitglied.vorname} {mitglied.nachname}</h3>
-                        <p className="mitglied-number">#{mitglied.mitgliedsnummer}</p>
-                      </div>
-                    </div>
-                    <div className="mitglied-card-body">
-                      {mitglied.email && (
-                        <div className="info-row">
-                          <span className="info-label">{t('vereine:mitglieder.email')}:</span>
-                          <span className="info-value">{mitglied.email}</span>
+              mitgliederViewMode === 'grid' ? (
+                <div className="mitglieder-list">
+                  {mitglieder.map((mitglied) => (
+                    <div key={mitglied.id} className="mitglied-card">
+                      <div className="mitglied-card-header">
+                        <div className="mitglied-avatar">
+                          {mitglied.vorname?.[0]}{mitglied.nachname?.[0]}
                         </div>
-                      )}
-                      {mitglied.telefon && (
-                        <div className="info-row">
-                          <span className="info-label">{t('vereine:mitglieder.telefon')}:</span>
-                          <span className="info-value">{mitglied.telefon}</span>
+                        <div className="mitglied-info">
+                          <h3>{mitglied.vorname} {mitglied.nachname}</h3>
+                          <p className="mitglied-number">#{mitglied.mitgliedsnummer}</p>
                         </div>
-                      )}
+                      </div>
+                      <div className="mitglied-card-body">
+                        {mitglied.email && (
+                          <div className="info-row">
+                            <span className="info-label">{t('vereine:mitglieder.email')}:</span>
+                            <span className="info-value">{mitglied.email}</span>
+                          </div>
+                        )}
+                        {mitglied.telefon && (
+                          <div className="info-row">
+                            <span className="info-label">{t('vereine:mitglieder.telefon')}:</span>
+                            <span className="info-value">{mitglied.telefon}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mitglied-card-footer">
+                        <button
+                          className="btn-secondary btn-sm"
+                          onClick={() => navigate(`/mitglieder/${mitglied.id}`)}
+                        >
+                          <EyeIcon />
+                          <span>{t('common:actions.view')}</span>
+                        </button>
+                      </div>
                     </div>
-                    <div className="mitglied-card-footer">
-                      <button
-                        className="btn-secondary btn-sm"
-                        onClick={() => navigate(`/mitglieder/${mitglied.id}`)}
-                      >
-                        <EyeIcon />
-                        <span>{t('common:actions.view')}</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mitglieder-table-container">
+                  <table className="mitglieder-table">
+                    <thead>
+                      <tr>
+                        <th>Ad Soyad</th>
+                        <th>Üye No</th>
+                        <th>E-posta</th>
+                        <th>Telefon</th>
+                        <th>Giriş Tarihi</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mitglieder.map((mitglied) => (
+                        <tr key={mitglied.id} onClick={() => navigate(`/mitglieder/${mitglied.id}`)}>
+                          <td>
+                            <div className="table-name-cell">
+                              <strong>{mitglied.vorname} {mitglied.nachname}</strong>
+                            </div>
+                          </td>
+                          <td>{mitglied.mitgliedsnummer || '-'}</td>
+                          <td>{mitglied.email || '-'}</td>
+                          <td>{mitglied.telefon || '-'}</td>
+                          <td>{mitglied.eintrittsdatum ? new Date(mitglied.eintrittsdatum).toLocaleDateString('de-DE') : '-'}</td>
+                          <td>
+                            <span className={`status-badge ${mitglied.aktiv ? 'status-active' : 'status-inactive'}`}>
+                              {mitglied.aktiv ? 'Aktif' : 'Pasif'}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className="table-action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/mitglieder/${mitglied.id}`);
+                              }}
+                              title="Detayları Görüntüle"
+                            >
+                              <EyeIcon />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
             )}
           </div>
         )}

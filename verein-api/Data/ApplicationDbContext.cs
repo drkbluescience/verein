@@ -93,6 +93,11 @@ public class ApplicationDbContext : DbContext
     /// </summary>
     public DbSet<VeranstaltungZahlung> VeranstaltungZahlungen { get; set; }
 
+    /// <summary>
+    /// RechtlicheDaten table (Verein schema)
+    /// </summary>
+    public DbSet<RechtlicheDaten> RechtlicheDaten { get; set; }
+
     #endregion
 
     #region Keytable DbSets
@@ -265,6 +270,7 @@ public class ApplicationDbContext : DbContext
 
         // Apply entity configurations
         modelBuilder.ApplyConfiguration(new VereinConfiguration());
+        modelBuilder.ApplyConfiguration(new RechtlicheDatenConfiguration());
         modelBuilder.ApplyConfiguration(new AdresseConfiguration());
         modelBuilder.ApplyConfiguration(new BankkontoConfiguration());
         modelBuilder.ApplyConfiguration(new VeranstaltungConfiguration());

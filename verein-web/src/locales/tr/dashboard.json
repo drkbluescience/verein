@@ -69,8 +69,8 @@
         "description": "Etkinliklerinizi planlayın ve yönetin"
       },
       "vereinSettings": {
-        "title": "Dernek Ayarları",
-        "description": "Dernek bilgilerini güncelleyin"
+        "title": "Dernek Bilgileri",
+        "description": "Dernek bilgilerini görüntüleyin ve düzenleyin"
       },
       "reports": {
         "title": "Raporlar",

@@ -78,6 +78,7 @@ const adminMenuItems: MenuItem[] = [
 
 const dernekMenuItems: MenuItem[] = [
   { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/verein', labelKey: 'navigation.dernek', icon: <BuildingIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitgliederimiz', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.etkinliklerimiz', icon: <CalendarIcon /> },
   { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
@@ -186,17 +187,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         )}
 
         <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/startseite'}
-              className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{t(item.labelKey)}</span>
-            </NavLink>
-          ))}
+          {menuItems.map((item) => {
+            // For dernek users, replace /verein with dynamic vereinId path
+            const itemPath = item.path === '/verein' && user?.type === 'dernek' && user.vereinId
+              ? `/vereine/${user.vereinId}`
+              : item.path;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={itemPath}
+                end={item.path === '/startseite'}
+                className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                <span className="nav-label">{t(item.labelKey)}</span>
+              </NavLink>
+            );
+          })}
         </nav>
 
         <div className="sidebar-footer">

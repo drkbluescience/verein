@@ -38,7 +38,13 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
     const path = location.pathname;
     if (path === '/startseite') return t('navigation.dashboard');
-    if (path.startsWith('/vereine')) return t('navigation.vereine');
+    if (path.startsWith('/vereine')) {
+      // For dernek users viewing their own verein, show "Dernek" instead of "Dernekler"
+      if (user?.type === 'dernek' && user.vereinId && path === `/vereine/${user.vereinId}`) {
+        return t('navigation.dernek');
+      }
+      return t('navigation.vereine');
+    }
     if (path.startsWith('/mitglieder')) return t('navigation.mitglieder');
     if (path.startsWith('/veranstaltungen')) return t('navigation.veranstaltungen');
     if (path.startsWith('/meine-veranstaltungen')) return t('navigation.etkinlikler');

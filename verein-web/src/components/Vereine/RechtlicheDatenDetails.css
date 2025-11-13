@@ -1,0 +1,332 @@
+.rechtliche-daten-details {
+  padding: 0;
+  background: transparent;
+  border-top: none;
+}
+
+.rechtliche-daten-details.empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+.detail-section {
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.detail-section:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color);
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  margin: 0 0 1rem 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  line-height: 1.4 !important;
+}
+
+.section-title svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.rechtliche-daten-details:not(.verein-table *) .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .rechtliche-daten-details:not(.verein-table *) .detail-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .rechtliche-daten-details:not(.verein-table *) .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.notes-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-color);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .rechtliche-daten-details {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .notes-text {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Table expanded row view - iOS-INSPIRED DESIGN */
+.verein-table tbody tr.detail-row .rechtliche-daten-details {
+  padding: 0;
+  background: transparent;
+  margin: 0;
+  width: 100%;
+}
+
+.verein-table tbody tr.detail-row .detail-section {
+  margin-bottom: 2.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.verein-table tbody tr.detail-row .detail-section:last-child {
+  margin-bottom: 0;
+}
+
+/* iOS-style section header */
+.verein-table tbody tr.detail-row .section-title {
+  font-size: 0.8125rem;
+  margin: 0 0 0.875rem 0;
+  padding: 0;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #8E8E93;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.verein-table tbody tr.detail-row .section-title svg {
+  width: 16px;
+  height: 16px;
+  color: #007AFF;
+  flex-shrink: 0;
+}
+
+/* iOS-style grid with cards */
+.verein-table tbody tr.detail-row .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* iOS-style card */
+.verein-table tbody tr.detail-row .detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem 1rem;
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.verein-table tbody tr.detail-row .detail-item:hover {
+  background: #FAFAFA;
+  border-color: rgba(0, 122, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* iOS-style label (secondary text) */
+.verein-table tbody tr.detail-row .detail-label {
+  font-size: 0.6875rem;
+  color: #8E8E93;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+/* iOS-style value (primary text) */
+.verein-table tbody tr.detail-row .detail-value {
+  font-size: 0.9375rem;
+  color: #000000;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+/* iOS-style notes/remarks */
+.verein-table tbody tr.detail-row .notes-text {
+  font-size: 0.875rem;
+  color: #3C3C43;
+  line-height: 1.6;
+  margin: 0.75rem 0 0 0;
+  padding: 1rem 1.125rem;
+  background: #FFF9E6;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 204, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-style: normal;
+}
+
+/* Toggle Switch Styles - iOS Inspired */
+.donation-toggle-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.toggle-switch input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+  background-color: #E5E5EA;
+  border-radius: 31px;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-slider {
+  background-color: #34C759;
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input[type="checkbox"]:focus + .toggle-slider {
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.2);
+}
+
+.toggle-switch input[type="checkbox"]:disabled + .toggle-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-label {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  user-select: none;
+}
+
+/* Dark mode toggle */
+[data-theme="dark"] .toggle-slider {
+  background-color: #39393D;
+}
+
+[data-theme="dark"] .toggle-slider::before {
+  background-color: #F2F2F7;
+}
+
+[data-theme="dark"] .toggle-switch input[type="checkbox"]:checked + .toggle-slider {
+  background-color: #30D158;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .rechtliche-daten-details:not(.verein-table *) .detail-section {
+    padding: 1rem;
+  }
+
+  .rechtliche-daten-details:not(.verein-table *) .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .rechtliche-daten-details:not(.verein-table *) .section-title {
+    font-size: 0.85rem;
+  }
+
+  .rechtliche-daten-details:not(.verein-table *) .section-title svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Table view responsive */
+  .verein-table tbody tr.detail-row .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .verein-table tbody tr.detail-row .detail-item {
+    padding: 0.875rem;
+  }
+
+  .toggle-switch {
+    gap: 0.5rem;
+  }
+
+  .toggle-label {
+    font-size: 0.875rem;
+  }
+}
+

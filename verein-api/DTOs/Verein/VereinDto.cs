@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using VereinsApi.DTOs.RechtlicheDaten;
 
 namespace VereinsApi.DTOs.Verein;
 
@@ -215,5 +216,5 @@ public class VereinDto
     /// Legal and official data for this verein
     /// </summary>
     [JsonPropertyName("rechtlicheDaten")]
-    public RechtlicheDaten.RechtlicheDatenDto? RechtlicheDaten { get; set; }
+    public RechtlicheDatenDto? RechtlicheDaten { get; set; }
 }

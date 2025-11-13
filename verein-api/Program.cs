@@ -109,6 +109,7 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedFamilieServic
 
 // Other Services
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVereinService, VereinsApi.Services.VereinService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IRechtlicheDatenService, VereinsApi.Services.RechtlicheDatenService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IAdresseService, VereinsApi.Services.AdresseService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankkontoService, VereinsApi.Services.BankkontoService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungService, VereinsApi.Services.VeranstaltungService>();

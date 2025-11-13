@@ -41,6 +41,10 @@
     "email": "E-posta",
     "phone": "Telefon",
     "president": "Başkan",
+    "court": "Mahkeme",
+    "taxOffice": "Vergi Dairesi",
+    "donationPermission": "Bağış İzni",
+    "lastDeclaration": "Son Beyanname",
     "status": "Durum",
     "actions": "İşlemler"
   },
@@ -76,7 +80,8 @@
     "updateSuccess": "Dernek başarıyla güncellendi",
     "deleteSuccess": "Dernek başarıyla silindi",
     "deleteConfirm": "Bu derneği silmek istediğinizden emin misiniz?",
-    "error": "İşlem sırasında bir hata oluştu"
+    "error": "İşlem sırasında bir hata oluştu",
+    "donationPermissionUpdated": "Bağış izni başarıyla güncellendi"
   },
   "tabs": {
     "info": "Bilgiler",
@@ -106,7 +111,8 @@
   "errors": {
     "loadFailed": "Dernek yüklenemedi",
     "vereinNotFound": "Dernek bulunamadı",
-    "updateFailed": "Dernek güncellenirken bir hata oluştu"
+    "updateFailed": "Dernek güncellenirken bir hata oluştu",
+    "donationPermissionUpdateFailed": "Bağış izni güncellenirken bir hata oluştu"
   },
   "mitglieder": {
     "email": "E-posta",
@@ -115,6 +121,41 @@
       "title": "Henüz Üye Yok",
       "message": "Bu derneğe henüz üye eklenmemiş."
     }
+  },
+  "legal": {
+    "title": "Yasal Bilgiler",
+    "donationPermission": "Bağış İzni",
+    "noPermission": "İzin Yok",
+    "expired": "Süresi Dolmuş",
+    "expiringSoon": "Yakında Dolacak",
+    "daysLeft": "gün kaldı",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "validUntil": "Geçerlilik",
+    "court": "Mahkeme",
+    "courtNumber": "Mahkeme No",
+    "taxOffice": "Vergi Dairesi",
+    "taxNumber": "Vergi No",
+    "lastDeclaration": "Son Beyanname",
+    "taxLiable": "Vergiye Tabi",
+    "taxExempt": "Vergi Muafiyeti",
+    "notes": "Notlar",
+    "noData": "Yasal bilgi bulunmamaktadır",
+    "yes": "Evet",
+    "no": "Hayır",
+    "courtRegistration": "Mahkeme Kaydı",
+    "courtName": "Mahkeme Adı",
+    "courtCity": "Mahkeme Şehri",
+    "registrationDate": "Kayıt Tarihi",
+    "taxOfficeInfo": "Vergi Dairesi Bilgileri",
+    "taxOfficeName": "Vergi Dairesi Adı",
+    "taxOfficeNumber": "Vergi Dairesi No",
+    "taxOfficeCity": "Vergi Dairesi Şehri",
+    "taxStatus": "Vergi Durumu",
+    "donationPermissionActive": "Bağış İzni Aktif",
+    "documents": "Belgeler",
+    "statuteDocument": "Tüzük Belgesi",
+    "donationCertificate": "Bağış İzni Belgesi"
   }
 }
 

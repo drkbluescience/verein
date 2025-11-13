@@ -1,4 +1,5 @@
 // Verein (Association) Types
+import { RechtlicheDatenDto } from './rechtlicheDaten';
 
 export interface VereinDto {
   id: number;
@@ -45,6 +46,7 @@ export interface VereinDto {
   modified?: string;
   modifiedBy?: string;
   deletedFlag?: boolean;
+  rechtlicheDaten?: RechtlicheDatenDto;
 }
 
 export interface CreateVereinDto {

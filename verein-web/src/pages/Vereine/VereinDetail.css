@@ -190,6 +190,45 @@
   margin: 0;
 }
 
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--color-surface-secondary);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.view-toggle-btn {
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-toggle-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.view-toggle-btn.active {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 .adressen-list {
   display: grid;
   gap: var(--spacing-lg);
@@ -450,6 +489,105 @@
   flex-shrink: 0;
 }
 
+/* Mitglieder Table */
+.mitglieder-table-container {
+  margin-top: var(--spacing-lg);
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.mitglieder-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.mitglieder-table thead {
+  background: var(--color-surface-secondary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.mitglieder-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.mitglieder-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mitglieder-table tbody tr:hover {
+  background: var(--color-surface-secondary);
+}
+
+.mitglieder-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.mitglieder-table td {
+  padding: 1rem;
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.mitglieder-table .table-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mitglieder-table .table-name-cell strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mitglieder-table .status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mitglieder-table .status-badge.status-active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.mitglieder-table .status-badge.status-inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.mitglieder-table .table-action-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mitglieder-table .table-action-btn:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
 .empty-state {
   text-align: center;
   padding: var(--spacing-3xl) var(--spacing-xl);
@@ -517,6 +655,21 @@
 
   .mitglieder-list {
     grid-template-columns: 1fr;
+  }
+
+  .mitglieder-table-container {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .mitglieder-table {
+    font-size: 0.8rem;
+  }
+
+  .mitglieder-table th,
+  .mitglieder-table td {
+    padding: 0.75rem 0.5rem;
   }
 }
 

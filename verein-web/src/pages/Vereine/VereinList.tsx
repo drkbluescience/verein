@@ -7,6 +7,7 @@ import { VereinDto, CreateVereinDto, UpdateVereinDto } from '../../types/verein'
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import VereinFormModal from '../../components/Vereine/VereinFormModal';
+import DonationPermissionBadge from '../../components/Vereine/DonationPermissionBadge';
 import './VereinList.css';
 
 // SVG Icons
@@ -359,55 +360,65 @@ const VereinList: React.FC = () => {
                 <th>{t('vereine:table.email')}</th>
                 <th>{t('vereine:table.phone')}</th>
                 <th>{t('vereine:table.president')}</th>
+                <th>{t('vereine:table.court')}</th>
+                <th>{t('vereine:table.taxOffice')}</th>
+                <th>{t('vereine:table.donationPermission')}</th>
+                <th>{t('vereine:table.lastDeclaration')}</th>
                 <th>{t('vereine:table.status')}</th>
                 <th>{t('vereine:table.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredVereine.map((verein) => (
-                <tr key={verein.id} onClick={() => navigate(`/vereine/${verein.id}`)}>
-                  <td>
-                    <div className="table-name-cell">
-                      <strong>{verein.name}</strong>
-                      {verein.kurzname && (
-                        <span className="table-subtitle">{verein.kurzname}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td>{verein.vereinsnummer || '-'}</td>
-                  <td>{verein.email || '-'}</td>
-                  <td>{verein.telefon || '-'}</td>
-                  <td>{verein.vorstandsvorsitzender || '-'}</td>
-                  <td>
-                    <span className={`status-badge ${verein.aktiv ? 'status-active' : 'status-inactive'}`}>
-                      {verein.aktiv ? t('vereine:card.statusActive') : t('vereine:card.statusInactive')}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <button
-                        className="table-action-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/vereine/${verein.id}`);
-                        }}
-                        title={t('vereine:actions.details')}
-                      >
-                        <EyeIcon />
-                      </button>
-                      <button
-                        className="table-action-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditVerein(verein);
-                        }}
-                        title={t('vereine:actions.edit')}
-                      >
-                        <EditIcon />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <tr key={verein.id}>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>
+                        <div className="table-name-cell">
+                          <strong>{verein.name}</strong>
+                          {verein.kurzname && (
+                            <span className="table-subtitle">{verein.kurzname}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.vereinsnummer || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.email || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.telefon || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.vorstandsvorsitzender || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.rechtlicheDaten?.registergerichtName || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.rechtlicheDaten?.finanzamtName || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>
+                        <DonationPermissionBadge rechtlicheDaten={verein.rechtlicheDaten} showDate={true} />
+                      </td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>{verein.rechtlicheDaten?.steuererklaerungJahr || '-'}</td>
+                      <td onClick={() => navigate(`/vereine/${verein.id}`)}>
+                        <span className={`status-badge ${verein.aktiv ? 'status-active' : 'status-inactive'}`}>
+                          {verein.aktiv ? t('vereine:card.statusActive') : t('vereine:card.statusInactive')}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            className="table-action-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/vereine/${verein.id}`);
+                            }}
+                            title={t('vereine:actions.details')}
+                          >
+                            <EyeIcon />
+                          </button>
+                          <button
+                            className="table-action-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditVerein(verein);
+                            }}
+                            title={t('vereine:actions.edit')}
+                          >
+                            <EditIcon />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
               ))}
             </tbody>
           </table>

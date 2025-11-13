@@ -25,13 +25,15 @@ public class RechtlicheDatenProfile : Profile
             .ForMember(dest => dest.Verein, opt => opt.Ignore()); // Navigation property
 
         // UpdateDTO -> Entity
+        // Note: Manual property mapping is done in RechtlicheDatenService.UpdateAsync
+        // to preserve existing data when partial updates are sent
         CreateMap<UpdateRechtlicheDatenDto, RechtlicheDaten>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.VereinId, opt => opt.Ignore())
             .ForMember(dest => dest.Created, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => DateTime.UtcNow))
-            .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore()) // Will be set by GetCurrentUserId()
+            .ForMember(dest => dest.Modified, opt => opt.Ignore())
+            .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DeletedFlag, opt => opt.Ignore())
             .ForMember(dest => dest.Verein, opt => opt.Ignore()); // Navigation property
     }
