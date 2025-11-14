@@ -1,0 +1,94 @@
+{
+  "title": "Seitennotizen-Verwaltung",
+  "header": {
+    "addNote": "Neue Notiz hinzufügen",
+    "refresh": "Aktualisieren"
+  },
+  "statistics": {
+    "total": "Gesamt Notizen",
+    "mine": "Meine Notizen",
+    "pending": "Ausstehend",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen"
+  },
+  "filters": {
+    "search": "Suchen...",
+    "allUsers": "Alle Benutzer",
+    "myNotes": "Meine Notizen",
+    "allStatuses": "Alle Status",
+    "allCategories": "Alle Kategorien",
+    "allPriorities": "Alle Prioritäten"
+  },
+  "table": {
+    "title": "Titel",
+    "category": "Kategorie",
+    "priority": "Priorität",
+    "status": "Status",
+    "user": "Benutzer",
+    "page": "Seite",
+    "date": "Datum",
+    "actions": "Aktionen",
+    "noNotes": "Keine Notizen gefunden"
+  },
+  "actions": {
+    "complete": "Abschließen",
+    "delete": "Löschen",
+    "close": "Schließen"
+  },
+  "completeModal": {
+    "title": "Notiz abschließen",
+    "statusLabel": "Status",
+    "statusPlaceholder": "Status auswählen...",
+    "statusInProgress": "In Bearbeitung",
+    "statusCompleted": "Abgeschlossen",
+    "statusRejected": "Abgelehnt",
+    "adminNotesLabel": "Admin-Notiz (Optional)",
+    "adminNotesPlaceholder": "Admin-Notiz...",
+    "cancel": "Abbrechen"
+  },
+  "detailModal": {
+    "content": "Inhalt",
+    "info": "Informationen",
+    "category": "Kategorie",
+    "priority": "Priorität",
+    "status": "Status",
+    "date": "Datum",
+    "user": "Benutzer",
+    "page": "Seite",
+    "noTitle": "Kein Titel",
+    "adminNotes": "Admin-Notizen",
+    "completedBy": "Abgeschlossen von:",
+    "completeButton": "✅ Abschließen",
+    "deleteButton": "🗑️ Löschen",
+    "closeButton": "Schließen"
+  },
+  "form": {
+    "titleLabel": "Titel *",
+    "titlePlaceholder": "Notiztitel...",
+    "contentLabel": "Inhalt *",
+    "contentPlaceholder": "Notizinhalt...",
+    "categoryLabel": "Kategorie",
+    "priorityLabel": "Priorität",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert...",
+    "update": "Aktualisieren",
+    "create": "Erstellen"
+  },
+  "messages": {
+    "loadError": "Daten konnten nicht geladen werden",
+    "noteUpdated": "Notiz aktualisiert",
+    "noteUpdateError": "Notiz konnte nicht aktualisiert werden",
+    "confirmDelete": "Sind Sie sicher, dass Sie diese Notiz löschen möchten?",
+    "noteDeleted": "Notiz gelöscht",
+    "noteDeleteError": "Notiz konnte nicht gelöscht werden",
+    "noteCreated": "Notiz erfolgreich erstellt",
+    "noteCreateError": "Notiz konnte nicht erstellt werden",
+    "noteUpdatedSuccess": "Notiz erfolgreich aktualisiert",
+    "notesLoadError": "Notizen konnten nicht geladen werden"
+  },
+  "status": {
+    "loading": "Wird geladen...",
+    "unauthorized": "Unbefugter Zugriff"
+  }
+}
+

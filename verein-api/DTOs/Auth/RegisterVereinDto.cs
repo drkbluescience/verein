@@ -24,7 +24,7 @@ public class RegisterVereinDto
     public string? Kurzname { get; set; }
 
     /// <summary>
-    /// Primary email address
+    /// Primary email address (institutional email for the verein)
     /// </summary>
     [Required(ErrorMessage = "E-Mail ist erforderlich")]
     [EmailAddress(ErrorMessage = "Ungültige E-Mail-Adresse")]
@@ -40,11 +40,36 @@ public class RegisterVereinDto
     public string? Telefon { get; set; }
 
     /// <summary>
-    /// Chairman of the board
+    /// Chairman of the board (full name)
     /// </summary>
     [MaxLength(100, ErrorMessage = "Vorstandsvorsitzender darf maximal 100 Zeichen lang sein")]
     [JsonPropertyName("vorstandsvorsitzender")]
     public string? Vorstandsvorsitzender { get; set; }
+
+    /// <summary>
+    /// Chairman's personal email address (used for login)
+    /// </summary>
+    [EmailAddress(ErrorMessage = "Ungültige E-Mail-Adresse")]
+    [MaxLength(100, ErrorMessage = "Vorstandsvorsitzender E-Mail darf maximal 100 Zeichen lang sein")]
+    [JsonPropertyName("vorstandsvorsitzenderEmail")]
+    public string? VorstandsvorsitzenderEmail { get; set; }
+
+    /// <summary>
+    /// Password for chairman login
+    /// </summary>
+    [Required(ErrorMessage = "Şifre gereklidir")]
+    [MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır")]
+    [MaxLength(100, ErrorMessage = "Şifre en fazla 100 karakter olabilir")]
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Password confirmation
+    /// </summary>
+    [Required(ErrorMessage = "Şifre onayı gereklidir")]
+    [Compare("Password", ErrorMessage = "Şifreler eşleşmiyor")]
+    [JsonPropertyName("confirmPassword")]
+    public string ConfirmPassword { get; set; } = string.Empty;
 
     /// <summary>
     /// Contact person

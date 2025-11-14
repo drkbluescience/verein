@@ -1597,3 +1597,311 @@ WHERE [DeletedFlag] = 0
 WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
+
+-- =============================================
+-- WEB SCHEMA TABLES - AUTHENTICATION & AUTHORIZATION
+-- =============================================
+
+/****** Object:  Table [Web].[User]    Script Date: 14.11.2025 - User Authentication Table ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Web].[User](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [int] NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [int] NULL,
+	[DeletedFlag] [bit] NULL DEFAULT 0,
+
+	-- Authentication
+	[Email] [nvarchar](100) NOT NULL,
+	[PasswordHash] [nvarchar](255) NULL,  -- Nullable: Password system will be added later
+
+	-- Personal Information
+	[Vorname] [nvarchar](100) NOT NULL,
+	[Nachname] [nvarchar](100) NOT NULL,
+
+	-- Status
+	[IsActive] [bit] NOT NULL DEFAULT 1,
+	[EmailConfirmed] [bit] NOT NULL DEFAULT 0,
+	[LastLogin] [datetime] NULL,
+
+	-- Security
+	[FailedLoginAttempts] [int] NOT NULL DEFAULT 0,
+	[LockoutEnd] [datetime] NULL,
+
+PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED
+(
+	[Email] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Web].[UserRole]    Script Date: 14.11.2025 - User Role Assignment Table ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Web].[UserRole](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [int] NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [int] NULL,
+	[DeletedFlag] [bit] NULL DEFAULT 0,
+
+	-- User Reference
+	[UserId] [int] NOT NULL,
+
+	-- Role Type
+	[RoleType] [nvarchar](20) NOT NULL,  -- 'admin', 'dernek', 'mitglied'
+
+	-- Optional References (Nullable - allows non-member managers)
+	[MitgliedId] [int] NULL,
+	[VereinId] [int] NULL,
+
+	-- Validity Period
+	[GueltigVon] [date] NOT NULL DEFAULT GETDATE(),
+	[GueltigBis] [date] NULL,  -- NULL = unlimited
+
+	-- Status
+	[IsActive] [bit] NOT NULL DEFAULT 1,
+
+	-- Notes
+	[Bemerkung] [nvarchar](250) NULL,
+
+PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Web].[PageNote]    Script Date: 14.11.2025 - Development Feedback System ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Web].[PageNote](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [nvarchar](256) NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[DeletedFlag] [bit] NOT NULL DEFAULT 0,
+
+	-- Page Information
+	[PageUrl] [nvarchar](500) NOT NULL,
+	[PageTitle] [nvarchar](200) NULL,
+	[EntityType] [nvarchar](50) NULL,
+	[EntityId] [int] NULL,
+
+	-- Note Content
+	[Title] [nvarchar](200) NOT NULL,
+	[Content] [nvarchar](max) NOT NULL,
+	[Category] [nvarchar](50) NOT NULL DEFAULT 'General',
+	[Priority] [nvarchar](50) NOT NULL DEFAULT 'Medium',
+
+	-- User Information
+	[UserEmail] [nvarchar](256) NOT NULL,
+	[UserName] [nvarchar](200) NULL,
+
+	-- Status Information
+	[Status] [nvarchar](50) NOT NULL DEFAULT 'Pending',
+	[CompletedBy] [nvarchar](256) NULL,
+	[CompletedAt] [datetime] NULL,
+	[AdminNotes] [nvarchar](max) NULL,
+
+	-- Additional Status
+	[Aktiv] [bit] NOT NULL DEFAULT 1,
+
+PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+-- =============================================
+-- FOREIGN KEY CONSTRAINTS - WEB SCHEMA
+-- =============================================
+
+-- UserRole FK to User
+ALTER TABLE [Web].[UserRole] WITH CHECK ADD CONSTRAINT [FK_UserRole_User]
+FOREIGN KEY([UserId])
+REFERENCES [Web].[User] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [Web].[UserRole] CHECK CONSTRAINT [FK_UserRole_User]
+GO
+
+-- UserRole FK to Mitglied (Nullable)
+ALTER TABLE [Web].[UserRole] WITH CHECK ADD CONSTRAINT [FK_UserRole_Mitglied]
+FOREIGN KEY([MitgliedId])
+REFERENCES [Mitglied].[Mitglied] ([Id])
+GO
+ALTER TABLE [Web].[UserRole] CHECK CONSTRAINT [FK_UserRole_Mitglied]
+GO
+
+-- UserRole FK to Verein (Nullable)
+ALTER TABLE [Web].[UserRole] WITH CHECK ADD CONSTRAINT [FK_UserRole_Verein]
+FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+GO
+ALTER TABLE [Web].[UserRole] CHECK CONSTRAINT [FK_UserRole_Verein]
+GO
+
+-- =============================================
+-- CHECK CONSTRAINTS - WEB SCHEMA
+-- =============================================
+
+-- UserRole RoleType constraint
+ALTER TABLE [Web].[UserRole] WITH CHECK ADD CONSTRAINT [CK_UserRole_RoleType]
+CHECK ([RoleType] IN ('admin', 'dernek', 'mitglied'))
+GO
+ALTER TABLE [Web].[UserRole] CHECK CONSTRAINT [CK_UserRole_RoleType]
+GO
+
+-- =============================================
+-- INDEXES - WEB SCHEMA
+-- =============================================
+
+-- User Indexes
+CREATE NONCLUSTERED INDEX [IX_User_Email] ON [Web].[User]
+(
+	[Email] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_User_DeletedFlag] ON [Web].[User]
+(
+	[DeletedFlag] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_User_IsActive] ON [Web].[User]
+(
+	[IsActive] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- UserRole Indexes
+CREATE NONCLUSTERED INDEX [IX_UserRole_UserId] ON [Web].[UserRole]
+(
+	[UserId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_UserRole_MitgliedId] ON [Web].[UserRole]
+(
+	[MitgliedId] ASC
+)
+WHERE [MitgliedId] IS NOT NULL
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_UserRole_VereinId] ON [Web].[UserRole]
+(
+	[VereinId] ASC
+)
+WHERE [VereinId] IS NOT NULL
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_UserRole_RoleType] ON [Web].[UserRole]
+(
+	[RoleType] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_UserRole_IsActive] ON [Web].[UserRole]
+(
+	[IsActive] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- Composite index for active roles lookup
+CREATE NONCLUSTERED INDEX [IX_UserRole_UserId_IsActive_RoleType] ON [Web].[UserRole]
+(
+	[UserId] ASC,
+	[IsActive] ASC,
+	[RoleType] ASC
+)
+WHERE [DeletedFlag] = 0 AND [IsActive] = 1
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- PageNote Indexes
+CREATE NONCLUSTERED INDEX [IX_PageNote_UserEmail] ON [Web].[PageNote]
+(
+	[UserEmail] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_Status] ON [Web].[PageNote]
+(
+	[Status] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_EntityType_EntityId] ON [Web].[PageNote]
+(
+	[EntityType] ASC,
+	[EntityId] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_PageUrl] ON [Web].[PageNote]
+(
+	[PageUrl] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_DeletedFlag] ON [Web].[PageNote]
+(
+	[DeletedFlag] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_Category] ON [Web].[PageNote]
+(
+	[Category] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_Priority] ON [Web].[PageNote]
+(
+	[Priority] ASC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_PageNote_Created] ON [Web].[PageNote]
+(
+	[Created] DESC
+)
+WHERE [DeletedFlag] = 0
+WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+

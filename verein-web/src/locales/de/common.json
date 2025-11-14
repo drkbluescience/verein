@@ -21,6 +21,7 @@
     "veranstaltungen": "Veranstaltungen",
     "etkinliklerimiz": "Veranstaltungen",
     "finanz": "Finanzen",
+    "pageNotes": "Seitennotizen",
     "reports": "Berichte",
     "raporlarimiz": "Berichte",
     "settings": "Einstellungen",
@@ -28,6 +29,21 @@
     "logout": "Abmelden",
     "etkinlikler": "Veranstaltungen",
     "ailem": "Meine Familie"
+  },
+  "pageNotes": {
+    "myNotes": "Meine Notizen",
+    "newNote": "Neue Notiz",
+    "addNewNote": "Neue Notiz hinzufügen",
+    "editNote": "Notiz bearbeiten",
+    "refresh": "Aktualisieren",
+    "noNotes": "Noch keine Notizen",
+    "noNotesDescription": "Es wurden noch keine Notizen hinzugefügt.",
+    "noNotesHint": "Klicken Sie auf \"Neue Notiz\", um eine Notiz hinzuzufügen.",
+    "loading": "Notizen werden geladen...",
+    "noteCount": "{{count}} Notiz",
+    "noteCount_plural": "{{count}} Notizen",
+    "adminNote": "Admin-Notiz:",
+    "completedBy": "Abgeschlossen von {{name}}"
   },
   "actions": {
     "save": "Speichern",

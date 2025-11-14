@@ -1,0 +1,105 @@
+/* Floating Note Button Styles */
+
+.page-note-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.page-note-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.page-note-button:active {
+  transform: scale(0.95);
+}
+
+.note-icon {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  line-height: 1;
+}
+
+.note-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .page-note-button {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .note-icon {
+    font-size: 11px;
+  }
+
+  .note-badge {
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+  }
+}
+
+/* Accessibility */
+.page-note-button:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.page-note-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .page-note-button {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .page-note-button:hover {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  }
+}
+

@@ -26,9 +26,10 @@ public class VereinProfile : Profile
             // Navigation properties
             .ForMember(dest => dest.HauptAdresse, opt => opt.Ignore())
             .ForMember(dest => dest.HauptBankkonto, opt => opt.Ignore())
-            .ForMember(dest => dest.Adressen, opt => opt.Ignore())
             .ForMember(dest => dest.Bankkonten, opt => opt.Ignore())
             .ForMember(dest => dest.Veranstaltungen, opt => opt.Ignore())
+            .ForMember(dest => dest.Mitglieder, opt => opt.Ignore())
+            .ForMember(dest => dest.MitgliedFamilien, opt => opt.Ignore())
             .ForMember(dest => dest.RechtlicheDaten, opt => opt.Ignore());
             
         // UpdateDTO -> Entity (for updating existing entity)
@@ -42,9 +43,10 @@ public class VereinProfile : Profile
             // Navigation properties
             .ForMember(dest => dest.HauptAdresse, opt => opt.Ignore())
             .ForMember(dest => dest.HauptBankkonto, opt => opt.Ignore())
-            .ForMember(dest => dest.Adressen, opt => opt.Ignore())
             .ForMember(dest => dest.Bankkonten, opt => opt.Ignore())
             .ForMember(dest => dest.Veranstaltungen, opt => opt.Ignore())
+            .ForMember(dest => dest.Mitglieder, opt => opt.Ignore())
+            .ForMember(dest => dest.MitgliedFamilien, opt => opt.Ignore())
             .ForMember(dest => dest.RechtlicheDaten, opt => opt.Ignore())
             // Handle nullable properties from UpdateDto - only update if provided
             .ForMember(dest => dest.Name, opt => opt.Condition(src => !string.IsNullOrEmpty(src.Name)))

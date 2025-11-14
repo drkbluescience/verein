@@ -10,6 +10,13 @@ namespace VereinsApi.Controllers;
 [Produces("application/json")]
 public class HealthController : ControllerBase
 {
+    private readonly ConnectionStringProvider _connectionStringProvider;
+
+    public HealthController(ConnectionStringProvider connectionStringProvider)
+    {
+        _connectionStringProvider = connectionStringProvider;
+    }
+
     /// <summary>
     /// Basic health check endpoint
     /// </summary>
@@ -23,7 +30,8 @@ public class HealthController : ControllerBase
             Status = "Healthy",
             Timestamp = DateTime.UtcNow,
             Version = "1.0.0",
-            Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown"
+            Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+            Database = _connectionStringProvider.DatabaseServer
         });
     }
 
@@ -41,7 +49,7 @@ public class HealthController : ControllerBase
             Timestamp = DateTime.UtcNow,
             Version = "1.0.0",
             Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
-            Database = "Connected",
+            Database = _connectionStringProvider.DatabaseServer,
             Uptime = DateTime.UtcNow.Subtract(System.Diagnostics.Process.GetCurrentProcess().StartTime.ToUniversalTime())
         });
     }

@@ -98,6 +98,21 @@ public class ApplicationDbContext : DbContext
     /// </summary>
     public DbSet<RechtlicheDaten> RechtlicheDaten { get; set; }
 
+    /// <summary>
+    /// PageNotes table (Web schema)
+    /// </summary>
+    public DbSet<PageNote> PageNotes { get; set; }
+
+    /// <summary>
+    /// Users table (Web schema) - Authentication
+    /// </summary>
+    public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// UserRoles table (Web schema) - Authorization
+    /// </summary>
+    public DbSet<UserRole> UserRoles { get; set; }
+
     #endregion
 
     #region Keytable DbSets
@@ -321,6 +336,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new BeitragPeriodeUebersetzungConfiguration());
         modelBuilder.ApplyConfiguration(new BeitragZahlungstagTypConfiguration());
         modelBuilder.ApplyConfiguration(new BeitragZahlungstagTypUebersetzungConfiguration());
+
+        // Apply Web entity configurations
+        modelBuilder.ApplyConfiguration(new PageNoteConfiguration());
 
         // Apply global query filters for soft delete
         ApplyGlobalQueryFilters(modelBuilder);

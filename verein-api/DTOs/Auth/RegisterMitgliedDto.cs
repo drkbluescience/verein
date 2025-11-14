@@ -34,6 +34,23 @@ public class RegisterMitgliedDto
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
+    /// Password
+    /// </summary>
+    [Required(ErrorMessage = "Şifre gereklidir")]
+    [MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır")]
+    [MaxLength(100, ErrorMessage = "Şifre en fazla 100 karakter olabilir")]
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Password confirmation
+    /// </summary>
+    [Required(ErrorMessage = "Şifre onayı gereklidir")]
+    [Compare("Password", ErrorMessage = "Şifreler eşleşmiyor")]
+    [JsonPropertyName("confirmPassword")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    /// <summary>
     /// Phone number
     /// </summary>
     [MaxLength(30, ErrorMessage = "Telefon darf maximal 30 Zeichen lang sein")]

@@ -5,6 +5,7 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Serilog;
+using VereinsApi;
 using VereinsApi.Data;
 // using VereinsApi.Data.Repositories;
 using VereinsApi.Domain.Interfaces;
@@ -30,17 +31,59 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
-// Database Configuration
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+// Database Configuration - Using Docker SQL Server (Azure connection available as fallback)
+var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var azureConnectionString = builder.Configuration.GetConnectionString("AzureConnection");
+var dockerConnectionString = builder.Configuration.GetConnectionString("DockerConnection")
+    ?? throw new InvalidOperationException("Connection string 'DockerConnection' not found.");
 
-// Determine database provider based on environment or connection string
-// Use Azure SQL Server only
+// Use DefaultConnection (currently set to Docker)
+string activeConnectionString = defaultConnectionString;
+
+// Determine which database server is being used
+string databaseServer = activeConnectionString.Contains("localhost")
+    ? "Docker SQL Server (localhost:1433)"
+    : "Azure SQL Database (Verein08112025.database.windows.net)";
+
+Log.Information("Using connection: {Server}", databaseServer);
+
+// Store connection strings for reference
+builder.Services.AddSingleton(new ConnectionStringProvider
+{
+    AzureConnection = azureConnectionString ?? string.Empty,
+    DockerConnection = dockerConnectionString,
+    DatabaseServer = databaseServer
+});
+
+// Verify connection
+try
+{
+    var testOptionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+    testOptionsBuilder.UseSqlServer(activeConnectionString);
+
+    using (var testContext = new ApplicationDbContext(testOptionsBuilder.Options))
+    {
+        await testContext.Database.CanConnectAsync();
+        Log.Information("Database connection test successful");
+    }
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Cannot connect to database. Make sure Docker is running: docker-compose up -d mssql");
+    throw new InvalidOperationException("Database connection failed", ex);
+}
+
+// Configure DbContext with the active connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(connectionString, sqlOptions =>
+    options.UseSqlServer(activeConnectionString, sqlOptions =>
     {
         sqlOptions.EnableRetryOnFailure(
             maxRetryCount: 5,
@@ -128,6 +171,14 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankUploadService, Ve
 
 // Keytable Service
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IKeytableService, VereinsApi.Services.KeytableService>();
+
+// PageNote Service
+builder.Services.AddScoped<VereinsApi.Domain.Interfaces.IPageNoteRepository, VereinsApi.Data.Repositories.PageNoteRepository>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IPageNoteService, VereinsApi.Services.PageNoteService>();
+
+// User & Authentication Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IUserService, VereinsApi.Services.UserService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IUserRoleService, VereinsApi.Services.UserRoleService>();
 
 // JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -271,28 +322,41 @@ app.MapHealthChecks("/health");
 
 // Database Connection Health Check
 // Note: Database schema is managed via SQL scripts (database/APPLICATION_H_101_AZURE.sql)
-// EF Core Migrations are NOT used in Production
+// Database Initialization
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
     try
     {
-        // Test database connection
-        var canConnect = await context.Database.CanConnectAsync();
-        if (!canConnect)
+        // Create a new DbContext with the active connection string to avoid connection pool issues
+        var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        optionsBuilder.UseSqlServer(activeConnectionString, sqlOptions =>
         {
-            Log.Fatal("Cannot connect to database");
-            throw new InvalidOperationException("Database connection failed");
-        }
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+            sqlOptions.CommandTimeout(30);
+        });
 
-        Log.Information("Database connection successful");
+        using var context = new ApplicationDbContext(optionsBuilder.Options);
+
+        Log.Information("Verifying database connection...");
+        await context.Database.CanConnectAsync();
+        Log.Information("Database connection verified successfully");
 
         // Development only: Ensure database is created
         if (app.Environment.IsDevelopment())
         {
-            await context.Database.EnsureCreatedAsync();
-            Log.Information("Database initialized successfully. Run docs/DEMO_DATA.sql for demo data.");
+            // Check if database exists
+            var canConnect = await context.Database.CanConnectAsync();
+            if (canConnect)
+            {
+                Log.Information("Database exists. Run database/APPLICATION_H_101_AZURE.sql to create schema if needed.");
+            }
+            else
+            {
+                Log.Warning("Cannot connect to database. Please create the database manually.");
+            }
         }
         else
         {

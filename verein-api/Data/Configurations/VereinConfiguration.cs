@@ -193,11 +193,6 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
             .OnDelete(DeleteBehavior.SetNull);
 
         // Collection navigation properties
-        builder.HasMany(v => v.Adressen)
-            .WithOne(a => a.Verein)
-            .HasForeignKey(a => a.VereinId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasMany(v => v.Bankkonten)
             .WithOne(b => b.Verein)
             .HasForeignKey(b => b.VereinId)

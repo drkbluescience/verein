@@ -1,0 +1,94 @@
+{
+  "title": "Sayfa Notları Yönetimi",
+  "header": {
+    "addNote": "Yeni Not Ekle",
+    "refresh": "Yenile"
+  },
+  "statistics": {
+    "total": "Toplam Not",
+    "mine": "Benim Notlarım",
+    "pending": "Bekleyen",
+    "inProgress": "Devam Eden",
+    "completed": "Tamamlanan"
+  },
+  "filters": {
+    "search": "Ara...",
+    "allUsers": "Tüm Kullanıcılar",
+    "myNotes": "Benim Notlarım",
+    "allStatuses": "Tüm Durumlar",
+    "allCategories": "Tüm Kategoriler",
+    "allPriorities": "Tüm Öncelikler"
+  },
+  "table": {
+    "title": "Başlık",
+    "category": "Kategori",
+    "priority": "Öncelik",
+    "status": "Durum",
+    "user": "Kullanıcı",
+    "page": "Sayfa",
+    "date": "Tarih",
+    "actions": "İşlemler",
+    "noNotes": "Not bulunamadı"
+  },
+  "actions": {
+    "complete": "Tamamla",
+    "delete": "Sil",
+    "close": "Kapat"
+  },
+  "completeModal": {
+    "title": "Notu Tamamla",
+    "statusLabel": "Durum",
+    "statusPlaceholder": "Durum seçin...",
+    "statusInProgress": "Devam Ediyor",
+    "statusCompleted": "Tamamlandı",
+    "statusRejected": "Reddedildi",
+    "adminNotesLabel": "Admin Notu (Opsiyonel)",
+    "adminNotesPlaceholder": "Admin notu...",
+    "cancel": "İptal"
+  },
+  "detailModal": {
+    "content": "İçerik",
+    "info": "Bilgiler",
+    "category": "Kategori",
+    "priority": "Öncelik",
+    "status": "Durum",
+    "date": "Tarih",
+    "user": "Kullanıcı",
+    "page": "Sayfa",
+    "noTitle": "Başlık yok",
+    "adminNotes": "Admin Notları",
+    "completedBy": "Tamamlayan:",
+    "completeButton": "✅ Tamamla",
+    "deleteButton": "🗑️ Sil",
+    "closeButton": "Kapat"
+  },
+  "form": {
+    "titleLabel": "Başlık *",
+    "titlePlaceholder": "Not başlığı...",
+    "contentLabel": "İçerik *",
+    "contentPlaceholder": "Not içeriği...",
+    "categoryLabel": "Kategori",
+    "priorityLabel": "Öncelik",
+    "cancel": "İptal",
+    "saving": "Kaydediliyor...",
+    "update": "Güncelle",
+    "create": "Oluştur"
+  },
+  "messages": {
+    "loadError": "Veriler yüklenemedi",
+    "noteUpdated": "Not güncellendi",
+    "noteUpdateError": "Not güncellenemedi",
+    "confirmDelete": "Bu notu silmek istediğinizden emin misiniz?",
+    "noteDeleted": "Not silindi",
+    "noteDeleteError": "Not silinemedi",
+    "noteCreated": "Not başarıyla oluşturuldu",
+    "noteCreateError": "Not oluşturulamadı",
+    "noteUpdatedSuccess": "Not başarıyla güncellendi",
+    "notesLoadError": "Notlar yüklenemedi"
+  },
+  "status": {
+    "loading": "Yükleniyor...",
+    "unauthorized": "Yetkisiz erişim"
+  }
+}
+

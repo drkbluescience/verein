@@ -23,7 +23,6 @@ public class AdresseProfile : Profile
             .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DeletedFlag, opt => opt.MapFrom(src => false))
             .ForMember(dest => dest.Aktiv, opt => opt.MapFrom(src => true))
-            .ForMember(dest => dest.Verein, opt => opt.Ignore())
             .ForMember(dest => dest.VereineAsMainAddress, opt => opt.Ignore());
             
         // UpdateDTO -> Entity (for updating existing entity)
@@ -34,7 +33,6 @@ public class AdresseProfile : Profile
             .ForMember(dest => dest.Modified, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore()) // Will be set by GetCurrentUserId()
             .ForMember(dest => dest.DeletedFlag, opt => opt.Ignore())
-            .ForMember(dest => dest.Verein, opt => opt.Ignore())
             .ForMember(dest => dest.VereineAsMainAddress, opt => opt.Ignore());
     }
 }

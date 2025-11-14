@@ -172,9 +172,22 @@ PRINT '   ✓ ' + CAST(@DeletedBankkontoCount AS VARCHAR(10)) + ' banka hesabı 
 GO
 
 -- ============================================================================
--- 11. DERNEKLERİ SİL
+-- 11. SAYFA NOTLARINI SİL (PageNote)
 -- ============================================================================
-PRINT '1️⃣1️⃣ Dernek yasal verileri siliniyor...';
+PRINT '1️⃣1️⃣ Sayfa notları siliniyor...';
+
+DECLARE @DeletedPageNoteCount INT = 0;
+
+DELETE FROM [Web].[PageNote];
+SET @DeletedPageNoteCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedPageNoteCount AS VARCHAR(10)) + ' sayfa notu silindi';
+GO
+
+-- ============================================================================
+-- 12. DERNEKLERİ SİL
+-- ============================================================================
+PRINT '1️⃣2️⃣ Dernek yasal verileri siliniyor...';
 
 DECLARE @DeletedRechtlicheDatenCount INT = 0;
 
@@ -185,7 +198,7 @@ PRINT '   ✓ ' + CAST(@DeletedRechtlicheDatenCount AS VARCHAR(10)) + ' yasal ve
 GO
 
 -- ============================================================================
-PRINT '1️⃣2️⃣ Dernekler siliniyor...';
+PRINT '1️⃣3️⃣ Dernekler siliniyor...';
 
 DECLARE @DeletedVereinCount INT = 0;
 
@@ -282,6 +295,9 @@ DBCC CHECKIDENT ('[Verein].[Bankkonto]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[Veranstaltung]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[VeranstaltungAnmeldung]', RESEED, 0);
 
+-- Web Schema
+DBCC CHECKIDENT ('[Web].[PageNote]', RESEED, 0);
+
 -- Mitglied Schema
 DBCC CHECKIDENT ('[Mitglied].[Mitglied]', RESEED, 0);
 DBCC CHECKIDENT ('[Mitglied].[MitgliedFamilie]', RESEED, 0);
@@ -323,6 +339,8 @@ PRINT '';
 SELECT 'Verein' as Tablo, COUNT(*) as Kayıt_Sayısı FROM [Verein].[Verein]
 UNION ALL
 SELECT 'Bankkonto', COUNT(*) FROM [Verein].[Bankkonto]
+UNION ALL
+SELECT 'PageNote', COUNT(*) FROM [Web].[PageNote]
 UNION ALL
 SELECT 'Mitglied', COUNT(*) FROM [Mitglied].[Mitglied]
 UNION ALL
@@ -397,13 +415,14 @@ PRINT '      ✓ Etkinlikler (Veranstaltung)';
 PRINT '      ✓ Aile İlişkileri (MitgliedFamilie)';
 PRINT '      ✓ Üyeler (Mitglied)';
 PRINT '      ✓ Banka Hesapları (Bankkonto)';
+PRINT '      ✓ Sayfa Notları (PageNote)';
 PRINT '      ✓ Dernekler (Verein)';
 PRINT '';
 PRINT '   🗑️  KEYTABLE VERİLERİ:';
 PRINT '      ✓ Tüm Keytable Çeviri Verileri (16 tablo)';
 PRINT '      ✓ Tüm Keytable Ana Verileri (16 tablo)';
 PRINT '';
-PRINT '🔄 IDENTITY Seed değerleri sıfırlandı (19 tablo)';
+PRINT '🔄 IDENTITY Seed değerleri sıfırlandı (20 tablo)';
 PRINT '🔧 Foreign Key Constraints yeniden etkinleştirildi';
 PRINT '';
 PRINT '💡 Şimdi COMPLETE_DEMO_DATA.sql dosyasını çalıştırabilirsiniz.';

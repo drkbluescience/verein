@@ -20,6 +20,8 @@ export interface RegisterMitgliedRequest {
   vorname: string;
   nachname: string;
   email: string;
+  password: string;
+  confirmPassword: string;
   telefon?: string;
   mobiltelefon?: string;
   geburtsdatum?: string;
@@ -32,6 +34,9 @@ export interface RegisterVereinRequest {
   email: string;
   telefon?: string;
   vorstandsvorsitzender?: string;
+  vorstandsvorsitzenderEmail?: string;
+  password: string;
+  confirmPassword: string;
   kontaktperson?: string;
   webseite?: string;
   gruendungsdatum?: string;

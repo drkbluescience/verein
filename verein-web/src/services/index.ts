@@ -49,6 +49,9 @@ export {
 // Keytable Services
 export { default as keytableService } from './keytableService';
 
+// PageNote Service
+export { pageNoteService } from './pageNoteService';
+
 // Re-export types for convenience
 export type {
   // Verein Types
@@ -119,6 +122,20 @@ export type {
   ZahlungStatus,
   ZahlungTyp
 } from '../types/finanz.types';
+
+export type {
+  // PageNote Types
+  PageNoteDto,
+  CreatePageNoteDto,
+  UpdatePageNoteDto,
+  CompletePageNoteDto,
+  PageNoteStatisticsDto,
+  PageNoteStatus,
+  PageNoteCategory,
+  PageNotePriority,
+  PageNoteFormData,
+  PageNoteFilters
+} from '../types/pageNote.types';
 
 /**
  * Usage Examples:

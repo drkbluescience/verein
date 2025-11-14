@@ -29,6 +29,7 @@ import MitgliedZahlungDetail from './pages/Finanz/MitgliedZahlungDetail';
 import BankBuchungList from './pages/Finanz/BankBuchungList';
 import BankBuchungDetail from './pages/Finanz/BankBuchungDetail';
 import BankUpload from './pages/Finanz/BankUpload';
+import PageNotesAdmin from './pages/Admin/PageNotesAdmin';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
 
@@ -224,6 +225,13 @@ const AppContent: React.FC = () => {
           <Route path="/profil" element={
             <Layout>
               <Profile />
+            </Layout>
+          } />
+
+          {/* Admin Page Notes */}
+          <Route path="/admin/page-notes" element={
+            <Layout>
+              <PageNotesAdmin />
             </Layout>
           } />
 

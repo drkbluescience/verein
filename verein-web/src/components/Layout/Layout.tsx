@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
+import PageNoteButton from '../PageNote/PageNoteButton';
 import './Layout.css';
 
 interface LayoutProps {
@@ -33,6 +34,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         <span className="menu-icon">☰</span>
       </button>
+
+      {/* Floating Page Note Button */}
+      <PageNoteButton />
     </div>
   );
 };

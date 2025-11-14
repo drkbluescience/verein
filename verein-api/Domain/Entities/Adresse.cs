@@ -11,7 +11,10 @@ public class Adresse : AuditableEntity
 {
     /// <summary>
     /// Verein identifier (foreign key to Verein table)
+    /// NOTE: This field is deprecated. Verein now uses HauptAdresse relationship instead.
+    /// Kept for backward compatibility with existing data.
     /// </summary>
+    [Obsolete("Use Verein.HauptAdresse relationship instead")]
     public int? VereinId { get; set; }
 
     /// <summary>
@@ -132,11 +135,6 @@ public class Adresse : AuditableEntity
     public bool? IstStandard { get; set; }
 
     // Navigation properties
-    /// <summary>
-    /// Verein that owns this address
-    /// </summary>
-    public virtual Verein? Verein { get; set; }
-
     /// <summary>
     /// Vereine using this as main address
     /// </summary>

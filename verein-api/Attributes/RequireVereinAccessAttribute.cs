@@ -85,22 +85,29 @@ public class RequireAdminAttribute : Attribute, IAuthorizationFilter
 {
     public void OnAuthorization(AuthorizationFilterContext context)
     {
+        var logger = context.HttpContext.RequestServices.GetService<ILogger<RequireAdminAttribute>>();
+
         // Check if user is authenticated
         if (!context.HttpContext.User.Identity?.IsAuthenticated ?? true)
         {
+            logger?.LogWarning("🔒 RequireAdmin: User not authenticated");
             context.Result = new UnauthorizedResult();
             return;
         }
 
         // Get user type
         var userType = context.HttpContext.User.FindFirst("UserType")?.Value;
+        logger?.LogInformation("🔍 RequireAdmin: UserType claim = {UserType}", userType ?? "NULL");
 
         // Only admin users can access
         if (userType != "admin")
         {
+            logger?.LogWarning("⛔ RequireAdmin: Access denied - UserType is '{UserType}', expected 'admin'", userType);
             context.Result = new ForbidResult();
             return;
         }
+
+        logger?.LogInformation("✅ RequireAdmin: Access granted");
     }
 }
 

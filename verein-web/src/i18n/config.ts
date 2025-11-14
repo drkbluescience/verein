@@ -15,6 +15,7 @@ import landingTr from '../locales/tr/landing.json';
 import adressenTr from '../locales/tr/adressen.json';
 import reportsTr from '../locales/tr/reports.json';
 import finanzTr from '../locales/tr/finanz.json';
+import pageNotesAdminTr from '../locales/tr/pageNotesAdmin.json';
 
 // Import German translations
 import commonDe from '../locales/de/common.json';
@@ -29,6 +30,7 @@ import landingDe from '../locales/de/landing.json';
 import adressenDe from '../locales/de/adressen.json';
 import reportsDe from '../locales/de/reports.json';
 import finanzDe from '../locales/de/finanz.json';
+import pageNotesAdminDe from '../locales/de/pageNotesAdmin.json';
 
 // Define resources
 const resources = {
@@ -45,6 +47,7 @@ const resources = {
     adressen: adressenTr,
     reports: reportsTr,
     finanz: finanzTr,
+    pageNotesAdmin: pageNotesAdminTr,
   },
   de: {
     common: commonDe,
@@ -59,6 +62,7 @@ const resources = {
     adressen: adressenDe,
     reports: reportsDe,
     finanz: finanzDe,
+    pageNotesAdmin: pageNotesAdminDe,
   },
 };
 
@@ -101,7 +105,7 @@ i18n
     lng: getSavedLanguage(),
     fallbackLng: 'tr',
     defaultNS: 'common',
-    ns: ['common', 'dashboard', 'settings', 'auth', 'profile', 'vereine', 'mitglieder', 'veranstaltungen', 'landing', 'adressen', 'reports', 'finanz'],
+    ns: ['common', 'dashboard', 'settings', 'auth', 'profile', 'vereine', 'mitglieder', 'veranstaltungen', 'landing', 'adressen', 'reports', 'finanz', 'pageNotesAdmin'],
 
     interpolation: {
       escapeValue: false, // React already escapes values

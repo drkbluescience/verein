@@ -151,9 +151,7 @@ public class AdresseConfiguration : IEntityTypeConfiguration<Adresse>
         builder.Property(a => a.AdresseTypId)
             .HasColumnName("AdresseTypId");
 
-        builder.HasOne(a => a.Verein)
-            .WithMany(v => v.Adressen)
-            .HasForeignKey(a => a.VereinId)
-            .OnDelete(DeleteBehavior.Restrict); // NO ACTION - cascade cycle önleme
+        // Removed WithMany relationship - Verein now has only one address (HauptAdresse)
+        // The relationship is defined in VereinConfiguration via HauptAdresse property
     }
 }

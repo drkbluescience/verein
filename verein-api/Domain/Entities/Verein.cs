@@ -183,11 +183,6 @@ public class Verein : AuditableEntity
     public virtual Bankkonto? HauptBankkonto { get; set; }
 
     /// <summary>
-    /// All addresses of this verein
-    /// </summary>
-    public virtual ICollection<Adresse> Adressen { get; set; } = new List<Adresse>();
-
-    /// <summary>
     /// All bank accounts of this verein
     /// </summary>
     public virtual ICollection<Bankkonto> Bankkonten { get; set; } = new List<Bankkonto>();

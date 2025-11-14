@@ -21,6 +21,7 @@
     "veranstaltungen": "Etkinlikler",
     "etkinliklerimiz": "Etkinlikler",
     "finanz": "Finans",
+    "pageNotes": "Sayfa Notları",
     "reports": "Raporlar",
     "raporlarimiz": "Raporlar",
     "settings": "Ayarlar",
@@ -28,6 +29,20 @@
     "logout": "Çıkış Yap",
     "etkinlikler": "Etkinlikler",
     "ailem": "Ailem"
+  },
+  "pageNotes": {
+    "myNotes": "Notlarım",
+    "newNote": "Yeni Not",
+    "addNewNote": "Yeni Not Ekle",
+    "editNote": "Notu Düzenle",
+    "refresh": "Yenile",
+    "noNotes": "Henüz not yok",
+    "noNotesDescription": "Henüz not eklenmemiş.",
+    "noNotesHint": "Yeni not eklemek için \"Yeni Not\" sekmesine tıklayın.",
+    "loading": "Notlar yükleniyor...",
+    "noteCount": "{{count}} not",
+    "adminNote": "Admin Notu:",
+    "completedBy": "{{name}} tarafından tamamlandı"
   },
   "actions": {
     "save": "Kaydet",

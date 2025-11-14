@@ -304,6 +304,7 @@ DECLARE @GeschlechtM INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE C
 DECLARE @GeschlechtF INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE Code = 'F');
 
 -- München Derneği Üyeleri
+-- NOT: Ahmet Yılmaz dernek başkanıdır, üye değildir - User tablosunda tanımlanacak
 INSERT INTO [Mitglied].[Mitglied] (
     VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
     Vorname, Nachname, GeschlechtId, Email, Telefon, Geburtsdatum, Eintrittsdatum,
@@ -312,23 +313,6 @@ INSERT INTO [Mitglied].[Mitglied] (
 (
     @MuenchenVereinId,
     'M001',
-    @AktivStatusId,
-    @VollmitgliedTypId,
-    'Ahmet',
-    N'Yılmaz',
-    @GeschlechtM,
-    'ahmet.yilmaz@email.com',
-    '+49 89 111111111',
-    '1975-05-12',
-    '2020-01-15',
-    1,
-    0,
-    GETDATE(),
-    1
-),
-(
-    @MuenchenVereinId,
-    'M002',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Fatma',
@@ -345,7 +329,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ),
 (
     @MuenchenVereinId,
-    'M003',
+    'M002',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Can',
@@ -362,6 +346,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 );
 
 -- Berlin Derneği Üyeleri
+-- NOT: Mehmet Demir dernek başkanıdır, üye değildir - User tablosunda tanımlanacak
 INSERT INTO [Mitglied].[Mitglied] (
     VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
     Vorname, Nachname, GeschlechtId, Email, Telefon, Geburtsdatum, Eintrittsdatum,
@@ -370,23 +355,6 @@ INSERT INTO [Mitglied].[Mitglied] (
 (
     @BerlinVereinId,
     'B001',
-    @AktivStatusId,
-    @VollmitgliedTypId,
-    'Mehmet',
-    'Demir',
-    @GeschlechtM,
-    'mehmet.demir@email.com',
-    '+49 30 444444444',
-    '1968-07-25',
-    '2019-11-05',
-    1,
-    0,
-    GETDATE(),
-    1
-),
-(
-    @BerlinVereinId,
-    'B002',
     @AktivStatusId,
     @VollmitgliedTypId,
     N'Ayşe',
@@ -410,7 +378,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ) VALUES
 (
     @MuenchenVereinId,
-    'M004',
+    'M003',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Zeynep',
@@ -427,7 +395,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ),
 (
     @MuenchenVereinId,
-    'M005',
+    'M004',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Emre',
@@ -444,7 +412,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ),
 (
     @MuenchenVereinId,
-    'M006',
+    'M005',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Selin',
@@ -461,7 +429,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ),
 (
     @MuenchenVereinId,
-    'M007',
+    'M006',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Burak',
@@ -485,7 +453,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ) VALUES
 (
     @BerlinVereinId,
-    'B003',
+    'B002',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Deniz',
@@ -502,7 +470,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ),
 (
     @BerlinVereinId,
-    'B004',
+    'B003',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Ece',
@@ -519,7 +487,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 ),
 (
     @BerlinVereinId,
-    'B005',
+    'B004',
     @AktivStatusId,
     @VollmitgliedTypId,
     'Kerem',
@@ -535,7 +503,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     1
 );
 
-PRINT '  ✓ 12 Üye eklendi (7 München, 5 Berlin)';
+PRINT '  ✓ 10 Üye eklendi (6 München, 4 Berlin)';
 GO
 
 -- =============================================
@@ -957,10 +925,9 @@ INSERT INTO [Finanz].[BankBuchung] (
 PRINT '  ✓ 9 Banka hareketi eklendi';
 
 -- Üye alacakları ekle (MitgliedForderung)
-DECLARE @AhmetId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ahmet.yilmaz@email.com');
+-- NOT: Ahmet Yılmaz ve Mehmet Demir üye değil, bu yüzden alacakları yok
 DECLARE @FatmaId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'fatma.ozkan@email.com');
 DECLARE @CanId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'can.schmidt@email.com');
-DECLARE @MehmetDemirId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'mehmet.demir@email.com');
 DECLARE @AyseId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ayse.kaya@email.com');
 
 -- ZahlungTypId: 1 = Mitgliedsbeitrag (Keytable.ZahlungTyp)
@@ -971,19 +938,17 @@ INSERT INTO [Finanz].[MitgliedForderung] (
     Beschreibung, Jahr, Quartal, Monat, StatusId,
     DeletedFlag, Created, CreatedBy
 ) VALUES
--- München alacakları
-(@MuenchenVereinId, @AhmetId, 1, 'F-2025-001', 120.00, 1, DATEADD(DAY, -15, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 1, 0, GETDATE(), 1),
-(@MuenchenVereinId, @FatmaId, 1, 'F-2025-002', 120.00, 1, DATEADD(DAY, 15, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
-(@MuenchenVereinId, @CanId, 1, 'F-2025-003', 120.00, 1, DATEADD(DAY, -5, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
-(@MuenchenVereinId, @AhmetId, 1, 'F-2025-004', 120.00, 1, DATEADD(DAY, 75, GETDATE()), N'Mitgliedsbeitrag Q2 2025', 2025, 2, NULL, 2, 0, GETDATE(), 1),
--- Berlin alacakları
-(@BerlinVereinId, @MehmetDemirId, 1, 'F-2025-101', 100.00, 1, DATEADD(DAY, -20, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 1, 0, GETDATE(), 1),
-(@BerlinVereinId, @AyseId, 1, 'F-2025-102', 100.00, 1, DATEADD(DAY, 10, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1);
+-- München alacakları (Ahmet Yılmaz üye değil, alacağı yok)
+(@MuenchenVereinId, @FatmaId, 1, 'F-2025-001', 120.00, 1, DATEADD(DAY, 15, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
+(@MuenchenVereinId, @CanId, 1, 'F-2025-002', 120.00, 1, DATEADD(DAY, -5, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
+-- Berlin alacakları (Mehmet Demir üye değil, alacağı yok)
+(@BerlinVereinId, @AyseId, 1, 'F-2025-101', 100.00, 1, DATEADD(DAY, 10, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1);
 
 DECLARE @Forderung1Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-001');
-DECLARE @Forderung5Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-101');
+DECLARE @Forderung2Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-002');
+DECLARE @Forderung101Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-101');
 
-PRINT '  ✓ 6 Üye alacağı eklendi';
+PRINT '  ✓ 3 Üye alacağı eklendi (Dernek yöneticileri üye değil)';
 
 -- Üye ödemeleri ekle (MitgliedZahlung)
 -- ZahlungTypId: 1 = Mitgliedsbeitrag (Keytable.ZahlungTyp)
@@ -994,52 +959,33 @@ INSERT INTO [Finanz].[MitgliedZahlung] (
     BankkontoId, Bemerkung, StatusId,
     DeletedFlag, Created, CreatedBy
 ) VALUES
--- München ödemeleri
-(@MuenchenVereinId, @AhmetId, 1, 120.00, 1, DATEADD(DAY, -15, GETDATE()), 'UEBERWEISUNG', @MuenchenBankkontoId, N'Mitgliedsbeitrag Q1 2025', 1, 0, GETDATE(), 1),
-(@MuenchenVereinId, @FatmaId, 1, 50.00, 1, DATEADD(DAY, -10, GETDATE()), 'BAR', NULL, N'Teilzahlung', 2, 0, GETDATE(), 1),
--- Berlin ödemeleri
-(@BerlinVereinId, @MehmetDemirId, 1, 100.00, 1, DATEADD(DAY, -20, GETDATE()), 'UEBERWEISUNG', @BerlinBankkontoId, N'Mitgliedsbeitrag Q1 2025', 1, 0, GETDATE(), 1);
+-- München ödemeleri (Ahmet Yılmaz üye değil, ödemesi yok)
+(@MuenchenVereinId, @FatmaId, 1, 50.00, 1, DATEADD(DAY, -10, GETDATE()), 'BAR', NULL, N'Teilzahlung', 2, 0, GETDATE(), 1);
+-- Berlin ödemeleri yok (Mehmet Demir üye değil)
 
-PRINT '  ✓ 3 Üye ödemesi eklendi';
+PRINT '  ✓ 1 Üye ödemesi eklendi (Dernek yöneticileri üye değil)';
 
 -- Ödeme-Alacak eşleştirmeleri (MitgliedForderungZahlung)
-DECLARE @Zahlung1Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @AhmetId AND Betrag = 120.00);
-DECLARE @Zahlung3Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @MehmetDemirId);
+-- Fatma'nın ödemesi ile alacağını eşleştir (kısmi ödeme)
+DECLARE @ZahlungFatmaId INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @FatmaId AND Betrag = 50.00);
 
-IF @Forderung1Id IS NOT NULL AND @Zahlung1Id IS NOT NULL
+IF @Forderung1Id IS NOT NULL AND @ZahlungFatmaId IS NOT NULL
 BEGIN
     INSERT INTO [Finanz].[MitgliedForderungZahlung] (
         ForderungId, ZahlungId, Betrag,
         DeletedFlag, Created, CreatedBy
     ) VALUES
-    (@Forderung1Id, @Zahlung1Id, 120.00, 0, GETDATE(), 1);
+    (@Forderung1Id, @ZahlungFatmaId, 50.00, 0, GETDATE(), 1);
 END
 
-IF @Forderung5Id IS NOT NULL AND @Zahlung3Id IS NOT NULL
-BEGIN
-    INSERT INTO [Finanz].[MitgliedForderungZahlung] (
-        ForderungId, ZahlungId, Betrag,
-        DeletedFlag, Created, CreatedBy
-    ) VALUES
-    (@Forderung5Id, @Zahlung3Id, 100.00, 0, GETDATE(), 1);
-END
-
-PRINT '  ✓ 2 Ödeme-Alacak eşleştirmesi eklendi';
+PRINT '  ✓ 1 Ödeme-Alacak eşleştirmesi eklendi (Fatma - kısmi ödeme)';
 
 -- Ön ödemeler (MitgliedVorauszahlung)
--- WaehrungId: 1 = EUR (Keytable.Waehrung)
-DECLARE @Zahlung2Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @FatmaId AND Betrag = 50.00);
+-- NOT: Fatma'nın 50 EUR ödemesi zaten alacağına eşleştirildi
+-- Ön ödeme için ayrı bir ödeme kaydı gerekir, şimdilik yok
+-- (Bir ödeme hem alacağa eşleştirilemez hem de ön ödeme olamaz)
 
-IF @Zahlung2Id IS NOT NULL
-BEGIN
-    INSERT INTO [Finanz].[MitgliedVorauszahlung] (
-        VereinId, MitgliedId, ZahlungId, Betrag, WaehrungId,
-        DeletedFlag, Created, CreatedBy
-    ) VALUES
-    (@MuenchenVereinId, @FatmaId, @Zahlung2Id, 50.00, 1, 0, GETDATE(), 1);
-END
-
-PRINT '  ✓ 1 Ön ödeme eklendi';
+PRINT '  ✓ 0 Ön ödeme eklendi (Fatma ödemesi alacağa eşleştirildi)';
 
 -- Etkinlik ödemeleri (VeranstaltungZahlung)
 -- WaehrungId: 1 = EUR (Keytable.Waehrung)
@@ -1234,31 +1180,338 @@ PRINT '==============================================';
 PRINT '';
 PRINT 'Özet:';
 PRINT '  ✓ 7 Dernek (2 aktif + 5 pasif)';
-PRINT '  ✓ 15 Üye (12 temel + 3 aile)';
+PRINT '  ✓ 10 Üye (6 München + 4 Berlin) - Dernek başkanları üye değil!';
 PRINT '  ✓ 11 Etkinlik';
 PRINT '  ✓ 8 Aile ilişkisi';
 PRINT '  ✓ 2 Banka hesabı';
 PRINT '  ✓ 9 Banka hareketi';
-PRINT '  ✓ 6 Üye alacağı';
-PRINT '  ✓ 3 Üye ödemesi';
-PRINT '  ✓ 2 Ödeme-Alacak eşleştirmesi';
-PRINT '  ✓ 1 Ön ödeme';
+PRINT '  ✓ 3 Üye alacağı (Dernek yöneticileri üye değil)';
+PRINT '  ✓ 1 Üye ödemesi (Dernek yöneticileri üye değil)';
+PRINT '  ✓ 1 Ödeme-Alacak eşleştirmesi (Fatma - kısmi ödeme)';
+PRINT '  ✓ 0 Ön ödeme (Fatma ödemesi alacağa eşleştirildi)';
 PRINT '  ✓ 4 Etkinlik ödemesi';
+PRINT '  ✓ 13 User (1 admin + 2 dernek yöneticisi + 10 üye)';
+PRINT '  ✓ 13 UserRole (authentication için)';
 PRINT '';
-PRINT 'Demo Hesaplar:';
-PRINT '  1. ahmet.yilmaz@email.com (Dernek Yöneticisi - München)';
-PRINT '  2. fatma.ozkan@email.com (Üye - München) - Ailem sayfasını test edin!';
-PRINT '  3. mehmet.demir@email.com (Dernek Yöneticisi - Berlin)';
+PRINT 'Demo Hesaplar (Şifre: demo123):';
+PRINT '  1. admin@system.de (Admin)';
+PRINT '  2. ahmet.yilmaz@email.com (Dernek Yöneticisi - München) - ÜYE DEĞİL!';
+PRINT '  3. mehmet.demir@email.com (Dernek Yöneticisi - Berlin) - ÜYE DEĞİL!';
+PRINT '  4. fatma.ozkan@email.com (Üye - München) - Ailem sayfasını test edin!';
+PRINT '  5. ayse.kaya@email.com (Üye - Berlin)';
 PRINT '';
 PRINT 'Finanz Test Senaryoları:';
-PRINT '  - Ahmet Yılmaz: Ödeme yapılmış alacak (F-2025-001)';
-PRINT '  - Fatma Özkan: Açık alacak + Ön ödeme (50 EUR)';
-PRINT '  - Can Schmidt: Vadesi geçmiş alacak (F-2025-003)';
-PRINT '  - Mehmet Demir: Ödeme yapılmış alacak (F-2025-101)';
+PRINT '  - Fatma Özkan: Açık alacak (F-2025-001, 120 EUR) + Kısmi ödeme (50 EUR) = Kalan: 70 EUR';
+PRINT '  - Can Schmidt: Vadesi geçmiş alacak (F-2025-002, 120 EUR) - Ödeme yok';
+PRINT '  - Ayşe Kaya: Açık alacak (F-2025-101, 100 EUR) - Ödeme yok';
 PRINT '';
 PRINT 'Raporlar Sayfası:';
-PRINT '  - Admin: admin@dernek.com → Tüm dernekler için raporlar';
+PRINT '  - Admin: admin@system.de → Tüm dernekler için raporlar';
 PRINT '  - Dernek: ahmet.yilmaz@email.com → München raporları';
 PRINT '  - Dernek: mehmet.demir@email.com → Berlin raporları';
 PRINT '';
+GO
+
+-- =============================================
+-- 10. USER & AUTHENTICATION DATA
+-- =============================================
+-- Web.User ve Web.UserRole tablolarını doldur
+-- DEMO PASSWORD: demo123
+-- BCrypt Hash: $2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6
+
+PRINT '';
+PRINT '==============================================';
+PRINT '10. USER & AUTHENTICATION DATA';
+PRINT '==============================================';
+
+-- =============================================
+-- STEP 1: Create Admin User
+-- =============================================
+
+PRINT 'Creating Admin User...';
+GO
+
+INSERT INTO [Web].[User] (
+    Email,
+    PasswordHash,
+    Vorname,
+    Nachname,
+    IsActive,
+    EmailConfirmed,
+    Created
+)
+VALUES (
+    'admin@system.de',
+    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+    'System',
+    'Admin',
+    1,
+    1,
+    GETDATE()
+)
+GO
+
+-- Create Admin Role
+INSERT INTO [Web].[UserRole] (
+    UserId,
+    RoleType,
+    MitgliedId,
+    VereinId,
+    GueltigVon,
+    IsActive,
+    Created
+)
+SELECT
+    Id,
+    'admin',
+    NULL,
+    NULL,
+    GETDATE(),
+    1,
+    GETDATE()
+FROM [Web].[User]
+WHERE Email = 'admin@system.de'
+GO
+
+PRINT '  ✓ Admin user created';
+GO
+
+-- =============================================
+-- STEP 2: Create Dernek Yöneticileri (Non-Member Managers)
+-- =============================================
+
+PRINT 'Creating Dernek Yöneticileri (Association Managers)...';
+GO
+
+-- Ahmet Yılmaz - München Dernek Başkanı (ÜYE DEĞİL!)
+INSERT INTO [Web].[User] (
+    Email,
+    PasswordHash,
+    Vorname,
+    Nachname,
+    IsActive,
+    EmailConfirmed,
+    Created
+)
+VALUES (
+    'ahmet.yilmaz@email.com',
+    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+    'Ahmet',
+    N'Yılmaz',
+    1,
+    1,
+    GETDATE()
+)
+GO
+
+-- Mehmet Demir - Berlin Dernek Başkanı (ÜYE DEĞİL!)
+INSERT INTO [Web].[User] (
+    Email,
+    PasswordHash,
+    Vorname,
+    Nachname,
+    IsActive,
+    EmailConfirmed,
+    Created
+)
+VALUES (
+    'mehmet.demir@email.com',
+    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+    'Mehmet',
+    'Demir',
+    1,
+    1,
+    GETDATE()
+)
+GO
+
+-- Create Dernek Roles for Managers (MitgliedId = NULL çünkü üye değiller!)
+INSERT INTO [Web].[UserRole] (
+    UserId,
+    RoleType,
+    MitgliedId,
+    VereinId,
+    GueltigVon,
+    IsActive,
+    Created,
+    Bemerkung
+)
+SELECT
+    u.Id,
+    'dernek',
+    NULL, -- ÜYE DEĞİL!
+    v.Id,
+    GETDATE(),
+    1,
+    GETDATE(),
+    'Dernek Başkanı - Üye değil'
+FROM [Web].[User] u
+INNER JOIN [Verein].[Verein] v ON v.Vorstandsvorsitzender LIKE '%' + u.Vorname + '%' + u.Nachname + '%'
+WHERE u.Email IN ('ahmet.yilmaz@email.com', 'mehmet.demir@email.com')
+  AND ISNULL(v.DeletedFlag, 0) = 0
+GO
+
+PRINT '  ✓ Dernek Yöneticileri created';
+GO
+
+-- =============================================
+-- STEP 3: Migrate Existing Mitglied to Users
+-- =============================================
+
+PRINT 'Migrating existing Mitglied records to Users...';
+GO
+
+-- Create User records for all Mitglied with email
+-- Default password: demo123 (for demo purposes)
+INSERT INTO [Web].[User] (
+    Email,
+    PasswordHash,
+    Vorname,
+    Nachname,
+    IsActive,
+    EmailConfirmed,
+    Created,
+    CreatedBy
+)
+SELECT
+    m.Email,
+    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+    m.Vorname,
+    m.Nachname,
+    CAST(ISNULL(m.Aktiv, 1) AS BIT),
+    0,  -- Email not confirmed yet
+    ISNULL(m.Created, GETDATE()),
+    m.CreatedBy
+FROM [Mitglied].[Mitglied] m
+WHERE m.Email IS NOT NULL
+  AND m.Email <> ''
+  AND ISNULL(m.DeletedFlag, 0) = 0
+  AND NOT EXISTS (
+      SELECT 1 FROM [Web].[User] u WHERE u.Email = m.Email
+  )
+GO
+
+PRINT '  ✓ Users created from Mitglied records';
+GO
+
+
+-- =============================================
+-- STEP 4: Create Mitglied Roles
+-- =============================================
+
+PRINT 'Creating Mitglied roles...';
+GO
+
+INSERT INTO [Web].[UserRole] (
+    UserId,
+    RoleType,
+    MitgliedId,
+    VereinId,
+    GueltigVon,
+    IsActive,
+    Created,
+    CreatedBy
+)
+SELECT
+    u.Id,
+    'mitglied',
+    m.Id,
+    m.VereinId,
+    ISNULL(m.Eintrittsdatum, GETDATE()),
+    CAST(ISNULL(m.Aktiv, 1) AS BIT),
+    ISNULL(m.Created, GETDATE()),
+    m.CreatedBy
+FROM [Mitglied].[Mitglied] m
+INNER JOIN [Web].[User] u ON u.Email = m.Email
+WHERE ISNULL(m.DeletedFlag, 0) = 0
+  AND m.Email IS NOT NULL
+  AND m.Email <> ''
+  AND NOT EXISTS (
+      SELECT 1 FROM [Web].[UserRole] ur
+      WHERE ur.UserId = u.Id
+        AND ur.RoleType = 'mitglied'
+        AND ur.MitgliedId = m.Id
+  )
+GO
+
+PRINT '  ✓ Mitglied roles created';
+GO
+
+-- =============================================
+-- STEP 5: Create Additional Dernek Roles (If Member is Also Manager)
+-- =============================================
+-- Bu adım sadece ÜYE OLAN ama AYNI ZAMANDA YÖNETICI olan kişiler için
+
+PRINT 'Creating additional Dernek roles for members who are also managers...';
+GO
+
+-- Create dernek roles for members who are Vorstandsvorsitzender
+-- (Sadece hem üye hem yönetici olanlar için - nadir durum)
+INSERT INTO [Web].[UserRole] (
+    UserId,
+    RoleType,
+    MitgliedId,
+    VereinId,
+    GueltigVon,
+    IsActive,
+    Created,
+    Bemerkung
+)
+SELECT
+    u.Id,
+    'dernek',
+    m.Id,
+    m.VereinId,
+    GETDATE(),
+    1,
+    GETDATE(),
+    'Üye ve aynı zamanda Dernek Başkanı'
+FROM [Mitglied].[Mitglied] m
+INNER JOIN [Web].[User] u ON u.Email = m.Email
+INNER JOIN [Verein].[Verein] v ON v.Id = m.VereinId
+WHERE ISNULL(m.DeletedFlag, 0) = 0
+  AND ISNULL(v.DeletedFlag, 0) = 0
+  AND m.Email IS NOT NULL
+  AND m.Email <> ''
+  AND v.Vorstandsvorsitzender IS NOT NULL
+  AND (
+      v.Vorstandsvorsitzender LIKE '%' + m.Vorname + '%' + m.Nachname + '%'
+      OR v.Vorstandsvorsitzender LIKE '%' + m.Nachname + '%' + m.Vorname + '%'
+  )
+  AND NOT EXISTS (
+      SELECT 1 FROM [Web].[UserRole] ur
+      WHERE ur.UserId = u.Id
+        AND ur.RoleType = 'dernek'
+        AND ur.VereinId = m.VereinId
+  )
+GO
+
+PRINT '  ✓ Additional Dernek roles created';
+GO
+
+PRINT '';
+PRINT '==============================================';
+PRINT 'USER & AUTHENTICATION DATA COMPLETED!';
+PRINT '==============================================';
+PRINT '';
+PRINT 'User Summary:';
+PRINT '  ✓ 1 Admin user (admin@system.de)';
+PRINT '  ✓ 2 Dernek Yöneticileri (non-members)';
+PRINT '  ✓ 10 Mitglied users (from Mitglied table)';
+PRINT '  ✓ Total: 13 users';
+PRINT '';
+PRINT 'Role Summary:';
+PRINT '  ✓ 1 Admin role';
+PRINT '  ✓ 2 Dernek roles (non-member managers)';
+PRINT '  ✓ 10 Mitglied roles';
+PRINT '  ✓ Total: 13 roles';
+PRINT '';
+PRINT 'Demo Login Credentials (Password: demo123):';
+PRINT '  - Admin: admin@system.de';
+PRINT '  - Dernek Manager (München): ahmet.yilmaz@email.com';
+PRINT '  - Dernek Manager (Berlin): mehmet.demir@email.com';
+PRINT '  - Member (München): fatma.ozkan@email.com';
+PRINT '  - Member (Berlin): ayse.kaya@email.com';
+PRINT '';
+GO
 

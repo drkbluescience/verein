@@ -40,11 +40,14 @@ const Login: React.FC = () => {
 
   // Login states
   const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
   // Signup states
   const [selectedRole, setSelectedRole] = useState<'mitglied' | 'dernek'>('mitglied');
   const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupError, setSignupError] = useState('');
 
   // Member fields
@@ -61,6 +64,7 @@ const Login: React.FC = () => {
   const [telefon, setTelefon] = useState('');
   const [kontaktperson, setKontaktperson] = useState('');
   const [vorstandsvorsitzender, setVorstandsvorsitzender] = useState('');
+  const [vorstandsvorsitzenderEmail, setVorstandsvorsitzenderEmail] = useState('');
   const [webseite, setWebseite] = useState('');
   const [gruendungsdatum, setGruendungsdatum] = useState<Date | null>(null);
   const [zweck, setZweck] = useState('');
@@ -74,8 +78,13 @@ const Login: React.FC = () => {
       return;
     }
 
+    if (!loginPassword) {
+      setLoginError(t('auth:errors.passwordRequired'));
+      return;
+    }
+
     try {
-      await login(loginEmail, ''); // Password not used in current system
+      await login(loginEmail, loginPassword);
       showSuccess(t('auth:messages.loginSuccess'));
       navigate('/');
     } catch (error) {
@@ -95,6 +104,21 @@ const Login: React.FC = () => {
         return;
       }
 
+      if (!signupPassword) {
+        setSignupError(t('auth:errors.passwordRequired'));
+        return;
+      }
+
+      if (signupPassword.length < 6) {
+        setSignupError(t('auth:errors.passwordTooShort'));
+        return;
+      }
+
+      if (signupPassword !== signupConfirmPassword) {
+        setSignupError(t('auth:errors.passwordMismatch'));
+        return;
+      }
+
       if (selectedRole === 'mitglied') {
         // Member signup
         if (!firstName || !lastName) {
@@ -106,6 +130,8 @@ const Login: React.FC = () => {
           vorname: firstName,
           nachname: lastName,
           email: signupEmail,
+          password: signupPassword,
+          confirmPassword: signupConfirmPassword,
           telefon: memberTelefon || undefined,
           mobiltelefon: mobiltelefon || undefined,
           geburtsdatum: geburtsdatum ? geburtsdatum.toISOString().split('T')[0] : undefined,
@@ -114,7 +140,7 @@ const Login: React.FC = () => {
 
         if (response.success) {
           // Auto-login after successful registration
-          await login(signupEmail, ''); // Password not used in current system
+          await login(signupEmail, signupPassword);
           showSuccess(t('auth:messages.signupSuccess'));
           navigate('/');
         } else {
@@ -134,6 +160,9 @@ const Login: React.FC = () => {
           email: signupEmail,
           telefon: telefon || undefined,
           vorstandsvorsitzender: vorstandsvorsitzender || undefined,
+          vorstandsvorsitzenderEmail: vorstandsvorsitzenderEmail || undefined,
+          password: signupPassword,
+          confirmPassword: signupConfirmPassword,
           kontaktperson: kontaktperson || undefined,
           webseite: webseite || undefined,
           gruendungsdatum: gruendungsdatum ? gruendungsdatum.toISOString().split('T')[0] : undefined,
@@ -142,7 +171,7 @@ const Login: React.FC = () => {
 
         if (response.success) {
           // Auto-login after successful registration
-          await login(signupEmail, ''); // Password not used in current system
+          await login(signupEmail, signupPassword);
           showSuccess(t('auth:messages.signupSuccess'));
           navigate('/');
         } else {
@@ -161,7 +190,7 @@ const Login: React.FC = () => {
   // Demo login buttons for testing
   const handleDemoLogin = async (demoEmail: string) => {
     try {
-      await login(demoEmail, ''); // Password not used in current system
+      await login(demoEmail, 'demo123'); // Demo password
       showSuccess(t('auth:messages.loginSuccess'));
       navigate('/');
     } catch (error) {
@@ -230,6 +259,19 @@ const Login: React.FC = () => {
                   onChange={(e) => setLoginEmail(e.target.value)}
                   required
                   placeholder={t('auth:login.emailPlaceholder')}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="login-password">{t('auth:login.password')}</label>
+                <input
+                  type="password"
+                  id="login-password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                  placeholder={t('auth:login.passwordPlaceholder')}
+                  minLength={6}
                 />
               </div>
 
@@ -415,6 +457,17 @@ const Login: React.FC = () => {
                       />
                     </div>
                     <div className="form-group">
+                      <label htmlFor="vorstandsvorsitzender-email">{t('auth:fields.presidentEmail')}</label>
+                      <input
+                        type="email"
+                        id="vorstandsvorsitzender-email"
+                        value={vorstandsvorsitzenderEmail}
+                        onChange={(e) => setVorstandsvorsitzenderEmail(e.target.value)}
+                        placeholder={t('auth:fields.presidentEmailPlaceholder')}
+                        maxLength={100}
+                      />
+                    </div>
+                    <div className="form-group">
                       <label htmlFor="kontaktperson">{t('auth:fields.contactPerson')}</label>
                       <input
                         type="text"
@@ -478,6 +531,35 @@ const Login: React.FC = () => {
                   />
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="signup-password">{t('auth:fields.password')} {t('auth:fields.required')}</label>
+                  <input
+                    type="password"
+                    id="signup-password"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    required
+                    placeholder={t('auth:fields.passwordPlaceholder')}
+                    minLength={6}
+                    maxLength={100}
+                  />
+                  <small className="field-hint">{t('auth:fields.passwordHint')}</small>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="signup-confirm-password">{t('auth:fields.confirmPassword')} {t('auth:fields.required')}</label>
+                  <input
+                    type="password"
+                    id="signup-confirm-password"
+                    value={signupConfirmPassword}
+                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                    required
+                    placeholder={t('auth:fields.confirmPasswordPlaceholder')}
+                    minLength={6}
+                    maxLength={100}
+                  />
+                </div>
+
                 {signupError && <div className="error-message">{signupError}</div>}
 
                 <button type="submit" className="submit-btn" disabled={loading}>
@@ -505,7 +587,7 @@ const Login: React.FC = () => {
               <div className="demo-buttons">
                 <button
                   className="demo-btn demo-admin"
-                  onClick={() => handleDemoLogin('admin@dernek.com')}
+                  onClick={() => handleDemoLogin('admin@system.de')}
                   disabled={loading}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -521,7 +603,7 @@ const Login: React.FC = () => {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/>
                   </svg>
-                  {t('auth:demo.verein')}
+                  {t('auth:demo.verein')} (Ahmet)
                 </button>
                 <button
                   className="demo-btn demo-mitglied"
@@ -531,7 +613,7 @@ const Login: React.FC = () => {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                   </svg>
-                  {t('auth:demo.member')}
+                  {t('auth:demo.member')} (Fatma)
                 </button>
               </div>
             </div>
