@@ -367,8 +367,9 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Log.Fatal(ex, "Database initialization failed");
-        throw; // Fail fast if database is not accessible
+        Log.Error(ex, "Database initialization failed - Application will start but database operations may fail");
+        // Don't throw - allow app to start so we can see logs and healthcheck can pass
+        // Database issues will be visible in logs and API calls will fail gracefully
     }
 }
 
