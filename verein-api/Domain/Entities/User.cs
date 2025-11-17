@@ -65,6 +65,11 @@ public class User : AuditableEntity
     /// </summary>
     public DateTime? LockoutEnd { get; set; }
 
+    /// <summary>
+    /// Is this user record active?
+    /// </summary>
+    public bool? Aktiv { get; set; } = true;
+
     // Navigation properties
     /// <summary>
     /// User roles (one-to-many relationship)

@@ -99,5 +99,10 @@ public class PageNote : AuditableEntity
     /// Admin's notes or comments
     /// </summary>
     public string? AdminNotes { get; set; }
+
+    /// <summary>
+    /// Is this note active?
+    /// </summary>
+    public bool? Aktiv { get; set; } = true;
 }
 

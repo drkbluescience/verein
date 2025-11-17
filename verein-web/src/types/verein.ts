@@ -1,6 +1,37 @@
 // Verein (Association) Types
 import { RechtlicheDatenDto } from './rechtlicheDaten';
 
+export interface AdresseDto {
+  id: number;
+  vereinId?: number;
+  adresseTypId?: number;
+  strasse?: string;
+  hausnummer?: string;
+  adresszusatz?: string;
+  plz?: string;
+  ort?: string;
+  stadtteil?: string;
+  bundesland?: string;
+  land?: string;
+  postfach?: string;
+  telefonnummer?: string;
+  faxnummer?: string;
+  email?: string;
+  kontaktperson?: string;
+  hinweis?: string;
+  latitude?: number;
+  longitude?: number;
+  gueltigVon?: string;
+  gueltigBis?: string;
+  istStandard?: boolean;
+  aktiv?: boolean;
+  created?: string;
+  createdBy?: number;
+  modified?: string;
+  modifiedBy?: number;
+  deletedFlag?: boolean;
+}
+
 export interface VereinDto {
   id: number;
   name: string;
@@ -47,6 +78,7 @@ export interface VereinDto {
   modifiedBy?: string;
   deletedFlag?: boolean;
   rechtlicheDaten?: RechtlicheDatenDto;
+  hauptAdresse?: AdresseDto;
 }
 
 export interface CreateVereinDto {
@@ -124,32 +156,6 @@ export interface UpdateVereinDto {
   sepaGlaeubigerID?: string;
   aktiv?: boolean;
   elektronischeSignaturKey?: string;
-}
-
-// Adresse (Address) Types
-export interface AdresseDto {
-  id: number;
-  vereinId: number;
-  adresseTypId?: number;
-  strasse?: string;
-  hausnummer?: string;
-  adresszusatz?: string;
-  plz?: string;
-  ort?: string;
-  landId?: number;
-  postfach?: string;
-  postfachPlz?: string;
-  postfachOrt?: string;
-  latitude?: number;
-  longitude?: number;
-  gueltigVon?: string;
-  gueltigBis?: string;
-  istStandard?: boolean;
-  aktiv: boolean;
-  created: string;
-  createdBy?: string;
-  modified?: string;
-  modifiedBy?: string;
 }
 
 export interface CreateAdresseDto {

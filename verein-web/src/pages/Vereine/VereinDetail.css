@@ -136,31 +136,53 @@
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.info-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
 }
 
 .info-item.full-width {
   grid-column: 1 / -1;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-left: 4px solid var(--color-primary);
+  padding: var(--spacing-lg);
 }
 
 .info-item label {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
 }
 
 .info-item span,
 .info-item p {
   font-size: var(--font-size-md);
   color: var(--color-text-primary);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.info-item p {
+  margin: 0;
+  white-space: pre-wrap;
 }
 
 .info-item a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
 
 .info-item a:hover {

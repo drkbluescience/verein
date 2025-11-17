@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using VereinsApi.DTOs.Adresse;
 using VereinsApi.DTOs.RechtlicheDaten;
 
 namespace VereinsApi.DTOs.Verein;
@@ -217,4 +218,10 @@ public class VereinDto
     /// </summary>
     [JsonPropertyName("rechtlicheDaten")]
     public RechtlicheDatenDto? RechtlicheDaten { get; set; }
+
+    /// <summary>
+    /// Main address of the verein
+    /// </summary>
+    [JsonPropertyName("hauptAdresse")]
+    public AdresseDto? HauptAdresse { get; set; }
 }

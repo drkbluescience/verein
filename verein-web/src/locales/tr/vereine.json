@@ -85,6 +85,7 @@
   },
   "tabs": {
     "info": "Bilgiler",
+    "adresse": "Adres",
     "adressen": "Adresler",
     "mitglieder": "Üyeler"
   },
@@ -93,13 +94,23 @@
     "kurzname": "Kısa Ad",
     "email": "E-posta",
     "telefon": "Telefon",
+    "fax": "Faks",
     "webseite": "Web Sitesi",
     "vorstandsvorsitzender": "Başkan",
+    "geschaeftsfuehrer": "Genel Müdür",
     "kontaktperson": "İletişim Kişisi",
+    "vertreterEmail": "Temsilci E-posta",
     "gruendungsdatum": "Kuruluş Tarihi",
     "zweck": "Amaç",
     "aktiv": "Aktif",
-    "rechtsform": "Hukuki Şekil"
+    "rechtsform": "Hukuki Şekil",
+    "socialMedia": "Sosyal Medya",
+    "strasse": "Sokak",
+    "hausnummer": "Kapı No",
+    "plz": "Posta Kodu",
+    "ort": "Şehir",
+    "bundesland": "Eyalet",
+    "land": "Ülke"
   },
   "editVerein": "Dernek Bilgilerini Düzenle",
   "createVerein": "Yeni Dernek Ekle",

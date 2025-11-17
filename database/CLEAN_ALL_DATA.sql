@@ -107,9 +107,35 @@ PRINT '   ✓ ' + CAST(@DeletedBankBuchungCount AS VARCHAR(10)) + ' banka hareke
 GO
 
 -- ============================================================================
--- 6. ETKİNLİK KAYITLARINI SİL
+-- 6. ETKİNLİK ÖDEMELERİNİ SİL (VeranstaltungZahlung)
 -- ============================================================================
-PRINT '6️⃣  Etkinlik kayıtları siliniyor...';
+PRINT '6️⃣  Etkinlik ödemeleri siliniyor...';
+
+DECLARE @DeletedVeranstaltungZahlungCount INT = 0;
+
+DELETE FROM [Finanz].[VeranstaltungZahlung];
+SET @DeletedVeranstaltungZahlungCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedVeranstaltungZahlungCount AS VARCHAR(10)) + ' etkinlik ödemesi silindi';
+GO
+
+-- ============================================================================
+-- 7. ETKİNLİK RESİMLERİNİ SİL (VeranstaltungBild)
+-- ============================================================================
+PRINT '7️⃣  Etkinlik resimleri siliniyor...';
+
+DECLARE @DeletedVeranstaltungBildCount INT = 0;
+
+DELETE FROM [Verein].[VeranstaltungBild];
+SET @DeletedVeranstaltungBildCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedVeranstaltungBildCount AS VARCHAR(10)) + ' etkinlik resmi silindi';
+GO
+
+-- ============================================================================
+-- 8. ETKİNLİK KAYITLARINI SİL (VeranstaltungAnmeldung)
+-- ============================================================================
+PRINT '8️⃣  Etkinlik kayıtları siliniyor...';
 
 DECLARE @DeletedRegistrationCount INT = 0;
 
@@ -120,9 +146,9 @@ PRINT '   ✓ ' + CAST(@DeletedRegistrationCount AS VARCHAR(10)) + ' etkinlik ka
 GO
 
 -- ============================================================================
--- 7. ETKİNLİKLERİ SİL
+-- 9. ETKİNLİKLERİ SİL (Veranstaltung)
 -- ============================================================================
-PRINT '7️⃣  Etkinlikler siliniyor...';
+PRINT '9️⃣  Etkinlikler siliniyor...';
 
 DECLARE @DeletedEventCount INT = 0;
 
@@ -133,9 +159,22 @@ PRINT '   ✓ ' + CAST(@DeletedEventCount AS VARCHAR(10)) + ' etkinlik silindi';
 GO
 
 -- ============================================================================
--- 8. AİLE İLİŞKİLERİNİ SİL
+-- 🔟 ÜYE ADRESLERİNİ SİL (MitgliedAdresse)
 -- ============================================================================
-PRINT '8️⃣  Aile ilişkileri siliniyor...';
+PRINT '🔟 Üye adresleri siliniyor...';
+
+DECLARE @DeletedMitgliedAdresseCount INT = 0;
+
+DELETE FROM [Mitglied].[MitgliedAdresse];
+SET @DeletedMitgliedAdresseCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedMitgliedAdresseCount AS VARCHAR(10)) + ' üye adresi silindi';
+GO
+
+-- ============================================================================
+-- 1️⃣1️⃣ AİLE İLİŞKİLERİNİ SİL (MitgliedFamilie)
+-- ============================================================================
+PRINT '1️⃣1️⃣ Aile ilişkileri siliniyor...';
 
 DECLARE @DeletedFamilyCount INT = 0;
 
@@ -146,9 +185,35 @@ PRINT '   ✓ ' + CAST(@DeletedFamilyCount AS VARCHAR(10)) + ' aile ilişkisi si
 GO
 
 -- ============================================================================
--- 9. ÜYELERİ SİL
+-- 1️⃣2️⃣ KULLANICI ROLLERİNİ SİL (UserRole) - User'dan önce!
 -- ============================================================================
-PRINT '9️⃣  Üyeler siliniyor...';
+PRINT '1️⃣2️⃣ Kullanıcı rolleri siliniyor...';
+
+DECLARE @DeletedUserRoleCount INT = 0;
+
+DELETE FROM [Web].[UserRole];
+SET @DeletedUserRoleCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedUserRoleCount AS VARCHAR(10)) + ' kullanıcı rolü silindi';
+GO
+
+-- ============================================================================
+-- 1️⃣3️⃣ KULLANICILARI SİL (User)
+-- ============================================================================
+PRINT '1️⃣3️⃣ Kullanıcılar siliniyor...';
+
+DECLARE @DeletedUserCount INT = 0;
+
+DELETE FROM [Web].[User];
+SET @DeletedUserCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedUserCount AS VARCHAR(10)) + ' kullanıcı silindi';
+GO
+
+-- ============================================================================
+-- 1️⃣4️⃣ ÜYELERİ SİL (Mitglied)
+-- ============================================================================
+PRINT '1️⃣4️⃣ Üyeler siliniyor...';
 
 DECLARE @DeletedMemberCount INT = 0;
 
@@ -159,9 +224,9 @@ PRINT '   ✓ ' + CAST(@DeletedMemberCount AS VARCHAR(10)) + ' üye silindi';
 GO
 
 -- ============================================================================
--- 10. BANKA HESAPLARINI SİL (Bankkonto)
+-- 1️⃣5️⃣ BANKA HESAPLARINI SİL (Bankkonto)
 -- ============================================================================
-PRINT '🔟 Banka hesapları siliniyor...';
+PRINT '1️⃣5️⃣ Banka hesapları siliniyor...';
 
 DECLARE @DeletedBankkontoCount INT = 0;
 
@@ -172,9 +237,9 @@ PRINT '   ✓ ' + CAST(@DeletedBankkontoCount AS VARCHAR(10)) + ' banka hesabı 
 GO
 
 -- ============================================================================
--- 11. SAYFA NOTLARINI SİL (PageNote)
+-- 1️⃣6️⃣ SAYFA NOTLARINI SİL (PageNote)
 -- ============================================================================
-PRINT '1️⃣1️⃣ Sayfa notları siliniyor...';
+PRINT '1️⃣6️⃣ Sayfa notları siliniyor...';
 
 DECLARE @DeletedPageNoteCount INT = 0;
 
@@ -185,9 +250,9 @@ PRINT '   ✓ ' + CAST(@DeletedPageNoteCount AS VARCHAR(10)) + ' sayfa notu sili
 GO
 
 -- ============================================================================
--- 12. DERNEKLERİ SİL
+-- 1️⃣7️⃣ DERNEK YASAL VERİLERİNİ SİL (RechtlicheDaten)
 -- ============================================================================
-PRINT '1️⃣2️⃣ Dernek yasal verileri siliniyor...';
+PRINT '1️⃣7️⃣ Dernek yasal verileri siliniyor...';
 
 DECLARE @DeletedRechtlicheDatenCount INT = 0;
 
@@ -198,7 +263,9 @@ PRINT '   ✓ ' + CAST(@DeletedRechtlicheDatenCount AS VARCHAR(10)) + ' yasal ve
 GO
 
 -- ============================================================================
-PRINT '1️⃣3️⃣ Dernekler siliniyor...';
+-- 1️⃣8️⃣ DERNEKLERİ SİL (Verein)
+-- ============================================================================
+PRINT '1️⃣8️⃣ Dernekler siliniyor...';
 
 DECLARE @DeletedVereinCount INT = 0;
 
@@ -206,6 +273,19 @@ DELETE FROM [Verein].[Verein];
 SET @DeletedVereinCount = @@ROWCOUNT;
 
 PRINT '   ✓ ' + CAST(@DeletedVereinCount AS VARCHAR(10)) + ' dernek silindi';
+GO
+
+-- ============================================================================
+-- 1️⃣9️⃣ ADRESLERİ SİL (Adresse)
+-- ============================================================================
+PRINT '1️⃣9️⃣ Adresler siliniyor...';
+
+DECLARE @DeletedAdresseCount INT = 0;
+
+DELETE FROM [Verein].[Adresse];
+SET @DeletedAdresseCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedAdresseCount AS VARCHAR(10)) + ' adres silindi';
 GO
 
 -- ============================================================================
@@ -291,15 +371,21 @@ GO
 
 -- Verein Schema
 DBCC CHECKIDENT ('[Verein].[Verein]', RESEED, 0);
+DBCC CHECKIDENT ('[Verein].[Adresse]', RESEED, 0);
+DBCC CHECKIDENT ('[Verein].[RechtlicheDaten]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[Bankkonto]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[Veranstaltung]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[VeranstaltungAnmeldung]', RESEED, 0);
+DBCC CHECKIDENT ('[Verein].[VeranstaltungBild]', RESEED, 0);
 
 -- Web Schema
+DBCC CHECKIDENT ('[Web].[User]', RESEED, 0);
+DBCC CHECKIDENT ('[Web].[UserRole]', RESEED, 0);
 DBCC CHECKIDENT ('[Web].[PageNote]', RESEED, 0);
 
 -- Mitglied Schema
 DBCC CHECKIDENT ('[Mitglied].[Mitglied]', RESEED, 0);
+DBCC CHECKIDENT ('[Mitglied].[MitgliedAdresse]', RESEED, 0);
 DBCC CHECKIDENT ('[Mitglied].[MitgliedFamilie]', RESEED, 0);
 
 -- Finanz Schema
@@ -308,6 +394,7 @@ DBCC CHECKIDENT ('[Finanz].[MitgliedForderung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[MitgliedZahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[MitgliedForderungZahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[MitgliedVorauszahlung]', RESEED, 0);
+DBCC CHECKIDENT ('[Finanz].[VeranstaltungZahlung]', RESEED, 0);
 
 -- Keytable Schema
 DBCC CHECKIDENT ('[Keytable].[Geschlecht]', RESEED, 0);
@@ -338,17 +425,29 @@ PRINT '';
 
 SELECT 'Verein' as Tablo, COUNT(*) as Kayıt_Sayısı FROM [Verein].[Verein]
 UNION ALL
+SELECT 'Adresse', COUNT(*) FROM [Verein].[Adresse]
+UNION ALL
+SELECT 'RechtlicheDaten', COUNT(*) FROM [Verein].[RechtlicheDaten]
+UNION ALL
 SELECT 'Bankkonto', COUNT(*) FROM [Verein].[Bankkonto]
+UNION ALL
+SELECT 'Veranstaltung', COUNT(*) FROM [Verein].[Veranstaltung]
+UNION ALL
+SELECT 'VeranstaltungAnmeldung', COUNT(*) FROM [Verein].[VeranstaltungAnmeldung]
+UNION ALL
+SELECT 'VeranstaltungBild', COUNT(*) FROM [Verein].[VeranstaltungBild]
+UNION ALL
+SELECT 'User', COUNT(*) FROM [Web].[User]
+UNION ALL
+SELECT 'UserRole', COUNT(*) FROM [Web].[UserRole]
 UNION ALL
 SELECT 'PageNote', COUNT(*) FROM [Web].[PageNote]
 UNION ALL
 SELECT 'Mitglied', COUNT(*) FROM [Mitglied].[Mitglied]
 UNION ALL
+SELECT 'MitgliedAdresse', COUNT(*) FROM [Mitglied].[MitgliedAdresse]
+UNION ALL
 SELECT 'MitgliedFamilie', COUNT(*) FROM [Mitglied].[MitgliedFamilie]
-UNION ALL
-SELECT 'Veranstaltung', COUNT(*) FROM [Verein].[Veranstaltung]
-UNION ALL
-SELECT 'VeranstaltungAnmeldung', COUNT(*) FROM [Verein].[VeranstaltungAnmeldung]
 UNION ALL
 SELECT 'BankBuchung', COUNT(*) FROM [Finanz].[BankBuchung]
 UNION ALL
@@ -359,6 +458,8 @@ UNION ALL
 SELECT 'MitgliedForderungZahlung', COUNT(*) FROM [Finanz].[MitgliedForderungZahlung]
 UNION ALL
 SELECT 'MitgliedVorauszahlung', COUNT(*) FROM [Finanz].[MitgliedVorauszahlung]
+UNION ALL
+SELECT 'VeranstaltungZahlung', COUNT(*) FROM [Finanz].[VeranstaltungZahlung]
 UNION ALL
 SELECT 'Geschlecht', COUNT(*) FROM [Keytable].[Geschlecht]
 UNION ALL
@@ -410,19 +511,26 @@ PRINT '      ✓ Finanz Ödeme Avansları (MitgliedVorauszahlung)';
 PRINT '      ✓ Finanz Ödemeleri (MitgliedZahlung)';
 PRINT '      ✓ Finanz Talepleri (MitgliedForderung)';
 PRINT '      ✓ Finanz Banka Hareketleri (BankBuchung)';
+PRINT '      ✓ Finanz Etkinlik Ödemeleri (VeranstaltungZahlung)';
+PRINT '      ✓ Etkinlik Resimleri (VeranstaltungBild)';
 PRINT '      ✓ Etkinlik Kayıtları (VeranstaltungAnmeldung)';
 PRINT '      ✓ Etkinlikler (Veranstaltung)';
+PRINT '      ✓ Üye Adresleri (MitgliedAdresse)';
 PRINT '      ✓ Aile İlişkileri (MitgliedFamilie)';
+PRINT '      ✓ Kullanıcı Rolleri (UserRole)';
+PRINT '      ✓ Kullanıcılar (User)';
 PRINT '      ✓ Üyeler (Mitglied)';
 PRINT '      ✓ Banka Hesapları (Bankkonto)';
 PRINT '      ✓ Sayfa Notları (PageNote)';
+PRINT '      ✓ Dernek Yasal Verileri (RechtlicheDaten)';
 PRINT '      ✓ Dernekler (Verein)';
+PRINT '      ✓ Adresler (Adresse)';
 PRINT '';
 PRINT '   🗑️  KEYTABLE VERİLERİ:';
 PRINT '      ✓ Tüm Keytable Çeviri Verileri (16 tablo)';
 PRINT '      ✓ Tüm Keytable Ana Verileri (16 tablo)';
 PRINT '';
-PRINT '🔄 IDENTITY Seed değerleri sıfırlandı (20 tablo)';
+PRINT '🔄 IDENTITY Seed değerleri sıfırlandı (27 tablo)';
 PRINT '🔧 Foreign Key Constraints yeniden etkinleştirildi';
 PRINT '';
 PRINT '💡 Şimdi COMPLETE_DEMO_DATA.sql dosyasını çalıştırabilirsiniz.';

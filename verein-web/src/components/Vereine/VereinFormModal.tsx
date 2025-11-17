@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { VereinDto, UpdateVereinDto, CreateVereinDto } from '../../types/verein';
 import keytableService from '../../services/keytableService';
 import Modal from '../Common/Modal';
+import SocialMediaEditor from './SocialMediaEditor';
 import styles from './VereinFormModal.module.css';
 
 // Register locales for date picker
@@ -42,12 +43,16 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
     name: '',
     kurzname: '',
     telefon: '',
+    fax: '',
     email: '',
     webseite: '',
     vorstandsvorsitzender: '',
+    geschaeftsfuehrer: '',
     kontaktperson: '',
+    vertreterEmail: '',
     gruendungsdatum: '',
     zweck: '',
+    socialMediaLinks: '',
     rechtsformId: undefined,
     aktiv: true,
   });
@@ -62,12 +67,16 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
           name: verein.name,
           kurzname: verein.kurzname || '',
           telefon: verein.telefon || '',
+          fax: verein.fax || '',
           email: verein.email || '',
           webseite: verein.webseite || '',
           vorstandsvorsitzender: verein.vorstandsvorsitzender || '',
+          geschaeftsfuehrer: verein.geschaeftsfuehrer || '',
           kontaktperson: verein.kontaktperson || '',
+          vertreterEmail: verein.vertreterEmail || '',
           gruendungsdatum: verein.gruendungsdatum || '',
           zweck: verein.zweck || '',
+          socialMediaLinks: verein.socialMediaLinks || '',
           rechtsformId: verein.rechtsformId,
           aktiv: verein.aktiv,
         });
@@ -78,12 +87,16 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
           name: '',
           kurzname: '',
           telefon: '',
+          fax: '',
           email: '',
           webseite: '',
           vorstandsvorsitzender: '',
+          geschaeftsfuehrer: '',
           kontaktperson: '',
+          vertreterEmail: '',
           gruendungsdatum: '',
           zweck: '',
+          socialMediaLinks: '',
           rechtsformId: undefined,
           aktiv: true,
         });
@@ -122,6 +135,10 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = t('vereine:validation.invalidEmail');
+    }
+
+    if (formData.vertreterEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.vertreterEmail)) {
+      newErrors.vertreterEmail = t('vereine:validation.invalidEmail');
     }
 
     if (formData.webseite && !/^https?:\/\/.+/.test(formData.webseite)) {
@@ -202,6 +219,18 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
               />
             </div>
 
+            {/* Fax */}
+            <div className={styles.formGroup}>
+              <label htmlFor="fax">{t('vereine:fields.fax')}</label>
+              <input
+                type="tel"
+                id="fax"
+                name="fax"
+                value={formData.fax || ''}
+                onChange={handleChange}
+              />
+            </div>
+
             {/* Email */}
             <div className={styles.formGroup}>
               <label htmlFor="email">{t('vereine:fields.email')}</label>
@@ -214,6 +243,20 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 className={errors.email ? styles.error : ''}
               />
               {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
+            </div>
+
+            {/* Vertreter Email */}
+            <div className={styles.formGroup}>
+              <label htmlFor="vertreterEmail">{t('vereine:fields.vertreterEmail')}</label>
+              <input
+                type="email"
+                id="vertreterEmail"
+                name="vertreterEmail"
+                value={formData.vertreterEmail || ''}
+                onChange={handleChange}
+                className={errors.vertreterEmail ? styles.error : ''}
+              />
+              {errors.vertreterEmail && <span className={styles.errorMessage}>{errors.vertreterEmail}</span>}
             </div>
 
             {/* Webseite */}
@@ -241,6 +284,20 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 id="vorstandsvorsitzender"
                 name="vorstandsvorsitzender"
                 value={formData.vorstandsvorsitzender || ''}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Geschaeftsfuehrer */}
+            <div className={styles.formGroup}>
+              <label htmlFor="geschaeftsfuehrer">
+                {t('vereine:fields.geschaeftsfuehrer')}
+              </label>
+              <input
+                type="text"
+                id="geschaeftsfuehrer"
+                name="geschaeftsfuehrer"
+                value={formData.geschaeftsfuehrer || ''}
                 onChange={handleChange}
               />
             </div>
@@ -316,6 +373,15 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 value={formData.zweck || ''}
                 onChange={handleChange}
                 rows={4}
+              />
+            </div>
+
+            {/* Sosyal Medya */}
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+              <SocialMediaEditor
+                value={formData.socialMediaLinks}
+                onChange={(value) => setFormData(prev => ({ ...prev, socialMediaLinks: value }))}
+                label={t('vereine:fields.socialMedia')}
               />
             </div>
 

@@ -106,7 +106,7 @@ public class AuthController : ControllerBase
                 // Lock account after 5 failed attempts
                 if (user.FailedLoginAttempts >= 4) // Will be 5 after increment
                 {
-                    await _userService.LockAccountAsync(user.Id, TimeSpan.FromMinutes(15));
+                    await _userService.LockAccountAsync(user.Id, DateTime.UtcNow.AddMinutes(15));
                     return Unauthorized(new { message = "Account locked due to multiple failed login attempts. Try again in 15 minutes." });
                 }
 
@@ -157,47 +157,7 @@ public class AuthController : ControllerBase
                 MitgliedId = primaryRole.MitgliedId,
                 Permissions = permissions,
                 Token = token
-                    });
-                }
-            }
-
-            // If not found in Mitglied, try to find in Verein table
-            var vereine = await _vereinService.GetAllAsync();
-            _logger.LogInformation("🔍 DEBUG: Total vereine count: {Count}", vereine.Count());
-
-            var vereinByEmail = vereine.FirstOrDefault(v => v.Email != null && v.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase));
-
-            if (vereinByEmail != null)
-            {
-                _logger.LogInformation("🔍 DEBUG: Found verein - Id: {Id}, Email: {Email}, Name: {Name}",
-                    vereinByEmail.Id, vereinByEmail.Email, vereinByEmail.Name);
-
-                var dernekPermissions = new[] { "verein.read", "verein.update", "mitglied.all", "veranstaltung.all", "adresse.manage" };
-                var dernekToken = _jwtService.GenerateToken(
-                    userId: vereinByEmail.Id,
-                    userType: "dernek",
-                    email: vereinByEmail.Email ?? "",
-                    firstName: vereinByEmail.Name,
-                    lastName: "",
-                    vereinId: vereinByEmail.Id,
-                    mitgliedId: null,
-                    permissions: dernekPermissions
-                );
-
-                return Ok(new LoginResponseDto
-                {
-                    UserType = "dernek",
-                    FirstName = vereinByEmail.Name,
-                    LastName = "",
-                    Email = vereinByEmail.Email,
-                    VereinId = vereinByEmail.Id,
-                    MitgliedId = null,
-                    Permissions = dernekPermissions,
-                    Token = dernekToken
-                });
-            }
-
-            return Unauthorized("Invalid credentials");
+            });
         }
         catch (Exception ex)
         {
@@ -223,60 +183,38 @@ public class AuthController : ControllerBase
                 return BadRequest("Email is required");
             }
 
-            // Check if it's an admin
-            if (email.Contains("admin"))
+            // Find user by email
+            var user = await _userService.GetByEmailAsync(email);
+
+            if (user == null)
             {
-                return Ok(new LoginResponseDto
-                {
-                    UserType = "admin",
-                    FirstName = "System",
-                    LastName = "Admin",
-                    Email = email,
-                    VereinId = null,
-                    MitgliedId = null,
-                    Permissions = new[] { "admin.all", "verein.all", "mitglied.all", "veranstaltung.all" }
-                });
+                return NotFound(new { message = "User not found" });
             }
 
-            // Try to find member by email
-            var mitglieder = await _mitgliedService.GetAllAsync();
-            var mitglied = mitglieder.FirstOrDefault(m => m.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            // Get user's active roles
+            var roles = await _userRoleService.GetActiveRolesByUserIdAsync(user.Id);
 
-            if (mitglied != null)
+            if (!roles.Any())
             {
-                // Check if this member is a Verein admin
-                var verein = await _vereinService.GetByIdAsync(mitglied.VereinId);
-                bool isVereinAdmin = verein?.Vorstandsvorsitzender?.Contains(mitglied.Vorname + " " + mitglied.Nachname) == true;
-
-                if (isVereinAdmin)
-                {
-                    return Ok(new LoginResponseDto
-                    {
-                        UserType = "dernek",
-                        FirstName = mitglied.Vorname,
-                        LastName = mitglied.Nachname,
-                        Email = mitglied.Email,
-                        VereinId = mitglied.VereinId,
-                        MitgliedId = mitglied.Id,
-                        Permissions = new[] { "verein.read", "verein.update", "mitglied.all", "veranstaltung.all" }
-                    });
-                }
-                else
-                {
-                    return Ok(new LoginResponseDto
-                    {
-                        UserType = "mitglied",
-                        FirstName = mitglied.Vorname,
-                        LastName = mitglied.Nachname,
-                        Email = mitglied.Email,
-                        VereinId = mitglied.VereinId,
-                        MitgliedId = mitglied.Id,
-                        Permissions = new[] { "mitglied.read", "mitglied.update", "veranstaltung.read" }
-                    });
-                }
+                return NotFound(new { message = "No active roles found for this user" });
             }
 
-            return NotFound("User not found");
+            // Get primary role (highest priority)
+            var primaryRole = roles.OrderByDescending(r => GetRolePriority(r.RoleType)).First();
+
+            // Generate permissions based on role
+            var permissions = GetPermissionsForRole(primaryRole.RoleType);
+
+            return Ok(new LoginResponseDto
+            {
+                UserType = primaryRole.RoleType,
+                FirstName = user.Vorname,
+                LastName = user.Nachname,
+                Email = user.Email,
+                VereinId = primaryRole.VereinId,
+                MitgliedId = primaryRole.MitgliedId,
+                Permissions = permissions
+            });
         }
         catch (Exception ex)
         {
@@ -315,31 +253,6 @@ public class AuthController : ControllerBase
                 });
             }
 
-            // Generate unique member number
-            var existingMitglieder = await _mitgliedService.GetAllAsync();
-            var memberCount = existingMitglieder.Count();
-            var mitgliedsnummer = $"M{DateTime.UtcNow.Year}{(memberCount + 1):D4}";
-
-            // Create Mitglied DTO with auto-generated values
-            var createDto = new CreateMitgliedDto
-            {
-                Vorname = request.Vorname,
-                Nachname = request.Nachname,
-                Email = request.Email,
-                Telefon = request.Telefon,
-                Mobiltelefon = request.Mobiltelefon,
-                Geburtsdatum = request.Geburtsdatum,
-                Geburtsort = request.Geburtsort,
-                Mitgliedsnummer = mitgliedsnummer,
-                MitgliedStatusId = 1, // Default: Active
-                MitgliedTypId = 1, // Default: Normal member
-                VereinId = 1, // Default verein - can be changed later
-                Eintrittsdatum = DateTime.UtcNow,
-                Aktiv = true
-            };
-
-            var mitglied = await _mitgliedService.CreateAsync(createDto);
-
             // Hash password
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -356,27 +269,28 @@ public class AuthController : ControllerBase
             };
             await _userService.CreateAsync(user);
 
-            // Create UserRole record (mitglied role)
+            // Create UserRole record (mitglied role without MitgliedId - user is NOT a member yet)
+            // Admin will assign user to a Verein and create Mitglied record later
             var userRole = new Domain.Entities.UserRole
             {
                 UserId = user.Id,
                 RoleType = "mitglied",
-                MitgliedId = mitglied.Id,
-                VereinId = mitglied.VereinId,
+                MitgliedId = null, // No Mitglied record yet
+                VereinId = null, // No Verein assigned yet
                 GueltigVon = DateTime.Now,
                 IsActive = true,
                 Created = DateTime.UtcNow
             };
             await _userRoleService.CreateAsync(userRole);
 
-            _logger.LogInformation("✅ New member registered: {Email}, MitgliedId: {MitgliedId}, UserId: {UserId}",
-                request.Email, mitglied.Id, user.Id);
+            _logger.LogInformation("✅ New user registered: {Email}, UserId: {UserId} (Mitglied record will be created by admin)",
+                request.Email, user.Id);
 
             return CreatedAtAction(nameof(GetUser), new { email = request.Email }, new RegisterResponseDto
             {
                 Success = true,
                 Message = "Kayıt başarılı! Giriş yapabilirsiniz.",
-                MitgliedId = mitglied.Id,
+                MitgliedId = null,
                 Email = request.Email
             });
         }
@@ -437,8 +351,6 @@ public class AuthController : ControllerBase
                 }
             }
 
-            var existingMitglieder = await _mitgliedService.GetAllAsync();
-
             // Create Verein DTO
             var createVereinDto = new CreateVereinDto
             {
@@ -455,8 +367,7 @@ public class AuthController : ControllerBase
 
             var verein = await _vereinService.CreateAsync(createVereinDto);
 
-            // Create chairman as first member if Vorstandsvorsitzender is provided
-            int? mitgliedId = null;
+            // Create chairman user (NOT as Mitglied - chairman is manager, not member)
             string? loginEmail = request.Email; // Default to verein email
 
             if (!string.IsNullOrEmpty(request.Vorstandsvorsitzender) && !string.IsNullOrEmpty(request.VorstandsvorsitzenderEmail))
@@ -465,25 +376,6 @@ public class AuthController : ControllerBase
                 var vorname = nameParts.Length > 0 ? nameParts[0] : request.Vorstandsvorsitzender;
                 var nachname = nameParts.Length > 1 ? nameParts[1] : "";
 
-                var memberCount = existingMitglieder.Count();
-                var mitgliedsnummer = $"M{DateTime.UtcNow.Year}{(memberCount + 1):D4}";
-
-                var createMitgliedDto = new CreateMitgliedDto
-                {
-                    Vorname = vorname,
-                    Nachname = nachname,
-                    Email = request.VorstandsvorsitzenderEmail, // Use chairman's personal email
-                    Telefon = request.Telefon,
-                    Mitgliedsnummer = mitgliedsnummer,
-                    MitgliedStatusId = 1, // Active
-                    MitgliedTypId = 1, // Normal member
-                    VereinId = verein.Id,
-                    Eintrittsdatum = DateTime.UtcNow,
-                    Aktiv = true
-                };
-
-                var mitglied = await _mitgliedService.CreateAsync(createMitgliedDto);
-                mitgliedId = mitglied.Id;
                 loginEmail = request.VorstandsvorsitzenderEmail; // Use chairman's email for login
 
                 // Hash password
@@ -502,26 +394,12 @@ public class AuthController : ControllerBase
                 };
                 await _userService.CreateAsync(chairmanUser);
 
-                // Create UserRole records for chairman (both mitglied and dernek roles)
-                // 1. Mitglied role
-                var mitgliedRole = new Domain.Entities.UserRole
-                {
-                    UserId = chairmanUser.Id,
-                    RoleType = "mitglied",
-                    MitgliedId = mitglied.Id,
-                    VereinId = verein.Id,
-                    GueltigVon = DateTime.Now,
-                    IsActive = true,
-                    Created = DateTime.UtcNow
-                };
-                await _userRoleService.CreateAsync(mitgliedRole);
-
-                // 2. Dernek role (chairman)
+                // Create Dernek role (chairman is manager, NOT member)
                 var dernekRole = new Domain.Entities.UserRole
                 {
                     UserId = chairmanUser.Id,
                     RoleType = "dernek",
-                    MitgliedId = mitglied.Id,
+                    MitgliedId = null, // Chairman is NOT a member
                     VereinId = verein.Id,
                     GueltigVon = DateTime.Now,
                     IsActive = true,
@@ -530,8 +408,8 @@ public class AuthController : ControllerBase
                 };
                 await _userRoleService.CreateAsync(dernekRole);
 
-                _logger.LogInformation("✅ Chairman user created: {Email}, UserId: {UserId}, MitgliedId: {MitgliedId}",
-                    request.VorstandsvorsitzenderEmail, chairmanUser.Id, mitglied.Id);
+                _logger.LogInformation("✅ Chairman user created: {Email}, UserId: {UserId} (NOT a member)",
+                    request.VorstandsvorsitzenderEmail, chairmanUser.Id);
             }
 
             _logger.LogInformation("✅ New verein registered: {Name}, VereinId: {Id}, LoginEmail: {LoginEmail}",
@@ -540,11 +418,9 @@ public class AuthController : ControllerBase
             return CreatedAtAction(nameof(GetUser), new { email = loginEmail }, new RegisterResponseDto
             {
                 Success = true,
-                Message = mitgliedId.HasValue
-                    ? $"Dernek kaydı başarılı! Başkan email adresi ({loginEmail}) ile giriş yapabilirsiniz."
-                    : $"Dernek kaydı başarılı! Dernek email adresi ({loginEmail}) ile giriş yapabilirsiniz.",
+                Message = $"Dernek kaydı başarılı! Başkan email adresi ({loginEmail}) ile giriş yapabilirsiniz.",
                 VereinId = verein.Id,
-                MitgliedId = mitgliedId,
+                MitgliedId = null, // Chairman is NOT a member
                 Email = loginEmail
             });
         }

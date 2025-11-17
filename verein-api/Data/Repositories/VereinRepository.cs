@@ -19,11 +19,13 @@ public class VereinRepository : Repository<Verein>, IVereinRepository
     }
 
     /// <summary>
-    /// Override GetAllAsync to include RechtlicheDaten
+    /// Override GetAllAsync to include RechtlicheDaten and HauptAdresse
     /// </summary>
     public override async Task<IEnumerable<Verein>> GetAllAsync(bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
-        IQueryable<Verein> query = _dbSet.Include(v => v.RechtlicheDaten);
+        IQueryable<Verein> query = _dbSet
+            .Include(v => v.RechtlicheDaten)
+            .Include(v => v.HauptAdresse);
 
         if (includeDeleted)
         {
@@ -34,13 +36,13 @@ public class VereinRepository : Repository<Verein>, IVereinRepository
     }
 
     /// <summary>
-    /// Override GetByIdAsync to include RechtlicheDaten
+    /// Override GetByIdAsync to include RechtlicheDaten and HauptAdresse
     /// </summary>
     public override async Task<Verein?> GetByIdAsync(int id, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("GetByIdAsync called for Verein ID {VereinId}", id);
 
-        IQueryable<Verein> query = _dbSet;
+        IQueryable<Verein> query = _dbSet.Include(v => v.HauptAdresse);
 
         if (includeDeleted)
         {

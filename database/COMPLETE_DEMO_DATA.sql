@@ -15,10 +15,110 @@ PRINT 'Demo verileri ekleniyor...';
 GO
 
 -- =============================================
--- 0. KEYTABLE VERİLERİ (Önce referans tabloları)
+-- 0. TABLO YAPILARINI KONTROL ET VE DÜZELT
 -- =============================================
 
-PRINT '0. Referans tabloları kontrol ediliyor...';
+PRINT '0. Tablo yapıları kontrol ediliyor...';
+
+-- User tablosuna Aktiv kolonu ekle (eğer yoksa)
+IF NOT EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = 'Web'
+      AND TABLE_NAME = 'User'
+      AND COLUMN_NAME = 'Aktiv'
+)
+BEGIN
+    ALTER TABLE [Web].[User]
+    ADD [Aktiv] BIT NULL DEFAULT 1;
+
+    PRINT '  ✓ User.Aktiv kolonu eklendi';
+END
+ELSE
+BEGIN
+    PRINT '  ✓ User.Aktiv kolonu zaten mevcut';
+END
+
+-- UserRole tablosuna Aktiv kolonu ekle (eğer yoksa)
+IF NOT EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = 'Web'
+      AND TABLE_NAME = 'UserRole'
+      AND COLUMN_NAME = 'Aktiv'
+)
+BEGIN
+    ALTER TABLE [Web].[UserRole]
+    ADD [Aktiv] BIT NULL DEFAULT 1;
+
+    PRINT '  ✓ UserRole.Aktiv kolonu eklendi';
+END
+ELSE
+BEGIN
+    PRINT '  ✓ UserRole.Aktiv kolonu zaten mevcut';
+END
+
+-- PageNote tablosuna Aktiv kolonu ekle (eğer yoksa)
+IF NOT EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = 'Web'
+      AND TABLE_NAME = 'PageNote'
+      AND COLUMN_NAME = 'Aktiv'
+)
+BEGIN
+    ALTER TABLE [Web].[PageNote]
+    ADD [Aktiv] BIT NULL DEFAULT 1;
+
+    PRINT '  ✓ PageNote.Aktiv kolonu eklendi';
+END
+ELSE
+BEGIN
+    PRINT '  ✓ PageNote.Aktiv kolonu zaten mevcut';
+END
+
+-- PageNote tablosunda CreatedBy ve ModifiedBy kolonlarını int'e çevir
+IF EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = 'Web'
+      AND TABLE_NAME = 'PageNote'
+      AND COLUMN_NAME = 'CreatedBy'
+      AND DATA_TYPE = 'nvarchar'
+)
+BEGIN
+    -- Önce mevcut veriyi temizle (çünkü tip değişikliği yapacağız)
+    DELETE FROM [Web].[PageNote];
+
+    -- CreatedBy kolonunu int'e çevir
+    ALTER TABLE [Web].[PageNote]
+    ALTER COLUMN [CreatedBy] INT NULL;
+
+    PRINT '  ✓ PageNote.CreatedBy kolonu int tipine çevrildi';
+END
+
+IF EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = 'Web'
+      AND TABLE_NAME = 'PageNote'
+      AND COLUMN_NAME = 'ModifiedBy'
+      AND DATA_TYPE = 'nvarchar'
+)
+BEGIN
+    -- ModifiedBy kolonunu int'e çevir
+    ALTER TABLE [Web].[PageNote]
+    ALTER COLUMN [ModifiedBy] INT NULL;
+
+    PRINT '  ✓ PageNote.ModifiedBy kolonu int tipine çevrildi';
+END
+GO
+
+-- =============================================
+-- 1. KEYTABLE VERİLERİ (Önce referans tabloları)
+-- =============================================
+
+PRINT '1. Referans tabloları kontrol ediliyor...';
 
 -- Geschlecht (Cinsiyet)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[Geschlecht] WHERE Code = 'M')
@@ -189,10 +289,29 @@ GO
 
 PRINT '1. Dernekler ekleniyor...';
 
+-- Önce adresleri ekle
+INSERT INTO [Verein].[Adresse] (
+    Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+    Aktiv, IstStandard, DeletedFlag, Created, CreatedBy
+) VALUES
+(
+    N'Sonnenstraße', N'25', N'80331', N'München', N'Bayern', N'Deutschland',
+    1, 1, 0, GETDATE(), 1
+),
+(
+    N'Kurfürstendamm', N'156', N'10709', N'Berlin', N'Berlin', N'Deutschland',
+    1, 1, 0, GETDATE(), 1
+);
+
+DECLARE @AdressMuenchen INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'80331' ORDER BY Id DESC);
+DECLARE @AdressBerlin INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'10709' ORDER BY Id DESC);
+
+-- Sonra dernekleri ekle
 INSERT INTO [Verein].[Verein] (
-    Name, Kurzname, Zweck, Telefon, Email, Webseite,
+    Name, Kurzname, Zweck, Telefon, Fax, Email, VertreterEmail, Webseite,
     Gruendungsdatum, Mitgliederzahl, Vereinsnummer, Steuernummer,
-    Vorstandsvorsitzender, Kontaktperson,
+    Vorstandsvorsitzender, Geschaeftsfuehrer, Kontaktperson,
+    SocialMediaLinks, AdresseId,
     DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -200,14 +319,19 @@ INSERT INTO [Verein].[Verein] (
     N'TDKV München',
     N'Kultureller Austausch und Integration in München',
     '+49 89 123456789',
+    '+49 89 123456790',
     'info@tdkv-muenchen.de',
+    'vorstand@tdkv-muenchen.de',
     'https://www.tdkv-muenchen.de',
     '1985-03-15',
     245,
     'VR 12345',
     '143/123/45678',
     N'Ahmet Yılmaz',
+    N'Dr. Mehmet Öztürk',
     N'Fatma Özkan',
+    N'{"facebook":"https://www.facebook.com/tdkv.muenchen","instagram":"https://www.instagram.com/tdkv_muenchen","twitter":"https://twitter.com/tdkv_muenchen","linkedin":"https://www.linkedin.com/company/tdkv-muenchen","youtube":"https://www.youtube.com/@tdkvmuenchen"}',
+    @AdressMuenchen,
     0,
     GETDATE(),
     1
@@ -217,18 +341,27 @@ INSERT INTO [Verein].[Verein] (
     N'DTF Berlin',
     N'Förderung der deutsch-türkischen Freundschaft',
     '+49 30 987654321',
+    '+49 30 987654322',
     'kontakt@dtf-berlin.de',
+    'info@dtf-berlin.de',
     'https://www.dtf-berlin.de',
     '1992-08-22',
     189,
     'VR 67890',
     '27/456/78901',
     'Mehmet Demir',
+    N'Ayşe Yıldırım',
     N'Ayşe Kaya',
+    N'{"facebook":"https://facebook.com/dtf.berlin","instagram":"https://instagram.com/dtf_berlin","linkedin":"https://linkedin.com/company/dtf-berlin"}',
+    @AdressBerlin,
     0,
     GETDATE(),
     1
 );
+
+-- Adres VereinId'lerini güncelle
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressMuenchen) WHERE Id = @AdressMuenchen;
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressBerlin) WHERE Id = @AdressBerlin;
 
 PRINT '  ✓ 2 Dernek eklendi';
 GO
@@ -663,6 +796,171 @@ PRINT '  ✓ 11 Etkinlik eklendi (5 München, 6 Berlin)';
 GO
 
 -- =============================================
+-- 3.1. ETKİNLİK KAYITLARI (VeranstaltungAnmeldung)
+-- =============================================
+
+PRINT '3.1. Etkinlik kayıtları ekleniyor...';
+
+-- Dernek ID'lerini al
+DECLARE @MuenchenVereinIdAnm INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = 'TDKV München');
+DECLARE @BerlinVereinIdAnm INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = 'DTF Berlin');
+
+-- Etkinlik ID'lerini al (veritabanında mevcut etkinlik başlıklarını kullan)
+DECLARE @VeranstaltungMuenchen1 INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE VereinId = @MuenchenVereinIdAnm AND Titel = N'Türkischer Kulturabend' ORDER BY Id);
+DECLARE @VeranstaltungMuenchen2 INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE VereinId = @MuenchenVereinIdAnm AND Titel = N'Kinder-Sprachkurs Türkisch' ORDER BY Id);
+DECLARE @VeranstaltungBerlin1 INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE VereinId = @BerlinVereinIdAnm AND Titel = N'Türkisch-Deutsche Kochkurs' ORDER BY Id);
+DECLARE @VeranstaltungBerlin2 INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE VereinId = @BerlinVereinIdAnm AND Titel = N'Integrationsseminar' ORDER BY Id);
+
+-- Üye ID'lerini al
+DECLARE @FatmaId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'fatma.ozkan@email.com' ORDER BY Id);
+DECLARE @AyseId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ayse.kaya@email.com' ORDER BY Id);
+DECLARE @CanId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'can.yildirim@email.com' ORDER BY Id);
+DECLARE @ZeynepId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'zeynep.arslan@email.com' ORDER BY Id);
+
+-- Ödeme durumu ID'lerini al
+DECLARE @ZahlungBezahlt INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'BEZAHLT');
+DECLARE @ZahlungOffen INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'OFFEN');
+DECLARE @WaehrungEUR INT = (SELECT TOP 1 Id FROM [Keytable].[Waehrung] WHERE Code = 'EUR');
+
+-- München Etkinlik Kayıtları
+INSERT INTO [Verein].[VeranstaltungAnmeldung] (
+    VeranstaltungId, MitgliedId, Name, Email, Telefon, Status, Bemerkung,
+    Preis, WaehrungId, ZahlungStatusId,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+-- Türkischer Kulturabend kayıtları
+(@VeranstaltungMuenchen1, @FatmaId, N'Fatma Özkan', 'fatma.ozkan@email.com', '+49 89 12345678', 'BESTAETIGT', N'Ailesiyle birlikte gelecek', 25.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen1, @CanId, N'Can Yıldırım', 'can.yildirim@email.com', '+49 89 23456789', 'BESTAETIGT', NULL, 25.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen1, NULL, N'Ahmet Yılmaz', 'ahmet.yilmaz@email.com', '+49 89 11111111', 'BESTAETIGT', N'Dernek başkanı', 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+
+-- Kinder-Sprachkurs Türkisch kayıtları
+(@VeranstaltungMuenchen2, @FatmaId, N'Fatma Özkan', 'fatma.ozkan@email.com', '+49 89 12345678', 'BESTAETIGT', N'Çocuğu için kayıt', 5.00, @WaehrungEUR, @ZahlungOffen, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen2, NULL, N'Emine Şahin', 'emine.sahin@email.com', '+49 89 99999999', 'WARTELISTE', N'Kurs dolu, bekleme listesinde', 5.00, @WaehrungEUR, @ZahlungOffen, 0, GETDATE(), 1);
+
+-- Berlin Etkinlik Kayıtları
+INSERT INTO [Verein].[VeranstaltungAnmeldung] (
+    VeranstaltungId, MitgliedId, Name, Email, Telefon, Status, Bemerkung,
+    Preis, WaehrungId, ZahlungStatusId,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+-- Türkisch-Deutsche Kochkurs kayıtları
+(@VeranstaltungBerlin1, @AyseId, N'Ayşe Kaya', 'ayse.kaya@email.com', '+49 30 12345678', 'BESTAETIGT', NULL, 20.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+(@VeranstaltungBerlin1, @ZeynepId, N'Zeynep Arslan', 'zeynep.arslan@email.com', '+49 30 23456789', 'BESTAETIGT', NULL, 20.00, @WaehrungEUR, @ZahlungOffen, 0, GETDATE(), 1),
+(@VeranstaltungBerlin1, NULL, N'Mehmet Demir', 'mehmet.demir@email.com', '+49 30 11111111', 'BESTAETIGT', N'Dernek başkanı', 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+
+-- Integrationsseminar kayıtları
+(@VeranstaltungBerlin2, @AyseId, N'Ayşe Kaya', 'ayse.kaya@email.com', '+49 30 12345678', 'BESTAETIGT', NULL, 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+(@VeranstaltungBerlin2, NULL, N'Hasan Öztürk', 'hasan.ozturk@email.com', '+49 30 88888888', 'BESTAETIGT', NULL, 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1);
+
+PRINT '  ✓ 10 Etkinlik kaydı eklendi (5 München, 5 Berlin)';
+GO
+
+-- =============================================
+-- 3.2. ETKİNLİK RESİMLERİ (VeranstaltungBild)
+-- =============================================
+
+PRINT '3.2. Etkinlik resimleri ekleniyor...';
+
+-- Etkinlik ID'lerini al (veritabanında mevcut etkinlik başlıklarını kullan)
+DECLARE @VeranstaltungMuenchen1Bild INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE Titel = N'Türkischer Kulturabend' ORDER BY Id);
+DECLARE @VeranstaltungMuenchen2Bild INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE Titel = N'Kinder-Sprachkurs Türkisch' ORDER BY Id);
+DECLARE @VeranstaltungBerlin1Bild INT = (SELECT TOP 1 Id FROM [Verein].[Veranstaltung] WHERE Titel = N'Türkisch-Deutsche Kochkurs' ORDER BY Id);
+
+-- München Etkinlik Resimleri
+INSERT INTO [Verein].[VeranstaltungBild] (
+    VeranstaltungId, BildPfad, Titel, Reihenfolge,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+(@VeranstaltungMuenchen1Bild, '/images/events/kulturabend-1.jpg', N'Türkischer Kulturabend - Ana Görsel', 1, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen1Bild, '/images/events/kulturabend-2.jpg', N'Türk Yemekleri', 2, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen1Bild, '/images/events/kulturabend-3.jpg', N'Müzik Gösterisi', 3, 0, GETDATE(), 1),
+
+(@VeranstaltungMuenchen2Bild, '/images/events/sprachkurs-1.jpg', N'Kinder-Sprachkurs - Sınıf', 1, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen2Bild, '/images/events/sprachkurs-2.jpg', N'Çocuklar Türkçe Öğreniyor', 2, 0, GETDATE(), 1);
+
+-- Berlin Etkinlik Resimleri
+INSERT INTO [Verein].[VeranstaltungBild] (
+    VeranstaltungId, BildPfad, Titel, Reihenfolge,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+(@VeranstaltungBerlin1Bild, '/images/events/kochkurs-1.jpg', N'Kochkurs - Ana Görsel', 1, 0, GETDATE(), 1),
+(@VeranstaltungBerlin1Bild, '/images/events/kochkurs-2.jpg', N'Yemek Hazırlığı', 2, 0, GETDATE(), 1),
+(@VeranstaltungBerlin1Bild, '/images/events/kochkurs-3.jpg', N'Hazır Yemekler', 3, 0, GETDATE(), 1);
+
+PRINT '  ✓ 8 Etkinlik resmi eklendi (5 München, 3 Berlin)';
+GO
+
+-- =============================================
+-- 3.3. ÜYE ADRESLERİ (MitgliedAdresse)
+-- =============================================
+
+PRINT '3.3. Üye adresleri ekleniyor...';
+
+-- Üye ID'lerini al
+DECLARE @FatmaIdAddr INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'fatma.ozkan@email.com' ORDER BY Id);
+DECLARE @AyseIdAddr INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ayse.kaya@email.com' ORDER BY Id);
+DECLARE @CanIdAddr INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'can.yildirim@email.com' ORDER BY Id);
+DECLARE @ZeynepIdAddr INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'zeynep.arslan@email.com' ORDER BY Id);
+DECLARE @EmreIdAddr INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'emre.celik@email.com' ORDER BY Id);
+
+-- Adres tipi ID'sini al
+DECLARE @AdresseTypHome INT = (SELECT TOP 1 Id FROM [Keytable].[AdresseTyp] WHERE Code = 'HOME');
+
+-- Üye Adresleri (sadece geçerli ID'ler varsa)
+IF @FatmaIdAddr IS NOT NULL AND @AdresseTypHome IS NOT NULL
+BEGIN
+    INSERT INTO [Mitglied].[MitgliedAdresse] (
+        MitgliedId, AdresseTypId, Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+        Telefonnummer, EMail, IstStandard, GueltigVon,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@FatmaIdAddr, @AdresseTypHome, N'Leopoldstraße', N'45', N'80802', N'München', N'Bayern', N'Deutschland', '+49 89 12345678', 'fatma.ozkan@email.com', 1, '2020-01-15', 0, GETDATE(), 1);
+END
+
+IF @CanIdAddr IS NOT NULL AND @AdresseTypHome IS NOT NULL
+BEGIN
+    INSERT INTO [Mitglied].[MitgliedAdresse] (
+        MitgliedId, AdresseTypId, Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+        Telefonnummer, EMail, IstStandard, GueltigVon,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@CanIdAddr, @AdresseTypHome, N'Maximilianstraße', N'12', N'80539', N'München', N'Bayern', N'Deutschland', '+49 89 23456789', 'can.yildirim@email.com', 1, '2019-03-20', 0, GETDATE(), 1);
+END
+
+IF @EmreIdAddr IS NOT NULL AND @AdresseTypHome IS NOT NULL
+BEGIN
+    INSERT INTO [Mitglied].[MitgliedAdresse] (
+        MitgliedId, AdresseTypId, Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+        Telefonnummer, EMail, IstStandard, GueltigVon,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@EmreIdAddr, @AdresseTypHome, N'Sendlinger Straße', N'78', N'80331', N'München', N'Bayern', N'Deutschland', '+49 89 34567890', 'emre.celik@email.com', 1, '2021-06-10', 0, GETDATE(), 1);
+END
+
+IF @AyseIdAddr IS NOT NULL AND @AdresseTypHome IS NOT NULL
+BEGIN
+    INSERT INTO [Mitglied].[MitgliedAdresse] (
+        MitgliedId, AdresseTypId, Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+        Telefonnummer, EMail, IstStandard, GueltigVon,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@AyseIdAddr, @AdresseTypHome, N'Friedrichstraße', N'123', N'10117', N'Berlin', N'Berlin', N'Deutschland', '+49 30 12345678', 'ayse.kaya@email.com', 1, '2018-09-01', 0, GETDATE(), 1);
+END
+
+IF @ZeynepIdAddr IS NOT NULL AND @AdresseTypHome IS NOT NULL
+BEGIN
+    INSERT INTO [Mitglied].[MitgliedAdresse] (
+        MitgliedId, AdresseTypId, Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+        Telefonnummer, EMail, IstStandard, GueltigVon,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@ZeynepIdAddr, @AdresseTypHome, N'Unter den Linden', N'56', N'10117', N'Berlin', N'Berlin', N'Deutschland', '+49 30 23456789', 'zeynep.arslan@email.com', 1, '2020-11-15', 0, GETDATE(), 1);
+END
+
+PRINT '  ✓ 5 Üye adresi eklendi (3 München, 2 Berlin)';
+GO
+
+-- =============================================
 -- KONTROL SORGUSU
 -- =============================================
 
@@ -1038,7 +1336,7 @@ BEGIN
         Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg, StatusId,
         DeletedFlag, Created, CreatedBy
     ) VALUES
-    (@VeranstaltungBerlin1, @AnmeldungBerlin2, 'Ayşe Kaya', 'ayse.kaya@email.com', 20.00, 1, NULL, NULL, 2, 0, GETDATE(), 1);
+    (@VeranstaltungBerlin1, @AnmeldungBerlin2, 'Ayşe Kaya', 'ayse.kaya@email.com', 20.00, 1, GETDATE(), 'OFFEN', 2, 0, GETDATE(), 1);
 END
 
 PRINT '  ✓ 4 Etkinlik ödemesi eklendi';
@@ -1051,6 +1349,96 @@ WHERE Forderungsnummer = 'F-2025-001';
 UPDATE [Finanz].[MitgliedForderung]
 SET BezahltAm = DATEADD(DAY, -20, GETDATE())
 WHERE Forderungsnummer = 'F-2025-101';
+
+-- =============================================
+-- 5.1. ÜYE AVANS ÖDEMELERİ (MitgliedVorauszahlung)
+-- =============================================
+
+PRINT '5.1. Üye avans ödemeleri ekleniyor...';
+
+-- Üye ve ödeme ID'lerini al
+DECLARE @CanIdVor INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'can.yildirim@email.com' ORDER BY Id);
+DECLARE @CanVereinId INT = (SELECT TOP 1 VereinId FROM [Mitglied].[Mitglied] WHERE Email = 'can.yildirim@email.com' ORDER BY Id);
+DECLARE @EmreIdVor INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'emre.celik@email.com' ORDER BY Id);
+DECLARE @EmreVereinId INT = (SELECT TOP 1 VereinId FROM [Mitglied].[Mitglied] WHERE Email = 'emre.celik@email.com' ORDER BY Id);
+
+-- Ödeme ID'lerini al (MitgliedZahlung'dan)
+DECLARE @CanZahlungId INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @CanIdVor ORDER BY Id);
+DECLARE @EmreZahlungId INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedZahlung] WHERE MitgliedId = @EmreIdVor ORDER BY Id);
+
+DECLARE @WaehrungEURVor INT = (SELECT TOP 1 Id FROM [Keytable].[Waehrung] WHERE Code = 'EUR');
+
+-- Avans ödemeleri ekle (sadece geçerli ödeme ID'leri varsa)
+IF @CanZahlungId IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[MitgliedVorauszahlung] (
+        VereinId, MitgliedId, ZahlungId, Betrag, WaehrungId, Beschreibung,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@CanVereinId, @CanIdVor, @CanZahlungId, 50.00, @WaehrungEURVor, N'2025 yılı için avans ödeme', 0, GETDATE(), 1);
+    PRINT '  ✓ Can Yıldırım için avans ödeme eklendi';
+END
+
+IF @EmreZahlungId IS NOT NULL
+BEGIN
+    INSERT INTO [Finanz].[MitgliedVorauszahlung] (
+        VereinId, MitgliedId, ZahlungId, Betrag, WaehrungId, Beschreibung,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (@EmreVereinId, @EmreIdVor, @EmreZahlungId, 30.00, @WaehrungEURVor, N'Gelecek dönem için ön ödeme', 0, GETDATE(), 1);
+    PRINT '  ✓ Emre Çelik için avans ödeme eklendi';
+END
+
+PRINT '  ✓ Üye avans ödemeleri tamamlandı';
+GO
+
+-- =============================================
+-- 5.2. SAYFA NOTLARI (PageNote)
+-- =============================================
+
+PRINT '5.2. Sayfa notları ekleniyor...';
+
+-- Dernek ID'lerini al
+DECLARE @MuenchenVereinIdNote INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = 'TDKV München');
+DECLARE @BerlinVereinIdNote INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = 'DTF Berlin');
+
+-- Üye ID'lerini al
+DECLARE @FatmaIdNote INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'fatma.ozkan@email.com' ORDER BY Id);
+DECLARE @AyseIdNote INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ayse.kaya@email.com' ORDER BY Id);
+
+-- Sayfa notları ekle
+INSERT INTO [Web].[PageNote] (
+    PageUrl, PageTitle, EntityType, EntityId,
+    Title, Content, Category, Priority,
+    UserEmail, UserName, UserType, Status,
+    DeletedFlag, Aktiv, Created, CreatedBy
+) VALUES
+-- Dernek sayfası notları
+('/vereine/' + CAST(@MuenchenVereinIdNote AS NVARCHAR(10)), N'TDKV München - Detay', 'Verein', @MuenchenVereinIdNote,
+ N'Adres bilgisi eksik', N'Dernek adres bilgilerinde posta kodu güncellenebilir mi?', 'General', 'Medium',
+ 'fatma.ozkan@email.com', N'Fatma Özkan', 'mitglied', 'Pending', 0, 1, GETDATE(), 1),
+
+('/vereine/' + CAST(@BerlinVereinIdNote AS NVARCHAR(10)), N'DTF Berlin - Detay', 'Verein', @BerlinVereinIdNote,
+ N'Telefon numarası hatalı', N'Dernek telefon numarası güncel değil, lütfen güncelleyin.', 'Bug', 'High',
+ 'ayse.kaya@email.com', N'Ayşe Kaya', 'mitglied', 'Pending', 0, 1, GETDATE(), 1),
+
+-- Üye sayfası notları
+('/mitglieder/' + CAST(@FatmaIdNote AS NVARCHAR(10)), N'Fatma Özkan - Profil', 'Mitglied', @FatmaIdNote,
+ N'Profil fotoğrafı eklenebilir mi?', N'Üye profil sayfasına fotoğraf yükleme özelliği eklenirse güzel olur.', 'Feature', 'Medium',
+ 'fatma.ozkan@email.com', N'Fatma Özkan', 'mitglied', 'Pending', 0, 1, GETDATE(), 1),
+
+-- Dashboard notları
+('/dashboard', N'Dashboard', 'Dashboard', NULL,
+ N'İstatistikler çok güzel', N'Dashboard sayfasındaki istatistikler çok bilgilendirici, teşekkürler!', 'Question', 'Low',
+ 'ayse.kaya@email.com', N'Ayşe Kaya', 'mitglied', 'Completed', 0, 1, GETDATE(), 1),
+
+-- Etkinlik sayfası notları
+('/veranstaltungen', N'Etkinlikler', 'Veranstaltung', NULL,
+ N'Takvim görünümü eklenebilir', N'Etkinlikleri takvim formatında görmek daha kullanışlı olabilir.', 'Feature', 'Medium',
+ 'fatma.ozkan@email.com', N'Fatma Özkan', 'mitglied', 'Pending', 0, 1, GETDATE(), 1);
+
+PRINT '  ✓ 5 Sayfa notu eklendi';
+GO
 
 PRINT '  ✓ Finanz verileri tamamlandı';
 GO
@@ -1072,11 +1460,29 @@ WHERE Aktiv IS NULL OR Aktiv = 0;
 DECLARE @UpdatedCount INT = @@ROWCOUNT;
 PRINT '  ✓ ' + CAST(@UpdatedCount AS NVARCHAR(10)) + ' dernek aktif olarak işaretlendi';
 
+-- Önce pasif dernekler için adresleri ekle
+INSERT INTO [Verein].[Adresse] (
+    Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
+    Aktiv, IstStandard, DeletedFlag, Created, CreatedBy
+) VALUES
+(N'Reeperbahn', N'88', N'20359', N'Hamburg', N'Hamburg', N'Deutschland', 0, 1, 0, GETDATE(), 1),
+(N'Zeil', N'42', N'60313', N'Frankfurt am Main', N'Hessen', N'Deutschland', 0, 1, 0, GETDATE(), 1),
+(N'Hohe Straße', N'65', N'50667', N'Köln', N'Nordrhein-Westfalen', N'Deutschland', 0, 1, 0, GETDATE(), 1),
+(N'Königstraße', N'28', N'70173', N'Stuttgart', N'Baden-Württemberg', N'Deutschland', 0, 1, 0, GETDATE(), 1),
+(N'Schadowstraße', N'11', N'40212', N'Düsseldorf', N'Nordrhein-Westfalen', N'Deutschland', 0, 1, 0, GETDATE(), 1);
+
+DECLARE @AdressHamburg INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'20359' ORDER BY Id DESC);
+DECLARE @AdressFrankfurt INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'60313' ORDER BY Id DESC);
+DECLARE @AdressKoeln INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'50667' ORDER BY Id DESC);
+DECLARE @AdressStuttgart INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'70173' ORDER BY Id DESC);
+DECLARE @AdressDuesseldorf INT = (SELECT TOP 1 Id FROM [Verein].[Adresse] WHERE PLZ = N'40212' ORDER BY Id DESC);
+
 -- Pasif dernekler ekle
 INSERT INTO [Verein].[Verein] (
-    Name, Kurzname, Zweck, Telefon, Email, Webseite,
+    Name, Kurzname, Zweck, Telefon, Fax, Email, VertreterEmail, Webseite,
     Gruendungsdatum, Mitgliederzahl, Vereinsnummer, Steuernummer,
-    Vorstandsvorsitzender, Kontaktperson,
+    Vorstandsvorsitzender, Geschaeftsfuehrer, Kontaktperson,
+    SocialMediaLinks, AdresseId,
     Aktiv, DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -1084,14 +1490,19 @@ INSERT INTO [Verein].[Verein] (
     N'TDSV Hamburg',
     N'Spor ve kültürel faaliyetler - 2023''te kapatıldı',
     '+49 40 555555555',
+    '+49 40 555555556',
     'archiv@tdsv-hamburg.de',
+    NULL,
     'https://www.tdsv-hamburg.de',
     '1998-06-10',
     0,
     'VR 11111',
     '22/111/11111',
     N'Ali Çelik',
+    NULL,
     N'Zeynep Arslan',
+    NULL,
+    @AdressHamburg,
     0,
     0,
     GETDATE(),
@@ -1102,14 +1513,19 @@ INSERT INTO [Verein].[Verein] (
     N'AKD Frankfurt',
     N'Kültürel etkinlikler ve eğitim - Geçici olarak durduruldu',
     '+49 69 777777777',
+    NULL,
     'info@akd-frankfurt.de',
+    'yonetim@akd-frankfurt.de',
     NULL,
     '2005-11-20',
     45,
     'VR 22222',
     '45/222/22222',
     N'Hasan Yıldız',
+    N'Zehra Demir',
     N'Elif Şahin',
+    N'{"facebook":"https://facebook.com/akd.frankfurt","youtube":"https://youtube.com/@akdfrankfurt"}',
+    @AdressFrankfurt,
     0,
     0,
     GETDATE(),
@@ -1120,14 +1536,19 @@ INSERT INTO [Verein].[Verein] (
     N'KTGB Köln',
     N'Gençlik faaliyetleri - 2024''te başka dernek ile birleşti',
     '+49 221 888888888',
+    NULL,
     'eski@ktgb-koeln.de',
+    NULL,
     NULL,
     '2010-03-05',
     0,
     'VR 33333',
     '50/333/33333',
     N'Emre Kara',
+    NULL,
     N'Selin Aydın',
+    NULL,
+    @AdressKoeln,
     0,
     0,
     GETDATE(),
@@ -1138,14 +1559,19 @@ INSERT INTO [Verein].[Verein] (
     N'SAKSD Stuttgart',
     N'Sanat ve kültür etkinlikleri - Mali sorunlar nedeniyle askıda',
     '+49 711 999999999',
+    '+49 711 999999998',
     'muhasebe@saksd-stuttgart.de',
+    'baskan@saksd-stuttgart.de',
     'https://www.saksd-stuttgart.de',
     '2012-09-18',
     28,
     'VR 44444',
     '70/444/44444',
     N'Kemal Öztürk',
+    N'Murat Yılmaz',
     N'Aylin Koç',
+    N'{"instagram":"https://instagram.com/saksd_stuttgart","twitter":"https://twitter.com/saksd_stuttgart"}',
+    @AdressStuttgart,
     0,
     0,
     GETDATE(),
@@ -1156,19 +1582,31 @@ INSERT INTO [Verein].[Verein] (
     N'DTTD Düsseldorf',
     N'Sosyal ve kültürel faaliyetler - Yönetim kurulu eksikliği',
     '+49 211 666666666',
+    '+49 211 666666667',
     'iletisim@dttd-duesseldorf.de',
+    NULL,
     NULL,
     '2008-04-12',
     15,
     'VR 55555',
     '40/555/55555',
     N'Murat Demir',
+    NULL,
     N'Gül Yılmaz',
+    N'{"facebook":"https://facebook.com/dttd.duesseldorf"}',
+    @AdressDuesseldorf,
     0,
     0,
     GETDATE(),
     1
 );
+
+-- Adres VereinId'lerini güncelle
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressHamburg) WHERE Id = @AdressHamburg;
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressFrankfurt) WHERE Id = @AdressFrankfurt;
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressKoeln) WHERE Id = @AdressKoeln;
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressStuttgart) WHERE Id = @AdressStuttgart;
+UPDATE [Verein].[Adresse] SET VereinId = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE AdresseId = @AdressDuesseldorf) WHERE Id = @AdressDuesseldorf;
 
 PRINT '  ✓ 5 Pasif dernek eklendi';
 GO
@@ -1231,46 +1669,56 @@ PRINT '==============================================';
 PRINT 'Creating Admin User...';
 GO
 
-INSERT INTO [Web].[User] (
-    Email,
-    PasswordHash,
-    Vorname,
-    Nachname,
-    IsActive,
-    EmailConfirmed,
-    Created
-)
-VALUES (
-    'admin@system.de',
-    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
-    'System',
-    'Admin',
-    1,
-    1,
-    GETDATE()
-)
+IF NOT EXISTS (SELECT 1 FROM [Web].[User] WHERE Email = 'admin@system.de')
+BEGIN
+    INSERT INTO [Web].[User] (
+        Email,
+        PasswordHash,
+        Vorname,
+        Nachname,
+        IsActive,
+        EmailConfirmed,
+        Created
+    )
+    VALUES (
+        'admin@system.de',
+        '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+        'System',
+        'Admin',
+        1,
+        1,
+        GETDATE()
+    )
+END
 GO
 
 -- Create Admin Role
-INSERT INTO [Web].[UserRole] (
-    UserId,
-    RoleType,
-    MitgliedId,
-    VereinId,
-    GueltigVon,
-    IsActive,
-    Created
+IF NOT EXISTS (
+    SELECT 1 FROM [Web].[UserRole] ur
+    INNER JOIN [Web].[User] u ON ur.UserId = u.Id
+    WHERE u.Email = 'admin@system.de' AND ur.RoleType = 'admin'
 )
-SELECT
-    Id,
-    'admin',
-    NULL,
-    NULL,
-    GETDATE(),
-    1,
-    GETDATE()
-FROM [Web].[User]
-WHERE Email = 'admin@system.de'
+BEGIN
+    INSERT INTO [Web].[UserRole] (
+        UserId,
+        RoleType,
+        MitgliedId,
+        VereinId,
+        GueltigVon,
+        IsActive,
+        Created
+    )
+    SELECT
+        Id,
+        'admin',
+        NULL,
+        NULL,
+        GETDATE(),
+        1,
+        GETDATE()
+    FROM [Web].[User]
+    WHERE Email = 'admin@system.de'
+END
 GO
 
 PRINT '  ✓ Admin user created';
@@ -1284,45 +1732,51 @@ PRINT 'Creating Dernek Yöneticileri (Association Managers)...';
 GO
 
 -- Ahmet Yılmaz - München Dernek Başkanı (ÜYE DEĞİL!)
-INSERT INTO [Web].[User] (
-    Email,
-    PasswordHash,
-    Vorname,
-    Nachname,
-    IsActive,
-    EmailConfirmed,
-    Created
-)
-VALUES (
-    'ahmet.yilmaz@email.com',
-    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
-    'Ahmet',
-    N'Yılmaz',
-    1,
-    1,
-    GETDATE()
-)
+IF NOT EXISTS (SELECT 1 FROM [Web].[User] WHERE Email = 'ahmet.yilmaz@email.com')
+BEGIN
+    INSERT INTO [Web].[User] (
+        Email,
+        PasswordHash,
+        Vorname,
+        Nachname,
+        IsActive,
+        EmailConfirmed,
+        Created
+    )
+    VALUES (
+        'ahmet.yilmaz@email.com',
+        '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+        'Ahmet',
+        N'Yılmaz',
+        1,
+        1,
+        GETDATE()
+    )
+END
 GO
 
 -- Mehmet Demir - Berlin Dernek Başkanı (ÜYE DEĞİL!)
-INSERT INTO [Web].[User] (
-    Email,
-    PasswordHash,
-    Vorname,
-    Nachname,
-    IsActive,
-    EmailConfirmed,
-    Created
-)
-VALUES (
-    'mehmet.demir@email.com',
-    '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
-    'Mehmet',
-    'Demir',
-    1,
-    1,
-    GETDATE()
-)
+IF NOT EXISTS (SELECT 1 FROM [Web].[User] WHERE Email = 'mehmet.demir@email.com')
+BEGIN
+    INSERT INTO [Web].[User] (
+        Email,
+        PasswordHash,
+        Vorname,
+        Nachname,
+        IsActive,
+        EmailConfirmed,
+        Created
+    )
+    VALUES (
+        'mehmet.demir@email.com',
+        '$2a$11$T9oH4v7kTCv3MQc7blWOTuFaNaCQnaoZACXzQKauIkaxVEiG1zZH6', -- demo123
+        'Mehmet',
+        'Demir',
+        1,
+        1,
+        GETDATE()
+    )
+END
 GO
 
 -- Create Dernek Roles for Managers (MitgliedId = NULL çünkü üye değiller!)
@@ -1349,6 +1803,10 @@ FROM [Web].[User] u
 INNER JOIN [Verein].[Verein] v ON v.Vorstandsvorsitzender LIKE '%' + u.Vorname + '%' + u.Nachname + '%'
 WHERE u.Email IN ('ahmet.yilmaz@email.com', 'mehmet.demir@email.com')
   AND ISNULL(v.DeletedFlag, 0) = 0
+  AND NOT EXISTS (
+      SELECT 1 FROM [Web].[UserRole] ur
+      WHERE ur.UserId = u.Id AND ur.RoleType = 'dernek' AND ur.VereinId = v.Id
+  )
 GO
 
 PRINT '  ✓ Dernek Yöneticileri created';
@@ -1512,6 +1970,90 @@ PRINT '  - Dernek Manager (München): ahmet.yilmaz@email.com';
 PRINT '  - Dernek Manager (Berlin): mehmet.demir@email.com';
 PRINT '  - Member (München): fatma.ozkan@email.com';
 PRINT '  - Member (Berlin): ayse.kaya@email.com';
+PRINT '';
+GO
+
+-- ============================================================================
+-- FINAL SUMMARY: TÜM TABLOLARIN VERİ SAYILARI
+-- ============================================================================
+
+PRINT '';
+PRINT '╔════════════════════════════════════════════════════════════════╗';
+PRINT '║         📊 TÜM TABLOLARIN VERİ SAYILARI                       ║';
+PRINT '╚════════════════════════════════════════════════════════════════╝';
+PRINT '';
+
+SELECT 'Verein' as Tablo, COUNT(*) as [Kayıt Sayısı] FROM [Verein].[Verein]
+UNION ALL
+SELECT 'Adresse', COUNT(*) FROM [Verein].[Adresse]
+UNION ALL
+SELECT 'RechtlicheDaten', COUNT(*) FROM [Verein].[RechtlicheDaten]
+UNION ALL
+SELECT 'Bankkonto', COUNT(*) FROM [Verein].[Bankkonto]
+UNION ALL
+SELECT 'Veranstaltung', COUNT(*) FROM [Verein].[Veranstaltung]
+UNION ALL
+SELECT 'VeranstaltungAnmeldung', COUNT(*) FROM [Verein].[VeranstaltungAnmeldung]
+UNION ALL
+SELECT 'VeranstaltungBild', COUNT(*) FROM [Verein].[VeranstaltungBild]
+UNION ALL
+SELECT 'User', COUNT(*) FROM [Web].[User]
+UNION ALL
+SELECT 'UserRole', COUNT(*) FROM [Web].[UserRole]
+UNION ALL
+SELECT 'PageNote', COUNT(*) FROM [Web].[PageNote]
+UNION ALL
+SELECT 'Mitglied', COUNT(*) FROM [Mitglied].[Mitglied]
+UNION ALL
+SELECT 'MitgliedAdresse', COUNT(*) FROM [Mitglied].[MitgliedAdresse]
+UNION ALL
+SELECT 'MitgliedFamilie', COUNT(*) FROM [Mitglied].[MitgliedFamilie]
+UNION ALL
+SELECT 'BankBuchung', COUNT(*) FROM [Finanz].[BankBuchung]
+UNION ALL
+SELECT 'MitgliedForderung', COUNT(*) FROM [Finanz].[MitgliedForderung]
+UNION ALL
+SELECT 'MitgliedZahlung', COUNT(*) FROM [Finanz].[MitgliedZahlung]
+UNION ALL
+SELECT 'MitgliedForderungZahlung', COUNT(*) FROM [Finanz].[MitgliedForderungZahlung]
+UNION ALL
+SELECT 'MitgliedVorauszahlung', COUNT(*) FROM [Finanz].[MitgliedVorauszahlung]
+UNION ALL
+SELECT 'VeranstaltungZahlung', COUNT(*) FROM [Finanz].[VeranstaltungZahlung]
+UNION ALL
+SELECT 'Geschlecht', COUNT(*) FROM [Keytable].[Geschlecht]
+UNION ALL
+SELECT 'MitgliedStatus', COUNT(*) FROM [Keytable].[MitgliedStatus]
+UNION ALL
+SELECT 'MitgliedTyp', COUNT(*) FROM [Keytable].[MitgliedTyp]
+UNION ALL
+SELECT 'Waehrung', COUNT(*) FROM [Keytable].[Waehrung]
+UNION ALL
+SELECT 'ZahlungTyp', COUNT(*) FROM [Keytable].[ZahlungTyp]
+UNION ALL
+SELECT 'ZahlungStatus', COUNT(*) FROM [Keytable].[ZahlungStatus]
+UNION ALL
+SELECT 'FamilienbeziehungTyp', COUNT(*) FROM [Keytable].[FamilienbeziehungTyp]
+UNION ALL
+SELECT 'MitgliedFamilieStatus', COUNT(*) FROM [Keytable].[MitgliedFamilieStatus]
+UNION ALL
+SELECT 'BeitragPeriode', COUNT(*) FROM [Keytable].[BeitragPeriode]
+UNION ALL
+SELECT 'BeitragZahlungstagTyp', COUNT(*) FROM [Keytable].[BeitragZahlungstagTyp]
+UNION ALL
+SELECT 'Staatsangehoerigkeit', COUNT(*) FROM [Keytable].[Staatsangehoerigkeit]
+UNION ALL
+SELECT 'AdresseTyp', COUNT(*) FROM [Keytable].[AdresseTyp]
+UNION ALL
+SELECT 'Kontotyp', COUNT(*) FROM [Keytable].[Kontotyp]
+UNION ALL
+SELECT 'Rechtsform', COUNT(*) FROM [Keytable].[Rechtsform]
+ORDER BY Tablo;
+
+PRINT '';
+PRINT '╔════════════════════════════════════════════════════════════════╗';
+PRINT '║         ✅ DEMO VERİLERİ BAŞARIYLA YÜKLENDİ!                  ║';
+PRINT '╚════════════════════════════════════════════════════════════════╝';
 PRINT '';
 GO
 

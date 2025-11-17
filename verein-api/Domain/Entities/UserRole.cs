@@ -59,6 +59,11 @@ public class UserRole : AuditableEntity
     [MaxLength(250)]
     public string? Bemerkung { get; set; }
 
+    /// <summary>
+    /// Is this role record active?
+    /// </summary>
+    public bool? Aktiv { get; set; } = true;
+
     // Navigation properties
     /// <summary>
     /// User that owns this role

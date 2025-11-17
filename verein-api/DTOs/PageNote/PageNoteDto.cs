@@ -111,9 +111,33 @@ public class PageNoteDto
     public DateTime? Created { get; set; }
 
     /// <summary>
+    /// ID of the user who created this note
+    /// </summary>
+    [JsonPropertyName("createdBy")]
+    public int? CreatedBy { get; set; }
+
+    /// <summary>
     /// Last modification timestamp
     /// </summary>
     [JsonPropertyName("modified")]
     public DateTime? Modified { get; set; }
+
+    /// <summary>
+    /// ID of the user who last modified this note
+    /// </summary>
+    [JsonPropertyName("modifiedBy")]
+    public int? ModifiedBy { get; set; }
+
+    /// <summary>
+    /// Soft delete flag
+    /// </summary>
+    [JsonPropertyName("deletedFlag")]
+    public bool? DeletedFlag { get; set; }
+
+    /// <summary>
+    /// Active flag
+    /// </summary>
+    [JsonPropertyName("aktiv")]
+    public bool? Aktiv { get; set; }
 }
 

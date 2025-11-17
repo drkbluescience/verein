@@ -89,6 +89,12 @@
   "status": {
     "loading": "Wird geladen...",
     "unauthorized": "Unbefugter Zugriff"
+  },
+  "pageNotes": {
+    "myNotes": "Meine Notizen",
+    "newNote": "Neue Notiz",
+    "addNewNote": "Neue Notiz hinzufügen",
+    "editNote": "Notiz bearbeiten"
   }
 }
 

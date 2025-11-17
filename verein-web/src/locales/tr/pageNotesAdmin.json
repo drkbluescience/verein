@@ -89,6 +89,12 @@
   "status": {
     "loading": "Yükleniyor...",
     "unauthorized": "Yetkisiz erişim"
+  },
+  "pageNotes": {
+    "myNotes": "Notlarım",
+    "newNote": "Yeni Not",
+    "addNewNote": "Yeni Not Ekle",
+    "editNote": "Notu Düzenle"
   }
 }
 

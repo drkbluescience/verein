@@ -85,6 +85,7 @@
   },
   "tabs": {
     "info": "Informationen",
+    "adresse": "Adresse",
     "adressen": "Adressen",
     "mitglieder": "Mitglieder"
   },
@@ -93,13 +94,23 @@
     "kurzname": "Kurzname",
     "email": "E-Mail",
     "telefon": "Telefon",
+    "fax": "Fax",
     "webseite": "Webseite",
     "vorstandsvorsitzender": "Vorstandsvorsitzender",
+    "geschaeftsfuehrer": "Geschäftsführer",
     "kontaktperson": "Kontaktperson",
+    "vertreterEmail": "Vertreter E-Mail",
     "gruendungsdatum": "Gründungsdatum",
     "zweck": "Zweck",
     "aktiv": "Aktiv",
-    "rechtsform": "Rechtsform"
+    "rechtsform": "Rechtsform",
+    "socialMedia": "Soziale Medien",
+    "strasse": "Straße",
+    "hausnummer": "Hausnummer",
+    "plz": "PLZ",
+    "ort": "Ort",
+    "bundesland": "Bundesland",
+    "land": "Land"
   },
   "editVerein": "Vereinsinformationen bearbeiten",
   "createVerein": "Neuen Verein hinzufügen",

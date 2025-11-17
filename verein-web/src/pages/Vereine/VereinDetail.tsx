@@ -12,6 +12,7 @@ import { rechtlicheDatenService } from '../../services/rechtlicheDatenService';
 import { UpdateRechtlicheDatenDto } from '../../types/rechtlicheDaten';
 import VereinFormModal from '../../components/Vereine/VereinFormModal';
 import RechtlicheDatenDetails from '../../components/Vereine/RechtlicheDatenDetails';
+import SocialMediaLinks from '../../components/Vereine/SocialMediaLinks';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import './VereinDetail.css';
@@ -61,7 +62,7 @@ const VereinDetail: React.FC = () => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'info' | 'mitglieder'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'adresse' | 'mitglieder'>('info');
   const [mitgliederViewMode, setMitgliederViewMode] = useState<'grid' | 'table'>('grid');
   const [isVereinModalOpen, setIsVereinModalOpen] = useState(false);
 
@@ -203,6 +204,12 @@ const VereinDetail: React.FC = () => {
           {t('vereine:tabs.info')}
         </button>
         <button
+          className={`tab-button ${activeTab === 'adresse' ? 'active' : ''}`}
+          onClick={() => setActiveTab('adresse')}
+        >
+          {t('vereine:tabs.adresse')}
+        </button>
+        <button
           className={`tab-button ${activeTab === 'mitglieder' ? 'active' : ''}`}
           onClick={() => setActiveTab('mitglieder')}
         >
@@ -224,52 +231,93 @@ const VereinDetail: React.FC = () => {
                 </button>
               )}
             </div>
-            <div className="info-grid">
-              {verein.email && (
-                <div className="info-item">
-                  <label>{t('vereine:fields.email')}</label>
-                  <a href={`mailto:${verein.email}`}>{verein.email}</a>
-                </div>
-              )}
-              {verein.telefon && (
-                <div className="info-item">
-                  <label>{t('vereine:fields.telefon')}</label>
-                  <a href={`tel:${verein.telefon}`}>{verein.telefon}</a>
-                </div>
-              )}
-              {verein.webseite && (
-                <div className="info-item">
-                  <label>{t('vereine:fields.webseite')}</label>
-                  <a href={verein.webseite} target="_blank" rel="noopener noreferrer">
-                    {verein.webseite}
-                  </a>
-                </div>
-              )}
-              {verein.vorstandsvorsitzender && (
-                <div className="info-item">
-                  <label>{t('vereine:fields.vorstandsvorsitzender')}</label>
-                  <span>{verein.vorstandsvorsitzender}</span>
-                </div>
-              )}
-              {verein.kontaktperson && (
-                <div className="info-item">
-                  <label>{t('vereine:fields.kontaktperson')}</label>
-                  <span>{verein.kontaktperson}</span>
-                </div>
-              )}
-              {verein.gruendungsdatum && (
-                <div className="info-item">
-                  <label>{t('vereine:fields.gruendungsdatum')}</label>
-                  <span>{new Date(verein.gruendungsdatum).toLocaleDateString()}</span>
-                </div>
-              )}
-            </div>
+
+            {/* Amaç - En Üstte */}
             {verein.zweck && (
-              <div className="info-item full-width">
+              <div className="info-item full-width" style={{ marginBottom: '2rem' }}>
                 <label>{t('vereine:fields.zweck')}</label>
                 <p>{verein.zweck}</p>
               </div>
             )}
+
+            <div className="info-grid">
+              <div className="info-item">
+                <label>{t('vereine:fields.email')}</label>
+                {verein.email ? (
+                  <a href={`mailto:${verein.email}`}>{verein.email}</a>
+                ) : (
+                  <span className="text-muted">-</span>
+                )}
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.telefon')}</label>
+                {verein.telefon ? (
+                  <a href={`tel:${verein.telefon}`}>{verein.telefon}</a>
+                ) : (
+                  <span className="text-muted">-</span>
+                )}
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.fax')}</label>
+                <span>{verein.fax || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.webseite')}</label>
+                {verein.webseite ? (
+                  <a href={verein.webseite} target="_blank" rel="noopener noreferrer">
+                    {verein.webseite}
+                  </a>
+                ) : (
+                  <span className="text-muted">-</span>
+                )}
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.vorstandsvorsitzender')}</label>
+                <span>{verein.vorstandsvorsitzender || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.geschaeftsfuehrer')}</label>
+                <span>{verein.geschaeftsfuehrer || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.kontaktperson')}</label>
+                <span>{verein.kontaktperson || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.vertreterEmail')}</label>
+                {verein.vertreterEmail ? (
+                  <a href={`mailto:${verein.vertreterEmail}`}>{verein.vertreterEmail}</a>
+                ) : (
+                  <span className="text-muted">-</span>
+                )}
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.gruendungsdatum')}</label>
+                <span>
+                  {verein.gruendungsdatum
+                    ? new Date(verein.gruendungsdatum).toLocaleDateString()
+                    : '-'}
+                </span>
+              </div>
+            </div>
+
+            {/* Sosyal Medya Linkleri */}
+            <div className="info-item full-width">
+              <label>{t('vereine:fields.socialMedia')}</label>
+              {verein.socialMediaLinks ? (
+                <SocialMediaLinks socialMediaLinks={verein.socialMediaLinks} />
+              ) : (
+                <span className="text-muted">-</span>
+              )}
+            </div>
 
             {/* Yasal Bilgiler - Admin ve Dernek Yöneticisi için */}
             {(user?.type === 'admin' || (user?.type === 'dernek' && user.vereinId === Number(id))) && (
@@ -290,6 +338,46 @@ const VereinDetail: React.FC = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Adresse Tab */}
+        {activeTab === 'adresse' && (
+          <div className="info-section">
+            <div className="section-header">
+              <h2>{t('vereine:tabs.adresse')}</h2>
+            </div>
+            <div className="info-grid">
+              <div className="info-item">
+                <label>{t('vereine:fields.strasse')}</label>
+                <span>{verein.hauptAdresse?.strasse || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.hausnummer')}</label>
+                <span>{verein.hauptAdresse?.hausnummer || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.plz')}</label>
+                <span>{verein.hauptAdresse?.plz || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.ort')}</label>
+                <span>{verein.hauptAdresse?.ort || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.bundesland')}</label>
+                <span>{verein.hauptAdresse?.bundesland || '-'}</span>
+              </div>
+
+              <div className="info-item">
+                <label>{t('vereine:fields.land')}</label>
+                <span>{verein.hauptAdresse?.land || '-'}</span>
+              </div>
+            </div>
           </div>
         )}
 
