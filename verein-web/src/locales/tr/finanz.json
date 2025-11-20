@@ -80,6 +80,31 @@
     "totalAmount": "Toplam Tutar",
     "deleteConfirm": "Bu alacak kaydını silmek istediğinizden emin misiniz?"
   },
+  "member": {
+    "information": "Üye Bilgileri",
+    "number": "Üye Numarası",
+    "name": "Ad Soyad"
+  },
+  "allocations": {
+    "title": "Tahsis Edilen Alacaklar",
+    "totalPayment": "Toplam Ödeme",
+    "allocated": "Tahsis Edilen",
+    "unallocated": "Tahsis Edilmemiş",
+    "amount": "Tahsis Tutarı",
+    "date": "Tahsis Tarihi",
+    "noAllocations": "Bu ödeme henüz bir alacağa tahsis edilmemiş.",
+    "unallocatedWarning": "Bu ödemeden € {{amount}} tahsis edilmemiş tutar bulunmaktadır."
+  },
+  "bankAccount": {
+    "information": "Banka Hesabı Bilgileri",
+    "holder": "Hesap Sahibi",
+    "iban": "IBAN",
+    "bank": "Banka"
+  },
+  "relatedPayments": {
+    "title": "İlişkili Üye Ödemeleri",
+    "noPayments": "Bu banka işlemi henüz bir üye ödemesine eşleştirilmemiş."
+  },
   "payments": {
     "title": "Ödemeler",
     "subtitle": "Üye ödemelerini yönetin",
@@ -90,6 +115,8 @@
     "number": "Ödeme Numarası",
     "member": "Üye",
     "amount": "Tutar",
+    "currency": "Para Birimi",
+    "type": "Ödeme Tipi",
     "date": "Ödeme Tarihi",
     "method": "Ödeme Yöntemi",
     "methodPlaceholder": "Örn: Banka Transferi, Nakit",

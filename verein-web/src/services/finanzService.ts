@@ -226,6 +226,12 @@ export const mitgliedZahlungService = {
     return api.get<MitgliedZahlungDto[]>(`/api/MitgliedZahlungen/mitglied/${mitgliedId}`);
   },
 
+  // Get payments by BankBuchung ID
+  getByBankBuchungId: async (bankBuchungId: number): Promise<MitgliedZahlungDto[]> => {
+    const allZahlungen = await api.get<MitgliedZahlungDto[]>('/api/MitgliedZahlungen');
+    return allZahlungen.filter(z => z.bankBuchungId === bankBuchungId);
+  },
+
   // Get payments by date range
   getByDateRange: async (
     vereinId: number,
@@ -266,6 +272,12 @@ export const mitgliedForderungZahlungService = {
   // Get allocation by ID
   getById: async (id: number): Promise<MitgliedForderungZahlungDto> => {
     return api.get<MitgliedForderungZahlungDto>(`/api/MitgliedForderungZahlungen/${id}`);
+  },
+
+  // Get allocations by Zahlung ID (payment allocations)
+  getByZahlungId: async (zahlungId: number): Promise<MitgliedForderungZahlungDto[]> => {
+    const allAllocations = await api.get<MitgliedForderungZahlungDto[]>('/api/MitgliedForderungZahlungen');
+    return allAllocations.filter(a => a.zahlungId === zahlungId);
   },
 
   // Create new allocation

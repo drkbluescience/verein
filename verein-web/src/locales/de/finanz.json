@@ -81,6 +81,31 @@
     "totalAmount": "Gesamtbetrag",
     "deleteConfirm": "Sind Sie sicher, dass Sie diesen Forderungseintrag löschen möchten?"
   },
+  "member": {
+    "information": "Mitgliedsinformationen",
+    "number": "Mitgliedsnummer",
+    "name": "Name"
+  },
+  "allocations": {
+    "title": "Zugeordnete Forderungen",
+    "totalPayment": "Gesamtzahlung",
+    "allocated": "Zugeordnet",
+    "unallocated": "Nicht zugeordnet",
+    "amount": "Zugeordneter Betrag",
+    "date": "Zuordnungsdatum",
+    "noAllocations": "Diese Zahlung wurde noch keiner Forderung zugeordnet.",
+    "unallocatedWarning": "Von dieser Zahlung sind € {{amount}} noch nicht zugeordnet."
+  },
+  "bankAccount": {
+    "information": "Bankkontoinformationen",
+    "holder": "Kontoinhaber",
+    "iban": "IBAN",
+    "bank": "Bank"
+  },
+  "relatedPayments": {
+    "title": "Zugehörige Mitgliederzahlungen",
+    "noPayments": "Diese Banktransaktion wurde noch keiner Mitgliederzahlung zugeordnet."
+  },
   "payments": {
     "title": "Zahlungen",
     "subtitle": "Verwalten Sie Mitgliederzahlungen",
@@ -91,6 +116,8 @@
     "number": "Zahlungsnummer",
     "member": "Mitglied",
     "amount": "Betrag",
+    "currency": "Währung",
+    "type": "Zahlungstyp",
     "date": "Zahlungsdatum",
     "method": "Zahlungsart",
     "methodPlaceholder": "z.B. Banküberweisung, Bar",

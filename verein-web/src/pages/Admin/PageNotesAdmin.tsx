@@ -21,6 +21,19 @@ import { de, tr } from 'date-fns/locale';
 import PageNoteModal from '../../components/PageNote/PageNoteModal';
 import './PageNotesAdmin.css';
 
+// SVG Icons
+const CheckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  </svg>
+);
+
 /**
  * Admin Page Notes Dashboard
  * Allows admin to view and manage all page notes
@@ -360,7 +373,7 @@ const PageNotesAdmin: React.FC = () => {
                           }}
                           title={t('pageNotesAdmin:actions.complete')}
                         >
-                          ✅
+                          <CheckIcon />
                         </button>
                       )}
                       <button
@@ -371,7 +384,7 @@ const PageNotesAdmin: React.FC = () => {
                         }}
                         title={t('pageNotesAdmin:actions.delete')}
                       >
-                        🗑️
+                        <TrashIcon />
                       </button>
                     </div>
                   </td>

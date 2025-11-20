@@ -94,41 +94,45 @@ const VereinDitibZahlungDetail: React.FC = () => {
 
   return (
     <div className="finanz-detail">
-      {/* Header */}
-      <div className="detail-header">
-        <button className="back-btn" onClick={() => navigate('/finanzen/ditib-zahlungen')}>
+      {/* Page Header */}
+      <div className="page-header">
+        <h1 className="page-title">DITIB Ödemesi #{zahlung.id}</h1>
+        <p className="page-subtitle">{zahlung.zahlungsperiode} dönemi</p>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/finanzen/ditib-zahlungen')}
+          title={t('common:back')}
+        >
           <BackIcon />
-          {t('common:back')}
         </button>
-        <div className="header-content">
-          <h1>DITIB Ödemesi #{zahlung.id}</h1>
-          <p className="detail-subtitle">{zahlung.zahlungsperiode} dönemi</p>
-        </div>
-        <div className="header-actions">
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate(`/finanzen/ditib-zahlungen/${id}/edit`)}
-          >
-            <EditIcon />
-            {t('common:edit')}
-          </button>
-          <button
-            className="btn btn-error"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-          >
-            <TrashIcon />
-            {deleteMutation.isPending ? t('common:deleting') : t('common:delete')}
-          </button>
-        </div>
+        <div style={{ flex: 1 }}></div>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate(`/finanzen/ditib-zahlungen/${id}/edit`)}
+        >
+          <EditIcon />
+          {t('common:common.edit')}
+        </button>
+        <button
+          className="btn btn-error"
+          onClick={handleDelete}
+          disabled={deleteMutation.isPending}
+        >
+          <TrashIcon />
+          {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
+        </button>
       </div>
 
       {/* Content */}
       <div className="detail-content">
-        {/* Main Info */}
+        {/* Payment Information - Compact 2-column layout */}
         <div className="detail-section">
           <h2>{t('finanz:ditibPayments.information')}</h2>
-          <div className="detail-grid">
+          <div className="detail-grid-compact">
             <div className="detail-item">
               <label>Dernek</label>
               <div className="detail-value">{verein?.name || zahlung.vereinId}</div>
@@ -147,13 +151,6 @@ const VereinDitibZahlungDetail: React.FC = () => {
                 <span className="badge badge-info">{zahlung.zahlungsperiode}</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Additional Info */}
-        <div className="detail-section">
-          <h2>{t('finanz:ditibPayments.additionalInfo')}</h2>
-          <div className="detail-grid">
             <div className="detail-item">
               <label>Durum</label>
               <div className="detail-value">
@@ -180,29 +177,6 @@ const VereinDitibZahlungDetail: React.FC = () => {
                 <div className="detail-value">{zahlung.bemerkung}</div>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Audit Info */}
-        <div className="detail-section">
-          <h2>{t('common:auditInfo')}</h2>
-          <div className="detail-grid">
-            <div className="detail-item">
-              <label>{t('common:created')}</label>
-              <div className="detail-value">{zahlung.created ? new Date(zahlung.created).toLocaleString('tr-TR') : '-'}</div>
-            </div>
-            <div className="detail-item">
-              <label>{t('common:createdBy')}</label>
-              <div className="detail-value">{zahlung.createdBy || '-'}</div>
-            </div>
-            <div className="detail-item">
-              <label>{t('common:modified')}</label>
-              <div className="detail-value">{zahlung.modified ? new Date(zahlung.modified).toLocaleString('tr-TR') : '-'}</div>
-            </div>
-            <div className="detail-item">
-              <label>{t('common:modifiedBy')}</label>
-              <div className="detail-value">{zahlung.modifiedBy || '-'}</div>
-            </div>
           </div>
         </div>
       </div>

@@ -55,6 +55,13 @@ const DownloadIcon = () => (
   </svg>
 );
 
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const DitibUpload: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
@@ -188,8 +195,19 @@ const DitibUpload: React.FC = () => {
   return (
     <div className="bank-upload-container">
       <div className="page-header">
-        <h1>{t('ditibPayments.excelUploadTitle', { ns: 'finanz' })}</h1>
+        <h1>DITIB Ödemeleri Yükle</h1>
         <p className="page-description">{t('ditibPayments.excelUploadDescription', { ns: 'finanz' })}</p>
+      </div>
+
+      {/* Actions Bar with Back Button */}
+      <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/finanzen/ditib-zahlungen')}
+          title={t('common:back')}
+        >
+          <BackIcon />
+        </button>
       </div>
 
       {/* Bank Account Selection */}

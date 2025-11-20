@@ -5,11 +5,13 @@
  */
 
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedForderungService } from '../../services/finanzService';
+import { mitgliedService } from '../../services/mitgliedService';
+import keytableService from '../../services/keytableService';
 import { ZahlungStatus } from '../../types/finanz.types';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
@@ -53,6 +55,16 @@ const MitgliedForderungDetail: React.FC = () => {
     enabled: !!id,
   });
 
+  // Fetch member details
+  const { data: mitglied } = useQuery({
+    queryKey: ['mitglied', forderung?.mitgliedId],
+    queryFn: async () => {
+      if (!forderung?.mitgliedId) return null;
+      return await mitgliedService.getById(forderung.mitgliedId);
+    },
+    enabled: !!forderung?.mitgliedId,
+  });
+
   // Fetch payment allocations
   const { data: allocations = [] } = useQuery({
     queryKey: ['forderung-allocations', id],
@@ -61,6 +73,19 @@ const MitgliedForderungDetail: React.FC = () => {
       return await mitgliedForderungService.getAllocations(parseInt(id));
     },
     enabled: !!id,
+  });
+
+  // Fetch keytable data
+  const { data: zahlungTypen = [] } = useQuery({
+    queryKey: ['keytable', 'zahlungtypen'],
+    queryFn: () => keytableService.getZahlungTypen(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+
+  const { data: waehrungen = [] } = useQuery({
+    queryKey: ['keytable', 'waehrungen'],
+    queryFn: () => keytableService.getWaehrungen(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
   });
 
   // Delete mutation
@@ -102,58 +127,89 @@ const MitgliedForderungDetail: React.FC = () => {
   return (
     <div className="finanz-detail">
       {/* Header */}
-      <div className="detail-header">
-        <button className="back-btn" onClick={() => navigate('/meine-finanzen/forderungen')}>
+      <div className="page-header">
+        <h1 className="page-title">{forderung.forderungsnummer || t('finanz:claims.title')}</h1>
+        <p className="page-subtitle">{t('finanz:claims.detail')}</p>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/meine-finanzen/forderungen')}
+          title={t('common:back')}
+        >
           <BackIcon />
-          {t('common:back')}
         </button>
-        <div className="header-content">
-          <h1>{forderung.forderungsnummer || t('finanz:claims.title')}</h1>
-          <p className="detail-subtitle">{t('finanz:claims.detail')}</p>
-        </div>
-        <div className="header-actions">
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate(`/meine-finanzen/forderungen/${id}/edit`)}
-          >
-            <EditIcon />
-            {t('common:edit')}
-          </button>
-          <button
-            className="btn btn-error"
-            onClick={() => setShowDeleteConfirm(true)}
-          >
-            <TrashIcon />
-            {t('common:delete')}
-          </button>
-        </div>
+        <div style={{ flex: 1 }}></div>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate(`/meine-finanzen/forderungen/${id}/edit`)}
+        >
+          <EditIcon />
+          {t('common:common.edit')}
+        </button>
+        <button
+          className="btn btn-error"
+          onClick={() => setShowDeleteConfirm(true)}
+          disabled={deleteMutation.isPending}
+        >
+          <TrashIcon />
+          {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
+        </button>
       </div>
 
       {/* Content */}
       <div className="detail-content">
-        {/* Main Info */}
+        {/* Claim Information - Compact */}
         <div className="detail-section">
           <h2>{t('finanz:claims.information')}</h2>
-          <div className="info-grid">
-            <div className="info-item">
+          <div className="detail-grid-compact">
+            {mitglied && (
+              <>
+                <div className="detail-item">
+                  <label>{t('finanz:member.number')}</label>
+                  <div className="detail-value">{mitglied.mitgliedsnummer}</div>
+                </div>
+                <div className="detail-item">
+                  <label>{t('finanz:member.name')}</label>
+                  <div className="detail-value">
+                    <Link to={`/mitglieder/${mitglied.id}`} className="link-primary">
+                      {mitglied.vorname} {mitglied.nachname}
+                    </Link>
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="detail-item">
               <label>{t('finanz:claims.number')}</label>
-              <p>{forderung.forderungsnummer || '-'}</p>
+              <div className="detail-value">{forderung.forderungsnummer || '-'}</div>
             </div>
-            <div className="info-item">
+            <div className="detail-item">
               <label>{t('finanz:claims.amount')}</label>
-              <p className="amount">€ {forderung.betrag.toFixed(2)}</p>
+              <div className="detail-value amount">
+                {waehrungen.find(w => w.id === forderung.waehrungId)?.code || '€'} {forderung.betrag.toFixed(2)}
+              </div>
             </div>
-            <div className="info-item">
+            <div className="detail-item">
+              <label>{t('finanz:payments.currency')}</label>
+              <div className="detail-value">{waehrungen.find(w => w.id === forderung.waehrungId)?.name || '-'}</div>
+            </div>
+            <div className="detail-item">
+              <label>{t('finanz:payments.type')}</label>
+              <div className="detail-value">{zahlungTypen.find(zt => zt.id === forderung.zahlungTypId)?.name || '-'}</div>
+            </div>
+            <div className="detail-item">
               <label>{t('finanz:claims.status')}</label>
-              <p>{getStatusBadge(forderung.statusId)}</p>
+              <div className="detail-value">{getStatusBadge(forderung.statusId)}</div>
             </div>
-            <div className="info-item">
+            <div className="detail-item">
               <label>{t('finanz:claims.dueDate')}</label>
-              <p>{new Date(forderung.faelligkeit).toLocaleDateString()}</p>
+              <div className="detail-value">{new Date(forderung.faelligkeit).toLocaleDateString()}</div>
             </div>
-            <div className="info-item full-width">
+            <div className="detail-item full-width">
               <label>{t('finanz:claims.description')}</label>
-              <p>{forderung.beschreibung || '-'}</p>
+              <div className="detail-value">{forderung.beschreibung || '-'}</div>
             </div>
           </div>
         </div>
@@ -202,28 +258,7 @@ const MitgliedForderungDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Audit Info */}
-        <div className="detail-section">
-          <h2>{t('common:auditInfo')}</h2>
-          <div className="info-grid">
-            <div className="info-item">
-              <label>{t('common:created')}</label>
-              <p>{forderung.created ? new Date(forderung.created).toLocaleString() : '-'}</p>
-            </div>
-            <div className="info-item">
-              <label>{t('common:createdBy')}</label>
-              <p>{forderung.createdBy || '-'}</p>
-            </div>
-            <div className="info-item">
-              <label>{t('common:modified')}</label>
-              <p>{forderung.modified ? new Date(forderung.modified).toLocaleString() : '-'}</p>
-            </div>
-            <div className="info-item">
-              <label>{t('common:modifiedBy')}</label>
-              <p>{forderung.modifiedBy || '-'}</p>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Delete Confirmation */}
@@ -244,7 +279,7 @@ const MitgliedForderungDetail: React.FC = () => {
                 onClick={() => deleteMutation.mutate()}
                 disabled={deleteMutation.isPending}
               >
-                {deleteMutation.isPending ? t('common:deleting') : t('common:delete')}
+                {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
               </button>
             </div>
           </div>

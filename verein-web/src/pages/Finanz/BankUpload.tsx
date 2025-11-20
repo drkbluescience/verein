@@ -55,6 +55,13 @@ const DownloadIcon = () => (
   </svg>
 );
 
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const BankUpload: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
@@ -197,6 +204,17 @@ const BankUpload: React.FC = () => {
       <div className="page-header">
         <h1>{t('bankUpload.title', { ns: 'finanz' })}</h1>
         <p className="page-description">{t('bankUpload.description', { ns: 'finanz' })}</p>
+      </div>
+
+      {/* Actions Bar with Back Button */}
+      <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/finanzen/bank')}
+          title={t('common:back')}
+        >
+          <BackIcon />
+        </button>
       </div>
 
       {/* Bank Account Selection */}

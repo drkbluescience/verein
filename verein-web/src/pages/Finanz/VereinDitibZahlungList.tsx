@@ -311,7 +311,7 @@ const VereinDitibZahlungList: React.FC = () => {
           <tbody>
             {filteredZahlungen.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
+                <td colSpan={user?.type === 'admin' ? 8 : 7} style={{ textAlign: 'center', padding: '2rem' }}>
                   {t('ditibPayments.noPaymentsFound', { ns: 'finanz' })}
                 </td>
               </tr>
@@ -322,6 +322,9 @@ const VereinDitibZahlungList: React.FC = () => {
                   <td>
                     <span className="badge badge-info">{zahlung.zahlungsperiode}</span>
                   </td>
+                  {user?.type === 'admin' && (
+                    <td>{vereine.find(v => v.id === zahlung.vereinId)?.name || '-'}</td>
+                  )}
                   <td>
                     <strong>€ {zahlung.betrag.toFixed(2)}</strong>
                   </td>
