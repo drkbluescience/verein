@@ -78,6 +78,13 @@ DELETE FROM [Finanz].[MitgliedZahlung];
 SET @DeletedZahlungCount = @@ROWCOUNT;
 
 PRINT '   ✓ ' + CAST(@DeletedZahlungCount AS VARCHAR(10)) + ' ödeme silindi';
+
+-- DITIB ödemelerini sil
+DECLARE @DeletedDitibZahlungCount INT = 0;
+DELETE FROM [Finanz].[VereinDitibZahlung];
+SET @DeletedDitibZahlungCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedDitibZahlungCount AS VARCHAR(10)) + ' DITIB ödemesi silindi';
 GO
 
 -- ============================================================================
@@ -252,7 +259,20 @@ GO
 -- ============================================================================
 -- 1️⃣7️⃣ DERNEK YASAL VERİLERİNİ SİL (RechtlicheDaten)
 -- ============================================================================
-PRINT '1️⃣7️⃣ Dernek yasal verileri siliniyor...';
+PRINT '1️⃣7️⃣ Dernek tüzükleri siliniyor...';
+
+DECLARE @DeletedVereinSatzungCount INT = 0;
+
+DELETE FROM [Verein].[VereinSatzung];
+SET @DeletedVereinSatzungCount = @@ROWCOUNT;
+
+PRINT '   ✓ ' + CAST(@DeletedVereinSatzungCount AS VARCHAR(10)) + ' tüzük silindi';
+GO
+
+-- ============================================================================
+-- 18. RechtlicheDaten (Dernek Yasal Verileri)
+-- ============================================================================
+PRINT '1️⃣8️⃣ Dernek yasal verileri siliniyor...';
 
 DECLARE @DeletedRechtlicheDatenCount INT = 0;
 
@@ -373,6 +393,7 @@ GO
 DBCC CHECKIDENT ('[Verein].[Verein]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[Adresse]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[RechtlicheDaten]', RESEED, 0);
+DBCC CHECKIDENT ('[Verein].[VereinSatzung]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[Bankkonto]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[Veranstaltung]', RESEED, 0);
 DBCC CHECKIDENT ('[Verein].[VeranstaltungAnmeldung]', RESEED, 0);
@@ -395,6 +416,7 @@ DBCC CHECKIDENT ('[Finanz].[MitgliedZahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[MitgliedForderungZahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[MitgliedVorauszahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[VeranstaltungZahlung]', RESEED, 0);
+DBCC CHECKIDENT ('[Finanz].[VereinDitibZahlung]', RESEED, 0);
 
 -- Keytable Schema
 DBCC CHECKIDENT ('[Keytable].[Geschlecht]', RESEED, 0);
@@ -522,6 +544,7 @@ PRINT '      ✓ Kullanıcılar (User)';
 PRINT '      ✓ Üyeler (Mitglied)';
 PRINT '      ✓ Banka Hesapları (Bankkonto)';
 PRINT '      ✓ Sayfa Notları (PageNote)';
+PRINT '      ✓ Dernek Tüzükleri (VereinSatzung)';
 PRINT '      ✓ Dernek Yasal Verileri (RechtlicheDaten)';
 PRINT '      ✓ Dernekler (Verein)';
 PRINT '      ✓ Adresler (Adresse)';

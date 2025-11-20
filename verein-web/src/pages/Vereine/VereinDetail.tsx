@@ -13,6 +13,7 @@ import { UpdateRechtlicheDatenDto } from '../../types/rechtlicheDaten';
 import VereinFormModal from '../../components/Vereine/VereinFormModal';
 import RechtlicheDatenDetails from '../../components/Vereine/RechtlicheDatenDetails';
 import SocialMediaLinks from '../../components/Vereine/SocialMediaLinks';
+import VereinSatzungTab from '../../components/Vereine/VereinSatzungTab';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import './VereinDetail.css';
@@ -62,7 +63,7 @@ const VereinDetail: React.FC = () => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'info' | 'adresse' | 'mitglieder'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'adresse' | 'mitglieder' | 'satzung'>('info');
   const [mitgliederViewMode, setMitgliederViewMode] = useState<'grid' | 'table'>('grid');
   const [isVereinModalOpen, setIsVereinModalOpen] = useState(false);
 
@@ -215,6 +216,14 @@ const VereinDetail: React.FC = () => {
         >
           {t('vereine:tabs.mitglieder')} ({mitglieder.length})
         </button>
+        {(user?.type === 'admin' || (user?.type === 'dernek' && user.vereinId === Number(id))) && (
+          <button
+            className={`tab-button ${activeTab === 'satzung' ? 'active' : ''}`}
+            onClick={() => setActiveTab('satzung')}
+          >
+            {t('vereine:tabs.satzung')}
+          </button>
+        )}
       </div>
 
       {/* Tab Content */}
@@ -510,6 +519,11 @@ const VereinDetail: React.FC = () => {
               )
             )}
           </div>
+        )}
+
+        {/* Satzung Tab */}
+        {activeTab === 'satzung' && (
+          <VereinSatzungTab vereinId={Number(id)} />
         )}
       </div>
 

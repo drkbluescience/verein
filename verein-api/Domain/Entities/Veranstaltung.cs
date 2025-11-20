@@ -73,6 +73,39 @@ public class Veranstaltung : AuditableEntity
     /// </summary>
     public bool AnmeldeErforderlich { get; set; }
 
+    /// <summary>
+    /// Is this a recurring event
+    /// </summary>
+    public bool? IstWiederholend { get; set; }
+
+    /// <summary>
+    /// Recurrence type: 'daily', 'weekly', 'monthly', 'yearly'
+    /// </summary>
+    [MaxLength(20)]
+    public string? WiederholungTyp { get; set; }
+
+    /// <summary>
+    /// Recurrence interval (e.g., every 1 week, every 2 weeks)
+    /// </summary>
+    public int? WiederholungInterval { get; set; }
+
+    /// <summary>
+    /// Recurrence end date
+    /// </summary>
+    [Column(TypeName = "date")]
+    public DateTime? WiederholungEnde { get; set; }
+
+    /// <summary>
+    /// Days of week for weekly recurrence (e.g., "Mon,Wed,Fri")
+    /// </summary>
+    [MaxLength(50)]
+    public string? WiederholungTage { get; set; }
+
+    /// <summary>
+    /// Day of month for monthly recurrence (1-31)
+    /// </summary>
+    public int? WiederholungMonatTag { get; set; }
+
     // Navigation properties
     /// <summary>
     /// Verein that owns this event

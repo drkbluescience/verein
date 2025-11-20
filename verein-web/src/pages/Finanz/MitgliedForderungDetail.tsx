@@ -53,6 +53,16 @@ const MitgliedForderungDetail: React.FC = () => {
     enabled: !!id,
   });
 
+  // Fetch payment allocations
+  const { data: allocations = [] } = useQuery({
+    queryKey: ['forderung-allocations', id],
+    queryFn: async () => {
+      if (!id) return [];
+      return await mitgliedForderungService.getAllocations(parseInt(id));
+    },
+    enabled: !!id,
+  });
+
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -73,9 +83,18 @@ const MitgliedForderungDetail: React.FC = () => {
     return <ErrorMessage message={t('common:error.unauthorized')} />;
   }
 
+  // Calculate payment status
+  const totalAllocated = allocations.reduce((sum, a) => sum + a.betrag, 0);
+  const remainingAmount = forderung.betrag - totalAllocated;
+  const isPartiallyPaid = totalAllocated > 0 && remainingAmount > 0;
+  const isFullyPaid = forderung.statusId === ZahlungStatus.BEZAHLT || remainingAmount <= 0;
+
   const getStatusBadge = (statusId: number) => {
-    if (statusId === ZahlungStatus.BEZAHLT) {
+    if (isFullyPaid) {
       return <span className="badge badge-success">{t('finanz:status.paid')}</span>;
+    }
+    if (isPartiallyPaid) {
+      return <span className="badge badge-info">Kısmen Ödendi</span>;
     }
     return <span className="badge badge-warning">{t('finanz:status.open')}</span>;
   };
@@ -138,6 +157,50 @@ const MitgliedForderungDetail: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Payment History */}
+        {allocations.length > 0 && (
+          <div className="detail-section">
+            <h2>💰 Ödeme Geçmişi</h2>
+            <div className="payment-summary">
+              <div className="summary-item">
+                <label>Toplam Fatura:</label>
+                <strong className="amount-total">€ {forderung.betrag.toFixed(2)}</strong>
+              </div>
+              <div className="summary-item">
+                <label>Ödenen:</label>
+                <strong className="amount-paid">€ {totalAllocated.toFixed(2)}</strong>
+              </div>
+              <div className="summary-item">
+                <label>Kalan:</label>
+                <strong className={remainingAmount > 0 ? "amount-remaining" : "amount-zero"}>
+                  € {remainingAmount.toFixed(2)}
+                </strong>
+              </div>
+            </div>
+
+            <div className="payment-history-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Tutar</th>
+                    <th>Ödeme ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allocations.map((allocation) => (
+                    <tr key={allocation.id}>
+                      <td>{allocation.created ? new Date(allocation.created).toLocaleDateString('tr-TR') : '-'}</td>
+                      <td><strong>€ {allocation.betrag.toFixed(2)}</strong></td>
+                      <td>#{allocation.zahlungId}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Audit Info */}
         <div className="detail-section">

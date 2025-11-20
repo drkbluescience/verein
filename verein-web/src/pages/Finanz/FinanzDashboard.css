@@ -1,7 +1,7 @@
 /* Finanz Dashboard Styles - Enhanced Version */
 
 .finanz-dashboard {
-  padding: var(--spacing-lg) 0;
+  padding: 0;
   animation: fadeIn 0.3s ease-in-out;
 }
 

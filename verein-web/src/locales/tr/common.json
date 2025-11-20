@@ -1,4 +1,6 @@
 {
+  "loading": "Yükleniyor...",
+  "uploading": "Yükleniyor...",
   "app": {
     "name": "Verein Yönetim Sistemi",
     "title": "Verein"
@@ -60,11 +62,14 @@
     "close": "Kapat",
     "confirm": "Onayla",
     "view": "Görüntüle",
+    "upload": "Yükle",
     "download": "İndir",
     "upload": "Yükle",
-    "refresh": "Yenile"
+    "refresh": "Yenile",
+    "pleaseSelect": "Seçiniz"
   },
   "verein": "Dernek",
+  "actionsColumn": "İşlemler",
   "filter": {
     "allVereine": "Tüm Dernekler"
   },

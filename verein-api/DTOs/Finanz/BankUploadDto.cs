@@ -68,10 +68,22 @@ public class BankUploadResponseDto
     public int SkippedCount { get; set; }
 
     /// <summary>
+    /// Number of unmatched transactions (no member found)
+    /// </summary>
+    [JsonPropertyName("unmatchedCount")]
+    public int UnmatchedCount { get; set; }
+
+    /// <summary>
     /// Detailed results for each transaction
     /// </summary>
     [JsonPropertyName("details")]
     public List<BankUploadDetailDto> Details { get; set; } = new();
+
+    /// <summary>
+    /// List of unmatched transactions that need manual matching
+    /// </summary>
+    [JsonPropertyName("unmatchedTransactions")]
+    public List<BankUploadDetailDto> UnmatchedTransactions { get; set; } = new();
 
     /// <summary>
     /// List of errors encountered

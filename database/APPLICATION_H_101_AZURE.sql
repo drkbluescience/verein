@@ -182,6 +182,35 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+/****** Object:  Table [Finanz].[VereinDitibZahlung]    Script Date: 18.11.2025 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[VereinDitibZahlung](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [int] NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [int] NULL,
+	[DeletedFlag] [bit] NULL,
+	[VereinId] [int] NOT NULL,
+	[Betrag] [decimal](18, 2) NOT NULL,
+	[WaehrungId] [int] NOT NULL,
+	[Zahlungsdatum] [date] NOT NULL,
+	[Zahlungsperiode] [nvarchar](7) NOT NULL,
+	[Zahlungsweg] [nvarchar](30) NULL,
+	[BankkontoId] [int] NULL,
+	[Referenz] [nvarchar](100) NULL,
+	[Bemerkung] [nvarchar](250) NULL,
+	[StatusId] [int] NOT NULL,
+	[BankBuchungId] [int] NULL,
+PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 /****** Object:  Table [Finanz].[VeranstaltungZahlung]    Script Date: 21.08.2025 13:03:24 ******/
 SET ANSI_NULLS ON
 GO
@@ -962,7 +991,14 @@ CREATE TABLE [Verein].[Veranstaltung](
 	[MaxTeilnehmer] [int] NULL,
 	[AnmeldeErforderlich] [bit] NOT NULL,
 	[Aktiv] [bit] NULL,
-PRIMARY KEY CLUSTERED 
+	-- Recurring Event Fields
+	[IstWiederholend] [bit] NULL DEFAULT 0,
+	[WiederholungTyp] [nvarchar](20) NULL,
+	[WiederholungInterval] [int] NULL DEFAULT 1,
+	[WiederholungEnde] [date] NULL,
+	[WiederholungTage] [nvarchar](50) NULL,
+	[WiederholungMonatTag] [int] NULL,
+PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -980,6 +1016,7 @@ CREATE TABLE [Verein].[VeranstaltungAnmeldung](
 	[Modified] [datetime] NULL,
 	[ModifiedBy] [int] NULL,
 	[DeletedFlag] [bit] NULL,
+	[Aktiv] [bit] NULL DEFAULT 1,
 	[VeranstaltungId] [int] NOT NULL,
 	[MitgliedId] [int] NULL,
 	[Name] [nvarchar](100) NULL,
@@ -990,7 +1027,7 @@ CREATE TABLE [Verein].[VeranstaltungAnmeldung](
 	[Preis] [decimal](18, 2) NULL,
 	[WaehrungId] [int] NULL,
 	[ZahlungStatusId] [int] NULL,
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
@@ -1094,6 +1131,31 @@ CREATE TABLE [Verein].[RechtlicheDaten](
 	[GemeinnuetzigkeitsbescheidPfad] [nvarchar](500) NULL,
 	[RegisterauszugPfad] [nvarchar](500) NULL,
 	[Bemerkung] [nvarchar](1000) NULL,
+PRIMARY KEY CLUSTERED
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [Verein].[VereinSatzung]    Script Date: 17.11.2025 - Statute Version Control ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Verein].[VereinSatzung](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [int] NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [int] NULL,
+	[DeletedFlag] [bit] NULL,
+	[VereinId] [int] NOT NULL,
+	[DosyaPfad] [nvarchar](500) NOT NULL,
+	[SatzungVom] [date] NOT NULL,
+	[Aktif] [bit] NOT NULL DEFAULT 1,
+	[Bemerkung] [nvarchar](500) NULL,
+	[DosyaAdi] [nvarchar](200) NULL,
+	[DosyaBoyutu] [bigint] NULL,
 PRIMARY KEY CLUSTERED
 (
 	[Id] ASC
@@ -1531,6 +1593,23 @@ ALTER TABLE [Finanz].[MitgliedZahlung] WITH CHECK ADD FOREIGN KEY([BankBuchungId
 REFERENCES [Finanz].[BankBuchung] ([Id])
 GO
 
+-- VereinDitibZahlung FK constraints
+ALTER TABLE [Finanz].[VereinDitibZahlung] WITH CHECK ADD FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+GO
+ALTER TABLE [Finanz].[VereinDitibZahlung] WITH CHECK ADD FOREIGN KEY([WaehrungId])
+REFERENCES [Keytable].[Waehrung] ([Id])
+GO
+ALTER TABLE [Finanz].[VereinDitibZahlung] WITH CHECK ADD FOREIGN KEY([StatusId])
+REFERENCES [Keytable].[ZahlungStatus] ([Id])
+GO
+ALTER TABLE [Finanz].[VereinDitibZahlung] WITH CHECK ADD FOREIGN KEY([BankkontoId])
+REFERENCES [Verein].[Bankkonto] ([Id])
+GO
+ALTER TABLE [Finanz].[VereinDitibZahlung] WITH CHECK ADD FOREIGN KEY([BankBuchungId])
+REFERENCES [Finanz].[BankBuchung] ([Id])
+GO
+
 -- MitgliedForderungZahlung FK constraints
 ALTER TABLE [Finanz].[MitgliedForderungZahlung] WITH CHECK ADD FOREIGN KEY([ForderungId])
 REFERENCES [Finanz].[MitgliedForderung] ([Id])
@@ -1595,6 +1674,34 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_RechtlicheDaten_VereinId_Unique] ON [Verein
 )
 WHERE [DeletedFlag] = 0
 WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- VereinSatzung FK constraints
+ALTER TABLE [Verein].[VereinSatzung] WITH CHECK ADD CONSTRAINT [FK_VereinSatzung_Verein]
+FOREIGN KEY([VereinId])
+REFERENCES [Verein].[Verein] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [Verein].[VereinSatzung] CHECK CONSTRAINT [FK_VereinSatzung_Verein]
+GO
+
+-- VereinSatzung Indexes
+CREATE NONCLUSTERED INDEX [IX_VereinSatzung_VereinId] ON [Verein].[VereinSatzung]
+(
+	[VereinId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_VereinSatzung_DeletedFlag] ON [Verein].[VereinSatzung]
+(
+	[DeletedFlag] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_VereinSatzung_Aktif] ON [Verein].[VereinSatzung]
+(
+	[Aktif] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 
@@ -1905,3 +2012,129 @@ WHERE [DeletedFlag] = 0
 WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
+
+-- =============================================
+-- MIGRATION: ADD RECURRING EVENT COLUMNS
+-- =============================================
+-- Date: 2025-01-17
+-- Description: Adds recurring event support to Veranstaltung table
+-- This section ensures recurring columns exist even if running on existing database
+-- =============================================
+
+PRINT '========================================';
+PRINT 'Checking Recurring Event Columns...';
+PRINT '========================================';
+GO
+
+-- Check and add IstWiederholend column
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Verein].[Veranstaltung]') AND name = 'IstWiederholend')
+BEGIN
+    PRINT 'Adding column: IstWiederholend...';
+    ALTER TABLE [Verein].[Veranstaltung]
+    ADD [IstWiederholend] [bit] NULL DEFAULT 0;
+    PRINT '✓ IstWiederholend added';
+END
+ELSE
+BEGIN
+    PRINT '✓ IstWiederholend already exists';
+END
+GO
+
+-- Check and add WiederholungTyp column
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Verein].[Veranstaltung]') AND name = 'WiederholungTyp')
+BEGIN
+    PRINT 'Adding column: WiederholungTyp...';
+    ALTER TABLE [Verein].[Veranstaltung]
+    ADD [WiederholungTyp] [nvarchar](20) NULL;
+    PRINT '✓ WiederholungTyp added';
+END
+ELSE
+BEGIN
+    PRINT '✓ WiederholungTyp already exists';
+END
+GO
+
+-- Check and add WiederholungInterval column
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Verein].[Veranstaltung]') AND name = 'WiederholungInterval')
+BEGIN
+    PRINT 'Adding column: WiederholungInterval...';
+    ALTER TABLE [Verein].[Veranstaltung]
+    ADD [WiederholungInterval] [int] NULL DEFAULT 1;
+    PRINT '✓ WiederholungInterval added';
+END
+ELSE
+BEGIN
+    PRINT '✓ WiederholungInterval already exists';
+END
+GO
+
+-- Check and add WiederholungEnde column
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Verein].[Veranstaltung]') AND name = 'WiederholungEnde')
+BEGIN
+    PRINT 'Adding column: WiederholungEnde...';
+    ALTER TABLE [Verein].[Veranstaltung]
+    ADD [WiederholungEnde] [date] NULL;
+    PRINT '✓ WiederholungEnde added';
+END
+ELSE
+BEGIN
+    PRINT '✓ WiederholungEnde already exists';
+END
+GO
+
+-- Check and add WiederholungTage column
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Verein].[Veranstaltung]') AND name = 'WiederholungTage')
+BEGIN
+    PRINT 'Adding column: WiederholungTage...';
+    ALTER TABLE [Verein].[Veranstaltung]
+    ADD [WiederholungTage] [nvarchar](50) NULL;
+    PRINT '✓ WiederholungTage added';
+END
+ELSE
+BEGIN
+    PRINT '✓ WiederholungTage already exists';
+END
+GO
+
+-- Check and add WiederholungMonatTag column
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Verein].[Veranstaltung]') AND name = 'WiederholungMonatTag')
+BEGIN
+    PRINT 'Adding column: WiederholungMonatTag...';
+    ALTER TABLE [Verein].[Veranstaltung]
+    ADD [WiederholungMonatTag] [int] NULL;
+    PRINT '✓ WiederholungMonatTag added';
+END
+ELSE
+BEGIN
+    PRINT '✓ WiederholungMonatTag already exists';
+END
+GO
+
+PRINT '';
+PRINT '========================================';
+PRINT 'Recurring Event Columns Check Complete!';
+PRINT '========================================';
+PRINT '';
+
+-- Verify all columns exist
+SELECT
+    COLUMN_NAME,
+    DATA_TYPE,
+    IS_NULLABLE,
+    COLUMN_DEFAULT
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = 'Verein'
+    AND TABLE_NAME = 'Veranstaltung'
+    AND COLUMN_NAME IN (
+        'IstWiederholend',
+        'WiederholungTyp',
+        'WiederholungInterval',
+        'WiederholungEnde',
+        'WiederholungTage',
+        'WiederholungMonatTag'
+    )
+ORDER BY ORDINAL_POSITION;
+GO
+
+PRINT '✓ All recurring event columns verified!';
+GO

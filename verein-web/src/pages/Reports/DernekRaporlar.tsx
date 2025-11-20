@@ -285,11 +285,11 @@ const DernekRaporlar: React.FC = () => {
   if (vereinError || mitgliederError || veranstaltungenError) {
     return (
       <div className="reports-container">
-        <div className="reports-header">
-          <h1>{t('dernek.title')}</h1>
-          <p style={{ color: 'var(--color-error)' }}>
-            {t('dernek.dataLoadError')} {vereinError?.message || mitgliederError?.message || veranstaltungenError?.message}
-          </p>
+        <div className="page-header">
+          <h1 className="page-title">{t('dernek.title')}</h1>
+        </div>
+        <div style={{ padding: '0 24px', color: 'var(--color-error)' }}>
+          {t('dernek.dataLoadError')} {vereinError?.message || mitgliederError?.message || veranstaltungenError?.message}
         </div>
       </div>
     );
@@ -298,11 +298,11 @@ const DernekRaporlar: React.FC = () => {
   if (!stats || !verein) {
     return (
       <div className="reports-container">
-        <div className="reports-header">
-          <h1>{t('dernek.title')}</h1>
-          <p style={{ color: 'var(--color-warning)' }}>
-            {t('dernek.dataNotLoaded')}
-          </p>
+        <div className="page-header">
+          <h1 className="page-title">{t('dernek.title')}</h1>
+        </div>
+        <div style={{ padding: '0 24px', color: 'var(--color-warning)' }}>
+          {t('dernek.dataNotLoaded')}
         </div>
       </div>
     );
@@ -310,8 +310,8 @@ const DernekRaporlar: React.FC = () => {
 
   return (
     <div className="reports-container">
-      <div className="reports-header">
-        <h1>{t('dernek.title')}</h1>
+      <div className="page-header">
+        <h1 className="page-title">{t('dernek.title')}</h1>
       </div>
 
       {/* Toolbar */}

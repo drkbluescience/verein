@@ -12,6 +12,7 @@ import { VeranstaltungAnmeldungDto, CreateVeranstaltungAnmeldungDto } from '../.
 import VeranstaltungFormModal from '../../components/Veranstaltung/VeranstaltungFormModal';
 import AddParticipantModal from '../../components/Veranstaltung/AddParticipantModal';
 import ImageGallery from '../../components/Veranstaltung/ImageGallery';
+import { calculateNextOccurrences, getRecurrenceDescription } from '../../utils/recurringEventUtils';
 import './VeranstaltungDetail.css';
 
 // SVG Icons
@@ -188,7 +189,7 @@ const AnmeldungCard: React.FC<AnmeldungCardProps> = ({ anmeldung }) => {
 
 const VeranstaltungDetail: React.FC = () => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['veranstaltungen', 'common']);
+  const { t, i18n } = useTranslation(['veranstaltungen', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -552,8 +553,24 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
   }
 
   const status = veranstaltungUtils.getEventStatus(veranstaltung.startdatum, veranstaltung.enddatum);
-  const isUpcoming = veranstaltungUtils.isUpcoming(veranstaltung.startdatum);
-  const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(veranstaltung.startdatum) : null;
+  const isUpcoming = veranstaltungUtils.isUpcoming(
+    veranstaltung.startdatum,
+    veranstaltung.istWiederholend,
+    veranstaltung.wiederholungTyp,
+    veranstaltung.wiederholungInterval,
+    veranstaltung.wiederholungEnde,
+    veranstaltung.wiederholungTage,
+    veranstaltung.wiederholungMonatTag
+  );
+  const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(
+    veranstaltung.startdatum,
+    veranstaltung.istWiederholend,
+    veranstaltung.wiederholungTyp,
+    veranstaltung.wiederholungInterval,
+    veranstaltung.wiederholungEnde,
+    veranstaltung.wiederholungTage,
+    veranstaltung.wiederholungMonatTag
+  ) : null;
 
   const getStatusBadge = () => {
     switch (status) {
@@ -672,7 +689,12 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                 <div className="info-content">
                   <span className="info-label">{t('veranstaltungen:detailPage.fields.date')}</span>
                   <span className="info-value">
-                    {veranstaltungUtils.formatEventDate(veranstaltung.startdatum, veranstaltung.enddatum)}
+                    {veranstaltungUtils.formatEventDate(
+                      veranstaltung.startdatum,
+                      veranstaltung.enddatum,
+                      veranstaltung.istWiederholend,
+                      veranstaltung.wiederholungEnde
+                    )}
                   </span>
                 </div>
               </div>
@@ -718,7 +740,45 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                 </div>
               )}
             </div>
-            
+
+            {/* Recurring Event Information */}
+            {veranstaltung.istWiederholend && (
+              <div className="recurring-section">
+                <h3 className="recurring-title">
+                  🔁 {t('veranstaltungen:recurrence.title')}
+                </h3>
+                <p className="recurring-description">
+                  {getRecurrenceDescription(veranstaltung, t)}
+                </p>
+
+                {/* Next Occurrences */}
+                <div className="next-occurrences">
+                  <h4>{t('veranstaltungen:recurrence.nextOccurrences')}</h4>
+                  <div className="occurrences-list">
+                    {calculateNextOccurrences(veranstaltung, 10).map((occurrence, index) => (
+                      <div key={index} className="occurrence-item">
+                        <span className="occurrence-icon">📅</span>
+                        <span className="occurrence-date">
+                          {new Date(occurrence.startdatum).toLocaleDateString(i18n.language, {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                        <span className="occurrence-time">
+                          {new Date(occurrence.startdatum).toLocaleTimeString(i18n.language, {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {veranstaltung.beschreibung && (
               <div className="description-section">
                 <h3>{t('veranstaltungen:detailPage.sections.description')}</h3>

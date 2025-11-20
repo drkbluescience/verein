@@ -102,8 +102,24 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, is
   const { t } = useTranslation(['mitglieder', 'common']);
   const navigate = useNavigate();
   const status = veranstaltungUtils.getEventStatus(veranstaltung.startdatum, veranstaltung.enddatum);
-  const isUpcoming = veranstaltungUtils.isUpcoming(veranstaltung.startdatum);
-  const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(veranstaltung.startdatum) : null;
+  const isUpcoming = veranstaltungUtils.isUpcoming(
+    veranstaltung.startdatum,
+    veranstaltung.istWiederholend,
+    veranstaltung.wiederholungTyp,
+    veranstaltung.wiederholungInterval,
+    veranstaltung.wiederholungEnde,
+    veranstaltung.wiederholungTage,
+    veranstaltung.wiederholungMonatTag
+  );
+  const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(
+    veranstaltung.startdatum,
+    veranstaltung.istWiederholend,
+    veranstaltung.wiederholungTyp,
+    veranstaltung.wiederholungInterval,
+    veranstaltung.wiederholungEnde,
+    veranstaltung.wiederholungTage,
+    veranstaltung.wiederholungMonatTag
+  ) : null;
 
   const getStatusBadge = () => {
     switch (status) {
@@ -157,7 +173,12 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, is
           <div className="detail-item">
             <CalendarIcon />
             <span className="detail-text">
-              {veranstaltungUtils.formatEventDate(veranstaltung.startdatum, veranstaltung.enddatum)}
+              {veranstaltungUtils.formatEventDate(
+                veranstaltung.startdatum,
+                veranstaltung.enddatum,
+                veranstaltung.istWiederholend,
+                veranstaltung.wiederholungEnde
+              )}
             </span>
           </div>
 

@@ -1,28 +1,19 @@
 /* Admin Page Notes Dashboard Styles */
 
 .page-notes-admin {
-  padding: 24px;
+  padding: 0;
+}
+
+/* Header uses global page-header styles */
+
+/* Actions Bar */
+.page-notes-admin .actions-bar {
+  padding: 0 24px 24px;
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.admin-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.header-actions {
   display: flex;
   gap: 12px;
+  justify-content: flex-end;
 }
 
 .add-note-btn {
@@ -63,6 +54,9 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
   gap: 10px !important;
   margin-bottom: 20px !important;
+  padding: 0 24px;
+  max-width: 1400px;
+  margin: 0 auto 24px;
 }
 
 .page-notes-admin .stat-card {
@@ -124,6 +118,9 @@
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 12px;
   margin-bottom: 24px;
+  padding: 0 24px;
+  max-width: 1400px;
+  margin: 0 auto 24px;
 }
 
 .search-input,
@@ -144,6 +141,9 @@
 
 /* Notes Table */
 .notes-table-container {
+  padding: 0 24px;
+  max-width: 1400px;
+  margin: 0 auto;
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

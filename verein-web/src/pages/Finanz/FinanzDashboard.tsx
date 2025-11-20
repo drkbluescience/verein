@@ -10,11 +10,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  mitgliedForderungService,
-  mitgliedZahlungService,
-  bankBuchungService,
+  finanzDashboardService,
 } from '../../services/finanzService';
-import { mitgliedService } from '../../services/mitgliedService';
 import { vereinService } from '../../services/vereinService';
 import Loading from '../../components/Common/Loading';
 import {
@@ -127,6 +124,7 @@ const FinanzDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<'gelir' | 'gider'>('gelir');
 
   // Get vereinId based on user type
   const vereinId = useMemo(() => {
@@ -143,251 +141,123 @@ const FinanzDashboard: React.FC = () => {
     enabled: user?.type === 'admin',
   });
 
-  // Fetch claims
-  const { data: forderungen = [], isLoading: forderungenLoading } = useQuery({
-    queryKey: ['forderungen', vereinId],
+  // Fetch dashboard statistics (optimized single endpoint)
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['finanz-dashboard-stats', vereinId],
     queryFn: async () => {
-      if (vereinId) {
-        // Dernek user - get unpaid claims
-        return await mitgliedForderungService.getUnpaid(vereinId);
-      }
-      // Admin - get all claims
-      return await mitgliedForderungService.getAll();
+      return await finanzDashboardService.getStats(vereinId || undefined);
     },
     enabled: !!user,
   });
 
-  // Fetch payments
-  const { data: zahlungen = [], isLoading: zahlungenLoading } = useQuery({
-    queryKey: ['zahlungen', vereinId],
-    queryFn: async () => {
-      if (vereinId) {
-        // Dernek user - get payments for their verein
-        const allZahlungen = await mitgliedZahlungService.getAll();
-        return allZahlungen.filter(z => z.vereinId === vereinId);
-      }
-      // Admin - get all payments
-      return await mitgliedZahlungService.getAll();
-    },
-    enabled: !!user,
-  });
-
-  // Fetch bank transactions
-  const { data: bankBuchungen = [], isLoading: bankBuchungenLoading } = useQuery({
-    queryKey: ['bankBuchungen', vereinId],
-    queryFn: async () => {
-      if (vereinId) {
-        // Dernek user - get bank transactions for their verein
-        return await bankBuchungService.getByVereinId(vereinId);
-      }
-      // Admin - get all bank transactions
-      return await bankBuchungService.getAll();
-    },
-    enabled: !!user,
-  });
-
-  // Fetch mitglieder for ARPU calculation
-  const { data: mitgliederData } = useQuery({
-    queryKey: ['mitglieder-for-finanz', vereinId],
-    queryFn: async () => {
-      if (vereinId) {
-        return await mitgliedService.getAll({ pageNumber: 1, pageSize: 10000, vereinId });
-      }
-      return await mitgliedService.getAll({ pageNumber: 1, pageSize: 10000 });
-    },
-    enabled: !!user,
-  });
-
-  const allMitglieder = useMemo(() => {
-    if (!mitgliederData) return [];
-    return Array.isArray(mitgliederData) ? mitgliederData : mitgliederData.items || [];
-  }, [mitgliederData]);
-
-  // Calculate advanced statistics
+  // Extract statistics from dashboard data (no more frontend calculations!)
   const stats = useMemo(() => {
-    const totalForderungen = forderungen.length;
-    const totalForderungsBetrag = forderungen.reduce((sum, f) => sum + f.betrag, 0);
+    if (!dashboardStats) {
+      return {
+        totalForderungen: 0,
+        totalForderungsBetrag: 0,
+        bezahlteForderungen: 0,
+        bezahlteForderungenBetrag: 0,
+        offeneForderungen: 0,
+        offeneForderungenBetrag: 0,
+        overdueForderungenCount: 0,
+        overdueForderungenBetrag: 0,
+        totalZahlungen: 0,
+        totalZahlungsBetrag: 0,
+        totalDitibZahlungen: 0,
+        bezahlteDitibZahlungen: 0,
+        offeneDitibZahlungen: 0,
+        totalDitibBetrag: 0,
+        bezahlteDitibBetrag: 0,
+        offeneDitibBetrag: 0,
+        currentMonthDitibBetrag: 0,
+        collectionRate: 0,
+        expectedRevenue: 0,
+        cashPosition: 0,
+        netPosition: 0,
+        arpu: 0,
+        avgPaymentDays: 0,
+        activeMitglieder: 0,
+      };
+    }
 
-    const bezahlteForderungen = forderungen.filter(f => f.statusId === 1).length;
-    const bezahlteForderungenBetrag = forderungen.filter(f => f.statusId === 1).reduce((sum, f) => sum + f.betrag, 0);
-    const offeneForderungen = forderungen.filter(f => f.statusId === 2).length;
-    const offeneForderungenBetrag = forderungen.filter(f => f.statusId === 2).reduce((sum, f) => sum + f.betrag, 0);
+    const { gelir, gider } = dashboardStats;
 
-    // Overdue claims (gecikmiş ödemeler)
-    const today = new Date();
-    const overdueForderungen = forderungen.filter(f => {
-      if (f.statusId === 1) return false; // Already paid
-      return new Date(f.faelligkeit) < today;
-    });
-    const overdueForderungenCount = overdueForderungen.length;
-    const overdueForderungenBetrag = overdueForderungen.reduce((sum, f) => sum + f.betrag, 0);
-
-    const totalZahlungen = zahlungen.length;
-    const totalZahlungsBetrag = zahlungen.reduce((sum, z) => sum + z.betrag, 0);
-
-    const totalBankBuchungen = bankBuchungen.length;
-    const totalBankBetrag = bankBuchungen.reduce((sum, b) => sum + b.betrag, 0);
-
-    // Collection Rate (Tahsilat Oranı)
-    const collectionRate = totalForderungsBetrag > 0
-      ? (bezahlteForderungenBetrag / totalForderungsBetrag) * 100
-      : 0;
-
-    // Average Payment Days (Ortalama Ödeme Süresi)
-    const paidForderungenWithDates = forderungen.filter(f => f.statusId === 1 && f.bezahltAm && f.faelligkeit);
-    const avgPaymentDays = paidForderungenWithDates.length > 0
-      ? paidForderungenWithDates.reduce((sum, f) => {
-          const dueDate = new Date(f.faelligkeit);
-          const paidDate = new Date(f.bezahltAm!);
-          const diffDays = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
-          return sum + diffDays;
-        }, 0) / paidForderungenWithDates.length
-      : 0;
-
-    // Expected Revenue (Bu ay beklenen gelir)
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const expectedRevenue = forderungen
-      .filter(f => {
-        const dueDate = new Date(f.faelligkeit);
-        return dueDate.getMonth() === currentMonth &&
-               dueDate.getFullYear() === currentYear &&
-               f.statusId === 2; // Only unpaid
-      })
-      .reduce((sum, f) => sum + f.betrag, 0);
-
-    // Cash Position (Nakit Pozisyonu) - Simplified: Total payments - Total claims
-    const cashPosition = totalZahlungsBetrag - totalForderungsBetrag;
-
-    // ARPU (Average Revenue Per User)
-    const activeMitglieder = allMitglieder.filter(m => m.aktiv).length;
-    const arpu = activeMitglieder > 0 ? totalZahlungsBetrag / activeMitglieder : 0;
+    // Calculate net position (income - expenses)
+    const netPosition = gelir.totalZahlungenAmount - gider.bezahltAmount;
+    const cashPosition = gelir.totalZahlungenAmount - gider.bezahltAmount;
 
     return {
-      totalForderungen,
-      totalForderungsBetrag,
-      bezahlteForderungen,
-      bezahlteForderungenBetrag,
-      offeneForderungen,
-      offeneForderungenBetrag,
-      overdueForderungenCount,
-      overdueForderungenBetrag,
-      totalZahlungen,
-      totalZahlungsBetrag,
-      totalBankBuchungen,
-      totalBankBetrag,
-      collectionRate,
-      avgPaymentDays,
-      expectedRevenue,
-      cashPosition,
-      arpu,
-      activeMitglieder,
-    };
-  }, [forderungen, zahlungen, bankBuchungen, allMitglieder]);
+      // Income stats
+      totalForderungen: gelir.totalForderungen,
+      totalForderungsBetrag: gelir.totalAmount,
+      bezahlteForderungen: gelir.bezahlteForderungen,
+      bezahlteForderungenBetrag: gelir.bezahltAmount,
+      offeneForderungen: gelir.offeneForderungen,
+      offeneForderungenBetrag: gelir.offenAmount,
+      overdueForderungenCount: gelir.ueberfaelligeForderungen,
+      overdueForderungenBetrag: gelir.ueberfaelligAmount,
+      totalZahlungen: gelir.totalZahlungen,
+      totalZahlungsBetrag: gelir.totalZahlungenAmount,
+      collectionRate: gelir.collectionRate,
+      expectedRevenue: gelir.expectedRevenue,
+      arpu: gelir.arpu,
 
-  // Monthly Revenue Trend (Son 12 ay)
+      // Expense stats
+      totalDitibZahlungen: gider.totalDitibZahlungen,
+      bezahlteDitibZahlungen: gider.bezahlteDitibZahlungen,
+      offeneDitibZahlungen: gider.offeneDitibZahlungen,
+      totalDitibBetrag: gider.totalAmount,
+      bezahlteDitibBetrag: gider.bezahltAmount,
+      offeneDitibBetrag: gider.offenAmount,
+      currentMonthDitibBetrag: gider.currentMonthAmount,
+
+      // Calculated stats
+      netPosition,
+      cashPosition,
+      avgPaymentDays: gelir.avgPaymentDays,
+      activeMitglieder: gelir.activeMitglieder,
+    };
+  }, [dashboardStats]);
+
+  // Monthly Revenue Trend (from backend)
   const monthlyRevenueData = useMemo(() => {
-    const data = [];
+    if (!dashboardStats) return [];
+
     const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
-      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-      const monthPayments = zahlungen.filter(z => {
-        const paymentDate = new Date(z.zahlungsdatum);
-        return paymentDate >= monthStart && paymentDate <= monthEnd;
-      }).reduce((sum, z) => sum + z.betrag, 0);
-
-      const monthClaims = forderungen.filter(f => {
-        const dueDate = new Date(f.faelligkeit);
-        return dueDate >= monthStart && dueDate <= monthEnd;
-      }).reduce((sum, f) => sum + f.betrag, 0);
-
-      data.push({
-        month: t(`common:monthsShort.${monthKeys[date.getMonth()]}`),
-        gelir: Math.round(monthPayments),
-        alacak: Math.round(monthClaims),
-      });
-    }
-    return data;
-  }, [zahlungen, forderungen, t]);
-
-  // Payment Methods Distribution
-  const paymentMethodsData = useMemo(() => {
-    const methods: { [key: string]: number } = {};
-
-    zahlungen.forEach(z => {
-      const method = z.zahlungsweg || 'Belirtilmemiş';
-      methods[method] = (methods[method] || 0) + z.betrag;
-    });
-
-    return Object.entries(methods).map(([name, value]) => ({
-      name,
-      value: Math.round(value),
+    return dashboardStats.gelir.monthlyTrend.map((trend, index) => ({
+      month: t(`common:monthsShort.${monthKeys[trend.month - 1]}`),
+      gelir: Math.round(trend.amount),
+      alacak: Math.round(trend.amount), // Same as gelir for now
+      gider: Math.round(dashboardStats.gider.monthlyTrend[index]?.amount || 0),
     }));
-  }, [zahlungen]);
+  }, [dashboardStats, t]);
 
-  // Dernek Comparison Data (for Admin when no filter selected)
+  // Dernek Comparison Data (from backend for Admin)
   const vereinComparisonData = useMemo(() => {
     if (user?.type !== 'admin' || selectedVereinId !== null) return [];
+    if (!dashboardStats?.vereinComparison) return [];
 
-    return vereine.map(verein => {
-      const vereinForderungen = forderungen.filter(f => f.vereinId === verein.id);
-      const vereinZahlungen = zahlungen.filter(z => z.vereinId === verein.id);
-      const vereinBankBuchungen = bankBuchungen.filter(b => b.vereinId === verein.id);
+    return dashboardStats.vereinComparison.map(vc => ({
+      vereinId: vc.vereinId,
+      vereinName: vc.vereinName,
+      totalForderungen: 0, // Not in backend DTO yet
+      totalForderungsBetrag: vc.revenue,
+      bezahlteForderungen: 0,
+      bezahlteForderungenBetrag: vc.revenue,
+      offeneForderungen: 0,
+      offeneForderungenBetrag: 0,
+      overdueForderungenCount: 0,
+      overdueForderungenBetrag: 0,
+      totalZahlungen: 0,
+      totalZahlungsBetrag: vc.revenue,
+      totalBankBetrag: vc.revenue,
+      collectionRate: vc.collectionRate,
+    }));
+  }, [user, selectedVereinId, dashboardStats]);
 
-      const totalForderungen = vereinForderungen.length;
-      const totalForderungsBetrag = vereinForderungen.reduce((sum, f) => sum + f.betrag, 0);
-      const bezahlteForderungen = vereinForderungen.filter(f => f.statusId === 1).length;
-      const bezahlteForderungenBetrag = vereinForderungen.filter(f => f.statusId === 1).reduce((sum, f) => sum + f.betrag, 0);
-      const offeneForderungen = vereinForderungen.filter(f => f.statusId === 2).length;
-      const offeneForderungenBetrag = vereinForderungen.filter(f => f.statusId === 2).reduce((sum, f) => sum + f.betrag, 0);
-
-      const today = new Date();
-      const overdueForderungen = vereinForderungen.filter(f => {
-        if (f.statusId === 1) return false;
-        return new Date(f.faelligkeit) < today;
-      });
-      const overdueForderungenCount = overdueForderungen.length;
-      const overdueForderungenBetrag = overdueForderungen.reduce((sum, f) => sum + f.betrag, 0);
-
-      const totalZahlungen = vereinZahlungen.length;
-      const totalZahlungsBetrag = vereinZahlungen.reduce((sum, z) => sum + z.betrag, 0);
-
-      const totalBankBetrag = vereinBankBuchungen.reduce((sum, b) => sum + b.betrag, 0);
-
-      const collectionRate = totalForderungsBetrag > 0
-        ? (bezahlteForderungenBetrag / totalForderungsBetrag) * 100
-        : 0;
-
-      return {
-        vereinId: verein.id,
-        vereinName: verein.name,
-        totalForderungen,
-        totalForderungsBetrag,
-        bezahlteForderungen,
-        bezahlteForderungenBetrag,
-        offeneForderungen,
-        offeneForderungenBetrag,
-        overdueForderungenCount,
-        overdueForderungenBetrag,
-        totalZahlungen,
-        totalZahlungsBetrag,
-        totalBankBetrag,
-        collectionRate,
-      };
-    });
-  }, [user, selectedVereinId, vereine, forderungen, zahlungen, bankBuchungen]);
-
-  // Colors for pie chart
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-
-  const isLoading = forderungenLoading || zahlungenLoading || bankBuchungenLoading;
-
-  if (isLoading) return <Loading />;
+  if (statsLoading) return <Loading />;
 
   // Export to Excel function
   const exportToExcel = () => {
@@ -420,8 +290,15 @@ const FinanzDashboard: React.FC = () => {
     XLSX.utils.book_append_sheet(wb, ws2, t('finanz:export.monthlyDataSheet'));
 
     // Payment Methods Sheet
-    const ws3 = XLSX.utils.json_to_sheet(paymentMethodsData);
-    XLSX.utils.book_append_sheet(wb, ws3, t('finanz:export.paymentMethodsSheet'));
+    if (dashboardStats?.gelir.paymentMethods && dashboardStats.gelir.paymentMethods.length > 0) {
+      const paymentMethodsData = dashboardStats.gelir.paymentMethods.map(pm => ({
+        [t('finanz:export.paymentMethod')]: pm.method,
+        [t('finanz:export.count')]: pm.count,
+        [t('finanz:export.amount')]: pm.amount.toFixed(2)
+      }));
+      const ws3 = XLSX.utils.json_to_sheet(paymentMethodsData);
+      XLSX.utils.book_append_sheet(wb, ws3, t('finanz:export.paymentMethodsSheet'));
+    }
 
     XLSX.writeFile(wb, `${t('finanz:export.financeReportFileName')}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
@@ -461,19 +338,77 @@ const FinanzDashboard: React.FC = () => {
           </select>
         )}
         <div style={{ flex: 1 }}></div>
-        <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
-          <UploadIcon />
-          {t('finanz:bankUpload.title')}
-        </button>
+        {/* Show Bank Upload button only on GELİR tab */}
+        {activeTab === 'gelir' && (
+          <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
+            <UploadIcon />
+            {t('finanz:bankUpload.title')}
+          </button>
+        )}
+        {/* Show DITIB Upload button only on GİDER tab */}
+        {activeTab === 'gider' && (
+          <button className="btn btn-secondary" onClick={() => navigate('/finanzen/ditib-upload')}>
+            <UploadIcon />
+            {t('finanz:dashboard.ditibUploadButton')}
+          </button>
+        )}
         <button className="btn btn-primary" onClick={exportToExcel}>
           <DownloadIcon />
           {t('finanz:dashboard.exportToExcel')}
         </button>
       </div>
 
-      {/* Important Metrics - 2x2 Grid */}
-      <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.importantMetrics')}</h2>
+      {/* Tabs: Gelir / Gider */}
+      <div style={{ padding: '0 24px', maxWidth: '1400px', margin: '0 auto', marginBottom: '1.5rem' }}>
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          borderBottom: '2px solid var(--color-border)',
+          marginBottom: '1.5rem'
+        }}>
+          <button
+            onClick={() => setActiveTab('gelir')}
+            style={{
+              padding: '12px 24px',
+              background: activeTab === 'gelir' ? 'var(--color-primary)' : 'transparent',
+              color: activeTab === 'gelir' ? 'white' : 'var(--color-text)',
+              border: 'none',
+              borderRadius: '8px 8px 0 0',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              borderBottom: activeTab === 'gelir' ? '3px solid var(--color-primary)' : '3px solid transparent',
+            }}
+          >
+            💰 {t('finanz:dashboard.incomeTab')}
+          </button>
+          <button
+            onClick={() => setActiveTab('gider')}
+            style={{
+              padding: '12px 24px',
+              background: activeTab === 'gider' ? 'var(--color-primary)' : 'transparent',
+              color: activeTab === 'gider' ? 'white' : 'var(--color-text)',
+              border: 'none',
+              borderRadius: '8px 8px 0 0',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              borderBottom: activeTab === 'gider' ? '3px solid var(--color-primary)' : '3px solid transparent',
+            }}
+          >
+            📤 {t('finanz:dashboard.expenseTab')}
+          </button>
+        </div>
+      </div>
+
+      {/* GELİR TAB CONTENT */}
+      {activeTab === 'gelir' && (
+        <>
+          {/* Important Metrics - 2x2 Grid */}
+          <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.incomeStatistics')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
           <div style={{
             background: 'var(--color-surface)',
@@ -629,6 +564,76 @@ const FinanzDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Access - Gelir */}
+      <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.quickAccess')}</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <button
+            onClick={() => navigate('/finanzen/forderungen')}
+            style={{
+              padding: '1.25rem',
+              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            📋 {t('finanz:dashboard.forderungenButton')}
+          </button>
+          <button
+            onClick={() => navigate('/finanzen/zahlungen')}
+            style={{
+              padding: '1.25rem',
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            💰 {t('finanz:dashboard.zahlungenButton')}
+          </button>
+          <button
+            onClick={() => navigate('/finanzen/bank')}
+            style={{
+              padding: '1.25rem',
+              background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            🏦 {t('finanz:dashboard.bankBuchungenButton')}
+          </button>
+        </div>
+      </div>
+
       {/* Verein Comparison Table (Admin only, when no filter selected) */}
       {user?.type === 'admin' && selectedVereinId === null && vereinComparisonData.length > 0 && (
         <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
@@ -779,174 +784,6 @@ const FinanzDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Quick Access Buttons */}
-      <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.quickAccess')}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <button
-            className="action-card"
-            style={{
-              cursor: 'pointer',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-surface)',
-              padding: '1.25rem',
-              borderRadius: '12px',
-              textAlign: 'left',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-            }}
-            onClick={() => navigate('/finanzen/forderungen')}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-              e.currentTarget.style.borderColor = '#667eea';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
-              }}>
-                <CreditCardIcon />
-              </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-text)' }}>
-                {stats.totalForderungen}
-              </div>
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-text)' }}>{t('finanz:dashboard.forderungen')}</h3>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem' }}>{t('finanz:dashboard.forderungenDesc')}</p>
-              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
-                €{stats.totalForderungsBetrag.toFixed(2)}
-              </div>
-            </div>
-          </button>
-
-          <button
-            className="action-card"
-            style={{
-              cursor: 'pointer',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-surface)',
-              padding: '1.25rem',
-              borderRadius: '12px',
-              textAlign: 'left',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-            }}
-            onClick={() => navigate('/finanzen/zahlungen')}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-              e.currentTarget.style.borderColor = '#f093fb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: '0 4px 12px rgba(240, 147, 251, 0.3)'
-              }}>
-                <CheckCircleIcon />
-              </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-text)' }}>
-                {stats.totalZahlungen}
-              </div>
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-text)' }}>{t('finanz:dashboard.zahlungen')}</h3>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem' }}>{t('finanz:dashboard.zahlungenDesc')}</p>
-              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
-                €{stats.totalZahlungsBetrag.toFixed(2)}
-              </div>
-            </div>
-          </button>
-
-          <button
-            className="action-card"
-            style={{
-              cursor: 'pointer',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-surface)',
-              padding: '1.25rem',
-              borderRadius: '12px',
-              textAlign: 'left',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-            }}
-            onClick={() => navigate('/finanzen/bank')}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-              e.currentTarget.style.borderColor = '#4facfe';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)'
-              }}>
-                <WalletIcon />
-              </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-text)' }}>
-                {stats.totalBankBuchungen}
-              </div>
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-text)' }}>{t('finanz:dashboard.bankBuchungen')}</h3>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem' }}>{t('finanz:dashboard.bankBuchungenDesc')}</p>
-              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>
-                €{stats.totalBankBetrag.toFixed(2)}
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
-
       {/* Charts Section */}
       <div className="charts-grid">
         {/* Monthly Revenue Trend */}
@@ -984,8 +821,17 @@ const FinanzDashboard: React.FC = () => {
                   dataKey="gelir"
                   stroke="#10B981"
                   strokeWidth={2}
-                  name={t('finanz:dashboard.revenue')}
+                  name="Gelir (Üye Ödemeleri)"
                   dot={{ fill: '#10B981', r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="gider"
+                  stroke="#EF4444"
+                  strokeWidth={2}
+                  name="Gider (DITIB Ödemeleri)"
+                  dot={{ fill: '#EF4444', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
                 <Line
@@ -1004,34 +850,53 @@ const FinanzDashboard: React.FC = () => {
 
         {/* Payment Methods Distribution */}
         <div className="chart-section">
-          <h2>{t('finanz:dashboard.paymentMethodsDistribution')}</h2>
+          <h2>{t('finanz:dashboard.paymentMethods')}</h2>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={paymentMethodsData}
+                  data={dashboardStats?.gelir.paymentMethods.map(pm => ({
+                    name: pm.method,
+                    value: pm.amount
+                  })) || []}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ percent }: any) => `${(percent * 100).toFixed(0)}%`}
-                  outerRadius={90}
+                  label={({ name, percent }: any) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {paymentMethodsData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {(dashboardStats?.gelir.paymentMethods || []).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'][index % 6]} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: any) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`}
+                  contentStyle={{
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '8px',
+                  }}
+                  formatter={(value: any) => `€${value.toFixed(2)}`}
                 />
-                <Legend
-                  verticalAlign="bottom"
-                  height={36}
-                  formatter={(value: string) => value.toUpperCase()}
-                />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
+            <div style={{ marginTop: '1rem' }}>
+              {dashboardStats?.gelir.paymentMethods.map((pm, index) => (
+                <div key={index} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '0.5rem 0',
+                  borderBottom: index < (dashboardStats?.gelir.paymentMethods.length || 0) - 1 ? '1px solid var(--color-border)' : 'none'
+                }}>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>{pm.method}</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                    {pm.count} ({(pm.amount).toFixed(2)} €)
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -1142,6 +1007,171 @@ const FinanzDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
+      )}
+
+      {/* GİDER TAB CONTENT */}
+      {activeTab === 'gider' && (
+        <>
+          {/* DITIB Payments Statistics */}
+          <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.expenseStatistics')}</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              {/* Total DITIB Payments */}
+              <div style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                  }}>
+                    <DollarSignIcon />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.totalDitibPayments')}</p>
+                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.totalDitibZahlungen}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.totalDitibBetrag.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Paid DITIB Payments */}
+              <div style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                  }}>
+                    <CheckCircleIcon />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.paidDitib')}</p>
+                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.bezahlteDitibZahlungen}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.bezahlteDitibBetrag.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Pending DITIB Payments */}
+              <div style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                  }}>
+                    <ClockIcon />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.pendingDitib')}</p>
+                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.offeneDitibZahlungen}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.offeneDitibBetrag.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Current Month DITIB */}
+              <div style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+                  }}>
+                    <TrendingUpIcon />
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.currentMonth')}</p>
+                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>€ {stats.currentMonthDitibBetrag.toFixed(2)}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{t('finanz:dashboard.ditibPayment')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Access - DITIB */}
+          <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.quickAccess')}</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <button
+                onClick={() => navigate('/finanzen/ditib-zahlungen')}
+                style={{
+                  padding: '1.25rem',
+                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                📤 {t('finanz:dashboard.ditibPaymentsButton')}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

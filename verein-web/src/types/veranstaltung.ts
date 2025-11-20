@@ -25,6 +25,13 @@ export interface VeranstaltungDto {
   nurFuerMitglieder?: boolean;  // true = Sadece üyeler, false = Herkese açık
   anmeldeErforderlich?: boolean;  // Kayıt gerekli mi?
   aktiv?: boolean;
+  // Recurring event fields
+  istWiederholend?: boolean;
+  wiederholungTyp?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  wiederholungInterval?: number;
+  wiederholungEnde?: string;
+  wiederholungTage?: string;  // "Mon,Wed,Fri"
+  wiederholungMonatTag?: number;  // 1-31
   created?: string;
   createdBy?: string;
   modified?: string;
@@ -44,6 +51,13 @@ export interface CreateVeranstaltungDto {
   nurFuerMitglieder?: boolean;  // true = Sadece üyeler, false = Herkese açık
   anmeldeErforderlich?: boolean;  // Kayıt gerekli mi?
   aktiv?: boolean;
+  // Recurring event fields
+  istWiederholend?: boolean;
+  wiederholungTyp?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  wiederholungInterval?: number;
+  wiederholungEnde?: string;
+  wiederholungTage?: string;
+  wiederholungMonatTag?: number;
 }
 
 export interface UpdateVeranstaltungDto {
@@ -59,6 +73,13 @@ export interface UpdateVeranstaltungDto {
   nurFuerMitglieder?: boolean;  // true = Sadece üyeler, false = Herkese açık
   anmeldeErforderlich?: boolean;  // Kayıt gerekli mi?
   aktiv?: boolean;
+  // Recurring event fields
+  istWiederholend?: boolean;
+  wiederholungTyp?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  wiederholungInterval?: number;
+  wiederholungEnde?: string;
+  wiederholungTage?: string;
+  wiederholungMonatTag?: number;
 }
 
 // VeranstaltungAnmeldung Types

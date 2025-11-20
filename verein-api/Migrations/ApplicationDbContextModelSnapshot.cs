@@ -2004,8 +2004,9 @@ namespace VereinsApi.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("DeletedFlag")
                         .ValueGeneratedOnAdd()
@@ -2022,8 +2023,9 @@ namespace VereinsApi.Migrations
                     b.Property<DateTime?>("Modified")
                         .HasColumnType("datetime");
 
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PageTitle")
                         .HasMaxLength(200)
@@ -2057,10 +2059,6 @@ namespace VereinsApi.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("UserType")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -2192,6 +2190,135 @@ namespace VereinsApi.Migrations
                     b.ToTable("RechtlicheDaten", "Verein");
                 });
 
+            modelBuilder.Entity("VereinsApi.Domain.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Aktiv")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("DeletedFlag")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nachname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Vorname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User", "Web");
+                });
+
+            modelBuilder.Entity("VereinsApi.Domain.Entities.UserRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Aktiv")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Bemerkung")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("DeletedFlag")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("GueltigBis")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("GueltigVon")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MitgliedId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoleType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VereinId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MitgliedId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VereinId");
+
+                    b.ToTable("UserRole", "Web");
+                });
+
             modelBuilder.Entity("VereinsApi.Domain.Entities.Veranstaltung", b =>
                 {
                     b.Property<int>("Id")
@@ -2232,6 +2359,9 @@ namespace VereinsApi.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("Ende");
 
+                    b.Property<bool?>("IstWiederholend")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("MaxTeilnehmer")
                         .HasColumnType("int")
                         .HasColumnName("MaxTeilnehmer");
@@ -2271,6 +2401,23 @@ namespace VereinsApi.Migrations
                     b.Property<int?>("WaehrungId")
                         .HasColumnType("int")
                         .HasColumnName("WaehrungId");
+
+                    b.Property<DateTime?>("WiederholungEnde")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("WiederholungInterval")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WiederholungMonatTag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WiederholungTage")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("WiederholungTyp")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -2725,6 +2872,167 @@ namespace VereinsApi.Migrations
                     b.ToTable("Verein", "Verein");
                 });
 
+            modelBuilder.Entity("VereinsApi.Domain.Entities.VereinDitibZahlung", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:Identity", "1, 1");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("Aktiv")
+                        .HasColumnType("bit")
+                        .HasColumnName("Aktiv");
+
+                    b.Property<int?>("BankBuchungId")
+                        .HasColumnType("int")
+                        .HasColumnName("BankBuchungId");
+
+                    b.Property<int?>("BankkontoId")
+                        .HasColumnType("int")
+                        .HasColumnName("BankkontoId");
+
+                    b.Property<string>("Bemerkung")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)")
+                        .HasColumnName("Bemerkung");
+
+                    b.Property<decimal>("Betrag")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Betrag");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime")
+                        .HasColumnName("Created");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<bool?>("DeletedFlag")
+                        .HasColumnType("bit")
+                        .HasColumnName("DeletedFlag");
+
+                    b.Property<DateTime?>("Modified")
+                        .HasColumnType("datetime")
+                        .HasColumnName("Modified");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("ModifiedBy");
+
+                    b.Property<string>("Referenz")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("Referenz");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int")
+                        .HasColumnName("StatusId");
+
+                    b.Property<int>("VereinId")
+                        .HasColumnType("int")
+                        .HasColumnName("VereinId");
+
+                    b.Property<int>("WaehrungId")
+                        .HasColumnType("int")
+                        .HasColumnName("WaehrungId");
+
+                    b.Property<DateTime>("Zahlungsdatum")
+                        .HasColumnType("datetime")
+                        .HasColumnName("Zahlungsdatum");
+
+                    b.Property<string>("Zahlungsperiode")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)")
+                        .HasColumnName("Zahlungsperiode");
+
+                    b.Property<string>("Zahlungsweg")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("Zahlungsweg");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankBuchungId");
+
+                    b.HasIndex("BankkontoId");
+
+                    b.HasIndex("VereinId")
+                        .HasDatabaseName("IX_VereinDitibZahlung_VereinId");
+
+                    b.HasIndex("Zahlungsdatum")
+                        .HasDatabaseName("IX_VereinDitibZahlung_Zahlungsdatum");
+
+                    b.HasIndex("Zahlungsperiode")
+                        .HasDatabaseName("IX_VereinDitibZahlung_Zahlungsperiode");
+
+                    b.HasIndex("VereinId", "Zahlungsperiode")
+                        .HasDatabaseName("IX_VereinDitibZahlung_VereinId_Zahlungsperiode");
+
+                    b.ToTable("VereinDitibZahlung", "Finanz");
+                });
+
+            modelBuilder.Entity("VereinsApi.Domain.Entities.VereinSatzung", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Aktif")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("Aktiv")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Bemerkung")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("DeletedFlag")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("DosyaAdi")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<long?>("DosyaBoyutu")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DosyaPfad")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SatzungVom")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("VereinId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VereinId");
+
+                    b.ToTable("VereinSatzung", "Verein");
+                });
+
             modelBuilder.Entity("VereinsApi.Domain.Entities.BankBuchung", b =>
                 {
                     b.HasOne("VereinsApi.Domain.Entities.Bankkonto", "BankKonto")
@@ -3115,6 +3423,29 @@ namespace VereinsApi.Migrations
                     b.Navigation("Verein");
                 });
 
+            modelBuilder.Entity("VereinsApi.Domain.Entities.UserRole", b =>
+                {
+                    b.HasOne("VereinsApi.Domain.Entities.Mitglied", "Mitglied")
+                        .WithMany()
+                        .HasForeignKey("MitgliedId");
+
+                    b.HasOne("VereinsApi.Domain.Entities.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VereinsApi.Domain.Entities.Verein", "Verein")
+                        .WithMany()
+                        .HasForeignKey("VereinId");
+
+                    b.Navigation("Mitglied");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Verein");
+                });
+
             modelBuilder.Entity("VereinsApi.Domain.Entities.Veranstaltung", b =>
                 {
                     b.HasOne("VereinsApi.Domain.Entities.Verein", "Verein")
@@ -3190,6 +3521,45 @@ namespace VereinsApi.Migrations
                     b.Navigation("HauptAdresse");
 
                     b.Navigation("HauptBankkonto");
+                });
+
+            modelBuilder.Entity("VereinsApi.Domain.Entities.VereinDitibZahlung", b =>
+                {
+                    b.HasOne("VereinsApi.Domain.Entities.BankBuchung", "BankBuchung")
+                        .WithMany()
+                        .HasForeignKey("BankBuchungId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VereinDitibZahlung_BankBuchung");
+
+                    b.HasOne("VereinsApi.Domain.Entities.Bankkonto", "Bankkonto")
+                        .WithMany()
+                        .HasForeignKey("BankkontoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VereinDitibZahlung_Bankkonto");
+
+                    b.HasOne("VereinsApi.Domain.Entities.Verein", "Verein")
+                        .WithMany()
+                        .HasForeignKey("VereinId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_VereinDitibZahlung_Verein");
+
+                    b.Navigation("BankBuchung");
+
+                    b.Navigation("Bankkonto");
+
+                    b.Navigation("Verein");
+                });
+
+            modelBuilder.Entity("VereinsApi.Domain.Entities.VereinSatzung", b =>
+                {
+                    b.HasOne("VereinsApi.Domain.Entities.Verein", "Verein")
+                        .WithMany()
+                        .HasForeignKey("VereinId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Verein");
                 });
 
             modelBuilder.Entity("VereinsApi.Domain.Entities.Adresse", b =>
@@ -3310,6 +3680,11 @@ namespace VereinsApi.Migrations
                     b.Navigation("ForderungZahlungen");
 
                     b.Navigation("Vorauszahlungen");
+                });
+
+            modelBuilder.Entity("VereinsApi.Domain.Entities.User", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("VereinsApi.Domain.Entities.Veranstaltung", b =>

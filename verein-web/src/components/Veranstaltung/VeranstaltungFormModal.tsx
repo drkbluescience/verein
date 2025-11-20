@@ -50,7 +50,14 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
     waehrungId: '',
     nurFuerMitglieder: false,
     anmeldeErforderlich: true,
-    aktiv: true
+    aktiv: true,
+    // Recurring event fields
+    istWiederholend: false,
+    wiederholungTyp: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
+    wiederholungInterval: 1,
+    wiederholungEnde: '',
+    wiederholungTage: '',
+    wiederholungMonatTag: undefined as number | undefined
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,7 +76,14 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
         waehrungId: veranstaltung.waehrungId?.toString() || '',
         nurFuerMitglieder: veranstaltung.nurFuerMitglieder || false,
         anmeldeErforderlich: veranstaltung.anmeldeErforderlich !== false,
-        aktiv: veranstaltung.aktiv !== false
+        aktiv: veranstaltung.aktiv !== false,
+        // Recurring event fields
+        istWiederholend: veranstaltung.istWiederholend || false,
+        wiederholungTyp: (veranstaltung.wiederholungTyp as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'weekly',
+        wiederholungInterval: veranstaltung.wiederholungInterval || 1,
+        wiederholungEnde: veranstaltung.wiederholungEnde ? veranstaltung.wiederholungEnde.split('T')[0] : '',
+        wiederholungTage: veranstaltung.wiederholungTage || '',
+        wiederholungMonatTag: veranstaltung.wiederholungMonatTag
       });
     } else {
       // Reset form for create mode
@@ -84,7 +98,14 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
         waehrungId: '1',
         nurFuerMitglieder: false,
         anmeldeErforderlich: true,
-        aktiv: true
+        aktiv: true,
+        // Recurring event fields
+        istWiederholend: false,
+        wiederholungTyp: 'weekly',
+        wiederholungInterval: 1,
+        wiederholungEnde: '',
+        wiederholungTage: '',
+        wiederholungMonatTag: undefined
       });
     }
     setErrors({});
@@ -187,7 +208,14 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
       waehrungId: formData.waehrungId ? parseInt(formData.waehrungId) : undefined,
       nurFuerMitglieder: formData.nurFuerMitglieder,
       anmeldeErforderlich: formData.anmeldeErforderlich,
-      aktiv: formData.aktiv
+      aktiv: formData.aktiv,
+      // Recurring event fields
+      istWiederholend: formData.istWiederholend,
+      wiederholungTyp: formData.istWiederholend ? formData.wiederholungTyp : undefined,
+      wiederholungInterval: formData.istWiederholend ? formData.wiederholungInterval : undefined,
+      wiederholungEnde: formData.istWiederholend && formData.wiederholungEnde ? formData.wiederholungEnde : undefined,
+      wiederholungTage: formData.istWiederholend && formData.wiederholungTage ? formData.wiederholungTage : undefined,
+      wiederholungMonatTag: formData.istWiederholend && formData.wiederholungMonatTag ? formData.wiederholungMonatTag : undefined
     };
 
     if (mode === 'create') {
@@ -384,6 +412,109 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
                 />
                 <span>Aktif</span>
               </label>
+            </div>
+
+            {/* Recurring Event Section */}
+            <div className="form-section">
+              <h3>🔁 Tekrar Eden Etkinlik</h3>
+
+              <div className="form-group-checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="istWiederholend"
+                    checked={formData.istWiederholend}
+                    onChange={handleChange}
+                  />
+                  <span>Bu etkinlik tekrar ediyor</span>
+                </label>
+              </div>
+
+              {formData.istWiederholend && (
+                <>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Tekrar Tipi *</label>
+                      <select
+                        name="wiederholungTyp"
+                        value={formData.wiederholungTyp}
+                        onChange={handleChange}
+                      >
+                        <option value="daily">Günlük</option>
+                        <option value="weekly">Haftalık</option>
+                        <option value="monthly">Aylık</option>
+                        <option value="yearly">Yıllık</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Aralık</label>
+                      <input
+                        type="number"
+                        name="wiederholungInterval"
+                        value={formData.wiederholungInterval}
+                        onChange={handleChange}
+                        min="1"
+                        max="365"
+                      />
+                      <small className="form-hint">
+                        {formData.wiederholungTyp === 'daily' && 'Her kaç günde bir'}
+                        {formData.wiederholungTyp === 'weekly' && 'Her kaç haftada bir'}
+                        {formData.wiederholungTyp === 'monthly' && 'Her kaç ayda bir'}
+                        {formData.wiederholungTyp === 'yearly' && 'Her kaç yılda bir'}
+                      </small>
+                    </div>
+                  </div>
+
+                  {formData.wiederholungTyp === 'weekly' && (
+                    <div className="form-group">
+                      <label>Hangi Günler</label>
+                      <input
+                        type="text"
+                        name="wiederholungTage"
+                        value={formData.wiederholungTage}
+                        onChange={handleChange}
+                        placeholder="Mon,Wed,Fri"
+                      />
+                      <small className="form-hint">
+                        Örnek: Mon,Wed,Fri (Pazartesi, Çarşamba, Cuma)
+                      </small>
+                    </div>
+                  )}
+
+                  {formData.wiederholungTyp === 'monthly' && (
+                    <div className="form-group">
+                      <label>Ayın Hangi Günü</label>
+                      <input
+                        type="number"
+                        name="wiederholungMonatTag"
+                        value={formData.wiederholungMonatTag || ''}
+                        onChange={handleChange}
+                        min="1"
+                        max="31"
+                        placeholder="1-31"
+                      />
+                      <small className="form-hint">
+                        Ayın kaçıncı günü (1-31)
+                      </small>
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>Bitiş Tarihi (Opsiyonel)</label>
+                    <input
+                      type="date"
+                      name="wiederholungEnde"
+                      value={formData.wiederholungEnde}
+                      onChange={handleChange}
+                      min={formData.startdatum}
+                    />
+                    <small className="form-hint">
+                      Tekrarın ne zaman biteceği (boş bırakılırsa süresiz)
+                    </small>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

@@ -12,6 +12,7 @@ import {
   CreateBankBuchungDto,
   UpdateBankBuchungDto,
   BankUploadResponseDto,
+  DitibUploadResponseDto,
   MitgliedForderungDto,
   CreateMitgliedForderungDto,
   UpdateMitgliedForderungDto,
@@ -25,7 +26,23 @@ import {
   VeranstaltungZahlungDto,
   CreateVeranstaltungZahlungDto,
   UpdateVeranstaltungZahlungDto,
+  VereinDitibZahlungDto,
+  CreateVereinDitibZahlungDto,
+  UpdateVereinDitibZahlungDto,
+  FinanzDashboardStatsDto,
 } from '../types/finanz.types';
+
+// ============================================================================
+// DASHBOARD SERVICE
+// ============================================================================
+
+export const finanzDashboardService = {
+  // Get dashboard statistics
+  getStats: async (vereinId?: number): Promise<FinanzDashboardStatsDto> => {
+    const params = vereinId ? `?vereinId=${vereinId}` : '';
+    return api.get<FinanzDashboardStatsDto>(`/api/FinanzDashboard/stats${params}`);
+  },
+};
 
 // ============================================================================
 // BANKKONTO SERVICE
@@ -120,6 +137,22 @@ export const bankBuchungService = {
 
     return response.json();
   },
+
+  // Get unmatched bank transactions
+  getUnmatched: async (vereinId?: number): Promise<any[]> => {
+    const params = vereinId ? `?vereinId=${vereinId}` : '';
+    return api.get<any[]>(`/api/BankBuchungen/unmatched${params}`);
+  },
+
+  // Manually match a bank transaction to a member
+  matchToMember: async (bankBuchungId: number, mitgliedId: number): Promise<any> => {
+    return api.post<any>(`/api/BankBuchungen/${bankBuchungId}/match-to-member`, {
+      bankBuchungId,
+      mitgliedId,
+      forderungIds: [],
+      allocationAmounts: []
+    });
+  },
 };
 
 // ============================================================================
@@ -135,6 +168,11 @@ export const mitgliedForderungService = {
   // Get claim by ID
   getById: async (id: number): Promise<MitgliedForderungDto> => {
     return api.get<MitgliedForderungDto>(`/api/MitgliedForderungen/${id}`);
+  },
+
+  // Get payment allocations for a claim
+  getAllocations: async (id: number): Promise<MitgliedForderungZahlungDto[]> => {
+    return api.get<MitgliedForderungZahlungDto[]>(`/api/MitgliedForderungen/${id}/allocations`);
   },
 
   // Get claims by Mitglied ID
@@ -309,6 +347,118 @@ export const veranstaltungZahlungService = {
 };
 
 // ============================================================================
+// VEREIN DITIB ZAHLUNG SERVICE
+// ============================================================================
+
+export const vereinDitibZahlungService = {
+  // Get all DITIB payments
+  getAll: async (): Promise<VereinDitibZahlungDto[]> => {
+    return api.get<VereinDitibZahlungDto[]>('/api/VereinDitibZahlungen');
+  },
+
+  // Get DITIB payment by ID
+  getById: async (id: number): Promise<VereinDitibZahlungDto> => {
+    return api.get<VereinDitibZahlungDto>(`/api/VereinDitibZahlungen/${id}`);
+  },
+
+  // Get DITIB payments by Verein ID
+  getByVereinId: async (vereinId: number): Promise<VereinDitibZahlungDto[]> => {
+    return api.get<VereinDitibZahlungDto[]>(`/api/VereinDitibZahlungen/verein/${vereinId}`);
+  },
+
+  // Get DITIB payments by date range
+  getByDateRange: async (
+    fromDate: string,
+    toDate: string,
+    vereinId?: number
+  ): Promise<VereinDitibZahlungDto[]> => {
+    const params = new URLSearchParams({
+      fromDate,
+      toDate,
+      ...(vereinId && { vereinId: vereinId.toString() }),
+    });
+    return api.get<VereinDitibZahlungDto[]>(`/api/VereinDitibZahlungen/date-range?${params}`);
+  },
+
+  // Get DITIB payments by payment period
+  getByPeriode: async (
+    zahlungsperiode: string,
+    vereinId?: number
+  ): Promise<VereinDitibZahlungDto[]> => {
+    const params = vereinId ? `?vereinId=${vereinId}` : '';
+    return api.get<VereinDitibZahlungDto[]>(
+      `/api/VereinDitibZahlungen/periode/${zahlungsperiode}${params}`
+    );
+  },
+
+  // Get DITIB payments by status
+  getByStatus: async (statusId: number, vereinId?: number): Promise<VereinDitibZahlungDto[]> => {
+    const params = vereinId ? `?vereinId=${vereinId}` : '';
+    return api.get<VereinDitibZahlungDto[]>(`/api/VereinDitibZahlungen/status/${statusId}${params}`);
+  },
+
+  // Get pending DITIB payments
+  getPending: async (vereinId?: number): Promise<VereinDitibZahlungDto[]> => {
+    const params = vereinId ? `?vereinId=${vereinId}` : '';
+    return api.get<VereinDitibZahlungDto[]>(`/api/VereinDitibZahlungen/pending${params}`);
+  },
+
+  // Get total payment amount for a verein
+  getTotalAmount: async (
+    vereinId: number,
+    fromDate?: string,
+    toDate?: string
+  ): Promise<number> => {
+    const params = new URLSearchParams({
+      ...(fromDate && { fromDate }),
+      ...(toDate && { toDate }),
+    });
+    const queryString = params.toString();
+    return api.get<number>(
+      `/api/VereinDitibZahlungen/total/${vereinId}${queryString ? `?${queryString}` : ''}`
+    );
+  },
+
+  // Create new DITIB payment
+  create: async (data: CreateVereinDitibZahlungDto): Promise<VereinDitibZahlungDto> => {
+    return api.post<VereinDitibZahlungDto>('/api/VereinDitibZahlungen', data);
+  },
+
+  // Update DITIB payment
+  update: async (id: number, data: UpdateVereinDitibZahlungDto): Promise<VereinDitibZahlungDto> => {
+    return api.put<VereinDitibZahlungDto>(`/api/VereinDitibZahlungen/${id}`, data);
+  },
+
+  // Delete DITIB payment (soft delete)
+  delete: async (id: number): Promise<void> => {
+    return api.delete<void>(`/api/VereinDitibZahlungen/${id}`);
+  },
+
+  // Upload Excel file with DITIB payments
+  uploadExcel: async (vereinId: number, bankKontoId: number, file: File): Promise<DitibUploadResponseDto> => {
+    const formData = new FormData();
+    formData.append('vereinId', vereinId.toString());
+    formData.append('bankKontoId', bankKontoId.toString());
+    formData.append('file', file);
+
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5103'}/api/VereinDitibZahlungen/upload-excel`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Upload failed');
+    }
+
+    return response.json();
+  },
+};
+
+// ============================================================================
 // EXPORT ALL SERVICES
 // ============================================================================
 
@@ -319,7 +469,7 @@ const finanzServices = {
   mitgliedForderungZahlung: mitgliedForderungZahlungService,
   mitgliedVorauszahlung: mitgliedVorauszahlungService,
   veranstaltungZahlung: veranstaltungZahlungService,
+  vereinDitibZahlung: vereinDitibZahlungService,
 };
 
 export default finanzServices;
-

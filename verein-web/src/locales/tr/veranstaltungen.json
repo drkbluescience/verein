@@ -184,6 +184,43 @@
     "participantReportSuffix": "Katilimci_Raporu",
     "reportDownloadSuccess": "Rapor başarıyla indirildi",
     "reportDownloadError": "Rapor oluşturulurken hata oluştu"
+  },
+  "recurrence": {
+    "title": "Tekrar Eden Etkinlik",
+    "isRecurring": "Tekrar Eden Etkinlik",
+    "type": "Tekrar Tipi",
+    "interval": "Aralık",
+    "endDate": "Bitiş Tarihi",
+    "weekdays": "Günler",
+    "monthDay": "Ayın Günü",
+    "types": {
+      "daily": "Günlük",
+      "weekly": "Haftalık",
+      "monthly": "Aylık",
+      "yearly": "Yıllık"
+    },
+    "daily": "Her gün",
+    "weekly": "Her hafta",
+    "monthly": "Her ay",
+    "yearly": "Her yıl",
+    "everyNDays": "Her {n} günde bir",
+    "everyNWeeks": "Her {n} haftada bir",
+    "everyNMonths": "Her {n} ayda bir",
+    "everyNYears": "Her {n} yılda bir",
+    "weeklyOn": "Her hafta {days}",
+    "until": "bitiş:",
+    "noEndDate": "Bitiş tarihi yok",
+    "nextOccurrences": "Gelecek Tarihler",
+    "badge": "Tekrar Eden",
+    "weekdayLabels": {
+      "Mon": "Pzt",
+      "Tue": "Sal",
+      "Wed": "Çar",
+      "Thu": "Per",
+      "Fri": "Cum",
+      "Sat": "Cmt",
+      "Sun": "Paz"
+    }
   }
 }
 

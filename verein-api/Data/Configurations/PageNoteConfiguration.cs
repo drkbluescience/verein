@@ -91,6 +91,14 @@ public class PageNoteConfiguration : IEntityTypeConfiguration<PageNote>
         builder.Property(p => p.Modified)
             .HasColumnType("datetime");
 
+        // Override CreatedBy and ModifiedBy to use string instead of int
+        // because PageNote table uses nvarchar(256) for these fields
+        builder.Property(p => p.CreatedBy)
+            .HasColumnType("nvarchar(256)");
+
+        builder.Property(p => p.ModifiedBy)
+            .HasColumnType("nvarchar(256)");
+
         // Audit fields
         builder.Property(p => p.DeletedFlag)
             .IsRequired()

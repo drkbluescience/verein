@@ -87,5 +87,45 @@ public class CreateVeranstaltungDto
     /// </summary>
     [JsonPropertyName("aktiv")]
     public bool Aktiv { get; set; } = true;
+
+    /// <summary>
+    /// Is this a recurring event
+    /// </summary>
+    [JsonPropertyName("istWiederholend")]
+    public bool? IstWiederholend { get; set; }
+
+    /// <summary>
+    /// Recurrence type: 'daily', 'weekly', 'monthly', 'yearly'
+    /// </summary>
+    [MaxLength(20)]
+    [JsonPropertyName("wiederholungTyp")]
+    public string? WiederholungTyp { get; set; }
+
+    /// <summary>
+    /// Recurrence interval
+    /// </summary>
+    [Range(1, 365)]
+    [JsonPropertyName("wiederholungInterval")]
+    public int? WiederholungInterval { get; set; }
+
+    /// <summary>
+    /// Recurrence end date
+    /// </summary>
+    [JsonPropertyName("wiederholungEnde")]
+    public DateTime? WiederholungEnde { get; set; }
+
+    /// <summary>
+    /// Days of week for weekly recurrence (e.g., "Mon,Wed,Fri")
+    /// </summary>
+    [MaxLength(50)]
+    [JsonPropertyName("wiederholungTage")]
+    public string? WiederholungTage { get; set; }
+
+    /// <summary>
+    /// Day of month for monthly recurrence (1-31)
+    /// </summary>
+    [Range(1, 31)]
+    [JsonPropertyName("wiederholungMonatTag")]
+    public int? WiederholungMonatTag { get; set; }
 }
 

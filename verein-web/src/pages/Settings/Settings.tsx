@@ -20,7 +20,6 @@ interface ThemeSettings {
   theme: 'dark' | 'light';
   language: 'tr' | 'en' | 'de';
   notifications: boolean;
-  compactMode: boolean;
 }
 
 const Settings: React.FC = () => {
@@ -31,7 +30,6 @@ const Settings: React.FC = () => {
     theme: 'light',
     language: 'tr',
     notifications: true,
-    compactMode: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
@@ -111,7 +109,6 @@ const Settings: React.FC = () => {
       theme: 'light',
       language: 'tr',
       notifications: true,
-      compactMode: true,
     };
     setSettings(defaultSettings);
     applyTheme(defaultSettings.theme);
@@ -184,23 +181,6 @@ const Settings: React.FC = () => {
                   <span>{t('settings:sections.appearance.theme.light')}</span>
                 </button>
               </div>
-            </div>
-          </div>
-
-          <div className="setting-item">
-            <div className="setting-info">
-              <h3 className="setting-name">{t('settings:sections.appearance.compactMode.label')}</h3>
-              <p className="setting-description">{t('settings:sections.appearance.compactMode.description')}</p>
-            </div>
-            <div className="setting-control">
-              <label className="toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={settings.compactMode}
-                  onChange={(e) => handleSettingChange('compactMode', e.target.checked)}
-                />
-                <span className="toggle-slider"></span>
-              </label>
             </div>
           </div>
         </div>

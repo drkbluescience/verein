@@ -117,8 +117,24 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, on
   const { t } = useTranslation(['veranstaltungen', 'common']);
   const { user } = useAuth();
   const status = veranstaltungUtils.getEventStatus(veranstaltung.startdatum, veranstaltung.enddatum);
-  const isUpcoming = veranstaltungUtils.isUpcoming(veranstaltung.startdatum);
-  const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(veranstaltung.startdatum) : null;
+  const isUpcoming = veranstaltungUtils.isUpcoming(
+    veranstaltung.startdatum,
+    veranstaltung.istWiederholend,
+    veranstaltung.wiederholungTyp,
+    veranstaltung.wiederholungInterval,
+    veranstaltung.wiederholungEnde,
+    veranstaltung.wiederholungTage,
+    veranstaltung.wiederholungMonatTag
+  );
+  const daysUntil = isUpcoming ? veranstaltungUtils.getDaysUntilEvent(
+    veranstaltung.startdatum,
+    veranstaltung.istWiederholend,
+    veranstaltung.wiederholungTyp,
+    veranstaltung.wiederholungInterval,
+    veranstaltung.wiederholungEnde,
+    veranstaltung.wiederholungTage,
+    veranstaltung.wiederholungMonatTag
+  ) : null;
 
   // Check if user can edit (admin or dernek owner)
   const canEdit = user?.type === 'admin' || (user?.type === 'dernek' && user?.vereinId === veranstaltung.vereinId);
@@ -144,6 +160,11 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, on
       <div className="card-header">
         <div className="card-title-section">
           <h3 className="event-title">{veranstaltung.titel}</h3>
+          {veranstaltung.istWiederholend && (
+            <span className="recurring-badge" title={t('veranstaltungen:recurrence.title')}>
+              {t('veranstaltungen:recurrence.badge')}
+            </span>
+          )}
         </div>
         {getStatusBadge()}
       </div>
@@ -159,7 +180,12 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, on
           <div className="detail-item">
             <CalendarIcon />
             <span className="detail-text">
-              {veranstaltungUtils.formatEventDate(veranstaltung.startdatum, veranstaltung.enddatum)}
+              {veranstaltungUtils.formatEventDate(
+                veranstaltung.startdatum,
+                veranstaltung.enddatum,
+                veranstaltung.istWiederholend,
+                veranstaltung.wiederholungEnde
+              )}
             </span>
           </div>
 

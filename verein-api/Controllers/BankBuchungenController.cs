@@ -119,27 +119,6 @@ public class BankBuchungenController : ControllerBase
     }
 
     /// <summary>
-    /// Get unmatched Bank Buchungen
-    /// </summary>
-    [HttpGet("unmatched")]
-    [ProducesResponseType(typeof(IEnumerable<BankBuchungDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<BankBuchungDto>>> GetUnmatched(
-        [FromQuery] int? bankKontoId = null,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var buchungen = await _service.GetUnmatchedAsync(bankKontoId, cancellationToken);
-            return Ok(buchungen);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting unmatched bank buchungen");
-            return StatusCode(500, "Internal server error");
-        }
-    }
-
-    /// <summary>
     /// Get Bank Buchungen by date range
     /// </summary>
     [HttpGet("date-range")]
@@ -317,6 +296,71 @@ public class BankBuchungenController : ControllerBase
                 Success = false,
                 Message = "Internal server error",
                 Errors = new List<string> { ex.Message }
+            });
+        }
+    }
+
+    /// <summary>
+    /// Get unmatched Bank Buchungen (transactions without member match)
+    /// </summary>
+    [HttpGet("unmatched")]
+    [ProducesResponseType(typeof(IEnumerable<UnmatchedBankBuchungDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<UnmatchedBankBuchungDto>>> GetUnmatched(
+        [FromQuery] int? vereinId = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var unmatchedBuchungen = await _uploadService.GetUnmatchedBankBuchungenAsync(vereinId, cancellationToken);
+            return Ok(unmatchedBuchungen);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting unmatched bank buchungen");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Manually match a BankBuchung to a member
+    /// </summary>
+    [HttpPost("{id}/match-to-member")]
+    [ProducesResponseType(typeof(ManualMatchResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ManualMatchResponseDto>> MatchToMember(
+        int id,
+        [FromBody] ManualMatchRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (id != request.BankBuchungId)
+            {
+                return BadRequest("BankBuchung ID mismatch");
+            }
+
+            var response = await _uploadService.ManualMatchBankBuchungAsync(request, cancellationToken);
+
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "BankBuchung or Member not found for manual matching");
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error manually matching BankBuchung {BankBuchungId} to member", id);
+            return StatusCode(500, new ManualMatchResponseDto
+            {
+                Success = false,
+                Message = "Internal server error: " + ex.Message
             });
         }
     }

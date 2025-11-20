@@ -134,17 +134,22 @@ public class BankUploadService : IBankUploadService
                 foreach (var excelRow in transactions)
                 {
                     var detail = await ProcessTransactionAsync(
-                        excelRow, 
-                        request.VereinId, 
-                        request.BankKontoId, 
+                        excelRow,
+                        request.VereinId,
+                        request.BankKontoId,
                         members);
-                    
+
                     response.Details.Add(detail);
 
                     if (detail.Status == "Success")
                         response.SuccessCount++;
                     else if (detail.Status == "Skipped")
                         response.SkippedCount++;
+                    else if (detail.Status == "Unmatched")
+                    {
+                        response.UnmatchedCount++;
+                        response.UnmatchedTransactions.Add(detail);
+                    }
                     else
                         response.FailedCount++;
                 }
@@ -154,10 +159,11 @@ public class BankUploadService : IBankUploadService
 
                 response.Success = true;
                 response.Message = $"Processed {response.SuccessCount} transactions successfully, " +
+                                 $"{response.UnmatchedCount} unmatched, " +
                                  $"{response.FailedCount} failed, {response.SkippedCount} skipped";
 
-                _logger.LogInformation("Bank upload completed: {SuccessCount} success, {FailedCount} failed, {SkippedCount} skipped",
-                    response.SuccessCount, response.FailedCount, response.SkippedCount);
+                _logger.LogInformation("Bank upload completed: {SuccessCount} success, {UnmatchedCount} unmatched, {FailedCount} failed, {SkippedCount} skipped",
+                    response.SuccessCount, response.UnmatchedCount, response.FailedCount, response.SkippedCount);
             }
             catch (Exception ex)
             {
@@ -258,8 +264,10 @@ public class BankUploadService : IBankUploadService
             }
             else
             {
-                detail.Status = "Success";
-                detail.Message = "Transaction processed but no member match found";
+                detail.Status = "Unmatched";
+                detail.Message = "Transaction processed but no member match found - manual matching required";
+                _logger.LogWarning("No member match found for transaction row {RowNumber}, BankBuchung {BankBuchungId}",
+                    excelRow.RowNumber, bankBuchung.Id);
             }
         }
         catch (Exception ex)
@@ -400,6 +408,225 @@ public class BankUploadService : IBankUploadService
 
             // Could create Vorauszahlung (advance payment) here if needed
         }
+    }
+
+    /// <summary>
+    /// Get unmatched BankBuchungen (transactions without member match)
+    /// </summary>
+    public async Task<IEnumerable<UnmatchedBankBuchungDto>> GetUnmatchedBankBuchungenAsync(
+        int? vereinId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.BankBuchungen
+            .Where(b => b.DeletedFlag != true)
+            .Where(b => !_context.MitgliedZahlungen.Any(z => z.BankBuchungId == b.Id));
+
+        if (vereinId.HasValue)
+        {
+            query = query.Where(b => b.VereinId == vereinId.Value);
+        }
+
+        var unmatchedBuchungen = await query
+            .Include(b => b.Verein)
+            .OrderByDescending(b => b.Buchungsdatum)
+            .Select(b => new UnmatchedBankBuchungDto
+            {
+                Id = b.Id,
+                VereinId = b.VereinId,
+                VereinName = b.Verein != null ? b.Verein.Name : null,
+                Buchungsdatum = b.Buchungsdatum,
+                Betrag = b.Betrag,
+                Empfaenger = b.Empfaenger,
+                Verwendungszweck = b.Verwendungszweck,
+                Referenz = b.Referenz,
+                BankKontoId = b.BankKontoId,
+                Created = b.Created
+            })
+            .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Found {Count} unmatched BankBuchungen", unmatchedBuchungen.Count);
+
+        return unmatchedBuchungen;
+    }
+
+    /// <summary>
+    /// Manually match a BankBuchung to a member
+    /// </summary>
+    public async Task<ManualMatchResponseDto> ManualMatchBankBuchungAsync(
+        ManualMatchRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var response = new ManualMatchResponseDto
+        {
+            Success = false,
+            Message = "Processing manual match..."
+        };
+
+        // Validate BankBuchung exists
+        var bankBuchung = await _context.BankBuchungen
+            .FirstOrDefaultAsync(b => b.Id == request.BankBuchungId && b.DeletedFlag != true, cancellationToken);
+
+        if (bankBuchung == null)
+        {
+            throw new KeyNotFoundException($"BankBuchung with ID {request.BankBuchungId} not found");
+        }
+
+        // Check if already matched
+        var existingZahlung = await _context.MitgliedZahlungen
+            .FirstOrDefaultAsync(z => z.BankBuchungId == request.BankBuchungId, cancellationToken);
+
+        if (existingZahlung != null)
+        {
+            response.Message = "BankBuchung is already matched to a member";
+            return response;
+        }
+
+        // Validate Member exists
+        var mitglied = await _context.Mitglieder
+            .FirstOrDefaultAsync(m => m.Id == request.MitgliedId && m.DeletedFlag != true, cancellationToken);
+
+        if (mitglied == null)
+        {
+            throw new KeyNotFoundException($"Mitglied with ID {request.MitgliedId} not found");
+        }
+
+        using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            // Create MitgliedZahlung
+            var mitgliedZahlung = new MitgliedZahlung
+            {
+                VereinId = bankBuchung.VereinId,
+                MitgliedId = request.MitgliedId,
+                ZahlungTypId = 1, // Default payment type (Aidat/Membership fee)
+                Betrag = bankBuchung.Betrag,
+                WaehrungId = bankBuchung.WaehrungId,
+                Zahlungsdatum = bankBuchung.Buchungsdatum,
+                Zahlungsweg = "Banküberweisung",
+                BankkontoId = bankBuchung.BankKontoId,
+                Referenz = bankBuchung.Referenz,
+                Bemerkung = $"Manually matched from BankBuchung {bankBuchung.Id}: {bankBuchung.Verwendungszweck}",
+                StatusId = 1, // Active
+                BankBuchungId = bankBuchung.Id,
+                Created = DateTime.UtcNow,
+                CreatedBy = 1 // TODO: Get from current user context
+            };
+
+            _context.MitgliedZahlungen.Add(mitgliedZahlung);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            response.MitgliedZahlungId = mitgliedZahlung.Id;
+
+            // Match to Forderungen
+            if (request.ForderungIds.Any())
+            {
+                // Manual allocation to specific Forderungen
+                await AllocateToSpecificForderungenAsync(
+                    mitgliedZahlung,
+                    request.ForderungIds,
+                    request.AllocationAmounts,
+                    response,
+                    cancellationToken);
+            }
+            else
+            {
+                // Auto-match to open Forderungen
+                await MatchAndUpdateForderungenAsync(mitgliedZahlung);
+
+                // Count matched Forderungen
+                var matchedForderungen = await _context.MitgliedForderungZahlungen
+                    .Where(fz => fz.ZahlungId == mitgliedZahlung.Id)
+                    .ToListAsync(cancellationToken);
+
+                response.MatchedForderungenCount = matchedForderungen.Count;
+                response.AllocatedAmount = matchedForderungen.Sum(fz => fz.Betrag);
+                response.MatchedForderungIds = matchedForderungen.Select(fz => fz.ForderungId).ToList();
+            }
+
+            response.RemainingAmount = mitgliedZahlung.Betrag - response.AllocatedAmount;
+
+            await transaction.CommitAsync(cancellationToken);
+
+            response.Success = true;
+            response.Message = $"Successfully matched BankBuchung to member {mitglied.Vorname} {mitglied.Nachname}. " +
+                             $"Allocated {response.AllocatedAmount:C} to {response.MatchedForderungenCount} Forderungen.";
+
+            _logger.LogInformation("Manually matched BankBuchung {BankBuchungId} to Member {MitgliedId}",
+                request.BankBuchungId, request.MitgliedId);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            _logger.LogError(ex, "Error manually matching BankBuchung {BankBuchungId}", request.BankBuchungId);
+            throw;
+        }
+
+        return response;
+    }
+
+    /// <summary>
+    /// Allocate payment to specific Forderungen with custom amounts
+    /// </summary>
+    private async Task AllocateToSpecificForderungenAsync(
+        MitgliedZahlung zahlung,
+        List<int> forderungIds,
+        List<decimal> allocationAmounts,
+        ManualMatchResponseDto response,
+        CancellationToken cancellationToken)
+    {
+        if (allocationAmounts.Any() && allocationAmounts.Count != forderungIds.Count)
+        {
+            throw new ArgumentException("AllocationAmounts count must match ForderungIds count");
+        }
+
+        var forderungen = await _context.MitgliedForderungen
+            .Where(f => forderungIds.Contains(f.Id) && f.MitgliedId == zahlung.MitgliedId)
+            .ToListAsync(cancellationToken);
+
+        if (forderungen.Count != forderungIds.Count)
+        {
+            throw new KeyNotFoundException("One or more Forderungen not found or do not belong to the member");
+        }
+
+        decimal totalAllocated = 0;
+
+        for (int i = 0; i < forderungen.Count; i++)
+        {
+            var forderung = forderungen[i];
+            var allocationAmount = allocationAmounts.Any()
+                ? allocationAmounts[i]
+                : Math.Min(zahlung.Betrag - totalAllocated, forderung.Betrag);
+
+            if (allocationAmount <= 0) continue;
+
+            // Create MitgliedForderungZahlung
+            var forderungZahlung = new MitgliedForderungZahlung
+            {
+                ForderungId = forderung.Id,
+                ZahlungId = zahlung.Id,
+                Betrag = allocationAmount,
+                Created = DateTime.UtcNow,
+                CreatedBy = 1
+            };
+
+            _context.MitgliedForderungZahlungen.Add(forderungZahlung);
+
+            // Update Forderung status if fully paid
+            if (allocationAmount >= forderung.Betrag)
+            {
+                forderung.StatusId = 1; // Bezahlt (Paid)
+                forderung.BezahltAm = zahlung.Zahlungsdatum;
+                _context.MitgliedForderungen.Update(forderung);
+            }
+
+            totalAllocated += allocationAmount;
+            response.MatchedForderungIds.Add(forderung.Id);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        response.MatchedForderungenCount = forderungen.Count;
+        response.AllocatedAmount = totalAllocated;
     }
 }
 

@@ -4,6 +4,70 @@
  */
 
 // ============================================================================
+// DASHBOARD STATISTICS
+// ============================================================================
+
+export interface FinanzDashboardStatsDto {
+  gelir: GelirStatsDto;
+  gider: GiderStatsDto;
+  vereinComparison?: VereinComparisonDto[];
+}
+
+export interface GelirStatsDto {
+  totalForderungen: number;
+  bezahlteForderungen: number;
+  offeneForderungen: number;
+  ueberfaelligeForderungen: number;
+  totalAmount: number;
+  bezahltAmount: number;
+  offenAmount: number;
+  ueberfaelligAmount: number;
+  collectionRate: number;
+  expectedRevenue: number;
+  arpu: number;
+  avgPaymentDays: number;
+  activeMitglieder: number;
+  totalZahlungen: number;
+  totalZahlungenAmount: number;
+  monthlyTrend: MonthlyTrendDto[];
+  paymentMethods: PaymentMethodDto[];
+}
+
+export interface GiderStatsDto {
+  totalDitibZahlungen: number;
+  bezahlteDitibZahlungen: number;
+  offeneDitibZahlungen: number;
+  totalAmount: number;
+  bezahltAmount: number;
+  offenAmount: number;
+  currentMonthAmount: number;
+  monthlyTrend: MonthlyTrendDto[];
+}
+
+export interface MonthlyTrendDto {
+  month: number;
+  year: number;
+  monthName: string;
+  amount: number;
+  count: number;
+}
+
+export interface PaymentMethodDto {
+  method: string;
+  count: number;
+  amount: number;
+}
+
+export interface VereinComparisonDto {
+  vereinId: number;
+  vereinName: string;
+  revenue: number;
+  expenses: number;
+  collectionRate: number;
+  memberCount: number;
+}
+
+// ============================================================================
 // ENUMS
 // ============================================================================
 
@@ -134,20 +198,52 @@ export interface BankUploadResponseDto {
   successCount: number;
   failedCount: number;
   skippedCount: number;
+  unmatchedCount: number;
   details: BankUploadDetailDto[];
+  unmatchedTransactions: BankUploadDetailDto[];
   errors: string[];
 }
 
 export interface BankUploadDetailDto {
   rowNumber: number;
-  datum?: string;
+  buchungsdatum?: string;
   betrag?: number;
   empfaenger?: string;
   verwendungszweck?: string;
-  status: 'Success' | 'Failed' | 'Skipped';
+  referenz?: string;
+  status: 'Success' | 'Failed' | 'Skipped' | 'Unmatched';
   message: string;
   mitgliedId?: number;
   mitgliedName?: string;
+  bankBuchungId?: number;
+  mitgliedZahlungId?: number;
+}
+
+// ============================================================================
+// DITIB UPLOAD
+// ============================================================================
+
+export interface DitibUploadResponseDto {
+  success: boolean;
+  message: string;
+  totalRows: number;
+  successCount: number;
+  failedCount: number;
+  skippedCount: number;
+  details: DitibUploadDetailDto[];
+  errors: string[];
+}
+
+export interface DitibUploadDetailDto {
+  rowNumber: number;
+  zahlungsdatum?: string;
+  betrag?: number;
+  zahlungsperiode?: string;
+  referenz?: string;
+  status: 'Success' | 'Failed' | 'Skipped';
+  message: string;
+  bankBuchungId?: number;
+  vereinDitibZahlungId?: number;
 }
 
 // ============================================================================
@@ -362,5 +458,57 @@ export interface FinanzStats {
   overdueForderungen: number;
   totalBetrag: number;
   bezahltBetrag: number;
+}
+
+// ============================================================================
+// VEREIN DITIB ZAHLUNG (Association DITIB Payment)
+// ============================================================================
+
+export interface VereinDitibZahlungDto {
+  id: number;
+  vereinId: number;
+  betrag: number;
+  waehrungId: number;
+  zahlungsdatum: string; // ISO date string
+  zahlungsperiode: string; // e.g., "2024-11"
+  zahlungsweg?: string;
+  bankkontoId?: number;
+  referenz?: string;
+  bemerkung?: string;
+  statusId: number;
+  bankBuchungId?: number;
+  created?: string;
+  createdBy?: number;
+  modified?: string;
+  modifiedBy?: number;
+  deletedFlag?: boolean;
+  aktiv?: boolean;
+}
+
+export interface CreateVereinDitibZahlungDto {
+  vereinId: number;
+  betrag: number;
+  waehrungId: number;
+  zahlungsdatum: string; // ISO date string
+  zahlungsperiode: string; // e.g., "2024-11"
+  zahlungsweg?: string;
+  bankkontoId?: number;
+  referenz?: string;
+  bemerkung?: string;
+  statusId: number;
+  bankBuchungId?: number;
+}
+
+export interface UpdateVereinDitibZahlungDto {
+  betrag?: number;
+  waehrungId?: number;
+  zahlungsdatum?: string;
+  zahlungsperiode?: string;
+  zahlungsweg?: string;
+  bankkontoId?: number;
+  referenz?: string;
+  bemerkung?: string;
+  statusId?: number;
+  bankBuchungId?: number;
 }
 

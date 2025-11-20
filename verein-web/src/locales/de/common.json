@@ -1,4 +1,6 @@
 {
+  "loading": "Laden...",
+  "uploading": "Hochladen...",
   "app": {
     "name": "Vereinsverwaltungssystem",
     "title": "Verein"
@@ -61,11 +63,14 @@
     "close": "Schließen",
     "confirm": "Bestätigen",
     "view": "Anzeigen",
+    "upload": "Hochladen",
     "download": "Herunterladen",
     "upload": "Hochladen",
-    "refresh": "Aktualisieren"
+    "refresh": "Aktualisieren",
+    "pleaseSelect": "Auswählen"
   },
   "verein": "Verein",
+  "actionsColumn": "Aktionen",
   "filter": {
     "allVereine": "Alle Vereine"
   },

@@ -55,6 +55,7 @@ const PageNotesAdmin: React.FC = () => {
   useEffect(() => {
     console.log('🚀 PageNotesAdmin mounted, loading data immediately...');
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Redirect if not admin (but don't block rendering)
@@ -184,16 +185,19 @@ const PageNotesAdmin: React.FC = () => {
 
   return (
     <div className="page-notes-admin">
-      <div className="admin-header">
-        <h1>{t('pageNotesAdmin:title')}</h1>
-        <div className="header-actions">
-          <button className="add-note-btn" onClick={() => setIsNoteModalOpen(true)}>
-            + {t('pageNotesAdmin:header.addNote')}
-          </button>
-          <button className="refresh-btn" onClick={loadData}>
-            {t('pageNotesAdmin:header.refresh')}
-          </button>
-        </div>
+      {/* Header */}
+      <div className="page-header">
+        <h1 className="page-title">{t('pageNotesAdmin:title')}</h1>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar">
+        <button className="add-note-btn" onClick={() => setIsNoteModalOpen(true)}>
+          + {t('pageNotesAdmin:header.addNote')}
+        </button>
+        <button className="refresh-btn" onClick={loadData}>
+          {t('pageNotesAdmin:header.refresh')}
+        </button>
       </div>
 
       {/* Statistics */}

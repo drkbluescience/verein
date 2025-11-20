@@ -266,11 +266,11 @@ public class VeranstaltungBildService : IVeranstaltungBildService
 
             // Generate unique file name
             var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-            var relativePath = $"/images/veranstaltungen/{veranstaltungId}/{uniqueFileName}";
+            var relativePath = $"/images/events/{uniqueFileName}";
 
             // Save file to wwwroot
             var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var eventFolderPath = Path.Combine(wwwrootPath, "images", "veranstaltungen", veranstaltungId.ToString());
+            var eventFolderPath = Path.Combine(wwwrootPath, "images", "events");
 
             // Create directory if it doesn't exist
             if (!Directory.Exists(eventFolderPath))

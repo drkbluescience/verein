@@ -7,7 +7,9 @@
 import React, { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import { bankBuchungService } from '../../services/finanzService';
 import { bankkontoService } from '../../services/vereinService';
 import { BankUploadResponseDto } from '../../types/finanz.types';
@@ -57,6 +59,8 @@ const BankUpload: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -64,6 +68,7 @@ const BankUpload: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<BankUploadResponseDto | null>(null);
+  const [showUnmatchedModal, setShowUnmatchedModal] = useState(false);
 
   const vereinId = user?.vereinId || 0;
 
@@ -144,6 +149,14 @@ const BankUpload: React.FC = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+
+      // Check for unmatched transactions
+      if (result.unmatchedCount > 0) {
+        showToast(`${result.unmatchedCount} ödeme eşleştirilemedi. Manuel eşleştirme gerekiyor.`, 'warning');
+        setShowUnmatchedModal(true);
+      } else if (result.success) {
+        showToast('Tüm ödemeler başarıyla işlendi!', 'success');
+      }
     } catch (error: any) {
       setUploadResult({
         success: false,
@@ -151,9 +164,12 @@ const BankUpload: React.FC = () => {
         successCount: 0,
         failedCount: 0,
         skippedCount: 0,
+        unmatchedCount: 0,
         details: [],
+        unmatchedTransactions: [],
         errors: [error.message || 'Unknown error'],
       });
+      showToast('Upload başarısız oldu!', 'error');
     } finally {
       setIsUploading(false);
     }
@@ -264,6 +280,12 @@ const BankUpload: React.FC = () => {
               <span className="stat-label">{t('bankUpload.successful', { ns: 'finanz' })}</span>
               <span className="stat-value">{uploadResult.successCount}</span>
             </div>
+            {uploadResult.unmatchedCount > 0 && (
+              <div className="stat warning">
+                <span className="stat-label">Eşleşmedi</span>
+                <span className="stat-value">{uploadResult.unmatchedCount}</span>
+              </div>
+            )}
             <div className="stat error">
               <span className="stat-label">{t('bankUpload.failed', { ns: 'finanz' })}</span>
               <span className="stat-value">{uploadResult.failedCount}</span>
@@ -284,10 +306,11 @@ const BankUpload: React.FC = () => {
                       {detail.status === 'Success' && <CheckIcon />}
                       {detail.status === 'Failed' && <XIcon />}
                       {detail.status === 'Skipped' && <AlertIcon />}
+                      {detail.status === 'Unmatched' && <AlertIcon />}
                     </span>
                     <span className="detail-row-number">#{detail.rowNumber}</span>
                     <span className="detail-info">
-                      {detail.empfaenger} - {detail.betrag}€ - {detail.datum}
+                      {detail.empfaenger} - {detail.betrag}€ - {detail.buchungsdatum}
                     </span>
                     <span className="detail-message">{detail.message}</span>
                   </div>
@@ -295,6 +318,53 @@ const BankUpload: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Unmatched Transactions Modal */}
+      {showUnmatchedModal && uploadResult && uploadResult.unmatchedCount > 0 && (
+        <div className="modal-overlay" onClick={() => setShowUnmatchedModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>⚠️ Eşleşmeyen Ödemeler</h2>
+              <button className="modal-close" onClick={() => setShowUnmatchedModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-description">
+                {uploadResult.unmatchedCount} ödeme için üye eşleşmesi bulunamadı.
+                Bu ödemeleri manuel olarak eşleştirmeniz gerekiyor.
+              </p>
+
+              <div className="unmatched-list">
+                {uploadResult.unmatchedTransactions.map((detail, index) => (
+                  <div key={index} className="unmatched-item">
+                    <div className="unmatched-info">
+                      <strong>{detail.empfaenger}</strong>
+                      <span>{detail.betrag}€ - {detail.buchungsdatum}</span>
+                      <span className="text-muted">{detail.verwendungszweck}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowUnmatchedModal(false)}
+              >
+                Kapat
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowUnmatchedModal(false);
+                  navigate('/finanzen/manual-matching');
+                }}
+              >
+                Manuel Eşleştirmeye Git
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

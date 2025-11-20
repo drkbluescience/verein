@@ -94,9 +94,19 @@ public class ApplicationDbContext : DbContext
     public DbSet<VeranstaltungZahlung> VeranstaltungZahlungen { get; set; }
 
     /// <summary>
+    /// Verein DITIB Zahlungen table (Finanz schema)
+    /// </summary>
+    public DbSet<VereinDitibZahlung> VereinDitibZahlungen { get; set; }
+
+    /// <summary>
     /// RechtlicheDaten table (Verein schema)
     /// </summary>
     public DbSet<RechtlicheDaten> RechtlicheDaten { get; set; }
+
+    /// <summary>
+    /// VereinSatzung table (Verein schema) - Statute versions
+    /// </summary>
+    public DbSet<VereinSatzung> VereinSatzungen { get; set; }
 
     /// <summary>
     /// PageNotes table (Web schema)
@@ -302,6 +312,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MitgliedForderungZahlungConfiguration());
         modelBuilder.ApplyConfiguration(new MitgliedVorauszahlungConfiguration());
         modelBuilder.ApplyConfiguration(new VeranstaltungZahlungConfiguration());
+        modelBuilder.ApplyConfiguration(new VereinDitibZahlungConfiguration());
 
         // Apply Keytable entity configurations
         modelBuilder.ApplyConfiguration(new GeschlechtConfiguration());

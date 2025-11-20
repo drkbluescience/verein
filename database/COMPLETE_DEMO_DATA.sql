@@ -77,24 +77,25 @@ BEGIN
     PRINT '  ✓ PageNote.Aktiv kolonu zaten mevcut';
 END
 
--- PageNote tablosunda CreatedBy ve ModifiedBy kolonlarını int'e çevir
+-- PageNote tablosunda CreatedBy ve ModifiedBy kolonlarını nvarchar(256)'ya çevir
+-- (APPLICATION_H_101_AZURE.sql'de zaten nvarchar(256) olarak tanımlı)
 IF EXISTS (
     SELECT 1
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = 'Web'
       AND TABLE_NAME = 'PageNote'
       AND COLUMN_NAME = 'CreatedBy'
-      AND DATA_TYPE = 'nvarchar'
+      AND DATA_TYPE = 'int'
 )
 BEGIN
     -- Önce mevcut veriyi temizle (çünkü tip değişikliği yapacağız)
     DELETE FROM [Web].[PageNote];
 
-    -- CreatedBy kolonunu int'e çevir
+    -- CreatedBy kolonunu nvarchar(256)'ya çevir
     ALTER TABLE [Web].[PageNote]
-    ALTER COLUMN [CreatedBy] INT NULL;
+    ALTER COLUMN [CreatedBy] NVARCHAR(256) NULL;
 
-    PRINT '  ✓ PageNote.CreatedBy kolonu int tipine çevrildi';
+    PRINT '  ✓ PageNote.CreatedBy kolonu nvarchar(256) tipine çevrildi';
 END
 
 IF EXISTS (
@@ -103,14 +104,14 @@ IF EXISTS (
     WHERE TABLE_SCHEMA = 'Web'
       AND TABLE_NAME = 'PageNote'
       AND COLUMN_NAME = 'ModifiedBy'
-      AND DATA_TYPE = 'nvarchar'
+      AND DATA_TYPE = 'int'
 )
 BEGIN
-    -- ModifiedBy kolonunu int'e çevir
+    -- ModifiedBy kolonunu nvarchar(256)'ya çevir
     ALTER TABLE [Web].[PageNote]
-    ALTER COLUMN [ModifiedBy] INT NULL;
+    ALTER COLUMN [ModifiedBy] NVARCHAR(256) NULL;
 
-    PRINT '  ✓ PageNote.ModifiedBy kolonu int tipine çevrildi';
+    PRINT '  ✓ PageNote.ModifiedBy kolonu nvarchar(256) tipine çevrildi';
 END
 GO
 
@@ -652,6 +653,7 @@ DECLARE @BerlinVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurz
 INSERT INTO [Verein].[Veranstaltung] (
     VereinId, Titel, Beschreibung, Beginn, Ende, Preis,
     AnmeldeErforderlich, NurFuerMitglieder,
+    IstWiederholend, WiederholungTyp, WiederholungInterval, WiederholungEnde, WiederholungTage,
     DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -663,6 +665,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     25.00,
     1, -- Kayıt gerekli
     0, -- Herkese açık
+    0, NULL, NULL, NULL, NULL, -- Tekrar etmiyor
     0,
     GETDATE(),
     1
@@ -676,6 +679,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     10.00,
     1, -- Kayıt gerekli
     0, -- Herkese açık
+    0, NULL, NULL, NULL, NULL, -- Tekrar etmiyor
     0,
     GETDATE(),
     1
@@ -689,6 +693,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     5.00,
     1, -- Kayıt gerekli
     1, -- Sadece üyeler
+    1, 'weekly', 1, DATEADD(MONTH, 6, GETDATE()), 'Mon,Wed,Fri', -- Her hafta Pzt, Çar, Cum
     0,
     GETDATE(),
     1
@@ -702,6 +707,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     0.00,
     1, -- Kayıt gerekli
     1, -- Sadece üyeler
+    1, 'monthly', 1, DATEADD(YEAR, 1, GETDATE()), NULL, -- Her ay
     0,
     GETDATE(),
     1
@@ -715,6 +721,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     8.00,
     0, -- Kayıt gerekmez
     0, -- Herkese açık
+    1, 'weekly', 2, DATEADD(MONTH, 3, GETDATE()), 'Fri', -- Her 2 haftada bir Cuma
     0,
     GETDATE(),
     1
@@ -724,6 +731,7 @@ INSERT INTO [Verein].[Veranstaltung] (
 INSERT INTO [Verein].[Veranstaltung] (
     VereinId, Titel, Beschreibung, Beginn, Ende, Preis,
     AnmeldeErforderlich, NurFuerMitglieder,
+    IstWiederholend, WiederholungTyp, WiederholungInterval, WiederholungEnde, WiederholungTage,
     DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -735,6 +743,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     0.00,
     0, -- Kayıt gerekmez
     0, -- Herkese açık
+    0, NULL, NULL, NULL, NULL, -- Tekrar etmiyor (geçmiş etkinlik)
     0,
     GETDATE(),
     1
@@ -748,6 +757,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     15.00,
     1, -- Kayıt gerekli
     0, -- Herkese açık
+    1, 'daily', 1, DATEADD(DAY, 75, GETDATE()), NULL, -- Her gün (Ramazan boyunca)
     0,
     GETDATE(),
     1
@@ -761,6 +771,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     20.00,
     1, -- Kayıt gerekli
     0, -- Herkese açık
+    1, 'weekly', 1, DATEADD(MONTH, 4, GETDATE()), 'Sat', -- Her hafta Cumartesi
     0,
     GETDATE(),
     1
@@ -774,6 +785,7 @@ INSERT INTO [Verein].[Veranstaltung] (
     0.00,
     0, -- Kayıt gerekmez
     1, -- Sadece üyeler
+    1, 'weekly', 2, DATEADD(MONTH, 6, GETDATE()), 'Sat', -- Her 2 haftada bir Cumartesi
     0,
     GETDATE(),
     1
@@ -787,12 +799,13 @@ INSERT INTO [Verein].[Veranstaltung] (
     12.00,
     1, -- Kayıt gerekli
     0, -- Herkese açık
+    1, 'yearly', 1, NULL, NULL, -- Her yıl (süresiz)
     0,
     GETDATE(),
     1
 );
 
-PRINT '  ✓ 11 Etkinlik eklendi (5 München, 6 Berlin)';
+PRINT '  ✓ 10 Etkinlik eklendi (5 München, 5 Berlin)';
 GO
 
 -- =============================================
@@ -826,31 +839,31 @@ DECLARE @WaehrungEUR INT = (SELECT TOP 1 Id FROM [Keytable].[Waehrung] WHERE Cod
 INSERT INTO [Verein].[VeranstaltungAnmeldung] (
     VeranstaltungId, MitgliedId, Name, Email, Telefon, Status, Bemerkung,
     Preis, WaehrungId, ZahlungStatusId,
-    DeletedFlag, Created, CreatedBy
+    DeletedFlag, Aktiv, Created, CreatedBy
 ) VALUES
 -- Türkischer Kulturabend kayıtları
-(@VeranstaltungMuenchen1, @FatmaId, N'Fatma Özkan', 'fatma.ozkan@email.com', '+49 89 12345678', 'BESTAETIGT', N'Ailesiyle birlikte gelecek', 25.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
-(@VeranstaltungMuenchen1, @CanId, N'Can Yıldırım', 'can.yildirim@email.com', '+49 89 23456789', 'BESTAETIGT', NULL, 25.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
-(@VeranstaltungMuenchen1, NULL, N'Ahmet Yılmaz', 'ahmet.yilmaz@email.com', '+49 89 11111111', 'BESTAETIGT', N'Dernek başkanı', 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+(@VeranstaltungMuenchen1, @FatmaId, N'Fatma Özkan', 'fatma.ozkan@email.com', '+49 89 12345678', 'BESTAETIGT', N'Ailesiyle birlikte gelecek', 25.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1),
+(@VeranstaltungMuenchen1, @CanId, N'Can Yıldırım', 'can.yildirim@email.com', '+49 89 23456789', 'BESTAETIGT', NULL, 25.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1),
+(@VeranstaltungMuenchen1, NULL, N'Ahmet Yılmaz', 'ahmet.yilmaz@email.com', '+49 89 11111111', 'BESTAETIGT', N'Dernek başkanı', 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1),
 
 -- Kinder-Sprachkurs Türkisch kayıtları
-(@VeranstaltungMuenchen2, @FatmaId, N'Fatma Özkan', 'fatma.ozkan@email.com', '+49 89 12345678', 'BESTAETIGT', N'Çocuğu için kayıt', 5.00, @WaehrungEUR, @ZahlungOffen, 0, GETDATE(), 1),
-(@VeranstaltungMuenchen2, NULL, N'Emine Şahin', 'emine.sahin@email.com', '+49 89 99999999', 'WARTELISTE', N'Kurs dolu, bekleme listesinde', 5.00, @WaehrungEUR, @ZahlungOffen, 0, GETDATE(), 1);
+(@VeranstaltungMuenchen2, @FatmaId, N'Fatma Özkan', 'fatma.ozkan@email.com', '+49 89 12345678', 'BESTAETIGT', N'Çocuğu için kayıt', 5.00, @WaehrungEUR, @ZahlungOffen, 0, 1, GETDATE(), 1),
+(@VeranstaltungMuenchen2, NULL, N'Emine Şahin', 'emine.sahin@email.com', '+49 89 99999999', 'WARTELISTE', N'Kurs dolu, bekleme listesinde', 5.00, @WaehrungEUR, @ZahlungOffen, 0, 1, GETDATE(), 1);
 
 -- Berlin Etkinlik Kayıtları
 INSERT INTO [Verein].[VeranstaltungAnmeldung] (
     VeranstaltungId, MitgliedId, Name, Email, Telefon, Status, Bemerkung,
     Preis, WaehrungId, ZahlungStatusId,
-    DeletedFlag, Created, CreatedBy
+    DeletedFlag, Aktiv, Created, CreatedBy
 ) VALUES
 -- Türkisch-Deutsche Kochkurs kayıtları
-(@VeranstaltungBerlin1, @AyseId, N'Ayşe Kaya', 'ayse.kaya@email.com', '+49 30 12345678', 'BESTAETIGT', NULL, 20.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
-(@VeranstaltungBerlin1, @ZeynepId, N'Zeynep Arslan', 'zeynep.arslan@email.com', '+49 30 23456789', 'BESTAETIGT', NULL, 20.00, @WaehrungEUR, @ZahlungOffen, 0, GETDATE(), 1),
-(@VeranstaltungBerlin1, NULL, N'Mehmet Demir', 'mehmet.demir@email.com', '+49 30 11111111', 'BESTAETIGT', N'Dernek başkanı', 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
+(@VeranstaltungBerlin1, @AyseId, N'Ayşe Kaya', 'ayse.kaya@email.com', '+49 30 12345678', 'BESTAETIGT', NULL, 20.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1),
+(@VeranstaltungBerlin1, @ZeynepId, N'Zeynep Arslan', 'zeynep.arslan@email.com', '+49 30 23456789', 'BESTAETIGT', NULL, 20.00, @WaehrungEUR, @ZahlungOffen, 0, 1, GETDATE(), 1),
+(@VeranstaltungBerlin1, NULL, N'Mehmet Demir', 'mehmet.demir@email.com', '+49 30 11111111', 'BESTAETIGT', N'Dernek başkanı', 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1),
 
 -- Integrationsseminar kayıtları
-(@VeranstaltungBerlin2, @AyseId, N'Ayşe Kaya', 'ayse.kaya@email.com', '+49 30 12345678', 'BESTAETIGT', NULL, 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1),
-(@VeranstaltungBerlin2, NULL, N'Hasan Öztürk', 'hasan.ozturk@email.com', '+49 30 88888888', 'BESTAETIGT', NULL, 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, GETDATE(), 1);
+(@VeranstaltungBerlin2, @AyseId, N'Ayşe Kaya', 'ayse.kaya@email.com', '+49 30 12345678', 'BESTAETIGT', NULL, 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1),
+(@VeranstaltungBerlin2, NULL, N'Hasan Öztürk', 'hasan.ozturk@email.com', '+49 30 88888888', 'BESTAETIGT', NULL, 0.00, @WaehrungEUR, @ZahlungBezahlt, 0, 1, GETDATE(), 1);
 
 PRINT '  ✓ 10 Etkinlik kaydı eklendi (5 München, 5 Berlin)';
 GO
@@ -1341,6 +1354,32 @@ END
 
 PRINT '  ✓ 4 Etkinlik ödemesi eklendi';
 
+-- Dernek DITIB ödemeleri (VereinDitibZahlung)
+-- WaehrungId: 1 = EUR (Keytable.Waehrung)
+-- StatusId: 1 = BEZAHLT, 2 = OFFEN (Keytable.ZahlungStatus)
+INSERT INTO [Finanz].[VereinDitibZahlung] (
+    VereinId, Betrag, WaehrungId, Zahlungsdatum, Zahlungsperiode,
+    Zahlungsweg, BankkontoId, Referenz, Bemerkung, StatusId,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+-- München DITIB ödemeleri (son 6 ay)
+(@MuenchenVereinId, 500.00, 1, DATEADD(MONTH, -5, GETDATE()), FORMAT(DATEADD(MONTH, -5, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-06', N'Monatliche DITIB Zahlung - Juni 2024', 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, 500.00, 1, DATEADD(MONTH, -4, GETDATE()), FORMAT(DATEADD(MONTH, -4, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-07', N'Monatliche DITIB Zahlung - Juli 2024', 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, 500.00, 1, DATEADD(MONTH, -3, GETDATE()), FORMAT(DATEADD(MONTH, -3, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-08', N'Monatliche DITIB Zahlung - August 2024', 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, 500.00, 1, DATEADD(MONTH, -2, GETDATE()), FORMAT(DATEADD(MONTH, -2, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-09', N'Monatliche DITIB Zahlung - September 2024', 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, 500.00, 1, DATEADD(MONTH, -1, GETDATE()), FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-10', N'Monatliche DITIB Zahlung - Oktober 2024', 1, 0, GETDATE(), 1),
+(@MuenchenVereinId, 500.00, 1, GETDATE(), FORMAT(GETDATE(), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-11', N'Monatliche DITIB Zahlung - November 2024', 2, 0, GETDATE(), 1),
+
+-- Berlin DITIB ödemeleri (son 6 ay)
+(@BerlinVereinId, 450.00, 1, DATEADD(MONTH, -5, GETDATE()), FORMAT(DATEADD(MONTH, -5, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-06', N'Monatliche DITIB Zahlung - Juni 2024', 1, 0, GETDATE(), 1),
+(@BerlinVereinId, 450.00, 1, DATEADD(MONTH, -4, GETDATE()), FORMAT(DATEADD(MONTH, -4, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-07', N'Monatliche DITIB Zahlung - Juli 2024', 1, 0, GETDATE(), 1),
+(@BerlinVereinId, 450.00, 1, DATEADD(MONTH, -3, GETDATE()), FORMAT(DATEADD(MONTH, -3, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-08', N'Monatliche DITIB Zahlung - August 2024', 1, 0, GETDATE(), 1),
+(@BerlinVereinId, 450.00, 1, DATEADD(MONTH, -2, GETDATE()), FORMAT(DATEADD(MONTH, -2, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-09', N'Monatliche DITIB Zahlung - September 2024', 1, 0, GETDATE(), 1),
+(@BerlinVereinId, 450.00, 1, DATEADD(MONTH, -1, GETDATE()), FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-10', N'Monatliche DITIB Zahlung - Oktober 2024', 1, 0, GETDATE(), 1),
+(@BerlinVereinId, 450.00, 1, GETDATE(), FORMAT(GETDATE(), 'yyyy-MM'), 'UEBERWEISUNG', NULL, 'DITIB-2024-11', N'Monatliche DITIB Zahlung - November 2024', 2, 0, GETDATE(), 1);
+
+PRINT '  ✓ 12 DITIB ödemesi eklendi (München: 6, Berlin: 6)';
+
 -- Forderung'ları güncelle (BezahltAm)
 UPDATE [Finanz].[MitgliedForderung]
 SET BezahltAm = DATEADD(DAY, -15, GETDATE())
@@ -1410,32 +1449,32 @@ DECLARE @AyseIdNote INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Emai
 INSERT INTO [Web].[PageNote] (
     PageUrl, PageTitle, EntityType, EntityId,
     Title, Content, Category, Priority,
-    UserEmail, UserName, UserType, Status,
+    UserEmail, UserName, Status,
     DeletedFlag, Aktiv, Created, CreatedBy
 ) VALUES
 -- Dernek sayfası notları
 ('/vereine/' + CAST(@MuenchenVereinIdNote AS NVARCHAR(10)), N'TDKV München - Detay', 'Verein', @MuenchenVereinIdNote,
  N'Adres bilgisi eksik', N'Dernek adres bilgilerinde posta kodu güncellenebilir mi?', 'General', 'Medium',
- 'fatma.ozkan@email.com', N'Fatma Özkan', 'mitglied', 'Pending', 0, 1, GETDATE(), 1),
+ 'fatma.ozkan@email.com', N'Fatma Özkan', 'Pending', 0, 1, GETDATE(), 'fatma.ozkan@email.com'),
 
 ('/vereine/' + CAST(@BerlinVereinIdNote AS NVARCHAR(10)), N'DTF Berlin - Detay', 'Verein', @BerlinVereinIdNote,
  N'Telefon numarası hatalı', N'Dernek telefon numarası güncel değil, lütfen güncelleyin.', 'Bug', 'High',
- 'ayse.kaya@email.com', N'Ayşe Kaya', 'mitglied', 'Pending', 0, 1, GETDATE(), 1),
+ 'ayse.kaya@email.com', N'Ayşe Kaya', 'Pending', 0, 1, GETDATE(), 'ayse.kaya@email.com'),
 
 -- Üye sayfası notları
 ('/mitglieder/' + CAST(@FatmaIdNote AS NVARCHAR(10)), N'Fatma Özkan - Profil', 'Mitglied', @FatmaIdNote,
  N'Profil fotoğrafı eklenebilir mi?', N'Üye profil sayfasına fotoğraf yükleme özelliği eklenirse güzel olur.', 'Feature', 'Medium',
- 'fatma.ozkan@email.com', N'Fatma Özkan', 'mitglied', 'Pending', 0, 1, GETDATE(), 1),
+ 'fatma.ozkan@email.com', N'Fatma Özkan', 'Pending', 0, 1, GETDATE(), 'fatma.ozkan@email.com'),
 
 -- Dashboard notları
 ('/dashboard', N'Dashboard', 'Dashboard', NULL,
  N'İstatistikler çok güzel', N'Dashboard sayfasındaki istatistikler çok bilgilendirici, teşekkürler!', 'Question', 'Low',
- 'ayse.kaya@email.com', N'Ayşe Kaya', 'mitglied', 'Completed', 0, 1, GETDATE(), 1),
+ 'ayse.kaya@email.com', N'Ayşe Kaya', 'Completed', 0, 1, GETDATE(), 'ayse.kaya@email.com'),
 
 -- Etkinlik sayfası notları
 ('/veranstaltungen', N'Etkinlikler', 'Veranstaltung', NULL,
  N'Takvim görünümü eklenebilir', N'Etkinlikleri takvim formatında görmek daha kullanışlı olabilir.', 'Feature', 'Medium',
- 'fatma.ozkan@email.com', N'Fatma Özkan', 'mitglied', 'Pending', 0, 1, GETDATE(), 1);
+ 'fatma.ozkan@email.com', N'Fatma Özkan', 'Pending', 0, 1, GETDATE(), 'fatma.ozkan@email.com');
 
 PRINT '  ✓ 5 Sayfa notu eklendi';
 GO
@@ -1619,7 +1658,7 @@ PRINT '';
 PRINT 'Özet:';
 PRINT '  ✓ 7 Dernek (2 aktif + 5 pasif)';
 PRINT '  ✓ 10 Üye (6 München + 4 Berlin) - Dernek başkanları üye değil!';
-PRINT '  ✓ 11 Etkinlik';
+PRINT '  ✓ 10 Etkinlik (7 recurring)';
 PRINT '  ✓ 8 Aile ilişkisi';
 PRINT '  ✓ 2 Banka hesabı';
 PRINT '  ✓ 9 Banka hareketi';

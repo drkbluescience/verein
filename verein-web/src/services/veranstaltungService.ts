@@ -166,7 +166,7 @@ export const veranstaltungBildService = {
 // Utility functions for Veranstaltung data processing
 export const veranstaltungUtils = {
   // Format event date for display
-  formatEventDate: (startdatum: string, enddatum?: string): string => {
+  formatEventDate: (startdatum: string, enddatum?: string, istWiederholend?: boolean, wiederholungEnde?: string): string => {
     const start = new Date(startdatum);
     const startFormatted = start.toLocaleDateString('de-DE', {
       day: '2-digit',
@@ -174,6 +174,22 @@ export const veranstaltungUtils = {
       year: 'numeric'
     });
 
+    // For recurring events, show start date and recurrence end date
+    if (istWiederholend && wiederholungEnde) {
+      const recurrenceEnd = new Date(wiederholungEnde);
+      const recurrenceEndFormatted = recurrenceEnd.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      if (startFormatted === recurrenceEndFormatted) {
+        return startFormatted;
+      }
+      return `${startFormatted} - ${recurrenceEndFormatted}`;
+    }
+
+    // For non-recurring events with end date
     if (enddatum) {
       const end = new Date(enddatum);
       const endFormatted = end.toLocaleDateString('de-DE', {
@@ -181,7 +197,7 @@ export const veranstaltungUtils = {
         month: '2-digit',
         year: 'numeric'
       });
-      
+
       if (startFormatted === endFormatted) {
         return startFormatted;
       }
@@ -211,11 +227,26 @@ export const veranstaltungUtils = {
     return startTime;
   },
 
-  // Check if event is upcoming
-  isUpcoming: (startdatum: string): boolean => {
-    const now = new Date();
-    const eventDate = new Date(startdatum);
-    return eventDate > now;
+  // Check if event is upcoming (has future occurrences)
+  isUpcoming: (
+    startdatum: string,
+    istWiederholend?: boolean,
+    wiederholungTyp?: 'daily' | 'weekly' | 'monthly' | 'yearly',
+    wiederholungInterval?: number,
+    wiederholungEnde?: string,
+    wiederholungTage?: string,
+    wiederholungMonatTag?: number
+  ): boolean => {
+    const nextOccurrence = veranstaltungUtils.getNextOccurrenceDate(
+      startdatum,
+      istWiederholend,
+      wiederholungTyp,
+      wiederholungInterval,
+      wiederholungEnde,
+      wiederholungTage,
+      wiederholungMonatTag
+    );
+    return nextOccurrence !== null;
   },
 
   // Check if event is past
@@ -232,12 +263,163 @@ export const veranstaltungUtils = {
     return today.toDateString() === eventDate.toDateString();
   },
 
-  // Get days until event
-  getDaysUntilEvent: (startdatum: string): number => {
+  // Get next occurrence date for recurring events
+  getNextOccurrenceDate: (
+    startdatum: string,
+    istWiederholend?: boolean,
+    wiederholungTyp?: 'daily' | 'weekly' | 'monthly' | 'yearly',
+    wiederholungInterval?: number,
+    wiederholungEnde?: string,
+    wiederholungTage?: string,
+    wiederholungMonatTag?: number
+  ): Date | null => {
+    // Normalize dates to midnight for accurate day comparison
     const now = new Date();
-    const eventDate = new Date(startdatum);
-    const diffTime = eventDate.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    now.setHours(0, 0, 0, 0);
+
+    const start = new Date(startdatum);
+    start.setHours(0, 0, 0, 0);
+
+    // If not recurring, return start date if it's in the future or today
+    if (!istWiederholend) {
+      return start >= now ? start : null;
+    }
+
+    // If recurring has ended, return null
+    if (wiederholungEnde) {
+      const recurrenceEnd = new Date(wiederholungEnde);
+      recurrenceEnd.setHours(0, 0, 0, 0);
+      if (now > recurrenceEnd) {
+        return null;
+      }
+    }
+
+    const interval = wiederholungInterval || 1;
+    let nextDate = new Date(start);
+
+    // Calculate next occurrence based on recurrence type
+    switch (wiederholungTyp) {
+      case 'daily':
+        // Find next daily occurrence (must be >= start date and >= today)
+        while (nextDate < now || nextDate < start) {
+          nextDate.setDate(nextDate.getDate() + interval);
+        }
+        break;
+
+      case 'weekly':
+        // For weekly events with specific days
+        if (wiederholungTage) {
+          const daysOfWeek = wiederholungTage.split(',').map(d => d.trim());
+          const dayMap: { [key: string]: number } = {
+            'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6, 'Sun': 0
+          };
+
+          // Find the next occurrence starting from the later of today or start date
+          let found = false;
+          let checkDate = new Date(now > start ? now : start);
+          checkDate.setHours(0, 0, 0, 0);
+
+          // Check up to 8 weeks ahead to find next occurrence
+          for (let i = 0; i < 56; i++) {
+            const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][checkDate.getDay()];
+            if (daysOfWeek.includes(dayName) && checkDate >= now && checkDate >= start) {
+              nextDate = new Date(checkDate);
+              found = true;
+              break;
+            }
+            checkDate.setDate(checkDate.getDate() + 1);
+          }
+
+          if (!found) {
+            return null;
+          }
+        } else {
+          // Simple weekly recurrence
+          while (nextDate < now) {
+            nextDate.setDate(nextDate.getDate() + (7 * interval));
+          }
+        }
+        break;
+
+      case 'monthly':
+        // For monthly events on specific day
+        if (wiederholungMonatTag) {
+          let checkDate = new Date(now > start ? now : start);
+          checkDate.setDate(wiederholungMonatTag);
+          checkDate.setHours(0, 0, 0, 0);
+
+          // If this month's occurrence has passed or is before start date, go to next month
+          while (checkDate < now || checkDate < start) {
+            checkDate.setMonth(checkDate.getMonth() + interval);
+          }
+
+          nextDate = checkDate;
+        } else {
+          // Simple monthly recurrence
+          while (nextDate < now || nextDate < start) {
+            nextDate.setMonth(nextDate.getMonth() + interval);
+          }
+        }
+        break;
+
+      case 'yearly':
+        // Simple yearly recurrence
+        while (nextDate < now || nextDate < start) {
+          nextDate.setFullYear(nextDate.getFullYear() + interval);
+        }
+        break;
+
+      default:
+        return start >= now ? start : null;
+    }
+
+    // Check if next occurrence is within recurrence end date
+    if (wiederholungEnde) {
+      const recurrenceEnd = new Date(wiederholungEnde);
+      recurrenceEnd.setHours(0, 0, 0, 0);
+      if (nextDate > recurrenceEnd) {
+        return null;
+      }
+    }
+
+    return nextDate;
+  },
+
+  // Get days until next event occurrence
+  getDaysUntilEvent: (
+    startdatum: string,
+    istWiederholend?: boolean,
+    wiederholungTyp?: 'daily' | 'weekly' | 'monthly' | 'yearly',
+    wiederholungInterval?: number,
+    wiederholungEnde?: string,
+    wiederholungTage?: string,
+    wiederholungMonatTag?: number
+  ): number | null => {
+    const nextOccurrence = veranstaltungUtils.getNextOccurrenceDate(
+      startdatum,
+      istWiederholend,
+      wiederholungTyp,
+      wiederholungInterval,
+      wiederholungEnde,
+      wiederholungTage,
+      wiederholungMonatTag
+    );
+
+    if (!nextOccurrence) {
+      return null;
+    }
+
+    // Reset time to midnight for accurate day calculation
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const eventDate = new Date(nextOccurrence);
+    eventDate.setHours(0, 0, 0, 0);
+
+    const diffTime = eventDate.getTime() - today.getTime();
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return days;
   },
 
   // Get event status

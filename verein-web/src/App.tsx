@@ -29,6 +29,11 @@ import MitgliedZahlungDetail from './pages/Finanz/MitgliedZahlungDetail';
 import BankBuchungList from './pages/Finanz/BankBuchungList';
 import BankBuchungDetail from './pages/Finanz/BankBuchungDetail';
 import BankUpload from './pages/Finanz/BankUpload';
+import ManualMatching from './pages/Finanz/ManualMatching';
+import DitibUpload from './pages/Finanz/DitibUpload';
+import VereinDitibZahlungList from './pages/Finanz/VereinDitibZahlungList';
+import VereinDitibZahlungDetail from './pages/Finanz/VereinDitibZahlungDetail';
+import VereinDitibZahlungForm from './pages/Finanz/VereinDitibZahlungForm';
 import PageNotesAdmin from './pages/Admin/PageNotesAdmin';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
@@ -184,6 +189,36 @@ const AppContent: React.FC = () => {
           <Route path="/finanzen/bank-upload" element={
             <Layout>
               <BankUpload />
+            </Layout>
+          } />
+          <Route path="/finanzen/manual-matching" element={
+            <Layout>
+              <ManualMatching />
+            </Layout>
+          } />
+          <Route path="/finanzen/ditib-upload" element={
+            <Layout>
+              <DitibUpload />
+            </Layout>
+          } />
+          <Route path="/finanzen/ditib-zahlungen" element={
+            <Layout>
+              <VereinDitibZahlungList />
+            </Layout>
+          } />
+          <Route path="/finanzen/ditib-zahlungen/new" element={
+            <Layout>
+              <VereinDitibZahlungForm />
+            </Layout>
+          } />
+          <Route path="/finanzen/ditib-zahlungen/:id" element={
+            <Layout>
+              <VereinDitibZahlungDetail />
+            </Layout>
+          } />
+          <Route path="/finanzen/ditib-zahlungen/:id/edit" element={
+            <Layout>
+              <VereinDitibZahlungForm />
             </Layout>
           } />
 

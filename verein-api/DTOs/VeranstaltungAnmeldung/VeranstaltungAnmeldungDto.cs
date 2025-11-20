@@ -103,4 +103,10 @@ public class VeranstaltungAnmeldungDto
     /// </summary>
     [JsonPropertyName("deletedFlag")]
     public bool? DeletedFlag { get; set; }
+
+    /// <summary>
+    /// Active flag
+    /// </summary>
+    [JsonPropertyName("aktiv")]
+    public bool? Aktiv { get; set; }
 }

@@ -172,12 +172,23 @@ const MitgliedList: React.FC = () => {
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(mitglied =>
-        mitglied.vorname.toLowerCase().includes(searchLower) ||
-        mitglied.nachname.toLowerCase().includes(searchLower) ||
-        mitglied.mitgliedsnummer.toLowerCase().includes(searchLower) ||
-        mitglied.email?.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(mitglied => {
+        // Basic search fields
+        const matchesBasic =
+          mitglied.vorname.toLowerCase().includes(searchLower) ||
+          mitglied.nachname.toLowerCase().includes(searchLower) ||
+          mitglied.mitgliedsnummer.toLowerCase().includes(searchLower) ||
+          mitglied.email?.toLowerCase().includes(searchLower);
+
+        // For admin users, also search by Vereinsnummer
+        if (user?.type === 'admin' && vereine.length > 0) {
+          const verein = vereine.find(v => v.id === mitglied.vereinId);
+          const vereinsnummer = verein?.vereinsnummer || '';
+          return matchesBasic || vereinsnummer.toLowerCase().includes(searchLower);
+        }
+
+        return matchesBasic;
+      });
     }
 
     // Apply status filter for all users
@@ -192,7 +203,7 @@ const MitgliedList: React.FC = () => {
     }
 
     return filtered;
-  }, [mitglieder, searchTerm, statusFilter, selectedVereinId, user?.type]);
+  }, [mitglieder, searchTerm, statusFilter, selectedVereinId, user?.type, vereine]);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -259,7 +270,7 @@ const MitgliedList: React.FC = () => {
               <option value="">{t('common:filter.allVereine')}</option>
               {vereine.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.name}
+                  #{v.vereinsnummer} - {v.name}
                 </option>
               ))}
             </select>

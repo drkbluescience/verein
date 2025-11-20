@@ -16,10 +16,9 @@ public interface IPageNoteService
     /// <param name="createDto">Page note creation data</param>
     /// <param name="userEmail">Email of the user creating the note</param>
     /// <param name="userName">Name of the user creating the note</param>
-    /// <param name="userType">Type of user creating the note (admin, dernek, mitglied)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created page note</returns>
-    Task<PageNoteDto> CreateAsync(CreatePageNoteDto createDto, string userEmail, string? userName, string? userType = null, CancellationToken cancellationToken = default);
+    Task<PageNoteDto> CreateAsync(CreatePageNoteDto createDto, string userEmail, string? userName, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets page note by ID

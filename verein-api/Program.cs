@@ -37,22 +37,81 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
-// Database Configuration - Using Docker SQL Server (Azure connection available as fallback)
-var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Database Configuration - Try Azure first, fallback to Docker
 var azureConnectionString = builder.Configuration.GetConnectionString("AzureConnection");
 var dockerConnectionString = builder.Configuration.GetConnectionString("DockerConnection")
     ?? throw new InvalidOperationException("Connection string 'DockerConnection' not found.");
 
-// Use DefaultConnection (currently set to Docker)
-string activeConnectionString = defaultConnectionString;
+string activeConnectionString = string.Empty;
+string databaseServer = string.Empty;
+bool isAzureConnection = false;
 
-// Determine which database server is being used
-string databaseServer = activeConnectionString.Contains("localhost")
-    ? "Docker SQL Server (localhost:1433)"
-    : "Azure SQL Database (Verein08112025.database.windows.net)";
+// Try Azure connection first
+if (!string.IsNullOrEmpty(azureConnectionString))
+{
+    Log.Information("Azure bağlantısı deneniyor...");
+    try
+    {
+        var testOptionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        testOptionsBuilder.UseSqlServer(azureConnectionString);
 
-Log.Information("Using connection: {Server}", databaseServer);
+        using (var testContext = new ApplicationDbContext(testOptionsBuilder.Options))
+        {
+            // Test both connection and actual query execution
+            await testContext.Database.CanConnectAsync();
+            Log.Information("Azure bağlantısı kuruldu, sorgu testi yapılıyor...");
+
+            // Try to execute a simple query to verify database is actually usable
+            // This will catch issues like quota exceeded, database paused, etc.
+            await testContext.Database.ExecuteSqlRawAsync("SELECT 1");
+
+            activeConnectionString = azureConnectionString;
+            databaseServer = "Azure SQL Database (Verein08112025.database.windows.net)";
+            isAzureConnection = true;
+            Log.Information("Azure veritabanı tamamen çalışır durumda");
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Warning(ex, "Azure kullanılamıyor (bağlantı hatası veya kota aşımı), Docker'a geçiliyor...");
+    }
+}
+else
+{
+    Log.Information("Azure connection string bulunamadı, Docker kullanılacak");
+}
+
+// Fallback to Docker if Azure failed or not available
+if (string.IsNullOrEmpty(activeConnectionString))
+{
+    Log.Information("Docker SQL Server bağlantısı deneniyor...");
+    try
+    {
+        var testOptionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        testOptionsBuilder.UseSqlServer(dockerConnectionString);
+
+        using (var testContext = new ApplicationDbContext(testOptionsBuilder.Options))
+        {
+            await testContext.Database.CanConnectAsync();
+            Log.Information("Docker bağlantısı kuruldu, sorgu testi yapılıyor...");
+
+            // Test actual query execution
+            await testContext.Database.ExecuteSqlRawAsync("SELECT 1");
+
+            activeConnectionString = dockerConnectionString;
+            databaseServer = "Docker SQL Server (localhost:1433)";
+            isAzureConnection = false;
+            Log.Information("Docker veritabanı tamamen çalışır durumda");
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Fatal(ex, "Docker bağlantısı da başarısız. Docker'ın çalıştığından emin olun: docker-compose up -d mssql");
+        throw new InvalidOperationException("Hiçbir veritabanına bağlanılamadı", ex);
+    }
+}
+
+Log.Information("Aktif bağlantı: {Server}", databaseServer);
 
 // Store connection strings for reference
 builder.Services.AddSingleton(new ConnectionStringProvider
@@ -61,24 +120,6 @@ builder.Services.AddSingleton(new ConnectionStringProvider
     DockerConnection = dockerConnectionString,
     DatabaseServer = databaseServer
 });
-
-// Verify connection
-try
-{
-    var testOptionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-    testOptionsBuilder.UseSqlServer(activeConnectionString);
-
-    using (var testContext = new ApplicationDbContext(testOptionsBuilder.Options))
-    {
-        await testContext.Database.CanConnectAsync();
-        Log.Information("Database connection test successful");
-    }
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Cannot connect to database. Make sure Docker is running: docker-compose up -d mssql");
-    throw new InvalidOperationException("Database connection failed", ex);
-}
 
 // Configure DbContext with the active connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -114,6 +155,7 @@ builder.Services.AddAutoMapper(
     typeof(VereinsApi.Profiles.MitgliedForderungZahlungProfile),
     typeof(VereinsApi.Profiles.MitgliedVorauszahlungProfile),
     typeof(VereinsApi.Profiles.VeranstaltungZahlungProfile),
+    typeof(VereinsApi.Profiles.VereinDitibZahlungProfile),
     // Keytable Profile
     typeof(VereinsApi.Profiles.KeytableProfile));
 
@@ -143,6 +185,7 @@ builder.Services.AddScoped<IBankBuchungRepository, VereinsApi.Data.Repositories.
 builder.Services.AddScoped<IMitgliedForderungRepository, VereinsApi.Data.Repositories.MitgliedForderungRepository>();
 builder.Services.AddScoped<IMitgliedZahlungRepository, VereinsApi.Data.Repositories.MitgliedZahlungRepository>();
 builder.Services.AddScoped<IVeranstaltungZahlungRepository, VereinsApi.Data.Repositories.VeranstaltungZahlungRepository>();
+builder.Services.AddScoped<IVereinDitibZahlungRepository, VereinsApi.Data.Repositories.VereinDitibZahlungRepository>();
 
 // Service Registration
 // Mitglied Services
@@ -153,6 +196,7 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedFamilieServic
 // Other Services
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVereinService, VereinsApi.Services.VereinService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IRechtlicheDatenService, VereinsApi.Services.RechtlicheDatenService>();
+builder.Services.AddScoped<VereinsApi.Services.IVereinSatzungService, VereinsApi.Services.VereinSatzungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IAdresseService, VereinsApi.Services.AdresseService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankkontoService, VereinsApi.Services.BankkontoService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungService, VereinsApi.Services.VeranstaltungService>();
@@ -164,10 +208,13 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankBuchungService, V
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedForderungService, VereinsApi.Services.MitgliedForderungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedZahlungService, VereinsApi.Services.MitgliedZahlungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungZahlungService, VereinsApi.Services.VeranstaltungZahlungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVereinDitibZahlungService, VereinsApi.Services.VereinDitibZahlungService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IFinanzDashboardService, VereinsApi.Services.FinanzDashboardService>();
 
 // Excel Upload Services
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IExcelParserService, VereinsApi.Services.ExcelParserService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBankUploadService, VereinsApi.Services.BankUploadService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IDitibUploadService, VereinsApi.Services.DitibUploadService>();
 
 // Keytable Service
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IKeytableService, VereinsApi.Services.KeytableService>();

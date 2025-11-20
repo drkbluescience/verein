@@ -191,6 +191,43 @@
     "participantReportSuffix": "Teilnehmerbericht",
     "reportDownloadSuccess": "Bericht erfolgreich heruntergeladen",
     "reportDownloadError": "Fehler beim Erstellen des Berichts"
+  },
+  "recurrence": {
+    "title": "Wiederkehrende Veranstaltung",
+    "isRecurring": "Wiederkehrende Veranstaltung",
+    "type": "Wiederholungstyp",
+    "interval": "Intervall",
+    "endDate": "Enddatum",
+    "weekdays": "Wochentage",
+    "monthDay": "Tag des Monats",
+    "types": {
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich",
+      "yearly": "Jährlich"
+    },
+    "daily": "Jeden Tag",
+    "weekly": "Jede Woche",
+    "monthly": "Jeden Monat",
+    "yearly": "Jedes Jahr",
+    "everyNDays": "Alle {n} Tage",
+    "everyNWeeks": "Alle {n} Wochen",
+    "everyNMonths": "Alle {n} Monate",
+    "everyNYears": "Alle {n} Jahre",
+    "weeklyOn": "Jede Woche am {days}",
+    "until": "bis:",
+    "noEndDate": "Kein Enddatum",
+    "nextOccurrences": "Nächste Termine",
+    "badge": "Wiederkehrend",
+    "weekdayLabels": {
+      "Mon": "Mo",
+      "Tue": "Di",
+      "Wed": "Mi",
+      "Thu": "Do",
+      "Fri": "Fr",
+      "Sat": "Sa",
+      "Sun": "So"
+    }
   }
 }
 

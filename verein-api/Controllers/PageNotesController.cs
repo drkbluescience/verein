@@ -101,28 +101,24 @@ public class PageNotesController : ControllerBase
         try
         {
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            var userType = User.FindFirst("UserType")?.Value;
 
             if (string.IsNullOrEmpty(userEmail))
             {
                 return Unauthorized("User email not found");
             }
 
-            _logger.LogInformation($"GetMyNotes called by user: {userEmail}, userType: {userType}");
+            _logger.LogInformation($"GetMyNotes called by user: {userEmail}");
             var allNotes = await _pageNoteService.GetByUserEmailAsync(userEmail);
 
-            // Filter by both email AND userType to prevent cross-user-type access
-            var notes = allNotes.Where(n =>
-                n.UserEmail == userEmail &&
-                (string.IsNullOrEmpty(n.UserType) || n.UserType == userType)
-            ).ToList();
+            // Filter by email
+            var notes = allNotes.Where(n => n.UserEmail == userEmail).ToList();
 
-            _logger.LogInformation($"GetMyNotes returning {notes.Count} notes for user: {userEmail}, userType: {userType}");
+            _logger.LogInformation($"GetMyNotes returning {notes.Count} notes for user: {userEmail}");
 
             // Log each note's owner for debugging
             foreach (var note in notes)
             {
-                _logger.LogInformation($"Note ID: {note.Id}, Owner: {note.UserEmail}, UserType: {note.UserType}, Title: {note.Title}");
+                _logger.LogInformation($"Note ID: {note.Id}, Owner: {note.UserEmail}, Title: {note.Title}");
             }
 
             return Ok(notes);
@@ -264,14 +260,13 @@ public class PageNotesController : ControllerBase
 
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var userName = User.FindFirst(ClaimTypes.Name)?.Value;
-            var userType = User.FindFirst("UserType")?.Value;
 
             if (string.IsNullOrEmpty(userEmail))
             {
                 return Unauthorized("User email not found");
             }
 
-            var note = await _pageNoteService.CreateAsync(createDto, userEmail, userName, userType);
+            var note = await _pageNoteService.CreateAsync(createDto, userEmail, userName);
             return CreatedAtAction(nameof(GetById), new { id = note.Id }, note);
         }
         catch (Exception ex)

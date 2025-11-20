@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using VereinsApi.Data;
 using VereinsApi.DTOs.MitgliedForderung;
+using VereinsApi.DTOs.MitgliedForderungZahlung;
 using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
@@ -15,13 +18,16 @@ namespace VereinsApi.Controllers;
 public class MitgliedForderungenController : ControllerBase
 {
     private readonly IMitgliedForderungService _service;
+    private readonly ApplicationDbContext _context;
     private readonly ILogger<MitgliedForderungenController> _logger;
 
     public MitgliedForderungenController(
         IMitgliedForderungService service,
+        ApplicationDbContext context,
         ILogger<MitgliedForderungenController> logger)
     {
         _service = service;
+        _context = context;
         _logger = logger;
     }
 
@@ -66,6 +72,40 @@ public class MitgliedForderungenController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting forderung {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Get payment allocations for a Forderung
+    /// </summary>
+    [HttpGet("{id:int}/allocations")]
+    [ProducesResponseType(typeof(IEnumerable<MitgliedForderungZahlungDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<MitgliedForderungZahlungDto>>> GetAllocations(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var allocations = await _context.MitgliedForderungZahlungen
+                .Where(fz => fz.ForderungId == id && fz.DeletedFlag != true)
+                .Include(fz => fz.Zahlung)
+                .OrderByDescending(fz => fz.Created)
+                .Select(fz => new MitgliedForderungZahlungDto
+                {
+                    Id = fz.Id,
+                    ForderungId = fz.ForderungId,
+                    ZahlungId = fz.ZahlungId,
+                    Betrag = fz.Betrag,
+                    Created = fz.Created
+                })
+                .ToListAsync(cancellationToken);
+
+            return Ok(allocations);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting allocations for forderung {Id}", id);
             return StatusCode(500, "Internal server error");
         }
     }

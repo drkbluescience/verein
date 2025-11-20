@@ -23,14 +23,14 @@ public class PageNoteService : IPageNoteService
 
     #region CRUD Operations
 
-    public async Task<PageNoteDto> CreateAsync(CreatePageNoteDto createDto, string userEmail, string? userName, string? userType = null, CancellationToken cancellationToken = default)
+    public async Task<PageNoteDto> CreateAsync(CreatePageNoteDto createDto, string userEmail, string? userName, CancellationToken cancellationToken = default)
     {
         var pageNote = _mapper.Map<PageNote>(createDto);
         pageNote.UserEmail = userEmail;
         pageNote.UserName = userName;
-        pageNote.UserType = userType;
         pageNote.Status = PageNoteStatus.Pending;
         pageNote.Created = DateTime.UtcNow;
+        pageNote.CreatedBy = userEmail;
         pageNote.DeletedFlag = false;
         pageNote.Aktiv = true;
 

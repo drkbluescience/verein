@@ -73,12 +73,6 @@ public class PageNote : AuditableEntity
     public string? UserName { get; set; }
 
     /// <summary>
-    /// Type of user who created the note (admin, dernek, mitglied)
-    /// </summary>
-    [MaxLength(50)]
-    public string? UserType { get; set; }
-
-    /// <summary>
     /// Status of the note
     /// </summary>
     [Required]
@@ -104,5 +98,19 @@ public class PageNote : AuditableEntity
     /// Is this note active?
     /// </summary>
     public bool? Aktiv { get; set; } = true;
+
+    // Override CreatedBy and ModifiedBy to use string instead of int
+    // because PageNote table uses nvarchar(256) for these fields
+    /// <summary>
+    /// Email of user who created this note (overrides base class int? property)
+    /// </summary>
+    [MaxLength(256)]
+    public new string? CreatedBy { get; set; }
+
+    /// <summary>
+    /// Email of user who last modified this note (overrides base class int? property)
+    /// </summary>
+    [MaxLength(256)]
+    public new string? ModifiedBy { get; set; }
 }
 
