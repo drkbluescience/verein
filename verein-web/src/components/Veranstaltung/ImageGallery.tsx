@@ -13,6 +13,8 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5103';
 interface ImageGalleryProps {
   veranstaltungId: number;
   canManage: boolean;
+  viewMode?: 'grid' | 'table';
+  onViewModeChange?: (mode: 'grid' | 'table') => void;
 }
 
 // SVG Icons
@@ -38,7 +40,30 @@ const ImageIcon = () => (
   </svg>
 );
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage }) => {
+const GridIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/>
+    <rect x="14" y="3" width="7" height="7"/>
+    <rect x="14" y="14" width="7" height="7"/>
+    <rect x="3" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const TableIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <line x1="3" y1="9" x2="21" y2="9"/>
+    <line x1="3" y1="15" x2="21" y2="15"/>
+    <line x1="9" y1="3" x2="9" y2="21"/>
+  </svg>
+);
+
+const ImageGallery: React.FC<ImageGalleryProps> = ({
+  veranstaltungId,
+  canManage,
+  viewMode = 'grid',
+  onViewModeChange
+}) => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['veranstaltungen', 'common']);
   const { showToast } = useToast();
@@ -114,12 +139,33 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
     <div className="image-gallery">
       <div className="gallery-header">
         <h3>📸 {t('veranstaltungen:detailPage.imageGallery.title')} ({sortedImages.length})</h3>
-        {canManage && (
-          <button className="btn-primary" onClick={() => setShowUploadModal(true)}>
-            <PlusIcon />
-            <span>{t('veranstaltungen:detailPage.imageGallery.addImage')}</span>
-          </button>
-        )}
+        <div className="gallery-header-actions">
+          {/* View Mode Toggle */}
+          {sortedImages.length > 0 && onViewModeChange && (
+            <div className="view-toggle">
+              <button
+                className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => onViewModeChange('grid')}
+                title={t('veranstaltungen:detailPage.viewMode.grid')}
+              >
+                <GridIcon />
+              </button>
+              <button
+                className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                onClick={() => onViewModeChange('table')}
+                title={t('veranstaltungen:detailPage.viewMode.table')}
+              >
+                <TableIcon />
+              </button>
+            </div>
+          )}
+          {canManage && (
+            <button className="btn-primary" onClick={() => setShowUploadModal(true)}>
+              <PlusIcon />
+              <span>{t('veranstaltungen:detailPage.imageGallery.addImage')}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {sortedImages.length === 0 ? (
@@ -136,7 +182,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
             </button>
           )}
         </div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="gallery-grid">
           {sortedImages.map((image: VeranstaltungBildDto) => (
             <div key={image.id} className="gallery-item">
@@ -172,6 +218,64 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ veranstaltungId, canManage 
               )}
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="images-table-container">
+          <table className="images-table">
+            <thead>
+              <tr>
+                <th>{t('veranstaltungen:detailPage.imageTable.preview')}</th>
+                <th>{t('veranstaltungen:detailPage.imageTable.title')}</th>
+                <th>{t('veranstaltungen:detailPage.imageTable.uploadedOn')}</th>
+                {canManage && <th>{t('veranstaltungen:detailPage.imageTable.actions')}</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedImages.map((image: VeranstaltungBildDto) => {
+                const formatDate = (dateString?: string) => {
+                  if (!dateString) return '-';
+                  return new Date(dateString).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  });
+                };
+
+                return (
+                  <tr key={image.id}>
+                    <td>
+                      <div className="table-image-preview" onClick={() => handleImageClick(image)}>
+                        <img
+                          src={getImageUrl(image.bildPfad)}
+                          alt={image.titel || 'Etkinlik resmi'}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="60"%3E%3Crect fill="%23ddd" width="80" height="60"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-size="10"%3EX%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td>{image.titel || '-'}</td>
+                    <td>{formatDate(image.created)}</td>
+                    {canManage && (
+                      <td>
+                        <button
+                          className="btn-delete-small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(image.id, image.titel);
+                          }}
+                          disabled={deleteMutation.isPending}
+                          title={t('common:delete')}
+                        >
+                          <TrashIcon />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 

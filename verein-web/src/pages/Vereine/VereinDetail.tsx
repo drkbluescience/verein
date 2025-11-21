@@ -55,6 +55,12 @@ const TableIcon = () => (
   </svg>
 );
 
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+);
+
 const VereinDetail: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['vereine', 'adressen', 'common']);
@@ -179,21 +185,36 @@ const VereinDetail: React.FC = () => {
   return (
     <div className="verein-detail-page">
       {/* Header */}
-      <div className="detail-header">
-        <button className="back-button" onClick={handleBack}>
-          ← {t('common:actions.back')}
-        </button>
-        <div className="header-content">
-          <h1 className="verein-name">{verein.name}</h1>
-          {verein.kurzname && (
-            <span className="verein-kurzname">({verein.kurzname})</span>
-          )}
-          <div className="verein-status">
-            <span className={`status-badge ${verein.aktiv ? 'active' : 'inactive'}`}>
-              {verein.aktiv ? t('common:status.active') : t('common:status.inactive')}
-            </span>
-          </div>
+      <div className="page-header">
+        <h1 className="page-title">
+          {verein.name}
+          {verein.kurzname && <span className="verein-kurzname"> ({verein.kurzname})</span>}
+        </h1>
+        <div className="verein-status">
+          <span className={`status-badge ${verein.aktiv ? 'active' : 'inactive'}`}>
+            {verein.aktiv ? t('common:status.active') : t('common:status.inactive')}
+          </span>
         </div>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        {user?.type !== 'dernek' && (
+          <button
+            className="btn-icon"
+            onClick={handleBack}
+            title={t('common:actions.back')}
+          >
+            <BackIcon />
+          </button>
+        )}
+        <div style={{ flex: 1 }}></div>
+        {canEditVerein() && activeTab === 'info' && (
+          <button className="btn btn-primary" onClick={handleEditVerein}>
+            <EditIcon />
+            <span>{t('common:actions.edit')}</span>
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -233,12 +254,6 @@ const VereinDetail: React.FC = () => {
           <div className="info-section">
             <div className="section-header">
               <h2>{t('vereine:tabs.info')}</h2>
-              {canEditVerein() && (
-                <button className="btn btn-primary" onClick={handleEditVerein}>
-                  <EditIcon />
-                  <span>{t('common:actions.edit')}</span>
-                </button>
-              )}
             </div>
 
             {/* Amaç - En Üstte */}

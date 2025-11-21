@@ -110,6 +110,28 @@
       "backButton": "Zurück zur Veranstaltungsliste"
     },
     "back": "Zurück zu Veranstaltungen",
+    "tabs": {
+      "info": "Informationen",
+      "participants": "Teilnehmer",
+      "images": "Bilder"
+    },
+    "viewMode": {
+      "grid": "Kartenansicht",
+      "table": "Tabellenansicht"
+    },
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "registeredOn": "Anmeldedatum",
+      "note": "Notiz"
+    },
+    "imageTable": {
+      "preview": "Vorschau",
+      "title": "Titel",
+      "uploadedOn": "Hochgeladen am",
+      "actions": "Aktionen"
+    },
     "countdown": {
       "today": "Heute!",
       "tomorrow": "Morgen",

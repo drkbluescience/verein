@@ -110,6 +110,28 @@
       "backButton": "Etkinlik Listesine Dön"
     },
     "back": "Etkinliklere Dön",
+    "tabs": {
+      "info": "Bilgiler",
+      "participants": "Katılımcılar",
+      "images": "Resimler"
+    },
+    "viewMode": {
+      "grid": "Kart Görünümü",
+      "table": "Tablo Görünümü"
+    },
+    "table": {
+      "name": "İsim",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "registeredOn": "Kayıt Tarihi",
+      "note": "Not"
+    },
+    "imageTable": {
+      "preview": "Önizleme",
+      "title": "Başlık",
+      "uploadedOn": "Yüklenme Tarihi",
+      "actions": "İşlemler"
+    },
     "countdown": {
       "today": "Bugün!",
       "tomorrow": "Yarın",
@@ -168,6 +190,17 @@
       "registering": "Kayıt Yapılıyor...",
       "success": "Etkinliğe başarıyla kayıt oldunuz!",
       "error": "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "imageGallery": {
+      "title": "Resimler",
+      "addImage": "Resim Ekle",
+      "noImagesYet": "Henüz resim eklenmedi",
+      "noImagesForEvent": "Bu etkinlik için henüz resim bulunmamaktadır",
+      "addFirstImage": "İlk Resmi Ekle",
+      "uploadSuccess": "Resim başarıyla yüklendi",
+      "uploadError": "Resim yüklenirken bir hata oluştu",
+      "deleteSuccess": "Resim başarıyla silindi",
+      "deleteError": "Resim silinirken bir hata oluştu"
     }
   },
   "table": {

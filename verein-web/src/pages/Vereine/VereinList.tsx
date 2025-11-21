@@ -332,19 +332,17 @@ const VereinList: React.FC = () => {
               <div className="card-footer">
                 <button
                   className="action-btn"
-                  title={t('vereine:actions.edit')}
-                  onClick={() => handleEditVerein(verein)}
-                >
-                  <EditIcon />
-                  <span>{t('vereine:actions.edit')}</span>
-                </button>
-                <button
-                  className="action-btn"
                   title={t('vereine:actions.details')}
                   onClick={() => navigate(`/vereine/${verein.id}`)}
                 >
                   <EyeIcon />
-                  <span>{t('vereine:actions.details')}</span>
+                </button>
+                <button
+                  className="action-btn"
+                  title={t('vereine:actions.edit')}
+                  onClick={() => handleEditVerein(verein)}
+                >
+                  <EditIcon />
                 </button>
               </div>
             </div>

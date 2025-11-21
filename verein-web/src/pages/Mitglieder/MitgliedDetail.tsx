@@ -165,61 +165,62 @@ const MitgliedDetail: React.FC = () => {
   return (
     <div className="mitglied-detail">
       {/* Header */}
-      <div className="detail-header">
-        <div className="header-navigation">
-          <button className="back-button" onClick={() => navigate('/mitglieder')}>
-            <BackIcon />
-            <span>{t('mitglieder:detailPage.back')}</span>
-          </button>
-        </div>
-
-        <div className="header-content">
-          <div className="member-title-section">
-            <div className="member-avatar-large">
-              {fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
-            </div>
-            <div className="member-title-info">
-              <h1 className="member-title">{fullName}</h1>
-              <p className="member-subtitle">{t('mitglieder:detailPage.memberNumber')}: #{mitglied.mitgliedsnummer}</p>
-              <div className={`status-badge status-${statusColor}`}>
-                {statusText}
-              </div>
-            </div>
+      <div className="page-header">
+        <div className="member-title-section">
+          <div className="member-avatar-large">
+            {fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
           </div>
-
-          {/* Dernek Yöneticisi Butonları */}
-          {user?.type === 'dernek' && (
-            <div className="header-actions">
-              <button
-                className="btn-primary"
-                onClick={() => setIsFormModalOpen(true)}
-              >
-                <EditIcon />
-                <span>{t('mitglieder:detailPage.actions.edit')}</span>
-              </button>
-              <button
-                className="btn-danger"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <TrashIcon />
-                <span>{t('mitglieder:detailPage.actions.delete')}</span>
-              </button>
-            </div>
-          )}
-
-          {/* Normal Üye Butonu - Sadece kendi profilinde */}
-          {user?.type === 'mitglied' && user?.mitgliedId === mitglied.id && (
-            <div className="header-actions">
-              <button
-                className="btn-primary"
-                onClick={() => setIsProfileModalOpen(true)}
-              >
-                <EditIcon />
-                <span>{t('mitglieder:detailPage.actions.editProfile')}</span>
-              </button>
-            </div>
-          )}
+          <div className="member-title-info">
+            <h1 className="page-title">{fullName}</h1>
+            <p className="member-subtitle">{t('mitglieder:detailPage.memberNumber')}: #{mitglied.mitgliedsnummer}</p>
+          </div>
         </div>
+        <div className={`status-badge status-${statusColor}`}>
+          {statusText}
+        </div>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate('/mitglieder')}
+          title={t('mitglieder:detailPage.back')}
+        >
+          <BackIcon />
+        </button>
+        <div style={{ flex: 1 }}></div>
+
+        {/* Dernek Yöneticisi Butonları */}
+        {user?.type === 'dernek' && (
+          <>
+            <button
+              className="btn btn-primary"
+              onClick={() => setIsFormModalOpen(true)}
+            >
+              <EditIcon />
+              <span>{t('mitglieder:detailPage.actions.edit')}</span>
+            </button>
+            <button
+              className="btn btn-danger"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              <TrashIcon />
+              <span>{t('mitglieder:detailPage.actions.delete')}</span>
+            </button>
+          </>
+        )}
+
+        {/* Normal Üye Butonu - Sadece kendi profilinde */}
+        {user?.type === 'mitglied' && user?.mitgliedId === mitglied.id && (
+          <button
+            className="btn btn-primary"
+            onClick={() => setIsProfileModalOpen(true)}
+          >
+            <EditIcon />
+            <span>{t('mitglieder:detailPage.actions.editProfile')}</span>
+          </button>
+        )}
       </div>
 
       {/* Main Content */}

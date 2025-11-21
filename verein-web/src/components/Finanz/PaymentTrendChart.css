@@ -1,0 +1,111 @@
+/* Payment Trend Chart Styles */
+
+.payment-trend-chart {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.chart-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.chart-header h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.chart-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Trend Stats */
+.trend-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: var(--radius-md);
+}
+
+.trend-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.stat-value.positive {
+  color: #10b981;
+}
+
+.stat-value.negative {
+  color: #ef4444;
+}
+
+/* Chart Container */
+.chart-container {
+  width: 100%;
+  min-height: 300px;
+}
+
+/* Recharts Customization */
+.payment-trend-chart .recharts-wrapper {
+  margin: 0 auto;
+}
+
+.payment-trend-chart .recharts-legend-wrapper {
+  padding-top: var(--spacing-md);
+}
+
+.payment-trend-chart .recharts-legend-item-text {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .payment-trend-chart {
+    padding: var(--spacing-md);
+  }
+
+  .chart-header h3 {
+    font-size: 1rem;
+  }
+
+  .trend-stats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .stat-value {
+    font-size: 1.125rem;
+  }
+
+  .chart-container {
+    min-height: 250px;
+  }
+}
+

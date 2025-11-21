@@ -5,62 +5,131 @@
   padding: 0;
 }
 
-/* Header */
-.detail-header {
-  padding: 24px 20px 20px;
+/* Header - Uses global page-header styles */
+.veranstaltung-detail .page-header {
+  /* Inherits from global .page-header */
+}
+
+/* Tabs */
+.detail-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: var(--spacing-xl);
+  padding: 0 24px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab-button:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-secondary);
+}
+
+.tab-button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Tab Content */
+.tab-content {
+  animation: fadeIn 0.3s ease;
+  padding: 0 24px 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.header-navigation {
-  margin-bottom: 0.75rem;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.back-button {
+/* Action Buttons */
+.btn-icon {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.8rem;
-  background: transparent;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-surface);
   color: var(--color-text-secondary);
-  border: 2px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.back-button:hover {
+.btn-icon:hover {
   border-color: #3b82f6;
   color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
-.header-content {
+.btn-primary {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(59, 130, 246, 0.25);
 }
 
-.event-title-section {
-  flex: 1;
+.btn-primary:hover {
+  background: #2563eb;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
 }
 
-.event-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 6px;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
+.btn-success {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: not-allowed;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.25);
 }
 
 .countdown-section {
   text-align: center;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  border-radius: 10px;
+  border-radius: 8px;
   min-width: 120px;
 }
 
@@ -98,6 +167,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-top: 8px;
 }
 
 .status-badge.upcoming {
@@ -127,9 +197,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  padding: 0 20px 24px;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 /* Event Information */
@@ -142,7 +209,7 @@
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 2px solid transparent;
-  padding: 12px;
+  padding: var(--spacing-xl);
   transition: all 0.3s ease;
 }
 
@@ -232,7 +299,7 @@
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 2px solid transparent;
-  padding: 16px;
+  padding: var(--spacing-xl);
   transition: all 0.3s ease;
 }
 
@@ -252,6 +319,44 @@
 .section-actions {
   display: flex;
   gap: 0.4rem;
+  align-items: center;
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--color-surface-secondary);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.toggle-btn.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.toggle-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .anmeldungen-grid {
@@ -344,6 +449,69 @@
 .empty-participants p {
   font-size: 0.9rem;
   margin-bottom: 1rem;
+}
+
+/* Participants Section - Full Width in Tab */
+.participants-section {
+  /* Padding handled by .tab-content */
+}
+
+/* Participants Table */
+.participants-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.participants-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+}
+
+.participants-table thead {
+  background: var(--color-surface-secondary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.participants-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.participants-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.participants-table tbody tr:hover {
+  background: var(--color-surface-secondary);
+}
+
+.participants-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.participants-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.participants-table .table-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.participants-table .table-name-cell strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 .access-denied {
@@ -471,21 +639,9 @@
     padding: 0.75rem;
   }
 
-  .detail-header {
-    padding: 16px 12px 12px;
-  }
-
-  .event-title {
-    font-size: 1.5rem;
-  }
-
-  .header-content {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
   .countdown-section {
-    align-self: stretch;
+    min-width: 100px;
+    padding: 0.5rem 0.75rem;
   }
 
   .detail-content {

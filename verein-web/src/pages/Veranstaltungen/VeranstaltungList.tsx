@@ -237,18 +237,15 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, on
       <div className="card-actions">
         <Link to={`/veranstaltungen/${veranstaltung.id}`} className="action-btn">
           <EyeIcon />
-          <span>{t('veranstaltungen:listPage.card.details')}</span>
         </Link>
         {canEdit && onEdit && (
           <button className="action-btn" onClick={() => onEdit(veranstaltung)}>
             <EditIcon />
-            <span>{t('veranstaltungen:actions.edit')}</span>
           </button>
         )}
         {canRegister && isUpcoming && veranstaltung.anmeldeErforderlich && (
           <Link to={`/veranstaltungen/${veranstaltung.id}`} className="action-btn action-btn-primary">
             <CheckIcon />
-            <span>{t('veranstaltungen:listPage.card.register')}</span>
           </Link>
         )}
       </div>

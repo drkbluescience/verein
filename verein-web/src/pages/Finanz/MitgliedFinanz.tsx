@@ -4,17 +4,18 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../contexts/ToastContext';
 import {
   mitgliedForderungService,
   mitgliedZahlungService,
 } from '../../services/finanzService';
 import Loading from '../../components/Common/Loading';
+import PaymentTrendChart from '../../components/Finanz/PaymentTrendChart';
+import FilterBar, { FilterOptions } from '../../components/Finanz/FilterBar';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './MitgliedFinanz.css';
@@ -39,9 +40,28 @@ const MitgliedFinanz: React.FC = () => {
   const { t, i18n } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { showToast } = useToast();
 
   const mitgliedId = user?.mitgliedId;
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterOptions>({
+    searchTerm: '',
+    statusFilter: 'unpaid', // Default: Show unpaid claims first
+    sortBy: 'date',
+    sortOrder: 'asc', // Ascending for unpaid = closest due date first
+    dateRange: 'all',
+  });
+
+  // Copied reference state
+  const [copiedReference, setCopiedReference] = useState<number | null>(null);
+
+  // Copy to clipboard function
+  const copyToClipboard = (text: string, forderungId: number) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedReference(forderungId);
+      setTimeout(() => setCopiedReference(null), 2000);
+    });
+  };
 
   // Fetch member's claims
   const { data: forderungen = [], isLoading: forderungenLoading } = useQuery({
@@ -99,7 +119,128 @@ const MitgliedFinanz: React.FC = () => {
     };
   }, [forderungen, zahlungen]);
 
+  // Calculate next payment
+  const nextPayment = useMemo(() => {
+    const unpaidForderungen = forderungen.filter(f => f.statusId === 2);
+    if (unpaidForderungen.length === 0) return null;
+
+    // Sort by due date (earliest first)
+    const sorted = unpaidForderungen.sort((a, b) =>
+      new Date(a.faelligkeit).getTime() - new Date(b.faelligkeit).getTime()
+    );
+
+    return sorted[0];
+  }, [forderungen]);
+
+  // Calculate days until next payment
+  const daysUntilPayment = useMemo(() => {
+    if (!nextPayment) return null;
+
+    const today = new Date();
+    const dueDate = new Date(nextPayment.faelligkeit);
+    const diffTime = dueDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
+  }, [nextPayment]);
+
+  // Filter and sort claims
+  const filteredForderungen = useMemo(() => {
+    let filtered = [...forderungen];
+
+    // Apply status filter
+    if (filters.statusFilter === 'paid') {
+      filtered = filtered.filter(f => f.statusId === 1);
+    } else if (filters.statusFilter === 'unpaid') {
+      filtered = filtered.filter(f => f.statusId === 2);
+    }
+
+    // Apply date range filter
+    const now = new Date();
+    if (filters.dateRange !== 'all') {
+      filtered = filtered.filter(f => {
+        const date = new Date(f.faelligkeit);
+        switch (filters.dateRange) {
+          case 'thisMonth':
+            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+          case 'lastMonth':
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            return date.getMonth() === lastMonth.getMonth() && date.getFullYear() === lastMonth.getFullYear();
+          case 'last3Months':
+            const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+            return date >= threeMonthsAgo;
+          case 'last6Months':
+            const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+            return date >= sixMonthsAgo;
+          case 'thisYear':
+            return date.getFullYear() === now.getFullYear();
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply search filter
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      filtered = filtered.filter(f =>
+        (f.beschreibung?.toLowerCase().includes(searchLower)) ||
+        (f.forderungsnummer?.toLowerCase().includes(searchLower)) ||
+        f.betrag.toString().includes(searchLower)
+      );
+    }
+
+    // Apply sorting with smart defaults
+    filtered.sort((a, b) => {
+      let comparison = 0;
+
+      // Smart sorting based on status if using default date sort
+      if (filters.sortBy === 'date') {
+        // Unpaid claims: Sort by due date (closest first)
+        if (a.statusId === 2 && b.statusId === 2) {
+          comparison = new Date(a.faelligkeit).getTime() - new Date(b.faelligkeit).getTime();
+        }
+        // Paid claims: Sort by due date (most recent first)
+        else if (a.statusId === 1 && b.statusId === 1) {
+          comparison = new Date(b.faelligkeit).getTime() - new Date(a.faelligkeit).getTime();
+        }
+        // Mixed: Unpaid claims first
+        else {
+          comparison = a.statusId === 2 ? -1 : 1;
+        }
+      } else {
+        // Manual sorting
+        switch (filters.sortBy) {
+          case 'amount':
+            comparison = a.betrag - b.betrag;
+            break;
+          case 'description':
+            comparison = (a.beschreibung || '').localeCompare(b.beschreibung || '');
+            break;
+        }
+        return filters.sortOrder === 'asc' ? comparison : -comparison;
+      }
+
+      return filters.sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return filtered;
+  }, [forderungen, filters]);
+
   const isLoading = forderungenLoading || zahlungenLoading;
+
+  // Get payment urgency class
+  const getPaymentUrgency = (dueDate: string): 'overdue' | 'urgent' | 'upcoming' | 'normal' => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'overdue'; // Vadesi geçmiş
+    if (diffDays <= 7) return 'urgent'; // 1-7 gün kaldı
+    if (diffDays <= 30) return 'upcoming'; // 7-30 gün kaldı
+    return 'normal'; // 30+ gün kaldı
+  };
 
   // Redirect if not a member
   if (user?.type !== 'mitglied') {
@@ -299,8 +440,6 @@ const MitgliedFinanz: React.FC = () => {
     // Save PDF
     const fileName = `${t('finanz:export.paymentHistoryFileName')}-${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
-
-    showToast(t('finanz:mitgliedFinanz.exportSuccess'), 'success');
   };
 
   return (
@@ -309,6 +448,47 @@ const MitgliedFinanz: React.FC = () => {
       <div className="page-header">
         <h1 className="page-title">{t('finanz:mitgliedFinanz.title')}</h1>
       </div>
+
+      {/* Next Payment Alert */}
+      {nextPayment && (
+        <div className={`next-payment-alert ${daysUntilPayment !== null && daysUntilPayment < 0 ? 'overdue' : daysUntilPayment !== null && daysUntilPayment <= 7 ? 'urgent' : 'upcoming'}`}>
+          <div className="alert-content">
+            <div className="alert-icon">
+              <CalendarIcon />
+            </div>
+            <div className="alert-info">
+              <h3>
+                {daysUntilPayment !== null && daysUntilPayment < 0
+                  ? t('finanz:mitgliedFinanz.overduePayment')
+                  : t('finanz:mitgliedFinanz.nextPayment')}
+              </h3>
+              <p className="alert-description">{nextPayment.beschreibung || t('finanz:claims.title')}</p>
+              <div className="alert-details">
+                <span className="alert-date">
+                  {formatDate(nextPayment.faelligkeit)}
+                  {daysUntilPayment !== null && (
+                    <span className="days-badge">
+                      {daysUntilPayment < 0
+                        ? `${Math.abs(daysUntilPayment)} ${t('finanz:mitgliedFinanz.daysOverdue')}`
+                        : daysUntilPayment === 0
+                        ? t('finanz:mitgliedFinanz.dueToday')
+                        : `${daysUntilPayment} ${t('finanz:mitgliedFinanz.daysLeft')}`}
+                    </span>
+                  )}
+                </span>
+                <span className="alert-amount">{formatCurrency(nextPayment.betrag)}</span>
+              </div>
+              <div className="alert-reference">
+                <span className="reference-label">{t('finanz:mitgliedFinanz.paymentReference')}:</span>
+                <span className="reference-value">F{nextPayment.id}-{new Date(nextPayment.faelligkeit).getFullYear()}</span>
+              </div>
+              <p className="alert-instruction">
+                👉 {t('finanz:mitgliedFinanz.paymentInstructions')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary Section */}
       <div className="finance-summary">
@@ -341,38 +521,104 @@ const MitgliedFinanz: React.FC = () => {
         </div>
       </div>
 
-      {/* Unpaid Claims Section */}
-      {stats.unpaidClaims > 0 && (
+      {/* Payment Trend Chart */}
+      {zahlungen.length > 0 && (
+        <PaymentTrendChart zahlungen={zahlungen} forderungen={forderungen} />
+      )}
+
+      {/* Filter Bar */}
+      {forderungen.length > 0 && (
+        <FilterBar filters={filters} onFilterChange={setFilters} />
+      )}
+
+      {/* Filtered Claims Section */}
+      {filteredForderungen.length > 0 ? (
         <div className="finance-section">
           <div className="section-header">
-            <h2>{t('finanz:mitgliedFinanz.unpaidClaimsTitle')}</h2>
-            <span className="badge badge-warning">{stats.unpaidClaims}</span>
+            <h2>
+              {filters.statusFilter === 'unpaid'
+                ? t('finanz:mitgliedFinanz.unpaidClaimsTitle')
+                : filters.statusFilter === 'paid'
+                ? t('finanz:mitgliedFinanz.paidClaims')
+                : t('finanz:mitgliedFinanz.allClaims')}
+            </h2>
+            <span className="badge badge-info">{filteredForderungen.length}</span>
           </div>
           <div className="claims-grid">
-            {forderungen
-              .filter(f => f.statusId === 2)
-              .sort((a, b) => new Date(a.faelligkeit).getTime() - new Date(b.faelligkeit).getTime())
-              .map(forderung => (
-                <div
-                  key={forderung.id}
-                  className={`claim-item ${isOverdue(forderung.faelligkeit, forderung.statusId) ? 'overdue' : ''}`}
-                >
-                  <div className="claim-content">
-                    <div className="claim-main">
-                      <h4>{forderung.beschreibung || t('finanz:claims.title')}</h4>
-                      <span className="claim-id">#{forderung.forderungsnummer || forderung.id}</span>
-                    </div>
-                    <div className="claim-details">
-                      <div className="claim-date">
-                        <CalendarIcon />
-                        <span>{formatDate(forderung.faelligkeit)}</span>
+            {filteredForderungen.map(forderung => {
+                const urgency = getPaymentUrgency(forderung.faelligkeit);
+                return (
+                  <div
+                    key={forderung.id}
+                    className={`claim-item claim-${urgency}`}
+                  >
+                    <div
+                      className="claim-content clickable"
+                      onClick={() => navigate(`/finanz/forderungen/${forderung.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') navigate(`/finanz/forderungen/${forderung.id}`);
+                      }}
+                    >
+                      <div className="claim-main">
+                        <h4>{forderung.beschreibung || t('finanz:claims.title')}</h4>
+                        <span className="claim-id">#{forderung.forderungsnummer || forderung.id}</span>
                       </div>
-                      <div className="claim-amount">{formatCurrency(forderung.betrag)}</div>
+                      <div className="claim-details">
+                        <div className="claim-date">
+                          <CalendarIcon />
+                          <span>{formatDate(forderung.faelligkeit)}</span>
+                          {urgency === 'overdue' && (
+                            <span className="urgency-badge overdue">{t('finanz:mitgliedFinanz.overdue')}</span>
+                          )}
+                          {urgency === 'urgent' && (
+                            <span className="urgency-badge urgent">{t('finanz:mitgliedFinanz.urgent')}</span>
+                          )}
+                        </div>
+                        <div className="claim-amount">{formatCurrency(forderung.betrag)}</div>
+                        <div className="claim-status">
+                          {forderung.statusId === 1 ? (
+                            <span className="status-badge status-paid">✓ {t('finanz:mitgliedFinanz.paid')}</span>
+                          ) : (
+                            <span className="status-badge status-unpaid">{t('finanz:mitgliedFinanz.unpaid')}</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    {forderung.statusId === 2 && (
+                      <div className="claim-reference-section">
+                        <span className="reference-label">{t('finanz:mitgliedFinanz.paymentReference')}:</span>
+                        <span className="reference-value">F{forderung.id}-{new Date(forderung.faelligkeit).getFullYear()}</span>
+                        <button
+                          className="copy-reference-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyToClipboard(`F${forderung.id}-${new Date(forderung.faelligkeit).getFullYear()}`, forderung.id);
+                          }}
+                          title={t('finanz:bankPayment.copyReference')}
+                        >
+                          {copiedReference === forderung.id ? '✓' : '📋'}
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </div>
+        </div>
+      ) : (
+        <div className="no-results">
+          <p>{t('finanz:filters.noResults')}</p>
+          <button className="reset-filters-btn" onClick={() => setFilters({
+            searchTerm: '',
+            statusFilter: 'all',
+            sortBy: 'date',
+            sortOrder: 'desc',
+            dateRange: 'all',
+          })}>
+            {t('finanz:filters.reset')}
+          </button>
         </div>
       )}
 
@@ -413,44 +659,6 @@ const MitgliedFinanz: React.FC = () => {
                       <td>{formatDate(zahlung.zahlungsdatum)}</td>
                       <td><strong>{formatCurrency(zahlung.betrag)}</strong></td>
                       <td>{zahlung.zahlungsweg || '-'}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* All Claims Section */}
-      <div className="finance-section">
-        <div className="section-header">
-          <h2>{t('finanz:mitgliedFinanz.allClaims')}</h2>
-          <span className="badge badge-secondary">{stats.totalClaims}</span>
-        </div>
-        {forderungen.length === 0 ? (
-          <div className="empty-message">
-            <p>{t('finanz:mitgliedFinanz.noClaims')}</p>
-          </div>
-        ) : (
-          <div className="simple-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('finanz:claims.description')}</th>
-                  <th>{t('finanz:claims.dueDate')}</th>
-                  <th>{t('finanz:claims.amount')}</th>
-                  <th>{t('finanz:claims.status')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {forderungen
-                  .sort((a, b) => new Date(b.faelligkeit).getTime() - new Date(a.faelligkeit).getTime())
-                  .map(forderung => (
-                    <tr key={forderung.id}>
-                      <td>{forderung.beschreibung || t('finanz:claims.title')}</td>
-                      <td>{formatDate(forderung.faelligkeit)}</td>
-                      <td><strong>{formatCurrency(forderung.betrag)}</strong></td>
-                      <td>{getStatusBadge(forderung.statusId)}</td>
                     </tr>
                   ))}
               </tbody>

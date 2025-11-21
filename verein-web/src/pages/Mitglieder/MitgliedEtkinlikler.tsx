@@ -234,7 +234,6 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, is
           navigate(`/veranstaltungen/${veranstaltung.id}`);
         }}>
           <EyeIcon />
-          <span>{t('mitglieder:eventsPage.card.details')}</span>
         </button>
         {isUpcoming && veranstaltung.anmeldeErforderlich && !isRegistered && (
           <button className="action-btn action-btn-primary" onClick={(e) => {
@@ -243,7 +242,6 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, is
             navigate(`/veranstaltungen/${veranstaltung.id}`);
           }}>
             <CheckIcon />
-            <span>{t('mitglieder:eventsPage.card.register')}</span>
           </button>
         )}
       </div>

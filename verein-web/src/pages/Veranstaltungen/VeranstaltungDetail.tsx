@@ -16,6 +16,13 @@ import { calculateNextOccurrences, getRecurrenceDescription } from '../../utils/
 import './VeranstaltungDetail.css';
 
 // SVG Icons
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const EditIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -126,6 +133,24 @@ const MessageIcon = () => (
   </svg>
 );
 
+const GridIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/>
+    <rect x="14" y="3" width="7" height="7"/>
+    <rect x="14" y="14" width="7" height="7"/>
+    <rect x="3" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const TableIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <line x1="3" y1="9" x2="21" y2="9"/>
+    <line x1="3" y1="15" x2="21" y2="15"/>
+    <line x1="9" y1="3" x2="9" y2="21"/>
+  </svg>
+);
+
 interface AnmeldungCardProps {
   anmeldung: VeranstaltungAnmeldungDto;
 }
@@ -196,6 +221,13 @@ const VeranstaltungDetail: React.FC = () => {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const eventId = parseInt(id || '0');
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'info' | 'teilnehmer' | 'bilder'>('info');
+
+  // View mode states for tabs
+  const [participantsViewMode, setParticipantsViewMode] = useState<'grid' | 'table'>('grid');
+  const [imagesViewMode, setImagesViewMode] = useState<'grid' | 'table'>('grid');
 
   // Registration modal state
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
@@ -599,87 +631,85 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
   return (
     <div className="veranstaltung-detail">
       {/* Header */}
-      <div className="detail-header">
-        <div className="header-navigation">
-          <button
-            onClick={() => navigate(getBackPath())}
-            className="back-button"
-          >
-            ← {t('veranstaltungen:detailPage.back')}
-          </button>
-        </div>
-
-        <div className="header-content">
-          <div className="event-title-section">
-            <h1 className="event-title">{veranstaltung.titel}</h1>
-            {getStatusBadge()}
-          </div>
-
-          {isUpcoming && daysUntil !== null && (
-            <div className="countdown-section">
-              {daysUntil === 0 ? (
-                <span className="countdown-today">{t('veranstaltungen:detailPage.countdown.today')}</span>
-              ) : daysUntil === 1 ? (
-                <span className="countdown-soon">{t('veranstaltungen:detailPage.countdown.tomorrow')}</span>
-              ) : (
-                <span className="countdown-days">
-                  <CalendarDaysIcon />
-                  {t('veranstaltungen:detailPage.countdown.daysLeft', { days: daysUntil }).replace('{days}', daysUntil.toString())}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Registration Button for Mitglied users */}
-          {user?.type === 'mitglied' && isUpcoming && veranstaltung.anmeldeErforderlich && (
-            <div className="registration-action">
-              {isUserRegistered ? (
-                <div className="registered-badge" style={{
-                  padding: '12px 24px',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  borderRadius: '8px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontWeight: '600'
-                }}>
-                  <CheckIcon />
-                  {t('veranstaltungen:detailPage.registration.registered')}
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowRegistrationModal(true)}
-                  className="register-button"
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-                >
-                  <CheckIcon />
-                  {t('veranstaltungen:detailPage.registration.register')}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">{veranstaltung.titel}</h1>
+        {getStatusBadge()}
       </div>
 
-      <div className="detail-content">
-        {/* Event Information */}
-        <div className="event-info-section">
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <button
+          className="btn-icon"
+          onClick={() => navigate(getBackPath())}
+          title={t('veranstaltungen:detailPage.back')}
+        >
+          <BackIcon />
+        </button>
+        <div style={{ flex: 1 }}></div>
+
+        {/* Countdown */}
+        {isUpcoming && daysUntil !== null && (
+          <div className="countdown-section">
+            {daysUntil === 0 ? (
+              <span className="countdown-today">{t('veranstaltungen:detailPage.countdown.today')}</span>
+            ) : daysUntil === 1 ? (
+              <span className="countdown-soon">{t('veranstaltungen:detailPage.countdown.tomorrow')}</span>
+            ) : (
+              <span className="countdown-days">
+                <CalendarDaysIcon />
+                {t('veranstaltungen:detailPage.countdown.daysLeft', { days: daysUntil }).replace('{days}', daysUntil.toString())}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Registration Button for Mitglied users */}
+        {user?.type === 'mitglied' && isUpcoming && veranstaltung.anmeldeErforderlich && (
+          <>
+            {isUserRegistered ? (
+              <button className="btn-success" disabled>
+                <CheckIcon />
+                <span>{t('veranstaltungen:detailPage.registration.registered')}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowRegistrationModal(true)}
+                className="btn-primary"
+              >
+                <CheckIcon />
+                <span>{t('veranstaltungen:detailPage.registration.register')}</span>
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="detail-tabs">
+        <button
+          className={`tab-button ${activeTab === 'info' ? 'active' : ''}`}
+          onClick={() => setActiveTab('info')}
+        >
+          {t('veranstaltungen:detailPage.tabs.info')}
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'teilnehmer' ? 'active' : ''}`}
+          onClick={() => setActiveTab('teilnehmer')}
+        >
+          {t('veranstaltungen:detailPage.tabs.participants')} ({anmeldungen?.length || 0})
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'bilder' ? 'active' : ''}`}
+          onClick={() => setActiveTab('bilder')}
+        >
+          {t('veranstaltungen:detailPage.tabs.images')}
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="tab-content">
+        {/* Info Tab */}
+        {activeTab === 'info' && (
           <div className="info-card">
             <h2 className="section-title">{t('veranstaltungen:detailPage.sections.eventInfo')}</h2>
 
@@ -786,10 +816,10 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
               </div>
             )}
           </div>
-        </div>
+        )}
 
-        {/* Participants Section - Only for Admin and Dernek */}
-        {canManageEvent() && (
+        {/* Participants Tab */}
+        {activeTab === 'teilnehmer' && (
           <div className="participants-section">
             <div className="participants-card">
               <div className="section-header">
@@ -797,6 +827,25 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                   {t('veranstaltungen:detailPage.sections.participants')} ({anmeldungen?.length || 0})
                 </h2>
                 <div className="section-actions">
+                  {/* View Mode Toggle */}
+                  {anmeldungen && anmeldungen.length > 0 && (
+                    <div className="view-toggle">
+                      <button
+                        className={`toggle-btn ${participantsViewMode === 'grid' ? 'active' : ''}`}
+                        onClick={() => setParticipantsViewMode('grid')}
+                        title={t('veranstaltungen:detailPage.viewMode.grid')}
+                      >
+                        <GridIcon />
+                      </button>
+                      <button
+                        className={`toggle-btn ${participantsViewMode === 'table' ? 'active' : ''}`}
+                        onClick={() => setParticipantsViewMode('table')}
+                        title={t('veranstaltungen:detailPage.viewMode.table')}
+                      >
+                        <TableIcon />
+                      </button>
+                    </div>
+                  )}
                   {anmeldungen && anmeldungen.length > 0 && (
                     <button className="btn-secondary" onClick={handleExportReport}>
                       <ChartIcon />
@@ -822,14 +871,58 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                   message={t('veranstaltungen:detailPage.participantsError.message')}
                 />
               ) : anmeldungen && anmeldungen.length > 0 ? (
-                <div className="anmeldungen-grid">
-                  {anmeldungen.map(anmeldung => (
-                    <AnmeldungCard
-                      key={anmeldung.id}
-                      anmeldung={anmeldung}
-                    />
-                  ))}
-                </div>
+                participantsViewMode === 'grid' ? (
+                  <div className="anmeldungen-grid">
+                    {anmeldungen.map(anmeldung => (
+                      <AnmeldungCard
+                        key={anmeldung.id}
+                        anmeldung={anmeldung}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="participants-table-container">
+                    <table className="participants-table">
+                      <thead>
+                        <tr>
+                          <th>{t('veranstaltungen:detailPage.table.name')}</th>
+                          <th>{t('veranstaltungen:detailPage.table.email')}</th>
+                          <th>{t('veranstaltungen:detailPage.table.phone')}</th>
+                          <th>{t('veranstaltungen:detailPage.table.registeredOn')}</th>
+                          <th>{t('veranstaltungen:detailPage.table.note')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {anmeldungen.map(anmeldung => {
+                          const formatDate = (dateString?: string) => {
+                            if (!dateString) return t('common:notSpecified');
+                            return new Date(dateString).toLocaleDateString('de-DE', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            });
+                          };
+
+                          return (
+                            <tr key={anmeldung.id}>
+                              <td>
+                                <div className="table-name-cell">
+                                  <strong>{anmeldung.name || 'İsimsiz Katılımcı'}</strong>
+                                </div>
+                              </td>
+                              <td>{anmeldung.email || '-'}</td>
+                              <td>{anmeldung.telefon || '-'}</td>
+                              <td>{formatDate(anmeldung.created)}</td>
+                              <td>{anmeldung.bemerkung || '-'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )
               ) : (
                 <div className="empty-participants">
                   <div className="empty-icon">
@@ -854,11 +947,15 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
           </div>
         )}
 
-        {/* Image Gallery Section */}
-        <ImageGallery
-          veranstaltungId={eventId}
-          canManage={canManageEvent()}
-        />
+        {/* Images Tab */}
+        {activeTab === 'bilder' && (
+          <ImageGallery
+            veranstaltungId={eventId}
+            canManage={canManageEvent()}
+            viewMode={imagesViewMode}
+            onViewModeChange={setImagesViewMode}
+          />
+        )}
       </div>
 
       {/* Action Bar - Only for Admin and Dernek */}
