@@ -489,6 +489,7 @@
     "exportExcel": "Excel'e Aktar",
     "exportPdf": "PDF İndir",
     "sortBy": "Sıralama",
+    "sortOrder": "Sıralama Düzeni",
     "sortByDate": "Tarihe Göre",
     "sortByAmount": "Tutara Göre",
     "sortAscending": "Artan",

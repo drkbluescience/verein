@@ -320,7 +320,7 @@ const MitgliedZahlungHistory: React.FC = () => {
                 </select>
               </div>
               <div className="filter-group">
-                <label>{t('common:sort.order')}</label>
+                <label>{t('finanz:paymentHistory.sortOrder')}</label>
                 <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}>
                   <option value="desc">{t('finanz:paymentHistory.sortDescending')}</option>
                   <option value="asc">{t('finanz:paymentHistory.sortAscending')}</option>

@@ -392,6 +392,7 @@
     "exportExcel": "Nach Excel exportieren",
     "exportPdf": "PDF herunterladen",
     "sortBy": "Sortierung",
+    "sortOrder": "Sortierreihenfolge",
     "sortByDate": "Nach Datum",
     "sortByAmount": "Nach Betrag",
     "sortAscending": "Aufsteigend",
