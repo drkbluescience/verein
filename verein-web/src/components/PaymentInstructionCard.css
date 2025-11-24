@@ -1,0 +1,210 @@
+/* Payment Instruction Card */
+.payment-instruction-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.payment-instruction-header {
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.payment-instruction-header h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.payment-instruction-header p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.payment-instruction-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.payment-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.payment-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.payment-value-mono {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.payment-value-with-copy {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.payment-value-with-copy .payment-value-mono {
+  flex: 1;
+}
+
+.copy-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.375rem 0.625rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-btn:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+
+.payment-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.payment-reference-field {
+  background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 2px solid #f59e0b;
+}
+
+.payment-reference-field label {
+  color: #92400e;
+}
+
+.payment-reference-value {
+  color: #78350f;
+  font-weight: 700;
+}
+
+.payment-reference-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 4px solid #f59e0b;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+.warning-text {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.warning-description {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #78350f;
+}
+
+.payment-instruction-steps {
+  background: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-md);
+}
+
+.payment-instruction-steps h4 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.payment-instruction-steps ol {
+  margin: 0;
+  padding-left: var(--spacing-lg);
+}
+
+.payment-instruction-steps li {
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.payment-instruction-footer {
+  background: rgba(16, 185, 129, 0.1);
+  border-left: 4px solid var(--color-success);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+.payment-instruction-footer h4 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.payment-instruction-footer p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payment-instruction-card {
+    padding: var(--spacing-md);
+  }
+
+  .payment-value-mono {
+    font-size: 0.875rem;
+  }
+
+  .payment-amount {
+    font-size: 1.25rem;
+  }
+}
+

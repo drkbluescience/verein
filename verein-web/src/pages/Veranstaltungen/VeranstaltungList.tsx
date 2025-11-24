@@ -400,7 +400,7 @@ const VeranstaltungList: React.FC = () => {
             <button
               className="clear-search-btn"
               onClick={() => setSearchTerm('')}
-              title="Aramayı temizle"
+              title={t('veranstaltungen:list.clearSearch')}
             >
               <XIcon />
             </button>

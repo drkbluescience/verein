@@ -176,14 +176,14 @@ const AnmeldungCard: React.FC<AnmeldungCardProps> = ({ anmeldung }) => {
       <div className="anmeldung-header">
         <div className="participant-info">
           <h4 className="participant-name">
-            {anmeldung.name || 'İsimsiz Katılımcı'}
+            {anmeldung.name || t('veranstaltungen:detail.anonymousParticipant')}
           </h4>
           {anmeldung.email && (
             <p className="participant-email">{anmeldung.email}</p>
           )}
         </div>
         <div className="anmeldung-status">
-          <span className="status-badge active">Kayıtlı</span>
+          <span className="status-badge active">{t('veranstaltungen:detail.registered')}</span>
         </div>
       </div>
       
@@ -468,7 +468,7 @@ Yer: ${veranstaltung.ort || '-'}
 
 KATILIM BİLGİLERİ
 -----------------
-Maksimum Katılımcı: ${veranstaltung.maxTeilnehmer || 'Sınırsız'}
+Maksimum Katılımcı: ${veranstaltung.maxTeilnehmer || t('veranstaltungen:detail.unlimited')}
 Kayıt Gerekli: ${formatBoolean(veranstaltung.anmeldeErforderlich)}
 Sadece Üyeler: ${formatBoolean(veranstaltung.nurFuerMitglieder)}
 
@@ -483,17 +483,17 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
 
     try {
       await navigator.clipboard.writeText(text);
-      showToast('Etkinlik bilgileri panoya kopyalandı', 'success');
+      showToast(t('veranstaltungen:export.copySuccess'), 'success');
     } catch (error) {
       console.error('Clipboard error:', error);
-      showToast('Panoya kopyalama başarısız oldu', 'error');
+      showToast(t('common:errors.copyFailed'), 'error');
     }
   };
 
   // Export participants report as CSV
   const handleExportReport = () => {
     if (!veranstaltung || !anmeldungen || anmeldungen.length === 0) {
-      showToast('Rapor oluşturmak için katılımcı bulunmuyor', 'warning');
+      showToast(t('veranstaltungen:export.noParticipantsWarning'), 'warning');
       return;
     }
 
@@ -529,19 +529,19 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
 
         const getStatusText = (status?: string) => {
           switch (status) {
-            case 'Confirmed': return 'Onaylandı';
-            case 'Pending': return 'Beklemede';
-            case 'Waitlist': return 'Bekleme Listesi';
-            case 'Cancelled': return 'İptal Edildi';
+            case 'Confirmed': return t('veranstaltungen:detail.registered');
+            case 'Pending': return t('veranstaltungen:detail.pending');
+            case 'Waitlist': return t('veranstaltungen:detail.waitlist');
+            case 'Cancelled': return t('veranstaltungen:detail.cancelled');
             default: return status || '-';
           }
         };
 
         const getPaymentStatusText = (statusId?: number) => {
           switch (statusId) {
-            case 1: return 'Ödendi';
-            case 2: return 'Beklemede';
-            case 3: return 'İptal Edildi';
+            case 1: return t('veranstaltungen:detail.registered');
+            case 2: return t('veranstaltungen:detail.pending');
+            case 3: return t('veranstaltungen:detail.cancelled');
             default: return '-';
           }
         };
@@ -563,9 +563,9 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
       // Create CSV content
       const csvContent = [
         // Event info header
-        `Etkinlik: ${veranstaltung.titel}`,
-        `Tarih: ${new Date(veranstaltung.startdatum || '').toLocaleDateString('tr-TR')}`,
-        `Toplam Katılımcı: ${anmeldungen.length}`,
+        `${t('veranstaltungen:detailPage.fields.title')}: ${veranstaltung.titel}`,
+        `${t('veranstaltungen:detailPage.fields.date')}: ${new Date(veranstaltung.startdatum || '').toLocaleDateString('tr-TR')}`,
+        `${t('veranstaltungen:detail.totalParticipants')}: ${anmeldungen.length}`,
         '', // Empty line
         // Table headers
         headers.join(','),
@@ -918,15 +918,15 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
                   </div>
-                  <h3>Katılımcı Listesi Gizli</h3>
-                  <p>Katılımcı listesini görüntüleme yetkiniz bulunmamaktadır. Sadece katılımcı sayısını görebilirsiniz.</p>
+                  <h3>{t('veranstaltungen:detail.participantListHidden')}</h3>
+                  <p>{t('veranstaltungen:detail.noPermissionToView')}</p>
                   <p style={{ marginTop: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                    Toplam Katılımcı: {participantCount ?? 0}
+                    {t('veranstaltungen:detail.totalParticipants')}: {participantCount ?? 0}
                   </p>
                 </div>
               ) : anmeldungenLoading ? (
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
-                  <p>Katılımcılar yükleniyor...</p>
+                  <p>{t('veranstaltungen:detail.loadingParticipants')}</p>
                 </div>
               ) : anmeldungenError ? (
                 <ErrorMessage
@@ -972,7 +972,7 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                             <tr key={anmeldung.id}>
                               <td>
                                 <div className="table-name-cell">
-                                  <strong>{anmeldung.name || 'İsimsiz Katılımcı'}</strong>
+                                  <strong>{anmeldung.name || t('veranstaltungen:detail.anonymousParticipant')}</strong>
                                 </div>
                               </td>
                               <td>{anmeldung.email || '-'}</td>

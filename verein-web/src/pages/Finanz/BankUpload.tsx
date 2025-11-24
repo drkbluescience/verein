@@ -191,7 +191,7 @@ const BankUpload: React.FC = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'banka-yukleme-sablonu.csv';
+    link.download = t('bankUpload.templateFileName', { ns: 'finanz' });
     link.click();
   };
 

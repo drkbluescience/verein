@@ -415,14 +415,14 @@ const VereinDetail: React.FC = () => {
                   <button
                     className={`view-toggle-btn ${mitgliederViewMode === 'grid' ? 'active' : ''}`}
                     onClick={() => setMitgliederViewMode('grid')}
-                    title="Kart Görünümü"
+                    title={t('vereine:mitglieder.gridView')}
                   >
                     <GridIcon />
                   </button>
                   <button
                     className={`view-toggle-btn ${mitgliederViewMode === 'table' ? 'active' : ''}`}
                     onClick={() => setMitgliederViewMode('table')}
-                    title="Tablo Görünümü"
+                    title={t('vereine:mitglieder.tableView')}
                   >
                     <TableIcon />
                   </button>
@@ -511,7 +511,7 @@ const VereinDetail: React.FC = () => {
                           <td>{mitglied.eintrittsdatum ? new Date(mitglied.eintrittsdatum).toLocaleDateString('de-DE') : '-'}</td>
                           <td>
                             <span className={`status-badge ${mitglied.aktiv ? 'status-active' : 'status-inactive'}`}>
-                              {mitglied.aktiv ? 'Aktif' : 'Pasif'}
+                              {mitglied.aktiv ? t('vereine:mitglieder.statusActive') : t('vereine:mitglieder.statusInactive')}
                             </span>
                           </td>
                           <td>

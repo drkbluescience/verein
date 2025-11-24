@@ -170,6 +170,9 @@
     "months": "Monate",
     "newMember": "Neues Mitglied",
     "unknown": "Unbekannt"
+  },
+  "errors": {
+    "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
   }
 }
 

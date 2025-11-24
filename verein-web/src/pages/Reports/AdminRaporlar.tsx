@@ -96,7 +96,7 @@ const AdminRaporlar: React.FC = () => {
   return (
     <div className="reports-container">
       <div className="page-header">
-        <h1 className="page-title">{selectedVerein ? `${selectedVerein.name} - Raporlar` : t('admin.title')}</h1>
+        <h1 className="page-title">{selectedVerein ? `${selectedVerein.name} - ${t('admin.vereinReports')}` : t('admin.title')}</h1>
       </div>
 
       {/* Tabs */}

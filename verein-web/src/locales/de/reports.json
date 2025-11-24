@@ -7,6 +7,7 @@
   "admin": {
     "title": "Allgemeine Berichte",
     "subtitle": "Zusammenfassende Statistiken für alle Vereine",
+    "vereinReports": "Berichte",
     
     "overallStats": {
       "title": "Allgemeine Statistiken",

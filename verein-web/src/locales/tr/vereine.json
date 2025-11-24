@@ -17,7 +17,8 @@
     "loadError": "Veri Yükleme Hatası",
     "loadErrorMessage": "Dernekler yüklenirken bir hata oluştu.",
     "gridView": "Kart Görünümü",
-    "tableView": "Tablo Görünümü"
+    "tableView": "Tablo Görünümü",
+    "clearSearch": "Aramayı temizle"
   },
   "stats": {
     "total": "Toplam",
@@ -158,7 +159,11 @@
     "empty": {
       "title": "Henüz Üye Yok",
       "message": "Bu derneğe henüz üye eklenmemiş."
-    }
+    },
+    "gridView": "Kart Görünümü",
+    "tableView": "Tablo Görünümü",
+    "statusActive": "Aktif",
+    "statusInactive": "Pasif"
   },
   "legal": {
     "title": "Yasal Bilgiler",

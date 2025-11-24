@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using VereinsApi.DTOs.Adresse;
+using VereinsApi.DTOs.Bankkonto;
 using VereinsApi.DTOs.RechtlicheDaten;
 
 namespace VereinsApi.DTOs.Verein;
@@ -224,4 +225,10 @@ public class VereinDto
     /// </summary>
     [JsonPropertyName("hauptAdresse")]
     public AdresseDto? HauptAdresse { get; set; }
+
+    /// <summary>
+    /// Main bank account of the verein
+    /// </summary>
+    [JsonPropertyName("hauptBankkonto")]
+    public BankkontoDto? HauptBankkonto { get; set; }
 }

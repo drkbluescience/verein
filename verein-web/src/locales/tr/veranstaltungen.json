@@ -9,7 +9,8 @@
     "sort": "Sırala",
     "upcoming": "Yaklaşan Etkinlikler",
     "past": "Geçmiş Etkinlikler",
-    "all": "Tüm Etkinlikler"
+    "all": "Tüm Etkinlikler",
+    "clearSearch": "Aramayı temizle"
   },
   "detail": {
     "title": "Etkinlik Detayları",
@@ -17,7 +18,18 @@
     "participants": "Katılımcılar",
     "location": "Konum",
     "schedule": "Program",
-    "description": "Açıklama"
+    "description": "Açıklama",
+    "anonymousParticipant": "İsimsiz Katılımcı",
+    "registered": "Kayıtlı",
+    "waitlist": "Bekleme Listesi",
+    "cancelled": "İptal Edildi",
+    "pending": "Beklemede",
+    "maxParticipants": "Maksimum Katılımcı",
+    "unlimited": "Sınırsız",
+    "participantListHidden": "Katılımcı Listesi Gizli",
+    "noPermissionToView": "Katılımcı listesini görüntüleme yetkiniz bulunmamaktadır. Sadece katılımcı sayısını görebilirsiniz.",
+    "totalParticipants": "Toplam Katılımcı",
+    "loadingParticipants": "Katılımcılar yükleniyor..."
   },
   "form": {
     "create": "Yeni Etkinlik Ekle",
@@ -217,7 +229,9 @@
   "export": {
     "participantReportSuffix": "Katilimci_Raporu",
     "reportDownloadSuccess": "Rapor başarıyla indirildi",
-    "reportDownloadError": "Rapor oluşturulurken hata oluştu"
+    "reportDownloadError": "Rapor oluşturulurken hata oluştu",
+    "copySuccess": "Etkinlik bilgileri panoya kopyalandı",
+    "noParticipantsWarning": "Rapor oluşturmak için katılımcı bulunmuyor"
   },
   "recurrence": {
     "title": "Tekrar Eden Etkinlik",

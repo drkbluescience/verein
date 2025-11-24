@@ -821,7 +821,7 @@ const FinanzDashboard: React.FC = () => {
                   dataKey="gelir"
                   stroke="#10B981"
                   strokeWidth={2}
-                  name="Gelir (Üye Ödemeleri)"
+                  name={t('dashboard.incomeChartLabel', { ns: 'finanz' })}
                   dot={{ fill: '#10B981', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -830,7 +830,7 @@ const FinanzDashboard: React.FC = () => {
                   dataKey="gider"
                   stroke="#EF4444"
                   strokeWidth={2}
-                  name="Gider (DITIB Ödemeleri)"
+                  name={t('dashboard.expenseChartLabel', { ns: 'finanz' })}
                   dot={{ fill: '#EF4444', r: 4 }}
                   activeDot={{ r: 6 }}
                 />

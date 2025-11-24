@@ -79,6 +79,7 @@ export interface VereinDto {
   deletedFlag?: boolean;
   rechtlicheDaten?: RechtlicheDatenDto;
   hauptAdresse?: AdresseDto;
+  hauptBankkonto?: BankkontoDto;
 }
 
 export interface CreateVereinDto {

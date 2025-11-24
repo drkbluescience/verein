@@ -10,14 +10,23 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedForderungService } from '../../services/finanzService';
+import { vereinService } from '../../services/vereinService';
+import { mitgliedService } from '../../services/mitgliedService';
 import Loading from '../../components/Common/Loading';
 import PaymentTrendChart from '../../components/Finanz/PaymentTrendChart';
+import PaymentInstructionCard from '../../components/PaymentInstructionCard';
 import './MitgliedFinanz.css';
 
 // Icons
 const CalendarIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
+const HistoryIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
   </svg>
 );
 
@@ -52,6 +61,26 @@ const MitgliedFinanz: React.FC = () => {
       return await mitgliedForderungService.getSummary(mitgliedId);
     },
     enabled: !!mitgliedId,
+  });
+
+  // Fetch Mitglied data to get vereinId
+  const { data: mitglied } = useQuery({
+    queryKey: ['mitglied', mitgliedId],
+    queryFn: async () => {
+      if (!mitgliedId) return null;
+      return await mitgliedService.getById(mitgliedId);
+    },
+    enabled: !!mitgliedId,
+  });
+
+  // Fetch Verein data to get bank account info
+  const { data: verein } = useQuery({
+    queryKey: ['verein', mitglied?.vereinId],
+    queryFn: async () => {
+      if (!mitglied?.vereinId) return null;
+      return await vereinService.getById(mitglied.vereinId);
+    },
+    enabled: !!mitglied?.vereinId,
   });
 
   // Get payment urgency class
@@ -104,6 +133,17 @@ const MitgliedFinanz: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <h1 className="page-title">{t('finanz:mitgliedFinanz.title')}</h1>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate('/meine-finanzen/zahlungen')}
+        >
+          <HistoryIcon />
+          {t('finanz:paymentHistory.title')}
+        </button>
       </div>
 
       {/* Summary Section */}
@@ -202,6 +242,19 @@ const MitgliedFinanz: React.FC = () => {
                           {copiedReference === forderung.id ? '✓' : '📋'}
                         </button>
                       </div>
+                    )}
+
+                    {/* Payment Instruction Card */}
+                    {forderung.statusId === 2 && verein?.hauptBankkonto?.iban && (
+                      <PaymentInstructionCard
+                        iban={verein.hauptBankkonto.iban}
+                        bic={verein.hauptBankkonto.bic}
+                        recipient={verein.name}
+                        amount={forderung.betrag}
+                        currency="EUR"
+                        reference={`F${forderung.id}-${new Date(forderung.faelligkeit).getFullYear()}`}
+                        dueDate={forderung.faelligkeit}
+                      />
                     )}
                   </div>
                 );

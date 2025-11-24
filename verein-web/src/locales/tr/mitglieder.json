@@ -7,7 +7,8 @@
     "search": "Üye ara...",
     "filter": "Filtrele",
     "sort": "Sırala",
-    "totalMembers": "Toplam Üye"
+    "totalMembers": "Toplam Üye",
+    "clearSearch": "Aramayı temizle"
   },
   "detail": {
     "title": "Üye Detayları",

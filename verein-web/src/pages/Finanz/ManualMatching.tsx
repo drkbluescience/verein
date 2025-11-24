@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { bankBuchungService } from '../../services/finanzService';
@@ -8,6 +9,8 @@ import Loading from '../../components/Common/Loading';
 import './ManualMatching.css';
 
 const ManualMatching: React.FC = () => {
+  // @ts-ignore - i18next type definitions
+  const { t } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -34,7 +37,7 @@ const ManualMatching: React.FC = () => {
     mutationFn: ({ bankBuchungId, mitgliedId }: { bankBuchungId: number; mitgliedId: number }) =>
       bankBuchungService.matchToMember(bankBuchungId, mitgliedId),
     onSuccess: (data, variables) => {
-      showToast('Ödeme başarıyla eşleştirildi!', 'success');
+      showToast(t('manualMatching.matchSuccess', { ns: 'finanz' }), 'success');
       queryClient.invalidateQueries({ queryKey: ['unmatchedBankBuchungen'] });
       queryClient.invalidateQueries({ queryKey: ['bankBuchungen'] });
       queryClient.invalidateQueries({ queryKey: ['mitgliedZahlungen'] });
@@ -46,14 +49,14 @@ const ManualMatching: React.FC = () => {
       });
     },
     onError: (error: any) => {
-      showToast(error.message || 'Eşleştirme başarısız oldu!', 'error');
+      showToast(error.message || t('manualMatching.matchError', { ns: 'finanz' }), 'error');
     },
   });
 
   const handleMatch = (bankBuchungId: number) => {
     const mitgliedId = selectedMitglied[bankBuchungId];
     if (!mitgliedId) {
-      showToast('Lütfen bir üye seçin!', 'warning');
+      showToast(t('manualMatching.selectMemberWarning', { ns: 'finanz' }), 'warning');
       return;
     }
 
@@ -67,22 +70,22 @@ const ManualMatching: React.FC = () => {
   return (
     <div className="manual-matching-container">
       <div className="page-header">
-        <h1>🔗 Manuel Ödeme Eşleştirme</h1>
+        <h1>🔗 {t('manualMatching.title', { ns: 'finanz' })}</h1>
         <p className="page-description">
-          Otomatik eşleştirilemeyen banka ödemelerini manuel olarak üyelere eşleştirin.
+          {t('manualMatching.description', { ns: 'finanz' })}
         </p>
       </div>
 
       {unmatchedTransactions.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">✅</div>
-          <h3>Tüm Ödemeler Eşleştirildi!</h3>
-          <p>Eşleştirilmemiş ödeme bulunmuyor.</p>
+          <h3>{t('manualMatching.allMatched', { ns: 'finanz' })}</h3>
+          <p>{t('manualMatching.noUnmatchedPayments', { ns: 'finanz' })}</p>
         </div>
       ) : (
         <div className="unmatched-table-container">
           <div className="table-header">
-            <h3>Eşleşmemiş Ödemeler ({unmatchedTransactions.length})</h3>
+            <h3>{t('manualMatching.unmatchedPayments', { ns: 'finanz' })} ({unmatchedTransactions.length})</h3>
           </div>
 
           <div className="unmatched-table">
@@ -119,7 +122,7 @@ const ManualMatching: React.FC = () => {
                       }))
                     }
                   >
-                    <option value="">Üye Seçin...</option>
+                    <option value="">{t('manualMatching.selectMember', { ns: 'finanz' })}</option>
                     {mitglieder.map((mitglied: any) => (
                       <option key={mitglied.id} value={mitglied.id}>
                         {mitglied.vorname} {mitglied.nachname} ({mitglied.mitgliedsnummer})
@@ -132,7 +135,7 @@ const ManualMatching: React.FC = () => {
                     onClick={() => handleMatch(transaction.id)}
                     disabled={!selectedMitglied[transaction.id] || matchMutation.isPending}
                   >
-                    {matchMutation.isPending ? 'Eşleştiriliyor...' : 'Eşleştir'}
+                    {matchMutation.isPending ? t('manualMatching.matching', { ns: 'finanz' }) : t('manualMatching.matchButton', { ns: 'finanz' })}
                   </button>
                 </div>
               </div>

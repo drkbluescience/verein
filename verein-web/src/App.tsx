@@ -26,6 +26,7 @@ import MitgliedForderungList from './pages/Finanz/MitgliedForderungList';
 import MitgliedForderungDetail from './pages/Finanz/MitgliedForderungDetail';
 import MitgliedZahlungList from './pages/Finanz/MitgliedZahlungList';
 import MitgliedZahlungDetail from './pages/Finanz/MitgliedZahlungDetail';
+import MitgliedZahlungHistory from './pages/Finanz/MitgliedZahlungHistory';
 import BankBuchungList from './pages/Finanz/BankBuchungList';
 import BankBuchungDetail from './pages/Finanz/BankBuchungDetail';
 import BankUpload from './pages/Finanz/BankUpload';
@@ -256,7 +257,7 @@ const AppContent: React.FC = () => {
           } />
           <Route path="/meine-finanzen/zahlungen" element={
             <Layout>
-              <MitgliedZahlungList />
+              <MitgliedZahlungHistory />
             </Layout>
           } />
           <Route path="/meine-finanzen/zahlungen/:id" element={

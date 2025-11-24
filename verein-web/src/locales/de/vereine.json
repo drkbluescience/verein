@@ -17,7 +17,8 @@
     "loadError": "Fehler beim Laden der Daten",
     "loadErrorMessage": "Beim Laden der Vereine ist ein Fehler aufgetreten.",
     "gridView": "Kartenansicht",
-    "tableView": "Tabellenansicht"
+    "tableView": "Tabellenansicht",
+    "clearSearch": "Suche löschen"
   },
   "stats": {
     "total": "Gesamt",
@@ -151,6 +152,18 @@
     "vereinNotFound": "Verein nicht gefunden",
     "updateFailed": "Beim Aktualisieren des Vereins ist ein Fehler aufgetreten",
     "donationPermissionUpdateFailed": "Fehler beim Aktualisieren der Gemeinnützigkeit"
+  },
+  "mitglieder": {
+    "email": "E-Mail",
+    "telefon": "Telefon",
+    "empty": {
+      "title": "Noch keine Mitglieder",
+      "message": "Diesem Verein wurden noch keine Mitglieder hinzugefügt."
+    },
+    "gridView": "Kartenansicht",
+    "tableView": "Tabellenansicht",
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv"
   },
   "legal": {
     "title": "Rechtliche Informationen",

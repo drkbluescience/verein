@@ -9,7 +9,8 @@
     "sort": "Sortieren",
     "upcoming": "Bevorstehende Veranstaltungen",
     "past": "Vergangene Veranstaltungen",
-    "all": "Alle Veranstaltungen"
+    "all": "Alle Veranstaltungen",
+    "clearSearch": "Suche löschen"
   },
   "detail": {
     "title": "Veranstaltungsdetails",
@@ -17,7 +18,18 @@
     "participants": "Teilnehmer",
     "location": "Ort",
     "schedule": "Programm",
-    "description": "Beschreibung"
+    "description": "Beschreibung",
+    "anonymousParticipant": "Anonymer Teilnehmer",
+    "registered": "Registriert",
+    "waitlist": "Warteliste",
+    "cancelled": "Storniert",
+    "pending": "Ausstehend",
+    "maxParticipants": "Maximale Teilnehmerzahl",
+    "unlimited": "Unbegrenzt",
+    "participantListHidden": "Teilnehmerliste verborgen",
+    "noPermissionToView": "Sie haben keine Berechtigung, die Teilnehmerliste anzuzeigen. Sie können nur die Anzahl der Teilnehmer sehen.",
+    "totalParticipants": "Gesamtteilnehmer",
+    "loadingParticipants": "Teilnehmer werden geladen..."
   },
   "form": {
     "create": "Neue Veranstaltung hinzufügen",
@@ -213,7 +225,9 @@
   "export": {
     "participantReportSuffix": "Teilnehmerbericht",
     "reportDownloadSuccess": "Bericht erfolgreich heruntergeladen",
-    "reportDownloadError": "Fehler beim Erstellen des Berichts"
+    "reportDownloadError": "Fehler beim Erstellen des Berichts",
+    "copySuccess": "Veranstaltungsinformationen in die Zwischenablage kopiert",
+    "noParticipantsWarning": "Keine Teilnehmer zum Erstellen eines Berichts vorhanden"
   },
   "recurrence": {
     "title": "Wiederkehrende Veranstaltung",

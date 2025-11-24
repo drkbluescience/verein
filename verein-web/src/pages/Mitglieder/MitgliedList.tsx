@@ -254,7 +254,7 @@ const MitgliedList: React.FC = () => {
             <button
               className="clear-search-btn"
               onClick={() => setSearchTerm('')}
-              title="Aramayı temizle"
+              title={t('mitglieder:list.clearSearch')}
             >
               <XIcon />
             </button>

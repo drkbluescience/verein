@@ -36,13 +36,15 @@ public class VereinRepository : Repository<Verein>, IVereinRepository
     }
 
     /// <summary>
-    /// Override GetByIdAsync to include RechtlicheDaten and HauptAdresse
+    /// Override GetByIdAsync to include RechtlicheDaten, HauptAdresse, and HauptBankkonto
     /// </summary>
     public override async Task<Verein?> GetByIdAsync(int id, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("GetByIdAsync called for Verein ID {VereinId}", id);
 
-        IQueryable<Verein> query = _dbSet.Include(v => v.HauptAdresse);
+        IQueryable<Verein> query = _dbSet
+            .Include(v => v.HauptAdresse)
+            .Include(v => v.HauptBankkonto);
 
         if (includeDeleted)
         {
