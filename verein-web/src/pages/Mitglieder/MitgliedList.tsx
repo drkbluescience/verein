@@ -293,10 +293,15 @@ const MitgliedList: React.FC = () => {
             </button>
           </div>
 
-          {user?.type === 'dernek' && (
+          {(user?.type === 'dernek' || user?.type === 'admin') && (
             <button
               className="btn-primary"
               onClick={() => {
+                // Admin için Verein seçimi kontrolü
+                if (user?.type === 'admin' && !selectedVereinId) {
+                  alert(t('mitglieder:listPage.actions.selectVereinFirst'));
+                  return;
+                }
                 setFormMode('create');
                 setSelectedMitglied(null);
                 setIsFormModalOpen(true);
@@ -418,7 +423,7 @@ const MitgliedList: React.FC = () => {
                         >
                           <EyeIcon />
                         </button>
-                        {user?.type === 'dernek' && (
+                        {(user?.type === 'dernek' || user?.type === 'admin') && (
                           <>
                             <button
                               className="table-action-btn"
@@ -486,6 +491,7 @@ const MitgliedList: React.FC = () => {
         onClose={() => setIsFormModalOpen(false)}
         mitglied={selectedMitglied}
         mode={formMode}
+        vereinId={user?.type === 'admin' ? selectedVereinId : undefined}
       />
 
       <DeleteConfirmDialog
@@ -579,7 +585,7 @@ const MitgliedCard: React.FC<MitgliedCardProps> = ({ mitglied, onEdit, onDelete 
           <EyeIcon />
           <span>{t('mitglieder:listPage.card.view')}</span>
         </button>
-        {user?.type === 'dernek' && (
+        {(user?.type === 'dernek' || user?.type === 'admin') && (
           <>
             <button className="card-action-btn" onClick={() => onEdit(mitglied)}>
               <EditIcon />

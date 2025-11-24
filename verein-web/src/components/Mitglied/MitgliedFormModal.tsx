@@ -6,7 +6,9 @@ import { de, tr } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import { mitgliedService } from '../../services/mitgliedService';
 import keytableService from '../../services/keytableService';
+import { vereinService } from '../../services/vereinService';
 import { MitgliedDto, CreateMitgliedDto, UpdateMitgliedDto } from '../../types/mitglied';
+import { VereinDto } from '../../types/verein';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Common/Modal';
 import styles from './MitgliedFormModal.module.css';
@@ -20,13 +22,15 @@ interface MitgliedFormModalProps {
   onClose: () => void;
   mitglied?: MitgliedDto | null;
   mode: 'create' | 'edit';
+  vereinId?: number | null;
 }
 
 const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
   isOpen,
   onClose,
   mitglied,
-  mode
+  mode,
+  vereinId: propVereinId
 }) => {
   // @ts-ignore - i18next type definitions
   const { i18n } = useTranslation();
@@ -76,7 +80,17 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
     staleTime: 24 * 60 * 60 * 1000,
   });
 
+  // Fetch Vereine (for Admin)
+  const { data: vereine = [] } = useQuery<VereinDto[]>({
+    queryKey: ['vereine'],
+    queryFn: () => vereinService.getAll(),
+    enabled: user?.type === 'admin',
+  });
+
   const [formData, setFormData] = useState({
+    // Dernek Bilgisi (Admin için)
+    vereinId: propVereinId?.toString() || '',
+
     // Kişisel Bilgiler
     vorname: '',
     nachname: '',
@@ -114,6 +128,9 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
   useEffect(() => {
     if (mode === 'edit' && mitglied) {
       setFormData({
+        // Dernek Bilgisi
+        vereinId: mitglied.vereinId.toString(),
+
         // Kişisel Bilgiler
         vorname: mitglied.vorname,
         nachname: mitglied.nachname,
@@ -148,31 +165,43 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
     } else {
       // Reset form for create mode
       setFormData({
+        // Dernek Bilgisi (Admin için)
+        vereinId: propVereinId?.toString() || '',
+
+        // Kişisel Bilgiler
         vorname: '',
         nachname: '',
         geschlechtId: '',
         geburtsdatum: '',
         geburtsort: '',
         staatsangehoerigkeitId: '',
+
+        // İletişim Bilgileri
         email: '',
         telefon: '',
         mobiltelefon: '',
+
+        // Üyelik Bilgileri
         mitgliedStatusId: '1',
         mitgliedTypId: '1',
         eintrittsdatum: new Date().toISOString().split('T')[0],
         austrittsdatum: '',
         aktiv: true,
+
+        // Aidat Bilgileri
         beitragBetrag: '',
         beitragWaehrungId: '',
         beitragPeriodeCode: '',
         beitragZahlungsTag: '',
         beitragZahlungstagTypCode: '',
         beitragIstPflicht: false,
+
+        // Notlar
         bemerkung: ''
       });
     }
     setErrors({});
-  }, [mode, mitglied, isOpen]);
+  }, [mode, mitglied, isOpen, propVereinId]);
 
   const createMutation = useMutation({
     mutationFn: (data: CreateMitgliedDto) => mitgliedService.create(data),
@@ -224,7 +253,17 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
       return;
     }
 
-    if (!user?.vereinId) {
+    // Determine vereinId based on user type
+    let targetVereinId: number;
+    if (user?.type === 'admin') {
+      if (!formData.vereinId) {
+        setErrors({ submit: 'Lütfen bir dernek seçiniz' });
+        return;
+      }
+      targetVereinId = parseInt(formData.vereinId);
+    } else if (user?.vereinId) {
+      targetVereinId = user.vereinId;
+    } else {
       setErrors({ submit: 'Dernek bilgisi bulunamadı' });
       return;
     }
@@ -236,7 +275,7 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
       const mitgliedsnummer = `M${year}${random}`;
 
       const createData: CreateMitgliedDto = {
-        vereinId: user.vereinId,
+        vereinId: targetVereinId,
         mitgliedsnummer,
         mitgliedStatusId: 1, // Default: Active
         mitgliedTypId: 1, // Default: Normal member
@@ -332,6 +371,34 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
       }
     >
       <form id="mitglied-form" onSubmit={handleSubmit} className={styles.form}>
+          {/* Admin: Dernek Seçimi */}
+          {user?.type === 'admin' && mode === 'create' && (
+            <div className={styles.formSection}>
+              <h3>Dernek Bilgisi</h3>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="vereinId">Dernek *</label>
+                  <select
+                    id="vereinId"
+                    name="vereinId"
+                    value={formData.vereinId}
+                    onChange={handleChange}
+                    className={errors.vereinId ? styles.error : ''}
+                    disabled={isLoading}
+                  >
+                    <option value="">Dernek Seçiniz</option>
+                    {vereine.map((verein) => (
+                      <option key={verein.id} value={verein.id}>
+                        #{verein.vereinsnummer} - {verein.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.vereinId && <span className={styles.errorMessage}>{errors.vereinId}</span>}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Kişisel Bilgiler */}
           <div className={styles.formSection}>
             <h3>Kişisel Bilgiler</h3>

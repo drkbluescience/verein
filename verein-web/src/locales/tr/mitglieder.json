@@ -63,7 +63,8 @@
       "placeholder": "Üye ara (ad, soyad, üye no, email)..."
     },
     "actions": {
-      "newMember": "Yeni Üye"
+      "newMember": "Yeni Üye",
+      "selectVereinFirst": "Lütfen önce bir dernek seçiniz"
     },
     "filters": {
       "all": "Tümü",

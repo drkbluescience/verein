@@ -63,7 +63,8 @@
       "placeholder": "Mitglied suchen (Name, Nachname, Mitgliedsnr., E-Mail)..."
     },
     "actions": {
-      "newMember": "Neues Mitglied"
+      "newMember": "Neues Mitglied",
+      "selectVereinFirst": "Bitte wählen Sie zuerst einen Verein aus"
     },
     "filters": {
       "all": "Alle",
