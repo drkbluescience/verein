@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedForderungService } from '../../services/finanzService';
 import { mitgliedService } from '../../services/mitgliedService';
+import { vereinService } from '../../services/vereinService';
 import keytableService from '../../services/keytableService';
 import { ZahlungStatus } from '../../types/finanz.types';
 import Loading from '../../components/Common/Loading';
@@ -45,6 +46,15 @@ const MitgliedForderungDetail: React.FC = () => {
   const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Determine back URL based on user type
+  const backUrl = user?.type === 'mitglied' ? '/meine-finanzen' : '/finanzen/forderungen';
+  const editUrl = user?.type === 'mitglied'
+    ? `/meine-finanzen/forderungen/${id}/edit`
+    : `/finanzen/forderungen/${id}/edit`;
+
+  // Check if user can edit/delete (only admin and dernek)
+  const canEdit = user?.type === 'admin' || user?.type === 'dernek';
+
   // Fetch claim details
   const { data: forderung, isLoading, error } = useQuery({
     queryKey: ['forderung', id],
@@ -55,14 +65,24 @@ const MitgliedForderungDetail: React.FC = () => {
     enabled: !!id,
   });
 
-  // Fetch member details
+  // Fetch member details (only for admin/dernek)
   const { data: mitglied } = useQuery({
     queryKey: ['mitglied', forderung?.mitgliedId],
     queryFn: async () => {
       if (!forderung?.mitgliedId) return null;
       return await mitgliedService.getById(forderung.mitgliedId);
     },
-    enabled: !!forderung?.mitgliedId,
+    enabled: !!forderung?.mitgliedId && canEdit,
+  });
+
+  // Fetch verein details
+  const { data: verein } = useQuery({
+    queryKey: ['verein', forderung?.vereinId],
+    queryFn: async () => {
+      if (!forderung?.vereinId) return null;
+      return await vereinService.getById(forderung.vereinId);
+    },
+    enabled: !!forderung?.vereinId,
   });
 
   // Fetch payment allocations
@@ -96,7 +116,7 @@ const MitgliedForderungDetail: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['forderungen'] });
-      navigate('/meine-finanzen/forderungen');
+      navigate(backUrl);
     },
   });
 
@@ -136,27 +156,31 @@ const MitgliedForderungDetail: React.FC = () => {
       <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <button
           className="btn-icon"
-          onClick={() => navigate('/meine-finanzen/forderungen')}
+          onClick={() => navigate(backUrl)}
           title={t('common:back')}
         >
           <BackIcon />
         </button>
         <div style={{ flex: 1 }}></div>
-        <button
-          className="btn btn-secondary"
-          onClick={() => navigate(`/meine-finanzen/forderungen/${id}/edit`)}
-        >
-          <EditIcon />
-          {t('common:common.edit')}
-        </button>
-        <button
-          className="btn btn-error"
-          onClick={() => setShowDeleteConfirm(true)}
-          disabled={deleteMutation.isPending}
-        >
-          <TrashIcon />
-          {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
-        </button>
+        {canEdit && (
+          <>
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate(editUrl)}
+            >
+              <EditIcon />
+              {t('common:common.edit')}
+            </button>
+            <button
+              className="btn btn-error"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
+            >
+              <TrashIcon />
+              {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Content */}
@@ -165,7 +189,8 @@ const MitgliedForderungDetail: React.FC = () => {
         <div className="detail-section">
           <h2>{t('finanz:claims.information')}</h2>
           <div className="detail-grid-compact">
-            {mitglied && (
+            {/* Show member info only for admin/dernek */}
+            {canEdit && mitglied && (
               <>
                 <div className="detail-item">
                   <label>{t('finanz:member.number')}</label>
@@ -181,19 +206,25 @@ const MitgliedForderungDetail: React.FC = () => {
                 </div>
               </>
             )}
-            <div className="detail-item">
-              <label>{t('finanz:claims.number')}</label>
-              <div className="detail-value">{forderung.forderungsnummer || '-'}</div>
-            </div>
+            {/* Verein Name - For admin and mitglied users (not for dernek) */}
+            {user?.type !== 'dernek' && verein && (
+              <div className="detail-item">
+                <label>{t('finanz:verein.name')}</label>
+                <div className="detail-value">{verein.name}</div>
+              </div>
+            )}
             <div className="detail-item">
               <label>{t('finanz:claims.amount')}</label>
               <div className="detail-value amount">
                 {waehrungen.find(w => w.id === forderung.waehrungId)?.code || '€'} {forderung.betrag.toFixed(2)}
               </div>
             </div>
+            {/* Remaining Amount - NEW */}
             <div className="detail-item">
-              <label>{t('finanz:payments.currency')}</label>
-              <div className="detail-value">{waehrungen.find(w => w.id === forderung.waehrungId)?.name || '-'}</div>
+              <label>{t('finanz:claims.remainingAmount')}</label>
+              <div className="detail-value amount">
+                {waehrungen.find(w => w.id === forderung.waehrungId)?.code || '€'} {remainingAmount.toFixed(2)}
+              </div>
             </div>
             <div className="detail-item">
               <label>{t('finanz:payments.type')}</label>

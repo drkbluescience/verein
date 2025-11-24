@@ -521,14 +521,20 @@ const MitgliedFormModal: React.FC<MitgliedFormModalProps> = ({
 
                 <div className={styles.formGroup}>
                   <label htmlFor="eintrittsdatum">Giriş Tarihi</label>
-                  <input
-                    type="date"
-                    id="eintrittsdatum"
-                    name="eintrittsdatum"
-                    value={formData.eintrittsdatum}
-                    onChange={handleChange}
+                  <DatePicker
+                    selected={formData.eintrittsdatum ? new Date(formData.eintrittsdatum) : null}
+                    onChange={(date) => {
+                      const dateStr = date ? date.toISOString().split('T')[0] : '';
+                      setFormData(prev => ({ ...prev, eintrittsdatum: dateStr }));
+                    }}
+                    locale={i18n.language}
+                    dateFormat="dd.MM.yyyy"
+                    placeholderText="Giriş Tarihi"
+                    className={styles.datePickerInput}
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={100}
                     disabled={isLoading}
-                    lang={i18n.language}
                   />
                 </div>
 

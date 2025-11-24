@@ -43,12 +43,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 32px;
-  border-bottom: 2px solid #d1d5db;
+  padding: 32px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .veranstaltung-form-modal .modal-header h2 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #1f2937;
   margin: 0;
@@ -81,51 +81,39 @@
 
 /* Form Section */
 .veranstaltung-form-modal .form-section {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid #d1d5db;
+  margin-bottom: 24px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .veranstaltung-form-modal .form-section:last-of-type {
-  border-bottom: none;
   margin-bottom: 0;
-  padding-bottom: 0;
 }
 
-.veranstaltung-form-modal .section-title {
-  font-size: 18px;
+.veranstaltung-form-modal .form-section h3 {
+  font-size: 16px;
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 20px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.veranstaltung-form-modal .section-title::before {
-  content: '';
-  width: 4px;
-  height: 20px;
-  background: #3b82f6;
-  border-radius: 2px;
+  margin: 0 0 16px 0;
 }
 
 .veranstaltung-form-modal .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 24px;
 }
 
 .veranstaltung-form-modal .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .veranstaltung-form-modal .form-group label {
   font-size: 14px;
   font-weight: 600;
   color: #6b7280;
+  text-transform: none;
 }
 
 .veranstaltung-form-modal .form-group input,
@@ -134,7 +122,7 @@
   padding: 12px 16px;
   border: 2px solid #d1d5db;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 16px;
   color: #1f2937;
   transition: all 0.2s ease;
   font-family: inherit;
@@ -313,7 +301,7 @@
   border-bottom-color: #e2e8f0 !important;
 }
 
-[data-theme="dark"] .veranstaltung-form-modal .section-title {
+[data-theme="dark"] .veranstaltung-form-modal .form-section h3 {
   color: #ffffff !important;
 }
 
@@ -467,23 +455,6 @@
   .veranstaltung-form-modal .btn-secondary {
     width: 100%;
   }
-}
-
-/* Recurring Event Section */
-.veranstaltung-form-modal .form-section {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 2px solid #e5e7eb;
-}
-
-.veranstaltung-form-modal .form-section h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .veranstaltung-form-modal .form-hint {

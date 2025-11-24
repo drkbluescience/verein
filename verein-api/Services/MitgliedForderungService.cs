@@ -13,15 +13,18 @@ namespace VereinsApi.Services;
 public class MitgliedForderungService : IMitgliedForderungService
 {
     private readonly IMitgliedForderungRepository _repository;
+    private readonly IMitgliedZahlungRepository _zahlungRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<MitgliedForderungService> _logger;
 
     public MitgliedForderungService(
         IMitgliedForderungRepository repository,
+        IMitgliedZahlungRepository zahlungRepository,
         IMapper mapper,
         ILogger<MitgliedForderungService> logger)
     {
         _repository = repository;
+        _zahlungRepository = zahlungRepository;
         _mapper = mapper;
         _logger = logger;
     }
@@ -193,6 +196,88 @@ public class MitgliedForderungService : IMitgliedForderungService
         _logger.LogDebug("Getting total unpaid amount for verein {VereinId}", vereinId);
 
         return await _repository.GetTotalUnpaidAmountByVereinAsync(vereinId, cancellationToken);
+    }
+
+    public async Task<MitgliedFinanzSummaryDto> GetMitgliedFinanzSummaryAsync(int mitgliedId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Getting financial summary for mitglied {MitgliedId}", mitgliedId);
+
+        try
+        {
+            // Get all forderungen for the member
+            var forderungen = await _repository.GetByMitgliedIdAsync(mitgliedId, false, cancellationToken);
+            var forderungenList = forderungen.ToList();
+
+            // Get all zahlungen for the member
+            var zahlungen = await _zahlungRepository.GetByMitgliedIdAsync(mitgliedId, false, cancellationToken);
+            var zahlungenList = zahlungen.ToList();
+
+            // Separate paid and unpaid claims
+            var unpaidForderungen = forderungenList.Where(f => f.StatusId == 2).ToList();
+            var paidForderungen = forderungenList.Where(f => f.StatusId == 1).ToList();
+
+            // Calculate overdue claims
+            var today = DateTime.UtcNow.Date;
+            var overdueForderungen = unpaidForderungen.Where(f => f.Faelligkeit.Date < today).ToList();
+
+            // Find next payment
+            var nextPayment = unpaidForderungen
+                .OrderBy(f => f.Faelligkeit)
+                .FirstOrDefault();
+
+            var daysUntilNextPayment = nextPayment != null
+                ? (int)(nextPayment.Faelligkeit.Date - today).TotalDays
+                : 0;
+
+            // Calculate last 12 months trend
+            var last12MonthsTrend = new List<MonthlyTrendDto>();
+            for (int i = 11; i >= 0; i--)
+            {
+                var month = DateTime.UtcNow.AddMonths(-i);
+                var monthStart = new DateTime(month.Year, month.Month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+                var monthZahlungen = zahlungenList
+                    .Where(z => z.Zahlungsdatum.Date >= monthStart && z.Zahlungsdatum.Date <= monthEnd)
+                    .ToList();
+
+                last12MonthsTrend.Add(new MonthlyTrendDto
+                {
+                    Month = month.Month,
+                    Year = month.Year,
+                    MonthName = month.ToString("MMM yy"),
+                    Amount = monthZahlungen.Sum(z => z.Betrag),
+                    Count = monthZahlungen.Count
+                });
+            }
+
+            // Calculate totals correctly (including partial payments)
+            var totalDebt = forderungenList.Sum(f => f.Betrag);
+            var totalPaid = zahlungenList.Sum(z => z.Betrag);
+            var currentBalance = totalDebt - totalPaid;
+
+            // Build summary DTO
+            var summary = new MitgliedFinanzSummaryDto
+            {
+                CurrentBalance = currentBalance,
+                TotalPaid = totalPaid,
+                TotalOverdue = overdueForderungen.Sum(f => f.Betrag),
+                OverdueCount = overdueForderungen.Count,
+                NextPayment = nextPayment != null ? _mapper.Map<MitgliedForderungDto>(nextPayment) : null,
+                DaysUntilNextPayment = daysUntilNextPayment,
+                Last12MonthsTrend = last12MonthsTrend,
+                UnpaidClaims = _mapper.Map<List<MitgliedForderungDto>>(unpaidForderungen.OrderBy(f => f.Faelligkeit)),
+                PaidClaims = _mapper.Map<List<MitgliedForderungDto>>(paidForderungen.OrderByDescending(f => f.BezahltAm))
+            };
+
+            _logger.LogInformation("Successfully retrieved financial summary for mitglied {MitgliedId}", mitgliedId);
+            return summary;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting financial summary for mitglied {MitgliedId}", mitgliedId);
+            throw;
+        }
     }
 
     #endregion

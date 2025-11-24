@@ -216,6 +216,27 @@ public class MitgliedForderungenController : ControllerBase
     }
 
     /// <summary>
+    /// Get financial summary for a Mitglied
+    /// </summary>
+    [HttpGet("mitglied/{mitgliedId:int}/summary")]
+    [ProducesResponseType(typeof(MitgliedFinanzSummaryDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<MitgliedFinanzSummaryDto>> GetMitgliedSummary(
+        int mitgliedId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var summary = await _service.GetMitgliedFinanzSummaryAsync(mitgliedId, cancellationToken);
+            return Ok(summary);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting financial summary for mitglied {MitgliedId}", mitgliedId);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
     /// Create new Forderung
     /// </summary>
     [HttpPost]

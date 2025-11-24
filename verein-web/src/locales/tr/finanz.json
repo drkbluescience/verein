@@ -71,6 +71,7 @@
     "number": "Alacak Numarası",
     "member": "Üye",
     "amount": "Tutar",
+    "remainingAmount": "Kalan Borç",
     "dueDate": "Vade Tarihi",
     "status": "Durum",
     "description": "Açıklama",
@@ -79,6 +80,9 @@
     "total": "Toplam Alacak",
     "totalAmount": "Toplam Tutar",
     "deleteConfirm": "Bu alacak kaydını silmek istediğinizden emin misiniz?"
+  },
+  "verein": {
+    "name": "Dernek Adı"
   },
   "member": {
     "information": "Üye Bilgileri",
@@ -253,7 +257,7 @@
   "mitgliedFinanz": {
     "title": "Finansal Durum",
     "subtitle": "Aidat ve ödeme bilgilerinizi görüntüleyin",
-    "currentBalance": "Güncel Bakiye",
+    "currentBalance": "Toplam Borcum",
     "totalDebt": "Toplam Borcum",
     "totalPaid": "Toplam Ödediğim",
     "totalPayments": "Toplam Ödemelerim",
@@ -294,7 +298,11 @@
     "pdfDate": "Tarih",
     "pdfAmount": "Tutar",
     "pdfPaymentMethod": "Ödeme Yöntemi",
-    "pdfReference": "Referans"
+    "pdfReference": "Referans",
+    "showPaidClaims": "Ödenen Borçları Göster",
+    "hidePaidClaims": "Ödenen Borçları Gizle",
+    "paid": "Ödendi",
+    "unpaid": "Ödenmedi"
   },
   "bankUpload": {
     "title": "Banka Ödemeleri Yükle",

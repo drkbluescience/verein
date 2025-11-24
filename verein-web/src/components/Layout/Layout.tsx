@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import PageNoteButton from '../PageNote/PageNoteButton';
+import { useAuth } from '../../contexts/AuthContext';
 import './Layout.css';
 
 interface LayoutProps {
@@ -9,6 +10,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -35,8 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <span className="menu-icon">☰</span>
       </button>
 
-      {/* Floating Page Note Button */}
-      <PageNoteButton />
+      {/* Floating Page Note Button - Only for admin users */}
+      {user?.type === 'admin' && <PageNoteButton />}
     </div>
   );
 };

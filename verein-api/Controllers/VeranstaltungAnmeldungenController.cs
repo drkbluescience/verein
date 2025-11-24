@@ -80,6 +80,7 @@ public class VeranstaltungAnmeldungenController : ControllerBase
     /// <param name="veranstaltungId">Veranstaltung ID</param>
     /// <returns>List of VeranstaltungAnmeldungen for the specified Veranstaltung</returns>
     [HttpGet("veranstaltung/{veranstaltungId}")]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungAnmeldungDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VeranstaltungAnmeldungDto>>> GetByVeranstaltungId(int veranstaltungId)
     {
@@ -91,6 +92,27 @@ public class VeranstaltungAnmeldungenController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while getting VeranstaltungAnmeldungen for Veranstaltung ID {VeranstaltungId}", veranstaltungId);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Get participant count for a Veranstaltung
+    /// </summary>
+    /// <param name="veranstaltungId">Veranstaltung ID</param>
+    /// <returns>Number of participants</returns>
+    [HttpGet("veranstaltung/{veranstaltungId}/count")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetParticipantCount(int veranstaltungId)
+    {
+        try
+        {
+            var anmeldungDtos = await _anmeldungService.GetByVeranstaltungIdAsync(veranstaltungId);
+            return Ok(anmeldungDtos.Count());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while getting participant count for Veranstaltung ID {VeranstaltungId}", veranstaltungId);
             return StatusCode(500, "Internal server error");
         }
     }

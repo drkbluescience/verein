@@ -194,6 +194,10 @@
   border-color: var(--color-primary);
 }
 
+.toggle-btn.active svg {
+  stroke: white;
+}
+
 /* Family Table */
 .family-table-container {
   overflow-x: auto;

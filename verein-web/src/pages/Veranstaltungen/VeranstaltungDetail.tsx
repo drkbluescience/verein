@@ -261,7 +261,7 @@ const VeranstaltungDetail: React.FC = () => {
     return false;
   };
 
-  // Fetch event registrations
+  // Fetch event registrations (only for admin/dernek)
   const {
     data: anmeldungen,
     isLoading: anmeldungenLoading,
@@ -269,8 +269,19 @@ const VeranstaltungDetail: React.FC = () => {
   } = useQuery({
     queryKey: ['veranstaltung-anmeldungen', eventId],
     queryFn: () => veranstaltungAnmeldungService.getByVeranstaltungId(eventId),
-    enabled: !!eventId && canManageEvent(),
+    enabled: !!eventId && canManageEvent(), // Only admin/dernek can see participant list
     retry: false, // Don't retry on error
+  });
+
+  // Fetch participant count (for all users)
+  const {
+    data: participantCount,
+    isLoading: participantCountLoading
+  } = useQuery({
+    queryKey: ['veranstaltung-participant-count', eventId],
+    queryFn: () => veranstaltungAnmeldungService.getParticipantCount(eventId),
+    enabled: !!eventId,
+    retry: false,
   });
 
   // Fetch user's registrations to check if already registered
@@ -286,8 +297,39 @@ const VeranstaltungDetail: React.FC = () => {
     enabled: !!user?.mitgliedId,
   });
 
-  // Check if user is already registered
-  const isUserRegistered = userRegistrations?.some(reg => reg.veranstaltungId === eventId) || false;
+  // Check if user is already registered (only confirmed/pending registrations)
+  const isUserRegistered = React.useMemo(() => {
+    if (!userRegistrations || userRegistrations.length === 0) {
+      return false;
+    }
+
+    const registered = userRegistrations.some(reg => {
+      // Check both English and German status values
+      const isValidStatus =
+        reg.status === 'Confirmed' ||
+        reg.status === 'Pending' ||
+        reg.status === 'BESTAETIGT' ||
+        reg.status === 'WARTEND';
+
+      return reg.veranstaltungId === eventId && isValidStatus;
+    });
+
+    return registered;
+  }, [userRegistrations, eventId]);
+
+  // Auto-redirect mitglied users to 'info' tab if they try to access restricted tabs
+  React.useEffect(() => {
+    if (user?.type === 'mitglied') {
+      // If on participants tab (not allowed for mitglied)
+      if (activeTab === 'teilnehmer') {
+        setActiveTab('info');
+      }
+      // If on images tab but not registered (not allowed)
+      if (activeTab === 'bilder' && !isUserRegistered) {
+        setActiveTab('info');
+      }
+    }
+  }, [activeTab, user?.type, isUserRegistered]);
 
   // Fetch mitglied details for auto-fill
   const {
@@ -617,8 +659,8 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
     }
   };
 
-  // Each registration represents 1 participant
-  const totalParticipants = anmeldungen?.length || 0;
+  // Use participant count from API (available for all users)
+  const totalParticipants = participantCount ?? 0;
 
   // Determine back navigation based on user type
   const getBackPath = () => {
@@ -692,18 +734,24 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
         >
           {t('veranstaltungen:detailPage.tabs.info')}
         </button>
-        <button
-          className={`tab-button ${activeTab === 'teilnehmer' ? 'active' : ''}`}
-          onClick={() => setActiveTab('teilnehmer')}
-        >
-          {t('veranstaltungen:detailPage.tabs.participants')} ({anmeldungen?.length || 0})
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'bilder' ? 'active' : ''}`}
-          onClick={() => setActiveTab('bilder')}
-        >
-          {t('veranstaltungen:detailPage.tabs.images')}
-        </button>
+        {/* Participants tab - Only for admin/dernek */}
+        {canManageEvent() && (
+          <button
+            className={`tab-button ${activeTab === 'teilnehmer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('teilnehmer')}
+          >
+            {t('veranstaltungen:detailPage.tabs.participants')} ({participantCount ?? 0})
+          </button>
+        )}
+        {/* Images tab - Only show if user can manage event OR is registered */}
+        {(canManageEvent() || isUserRegistered) && (
+          <button
+            className={`tab-button ${activeTab === 'bilder' ? 'active' : ''}`}
+            onClick={() => setActiveTab('bilder')}
+          >
+            {t('veranstaltungen:detailPage.tabs.images')}
+          </button>
+        )}
       </div>
 
       {/* Tab Content */}
@@ -824,11 +872,11 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
             <div className="participants-card">
               <div className="section-header">
                 <h2 className="section-title">
-                  {t('veranstaltungen:detailPage.sections.participants')} ({anmeldungen?.length || 0})
+                  {t('veranstaltungen:detailPage.sections.participants')} ({participantCount ?? 0})
                 </h2>
                 <div className="section-actions">
-                  {/* View Mode Toggle */}
-                  {anmeldungen && anmeldungen.length > 0 && (
+                  {/* View Mode Toggle - Only for admin/dernek */}
+                  {canManageEvent() && anmeldungen && anmeldungen.length > 0 && (
                     <div className="view-toggle">
                       <button
                         className={`toggle-btn ${participantsViewMode === 'grid' ? 'active' : ''}`}
@@ -846,13 +894,15 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                       </button>
                     </div>
                   )}
-                  {anmeldungen && anmeldungen.length > 0 && (
+                  {/* Export Report - Only for admin/dernek */}
+                  {canManageEvent() && anmeldungen && anmeldungen.length > 0 && (
                     <button className="btn-secondary" onClick={handleExportReport}>
                       <ChartIcon />
                       <span>{t('veranstaltungen:detailPage.actions.getReport')}</span>
                     </button>
                   )}
-                  {veranstaltung && !veranstaltungUtils.isPast(veranstaltung.startdatum, veranstaltung.enddatum) && (
+                  {/* Add Participant - Only for admin/dernek */}
+                  {canManageEvent() && veranstaltung && !veranstaltungUtils.isPast(veranstaltung.startdatum, veranstaltung.enddatum) && (
                     <button className="btn-primary" onClick={() => setShowAddParticipantModal(true)}>
                       <PlusIcon />
                       <span>{t('veranstaltungen:detailPage.actions.addParticipant')}</span>
@@ -861,7 +911,24 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                 </div>
               </div>
 
-              {anmeldungenLoading ? (
+              {/* Show message for mitglied users who cannot see participant list */}
+              {user?.type === 'mitglied' ? (
+                <div className="empty-participants">
+                  <div className="empty-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  </div>
+                  <h3>Katılımcı Listesi Gizli</h3>
+                  <p>Katılımcı listesini görüntüleme yetkiniz bulunmamaktadır. Sadece katılımcı sayısını görebilirsiniz.</p>
+                  <p style={{ marginTop: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                    Toplam Katılımcı: {participantCount ?? 0}
+                  </p>
+                </div>
+              ) : anmeldungenLoading ? (
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
                   <p>Katılımcılar yükleniyor...</p>
                 </div>
@@ -935,7 +1002,8 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                   </div>
                   <h3>{t('veranstaltungen:detailPage.emptyParticipants.title')}</h3>
                   <p>{t('veranstaltungen:detailPage.emptyParticipants.message')}</p>
-                  {veranstaltung && !veranstaltungUtils.isPast(veranstaltung.startdatum, veranstaltung.enddatum) && (
+                  {/* Add Participant Button - Only for admin/dernek */}
+                  {canManageEvent() && veranstaltung && !veranstaltungUtils.isPast(veranstaltung.startdatum, veranstaltung.enddatum) && (
                     <button className="btn-primary" onClick={() => setShowAddParticipantModal(true)}>
                       <PlusIcon />
                       <span>{t('veranstaltungen:detailPage.emptyParticipants.addButton')}</span>

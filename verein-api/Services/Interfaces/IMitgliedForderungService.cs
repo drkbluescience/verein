@@ -88,6 +88,11 @@ public interface IMitgliedForderungService
     /// </summary>
     Task<decimal> GetTotalUnpaidAmountByVereinAsync(int vereinId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Gets financial summary for a specific mitglied
+    /// </summary>
+    Task<MitgliedFinanzSummaryDto> GetMitgliedFinanzSummaryAsync(int mitgliedId, CancellationToken cancellationToken = default);
+
     #endregion
 }
 

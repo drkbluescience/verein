@@ -223,6 +223,10 @@
   color: #ffffff;
 }
 
+.view-toggle-btn.active svg {
+  stroke: white;
+}
+
 .view-toggle-btn svg {
   width: 20px;
   height: 20px;

@@ -70,6 +70,11 @@ export const veranstaltungAnmeldungService = {
     return await api.get<VeranstaltungAnmeldungDto[]>(`/api/VeranstaltungAnmeldungen/veranstaltung/${veranstaltungId}`);
   },
 
+  // Get participant count for a Veranstaltung
+  getParticipantCount: async (veranstaltungId: number): Promise<number> => {
+    return await api.get<number>(`/api/VeranstaltungAnmeldungen/veranstaltung/${veranstaltungId}/count`);
+  },
+
   // Get Anmeldungen by Member ID
   getByMitgliedId: async (mitgliedId: number): Promise<VeranstaltungAnmeldungDto[]> => {
     return await api.get<VeranstaltungAnmeldungDto[]>(`/api/VeranstaltungAnmeldungen/mitglied/${mitgliedId}`);

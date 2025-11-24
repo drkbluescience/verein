@@ -298,6 +298,18 @@ export interface UpdateMitgliedForderungDto {
   bezahltAm?: string;
 }
 
+export interface MitgliedFinanzSummaryDto {
+  currentBalance: number;
+  totalPaid: number;
+  totalOverdue: number;
+  overdueCount: number;
+  nextPayment: MitgliedForderungDto | null;
+  daysUntilNextPayment: number;
+  last12MonthsTrend: MonthlyTrendDto[];
+  unpaidClaims: MitgliedForderungDto[];
+  paidClaims: MitgliedForderungDto[];
+}
+
 // ============================================================================
 // MITGLIED ZAHLUNG (Member Payment)
 // ============================================================================

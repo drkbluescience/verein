@@ -24,9 +24,9 @@ const PageNoteButton: React.FC = () => {
                      location.pathname === '/register';
   const isAdminNotesPage = location.pathname === '/admin/page-notes';
 
-  // Load note count (all notes for admin, my notes for others)
+  // Load note count (only for admin users)
   useEffect(() => {
-    if (!isAuthenticated || isAuthPage || isAdminNotesPage) return;
+    if (!isAuthenticated || isAuthPage || isAdminNotesPage || user?.type !== 'admin') return;
 
     const loadNoteCount = async () => {
       try {
@@ -67,8 +67,8 @@ const PageNoteButton: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Don't render if not authenticated, on auth pages, or on admin notes page
-  if (!isAuthenticated || isAuthPage || isAdminNotesPage) {
+  // Don't render if not authenticated, on auth pages, on admin notes page, or not admin user
+  if (!isAuthenticated || isAuthPage || isAdminNotesPage || user?.type !== 'admin') {
     return null;
   }
 

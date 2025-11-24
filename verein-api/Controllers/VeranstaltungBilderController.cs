@@ -15,13 +15,16 @@ namespace VereinsApi.Controllers;
 public class VeranstaltungBilderController : ControllerBase
 {
     private readonly IVeranstaltungBildService _bildService;
+    private readonly IVeranstaltungAnmeldungService _anmeldungService;
     private readonly ILogger<VeranstaltungBilderController> _logger;
 
     public VeranstaltungBilderController(
         IVeranstaltungBildService bildService,
+        IVeranstaltungAnmeldungService anmeldungService,
         ILogger<VeranstaltungBilderController> logger)
     {
         _bildService = bildService;
+        _anmeldungService = anmeldungService;
         _logger = logger;
     }
 
@@ -30,6 +33,7 @@ public class VeranstaltungBilderController : ControllerBase
     /// </summary>
     /// <returns>List of all VeranstaltungBilder</returns>
     [HttpGet]
+    [RequireAdminOrDernek]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungBildDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VeranstaltungBildDto>>> GetAll()
     {
@@ -51,8 +55,10 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="id">VeranstaltungBild ID</param>
     /// <returns>VeranstaltungBild details</returns>
     [HttpGet("{id}")]
+    [Authorize]
     [ProducesResponseType(typeof(VeranstaltungBildDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<VeranstaltungBildDto>> GetById(int id)
     {
         try
@@ -61,6 +67,34 @@ public class VeranstaltungBilderController : ControllerBase
             if (bildDto == null)
             {
                 return NotFound($"VeranstaltungBild with ID {id} not found");
+            }
+
+            var userType = User.FindFirst("UserType")?.Value;
+
+            // Mitglied users can only see images if they are registered for the event
+            if (userType == "mitglied")
+            {
+                var mitgliedIdClaim = User.FindFirst("MitgliedId")?.Value;
+                if (int.TryParse(mitgliedIdClaim, out int mitgliedId))
+                {
+                    // Check if user is registered for this event (only confirmed/pending registrations)
+                    var userRegistrations = await _anmeldungService.GetByMitgliedIdAsync(mitgliedId);
+                    var isRegistered = userRegistrations.Any(a =>
+                        a.VeranstaltungId == bildDto.VeranstaltungId &&
+                        (a.Status == "Confirmed" || a.Status == "Pending" ||
+                         a.Status == "BESTAETIGT" || a.Status == "WARTEND"));
+
+                    if (!isRegistered)
+                    {
+                        _logger.LogWarning("Mitglied {MitgliedId} attempted to access image {ImageId} for event {VeranstaltungId} without being registered", mitgliedId, id, bildDto.VeranstaltungId);
+                        return Forbid();
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Mitglied user has invalid MitgliedId claim");
+                    return Forbid();
+                }
             }
 
             return Ok(bildDto);
@@ -78,11 +112,41 @@ public class VeranstaltungBilderController : ControllerBase
     /// <param name="veranstaltungId">Veranstaltung ID</param>
     /// <returns>List of VeranstaltungBilder for the specified Veranstaltung</returns>
     [HttpGet("veranstaltung/{veranstaltungId}")]
+    [Authorize]
     [ProducesResponseType(typeof(IEnumerable<VeranstaltungBildDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IEnumerable<VeranstaltungBildDto>>> GetByVeranstaltungId(int veranstaltungId)
     {
         try
         {
+            var userType = User.FindFirst("UserType")?.Value;
+
+            // Mitglied users can only see images if they are registered for the event
+            if (userType == "mitglied")
+            {
+                var mitgliedIdClaim = User.FindFirst("MitgliedId")?.Value;
+                if (int.TryParse(mitgliedIdClaim, out int mitgliedId))
+                {
+                    // Check if user is registered for this event (only confirmed/pending registrations)
+                    var userRegistrations = await _anmeldungService.GetByMitgliedIdAsync(mitgliedId);
+                    var isRegistered = userRegistrations.Any(a =>
+                        a.VeranstaltungId == veranstaltungId &&
+                        (a.Status == "Confirmed" || a.Status == "Pending" ||
+                         a.Status == "BESTAETIGT" || a.Status == "WARTEND"));
+
+                    if (!isRegistered)
+                    {
+                        _logger.LogWarning("Mitglied {MitgliedId} attempted to access images for event {VeranstaltungId} without being registered", mitgliedId, veranstaltungId);
+                        return Forbid();
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Mitglied user has invalid MitgliedId claim");
+                    return Forbid();
+                }
+            }
+
             var bildDtos = await _bildService.GetByVeranstaltungIdAsync(veranstaltungId);
             return Ok(bildDtos);
         }

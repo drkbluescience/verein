@@ -349,6 +349,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new BeitragZahlungstagTypUebersetzungConfiguration());
 
         // Apply Web entity configurations
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new PageNoteConfiguration());
 
         // Apply global query filters for soft delete

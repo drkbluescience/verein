@@ -44,6 +44,15 @@ const MitgliedZahlungDetail: React.FC = () => {
   const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Determine back URL based on user type
+  const backUrl = user?.type === 'mitglied' ? '/meine-finanzen' : '/finanzen/zahlungen';
+  const editUrl = user?.type === 'mitglied'
+    ? `/meine-finanzen/zahlungen/${id}/edit`
+    : `/finanzen/zahlungen/${id}/edit`;
+
+  // Check if user can edit/delete (only admin and dernek)
+  const canEdit = user?.type === 'admin' || user?.type === 'dernek';
+
   // Fetch payment details
   const { data: zahlung, isLoading, error } = useQuery({
     queryKey: ['zahlung', id],
@@ -108,7 +117,7 @@ const MitgliedZahlungDetail: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['zahlungen'] });
-      navigate('/meine-finanzen/zahlungen');
+      navigate(backUrl);
     },
   });
 
@@ -136,27 +145,31 @@ const MitgliedZahlungDetail: React.FC = () => {
       <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <button
           className="btn-icon"
-          onClick={() => navigate('/meine-finanzen/zahlungen')}
+          onClick={() => navigate(backUrl)}
           title={t('common:back')}
         >
           <BackIcon />
         </button>
         <div style={{ flex: 1 }}></div>
-        <button
-          className="btn btn-secondary"
-          onClick={() => navigate(`/meine-finanzen/zahlungen/${id}/edit`)}
-        >
-          <EditIcon />
-          {t('common:common.edit')}
-        </button>
-        <button
-          className="btn btn-error"
-          onClick={() => setShowDeleteConfirm(true)}
-          disabled={deleteMutation.isPending}
-        >
-          <TrashIcon />
-          {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
-        </button>
+        {canEdit && (
+          <>
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate(editUrl)}
+            >
+              <EditIcon />
+              {t('common:common.edit')}
+            </button>
+            <button
+              className="btn btn-error"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
+            >
+              <TrashIcon />
+              {deleteMutation.isPending ? t('common:common.deleting') : t('common:common.delete')}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Content */}

@@ -137,20 +137,57 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
     }
   });
 
+  // Week days for recurring events
+  const weekDays = [
+    { value: 'Mon', label: 'Pazartesi' },
+    { value: 'Tue', label: 'Salı' },
+    { value: 'Wed', label: 'Çarşamba' },
+    { value: 'Thu', label: 'Perşembe' },
+    { value: 'Fri', label: 'Cuma' },
+    { value: 'Sat', label: 'Cumartesi' },
+    { value: 'Sun', label: 'Pazar' }
+  ];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
+
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  const handleWeekDayToggle = (day: string) => {
+    console.log('🔴 handleWeekDayToggle CALLED! Day:', day);
+    console.log('🔴 Current wiederholungTage:', formData.wiederholungTage);
+
+    const currentDays = formData.wiederholungTage
+      ? formData.wiederholungTage.split(',').filter(d => d.trim() !== '')
+      : [];
+
+    console.log('🔴 currentDays:', currentDays);
+
+    const newDays = currentDays.includes(day)
+      ? currentDays.filter(d => d !== day)
+      : [...currentDays, day];
+
+    console.log('🔴 newDays:', newDays);
+    console.log('🔴 newDays.join(","):', newDays.join(','));
+
+    setFormData(prev => {
+      const updated = { ...prev, wiederholungTage: newDays.join(',') };
+      console.log('🔴 UPDATED formData.wiederholungTage:', updated.wiederholungTage);
+      return updated;
+    });
+
+    console.log('🔴 handleWeekDayToggle FINISHED!');
   };
 
   const validateForm = (): boolean => {
@@ -249,7 +286,7 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
 
           {/* Temel Bilgiler */}
           <div className="form-section">
-            <h3 className="section-title">Temel Bilgiler</h3>
+            <h3>Temel Bilgiler</h3>
             <div className="form-grid">
               <div className="form-group form-group-full">
                 <label>Başlık *</label>
@@ -328,7 +365,7 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
 
           {/* Katılım Bilgileri */}
           <div className="form-section">
-            <h3 className="section-title">Katılım Bilgileri</h3>
+            <h3>Katılım Bilgileri</h3>
             <div className="form-grid">
               <div className="form-group">
                 <label>Maksimum Katılımcı</label>
@@ -416,7 +453,7 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
 
             {/* Recurring Event Section */}
             <div className="form-section">
-              <h3>🔁 Tekrar Eden Etkinlik</h3>
+              <h3>Tekrar Eden Etkinlik</h3>
 
               <div className="form-group-checkbox">
                 <label>
@@ -469,15 +506,64 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
                   {formData.wiederholungTyp === 'weekly' && (
                     <div className="form-group">
                       <label>Hangi Günler</label>
-                      <input
-                        type="text"
-                        name="wiederholungTage"
-                        value={formData.wiederholungTage}
-                        onChange={handleChange}
-                        placeholder="Mon,Wed,Fri"
-                      />
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '8px' }}>
+                        {weekDays.map((day) => {
+                          const selectedDays = formData.wiederholungTage
+                            ? formData.wiederholungTage.split(',').filter(d => d.trim() !== '')
+                            : [];
+                          const isSelected = selectedDays.includes(day.value);
+                          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+                          return (
+                            <div
+                              key={day.value}
+                              onClick={() => handleWeekDayToggle(day.value)}
+                              style={{
+                                padding: '10px 16px',
+                                borderRadius: '8px',
+                                border: isSelected
+                                  ? '2px solid #3b82f6'
+                                  : isDark
+                                    ? '2px solid #4b5563'
+                                    : '2px solid #d1d5db',
+                                backgroundColor: isSelected
+                                  ? '#3b82f6'
+                                  : isDark
+                                    ? '#1f2937'
+                                    : '#ffffff',
+                                color: isSelected
+                                  ? '#ffffff'
+                                  : isDark
+                                    ? '#e5e7eb'
+                                    : '#374151',
+                                fontWeight: isSelected ? '600' : '500',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                userSelect: 'none',
+                                transition: 'all 0.2s ease',
+                                minWidth: '100px',
+                                textAlign: 'center'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.borderColor = isDark ? '#6b7280' : '#9ca3af';
+                                  e.currentTarget.style.backgroundColor = isDark ? '#374151' : '#f9fafb';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.borderColor = isDark ? '#4b5563' : '#d1d5db';
+                                  e.currentTarget.style.backgroundColor = isDark ? '#1f2937' : '#ffffff';
+                                }
+                              }}
+                            >
+                              {day.label}
+                            </div>
+                          );
+                        })}
+                      </div>
                       <small className="form-hint">
-                        Örnek: Mon,Wed,Fri (Pazartesi, Çarşamba, Cuma)
+                        Etkinliğin tekrar edeceği günleri seçin
                       </small>
                     </div>
                   )}
@@ -502,12 +588,21 @@ const VeranstaltungFormModal: React.FC<VeranstaltungFormModalProps> = ({
 
                   <div className="form-group">
                     <label>Bitiş Tarihi (Opsiyonel)</label>
-                    <input
-                      type="date"
-                      name="wiederholungEnde"
-                      value={formData.wiederholungEnde}
-                      onChange={handleChange}
-                      min={formData.startdatum}
+                    <DatePicker
+                      selected={formData.wiederholungEnde ? new Date(formData.wiederholungEnde) : null}
+                      onChange={(date) => {
+                        const dateStr = date ? date.toISOString().split('T')[0] : '';
+                        setFormData(prev => ({ ...prev, wiederholungEnde: dateStr }));
+                      }}
+                      locale={i18n.language}
+                      dateFormat="dd.MM.yyyy"
+                      placeholderText="Bitiş Tarihi"
+                      className="veranstaltung-date-picker"
+                      showYearDropdown
+                      scrollableYearDropdown
+                      yearDropdownItemNumber={100}
+                      minDate={formData.startdatum ? new Date(formData.startdatum) : undefined}
+                      isClearable
                     />
                     <small className="form-hint">
                       Tekrarın ne zaman biteceği (boş bırakılırsa süresiz)

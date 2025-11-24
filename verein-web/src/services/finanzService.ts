@@ -16,6 +16,7 @@ import {
   MitgliedForderungDto,
   CreateMitgliedForderungDto,
   UpdateMitgliedForderungDto,
+  MitgliedFinanzSummaryDto,
   MitgliedZahlungDto,
   CreateMitgliedZahlungDto,
   UpdateMitgliedZahlungDto,
@@ -188,6 +189,11 @@ export const mitgliedForderungService = {
   // Get overdue claims by Verein ID
   getOverdue: async (vereinId: number): Promise<MitgliedForderungDto[]> => {
     return api.get<MitgliedForderungDto[]>(`/api/MitgliedForderungen/verein/${vereinId}/overdue`);
+  },
+
+  // Get financial summary for a Mitglied
+  getSummary: async (mitgliedId: number): Promise<MitgliedFinanzSummaryDto> => {
+    return api.get<MitgliedFinanzSummaryDto>(`/api/MitgliedForderungen/mitglied/${mitgliedId}/summary`);
   },
 
   // Create new claim

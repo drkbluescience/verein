@@ -263,12 +263,14 @@ const AppContent: React.FC = () => {
             </Layout>
           } />
 
-          {/* Admin Page Notes */}
-          <Route path="/admin/page-notes" element={
-            <Layout>
-              <PageNotesAdmin />
-            </Layout>
-          } />
+          {/* Admin Page Notes - Only for admin users */}
+          {user?.type === 'admin' && (
+            <Route path="/admin/page-notes" element={
+              <Layout>
+                <PageNotesAdmin />
+              </Layout>
+            } />
+          )}
 
           {/* Mitglied specific routes */}
           <Route path="/meine-veranstaltungen" element={
