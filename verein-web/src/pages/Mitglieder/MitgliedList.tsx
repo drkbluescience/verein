@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import { mitgliedService, mitgliedUtils } from '../../services/mitgliedService';
 import { vereinService } from '../../services/vereinService';
 import { MitgliedDto } from '../../types/mitglied';
@@ -96,6 +97,7 @@ const MitgliedList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
   const { user } = useAuth();
+  const { showError } = useToast();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
@@ -299,7 +301,7 @@ const MitgliedList: React.FC = () => {
               onClick={() => {
                 // Admin için Verein seçimi kontrolü
                 if (user?.type === 'admin' && !selectedVereinId) {
-                  alert(t('mitglieder:listPage.actions.selectVereinFirst'));
+                  showError(t('mitglieder:listPage.actions.selectVereinFirst'));
                   return;
                 }
                 setFormMode('create');

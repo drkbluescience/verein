@@ -37,8 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <span className="menu-icon">☰</span>
       </button>
 
-      {/* Floating Page Note Button - Only for admin users */}
-      {user?.type === 'admin' && <PageNoteButton />}
+      {/* Floating Page Note Button - For admin and dernek users */}
+      {(user?.type === 'admin' || user?.type === 'dernek') && <PageNoteButton />}
     </div>
   );
 };

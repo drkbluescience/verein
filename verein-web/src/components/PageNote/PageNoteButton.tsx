@@ -24,14 +24,15 @@ const PageNoteButton: React.FC = () => {
                      location.pathname === '/register';
   const isAdminNotesPage = location.pathname === '/admin/page-notes';
 
-  // Load note count (only for admin users)
+  // Load note count (for admin and dernek users)
   useEffect(() => {
-    if (!isAuthenticated || isAuthPage || isAdminNotesPage || user?.type !== 'admin') return;
+    if (!isAuthenticated || isAuthPage || isAdminNotesPage) return;
+    if (user?.type !== 'admin' && user?.type !== 'dernek') return;
 
     const loadNoteCount = async () => {
       try {
         setLoading(true);
-        // Admin sees all notes count, others see their own
+        // Admin sees all notes count, dernek and others see their own
         const notes = user?.type === 'admin'
           ? await pageNoteService.getAll(false)
           : await pageNoteService.getMyNotes();
@@ -67,8 +68,11 @@ const PageNoteButton: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Don't render if not authenticated, on auth pages, on admin notes page, or not admin user
-  if (!isAuthenticated || isAuthPage || isAdminNotesPage || user?.type !== 'admin') {
+  // Don't render if not authenticated, on auth pages, on admin notes page, or not admin/dernek user
+  if (!isAuthenticated || isAuthPage || isAdminNotesPage) {
+    return null;
+  }
+  if (user?.type !== 'admin' && user?.type !== 'dernek') {
     return null;
   }
 

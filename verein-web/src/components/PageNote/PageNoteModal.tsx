@@ -38,9 +38,10 @@ const PageNoteModal: React.FC<PageNoteModalProps> = ({
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  // Admin starts with 'create' tab, others with 'list'
+  // Admin and dernek start with 'create' tab, others with 'list'
   const isAdmin = user?.type === 'admin';
-  const [activeTab, setActiveTab] = useState<'list' | 'create'>(isAdmin ? 'create' : 'list');
+  const canCreate = user?.type === 'admin' || user?.type === 'dernek';
+  const [activeTab, setActiveTab] = useState<'list' | 'create'>(canCreate ? 'create' : 'list');
   const [notes, setNotes] = useState<PageNoteDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingNote, setEditingNote] = useState<PageNoteDto | null>(null);
