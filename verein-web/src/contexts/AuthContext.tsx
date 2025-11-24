@@ -21,6 +21,7 @@ interface AuthContextType {
   logout: () => void;
   hasPermission: (permission: string) => boolean;
   loading: boolean;
+  initializing: boolean; // Loading user from localStorage on mount
   selectedVereinId: number | null;
   setSelectedVereinId: (vereinId: number | null) => void;
   getUserSettingsKey: () => string; // Helper to get user-specific settings key
@@ -35,6 +36,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true); // Loading user from localStorage
   const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
 
   // Helper function to get user-specific settings key
@@ -47,16 +49,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return `app-settings-user-${userId}-${user.type}`;
   };
 
+  // Load user-specific language settings
+  const loadUserLanguageSettings = (userData: User) => {
+    const userId = userData.vereinId || userData.mitgliedId || userData.id || 'unknown';
+    const userSettingsKey = `app-settings-user-${userId}-${userData.type}`;
+    const savedSettings = localStorage.getItem(userSettingsKey);
+
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        if (parsed.language) {
+          // Dynamically import i18n to change language
+          import('../i18n/config').then((i18nModule) => {
+            i18nModule.default.changeLanguage(parsed.language);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user language settings:', error);
+      }
+    }
+  };
+
   // Load user and selected verein from localStorage on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     const savedVereinId = localStorage.getItem('selectedVereinId');
+
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        // Load user-specific language settings
+        loadUserLanguageSettings(parsedUser);
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('user');
+      }
     }
+
     if (savedVereinId) {
       setSelectedVereinId(parseInt(savedVereinId));
     }
+
+    // Mark initialization as complete
+    setInitializing(false);
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -90,27 +126,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Load user-specific language settings
-  const loadUserLanguageSettings = (userData: User) => {
-    const userId = userData.vereinId || userData.mitgliedId || userData.id || 'unknown';
-    const userSettingsKey = `app-settings-user-${userId}-${userData.type}`;
-    const savedSettings = localStorage.getItem(userSettingsKey);
-
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        if (parsed.language) {
-          // Dynamically import i18n to change language
-          import('../i18n/config').then((i18nModule) => {
-            i18nModule.default.changeLanguage(parsed.language);
-          });
-        }
-      } catch (error) {
-        console.error('Error loading user language settings:', error);
-      }
     }
   };
 
@@ -159,6 +174,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     hasPermission,
     loading,
+    initializing,
     selectedVereinId,
     setSelectedVereinId: handleSetSelectedVereinId,
     getUserSettingsKey

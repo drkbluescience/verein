@@ -50,7 +50,7 @@ const queryClient = new QueryClient({
 
 // Main App Content Component
 const AppContent: React.FC = () => {
-  const { isAuthenticated, user, getUserSettingsKey } = useAuth();
+  const { isAuthenticated, user, getUserSettingsKey, initializing } = useAuth();
 
   // Load saved theme on mount
   useEffect(() => {
@@ -88,6 +88,22 @@ const AppContent: React.FC = () => {
   const DashboardComponent = user?.type === 'admin' ? Dashboard :
                             user?.type === 'dernek' ? VereinDashboard :
                             MitgliedDashboard;
+
+  // Show loading spinner while initializing (loading user from localStorage)
+  if (initializing) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        <div>Yükleniyor...</div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
