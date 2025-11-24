@@ -184,6 +184,7 @@
   "export": {
     "financialAnalysisFileName": "Finansal_Analiz",
     "adminReportsFileName": "admin-raporlar",
+    "dernekReportsFileName": "dernek-raporlar",
     "financialAnalysisReport": "FİNANSAL ANALİZ RAPORU",
     "date": "Tarih:",
     "generalSummary": "GENEL ÖZET",

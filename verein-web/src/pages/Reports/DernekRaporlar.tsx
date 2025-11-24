@@ -234,7 +234,9 @@ const DernekRaporlar: React.FC = () => {
 
       const opt = {
         margin: [5, 5, 5, 5] as [number, number, number, number],
-        filename: `${t('export.adminReportsFileName')}-${new Date().toISOString().split('T')[0]}.pdf`,
+        filename: verein
+          ? `${verein.name.replace(/[^a-zA-Z0-9-_]/g, '-')}-raporlar-${new Date().toISOString().split('T')[0]}.pdf`
+          : `${t('export.dernekReportsFileName')}-${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.95 },
         html2canvas: {
           scale: 2,

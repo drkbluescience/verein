@@ -184,6 +184,7 @@
   "export": {
     "financialAnalysisFileName": "Finanzanalyse",
     "adminReportsFileName": "admin-berichte",
+    "dernekReportsFileName": "verein-berichte",
     "financialAnalysisReport": "FINANZANALYSEBERICHT",
     "date": "Datum:",
     "generalSummary": "ALLGEMEINE ZUSAMMENFASSUNG",
