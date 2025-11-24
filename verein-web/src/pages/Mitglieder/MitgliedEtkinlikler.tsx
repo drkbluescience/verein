@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
 import { VeranstaltungDto } from '../../types/veranstaltung';
+import { getCurrencySymbol } from '../../utils/currencyUtils';
 import '../Veranstaltungen/VeranstaltungList.css';
 
 // SVG Icons
@@ -203,12 +204,13 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, is
             </div>
           )}
 
-          {veranstaltung.preis && veranstaltung.preis > 0 && (
-            <div className="detail-item">
-              <DollarIcon />
-              <span className="detail-text">{veranstaltung.preis}€</span>
-            </div>
-          )}
+          <div className="detail-item">
+            <span className="detail-text">
+              {veranstaltung.preis && veranstaltung.preis > 0
+                ? `${veranstaltung.preis}${getCurrencySymbol(veranstaltung.waehrungId)}`
+                : t('mitglieder:eventsPage.card.free')}
+            </span>
+          </div>
         </div>
 
         {isUpcoming && daysUntil !== null && (
@@ -552,8 +554,8 @@ const MitgliedEtkinlikler: React.FC = () => {
                     </td>
                     <td>
                       {veranstaltung.preis && veranstaltung.preis > 0
-                        ? `${veranstaltung.preis.toFixed(2)} €`
-                        : '-'
+                        ? `${veranstaltung.preis.toFixed(2)} ${getCurrencySymbol(veranstaltung.waehrungId)}`
+                        : t('mitglieder:eventsPage.card.free')
                       }
                     </td>
                     <td>

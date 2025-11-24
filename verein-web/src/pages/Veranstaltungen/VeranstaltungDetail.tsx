@@ -13,6 +13,7 @@ import VeranstaltungFormModal from '../../components/Veranstaltung/Veranstaltung
 import AddParticipantModal from '../../components/Veranstaltung/AddParticipantModal';
 import ImageGallery from '../../components/Veranstaltung/ImageGallery';
 import { calculateNextOccurrences, getRecurrenceDescription } from '../../utils/recurringEventUtils';
+import { getCurrencySymbol } from '../../utils/currencyUtils';
 import './VeranstaltungDetail.css';
 
 // SVG Icons
@@ -473,7 +474,7 @@ Sadece Üyeler: ${formatBoolean(veranstaltung.nurFuerMitglieder)}
 
 FİYAT BİLGİLERİ
 ---------------
-Fiyat: ${veranstaltung.preis ? `${veranstaltung.preis} ${veranstaltung.waehrungId === 1 ? 'EUR' : veranstaltung.waehrungId === 2 ? 'USD' : veranstaltung.waehrungId === 3 ? 'TRY' : ''}` : 'Ücretsiz'}
+Fiyat: ${veranstaltung.preis && veranstaltung.preis > 0 ? `${veranstaltung.preis} ${getCurrencySymbol(veranstaltung.waehrungId)}` : 'Ücretsiz'}
 
 DURUM
 -----
@@ -524,14 +525,7 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
           });
         };
 
-        const getCurrencySymbol = (currencyId?: number) => {
-          switch (currencyId) {
-            case 1: return 'EUR';
-            case 2: return 'USD';
-            case 3: return 'TRY';
-            default: return 'EUR';
-          }
-        };
+
 
         const getStatusText = (status?: string) => {
           switch (status) {
@@ -808,15 +802,17 @@ Aktif: ${formatBoolean(veranstaltung.aktiv)}
                 </div>
               </div>
 
-              {veranstaltung.preis && veranstaltung.preis > 0 && (
-                <div className="info-item">
-                  <span className="info-icon"><DollarIcon /></span>
-                  <div className="info-content">
-                    <span className="info-label">{t('veranstaltungen:detailPage.fields.fee')}</span>
-                    <span className="info-value">{veranstaltung.preis}€</span>
-                  </div>
+              <div className="info-item">
+                <span className="info-icon"><DollarIcon /></span>
+                <div className="info-content">
+                  <span className="info-label">{t('veranstaltungen:detailPage.fields.fee')}</span>
+                  <span className="info-value">
+                    {veranstaltung.preis && veranstaltung.preis > 0
+                      ? `${veranstaltung.preis}${getCurrencySymbol(veranstaltung.waehrungId)}`
+                      : t('veranstaltungen:listPage.card.free')}
+                  </span>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Recurring Event Information */}

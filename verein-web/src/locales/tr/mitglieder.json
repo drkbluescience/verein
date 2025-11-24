@@ -186,7 +186,8 @@
       "register": "Kayıt Ol",
       "today": "🎉 Bugün!",
       "tomorrow": "⏰ Yarın",
-      "daysLeft": "{days} gün kaldı"
+      "daysLeft": "{days} gün kaldı",
+      "free": "Ücretsiz"
     },
     "empty": {
       "title": "Etkinlik Bulunamadı",

@@ -186,7 +186,8 @@
       "register": "Anmelden",
       "today": "🎉 Heute!",
       "tomorrow": "⏰ Morgen",
-      "daysLeft": "{days} Tage verbleibend"
+      "daysLeft": "{days} Tage verbleibend",
+      "free": "Kostenlos"
     },
     "empty": {
       "title": "Keine Veranstaltung gefunden",
