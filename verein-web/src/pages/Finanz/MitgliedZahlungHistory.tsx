@@ -283,8 +283,14 @@ const MitgliedZahlungHistory: React.FC = () => {
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   value={minAmount}
-                  onChange={(e) => setMinAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || parseFloat(value) >= 0) {
+                      setMinAmount(value);
+                    }
+                  }}
                   placeholder="0.00"
                 />
               </div>
@@ -293,8 +299,14 @@ const MitgliedZahlungHistory: React.FC = () => {
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   value={maxAmount}
-                  onChange={(e) => setMaxAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || parseFloat(value) >= 0) {
+                      setMaxAmount(value);
+                    }
+                  }}
                   placeholder="0.00"
                 />
               </div>
