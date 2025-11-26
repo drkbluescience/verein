@@ -261,58 +261,37 @@ const MitgliedList: React.FC = () => {
           )}
         </div>
 
-        <div className="filter-controls">
-          {/* Admin: Verein Filter */}
-          {user?.type === 'admin' && (
-            <select
-              value={selectedVereinId || ''}
-              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
-              className="filter-select"
-            >
-              <option value="">{t('common:filter.allVereine')}</option>
-              {vereine.map((v) => (
-                <option key={v.id} value={v.id}>
-                  #{v.vereinsnummer} - {v.name}
-                </option>
-              ))}
-            </select>
-          )}
+        {/* Admin: Verein Filter */}
+        {user?.type === 'admin' && (
+          <select
+            value={selectedVereinId || ''}
+            onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+            className="filter-select"
+          >
+            <option value="">{t('common:filter.allVereine')}</option>
+            {vereine.map((v) => (
+              <option key={v.id} value={v.id}>
+                #{v.vereinsnummer} - {v.name}
+              </option>
+            ))}
+          </select>
+        )}
 
-          <div className="view-toggle">
-            <button
-              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
-              title={t('mitglieder:listPage.gridView')}
-            >
-              <GridIcon />
-            </button>
-            <button
-              className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
-              title={t('mitglieder:listPage.tableView')}
-            >
-              <TableIcon />
-            </button>
-          </div>
-
-          {(user?.type === 'dernek' || user?.type === 'admin') && (
-            <button
-              className="btn-primary"
-              onClick={() => {
-                // Admin için Verein seçimi kontrolü
-                if (user?.type === 'admin' && !selectedVereinId) {
-                  showError(t('mitglieder:listPage.actions.selectVereinFirst'));
-                  return;
-                }
-                setFormMode('create');
-                setSelectedMitglied(null);
-                setIsFormModalOpen(true);
-              }}
-            >
-              <PlusIcon />
-              <span>{t('mitglieder:listPage.actions.newMember')}</span>
-            </button>
-          )}
+        <div className="view-toggle">
+          <button
+            className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            title={t('mitglieder:listPage.gridView')}
+          >
+            <GridIcon />
+          </button>
+          <button
+            className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+            onClick={() => setViewMode('table')}
+            title={t('mitglieder:listPage.tableView')}
+          >
+            <TableIcon />
+          </button>
         </div>
       </div>
 

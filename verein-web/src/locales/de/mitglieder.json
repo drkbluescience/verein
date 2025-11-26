@@ -125,7 +125,8 @@
       "feeAmount": "Beitragshöhe",
       "notSpecified": "Nicht angegeben",
       "loading": "Wird geladen...",
-      "unknown": "Unbekannt"
+      "unknown": "Unbekannt",
+      "yearsOld": "Jahre alt"
     },
     "address": {
       "title": "Adresse",
@@ -215,7 +216,8 @@
       "child": "Kind",
       "spouse": "Ehepartner",
       "sibling": "Geschwister",
-      "other": "Andere"
+      "other": "Andere",
+      "unknown": "Unbekannt"
     },
     "yearsOld": "Jahre alt",
     "gridView": "Kartenansicht",

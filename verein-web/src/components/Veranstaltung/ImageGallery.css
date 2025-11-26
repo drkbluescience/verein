@@ -2,16 +2,23 @@
 
 .image-gallery {
   background: var(--color-surface);
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 24px;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.image-gallery:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 .gallery-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .gallery-header-actions {
@@ -20,11 +27,12 @@
   align-items: center;
 }
 
-.gallery-header h3 {
-  font-size: 20px;
-  font-weight: 600;
+.gallery-header .section-title {
+  font-size: 13px;
+  font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
+  letter-spacing: -0.025em;
 }
 
 .gallery-header .btn-primary {

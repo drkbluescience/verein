@@ -73,6 +73,12 @@ const UsersIcon = () => (
   </svg>
 );
 
+const PhoneIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+  </svg>
+);
+
 const MitgliedDetail: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
@@ -116,13 +122,40 @@ const MitgliedDetail: React.FC = () => {
     enabled: !!mitgliedId,
   });
 
-  // Fetch family members
+  // Fetch family relationships
   const {
-    data: familie
+    data: familieRelationships
   } = useQuery({
     queryKey: ['mitglied-familie', mitgliedId],
     queryFn: () => mitgliedFamilieService.getByMitgliedId(mitgliedId, false),
     enabled: !!mitgliedId,
+  });
+
+  // Fetch family member details
+  const {
+    data: familieMembers
+  } = useQuery({
+    queryKey: ['familie-members', familieRelationships],
+    queryFn: async () => {
+      if (!familieRelationships || familieRelationships.length === 0) {
+        return [];
+      }
+
+      const memberIds = new Set<number>();
+      familieRelationships.forEach((rel: any) => {
+        memberIds.add(rel.parentMitgliedId);
+        if (rel.mitgliedId !== mitgliedId) {
+          memberIds.add(rel.mitgliedId);
+        }
+      });
+
+      const members = await Promise.all(
+        Array.from(memberIds).map(id => mitgliedService.getById(id))
+      );
+
+      return members;
+    },
+    enabled: !!familieRelationships && familieRelationships.length > 0,
   });
 
   const formatDate = (dateString?: string) => {
@@ -132,6 +165,31 @@ const MitgliedDetail: React.FC = () => {
       month: 'long',
       year: 'numeric'
     });
+  };
+
+  // Helper function to get relationship name
+  const getRelationshipName = (typeId: number): string => {
+    const relationships: { [key: number]: string } = {
+      1: t('mitglieder:familyPage.relationships.parent'),
+      2: t('mitglieder:familyPage.relationships.child'),
+      3: t('mitglieder:familyPage.relationships.spouse'),
+      4: t('mitglieder:familyPage.relationships.sibling'),
+      5: t('mitglieder:familyPage.relationships.other')
+    };
+    return relationships[typeId] || t('mitglieder:familyPage.relationships.unknown');
+  };
+
+  // Helper function to calculate age
+  const getAge = (birthdate?: string) => {
+    if (!birthdate) return null;
+    const today = new Date();
+    const birth = new Date(birthdate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
   };
 
   if (mitgliedLoading) {
@@ -361,21 +419,52 @@ const MitgliedDetail: React.FC = () => {
         )}
 
         {/* Family Members */}
-        {familie && familie.length > 0 && (
+        {familieRelationships && familieRelationships.length > 0 && (
           <div className="info-section">
             <div className="section-header">
               <UsersIcon />
               <h2>{t('mitglieder:detailPage.sections.familyMembers')}</h2>
             </div>
             <div className="family-list">
-              {familie.map((relation) => (
-                <div key={relation.id} className="family-card">
-                  <div className="family-info">
-                    <h4>{t('mitglieder:detailPage.family.relation')}</h4>
-                    <p>{t('mitglieder:detailPage.family.relationId')}: {relation.id}</p>
+              {familieRelationships.map((relation: any) => {
+                const memberId = relation.mitgliedId === mitgliedId
+                  ? relation.parentMitgliedId
+                  : relation.mitgliedId;
+                const member = familieMembers?.find((m: any) => m.id === memberId);
+
+                if (!member) return null;
+
+                const age = getAge(member.geburtsdatum);
+
+                return (
+                  <div key={relation.id} className="family-card">
+                    <div className="family-avatar">
+                      {member.vorname?.[0]}{member.nachname?.[0]}
+                    </div>
+                    <div className="family-info">
+                      <h4>{member.vorname} {member.nachname}</h4>
+                      <span className="family-relationship">
+                        {getRelationshipName(relation.familienbeziehungTypId)}
+                      </span>
+                      {age !== null && (
+                        <p className="family-age">{age} {t('mitglieder:detailPage.fields.yearsOld', { defaultValue: 'yaşında' })}</p>
+                      )}
+                      {member.email && (
+                        <p className="family-contact">
+                          <MailIcon />
+                          <span>{member.email}</span>
+                        </p>
+                      )}
+                      {(member.telefon || member.mobiltelefon) && (
+                        <p className="family-contact">
+                          <PhoneIcon />
+                          <span>{member.telefon || member.mobiltelefon}</span>
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

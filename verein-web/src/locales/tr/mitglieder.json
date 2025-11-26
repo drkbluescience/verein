@@ -125,7 +125,8 @@
       "feeAmount": "Aidat Miktarı",
       "notSpecified": "Belirtilmemiş",
       "loading": "Yükleniyor...",
-      "unknown": "Bilinmiyor"
+      "unknown": "Bilinmiyor",
+      "yearsOld": "yaşında"
     },
     "address": {
       "title": "Adres",
@@ -215,7 +216,8 @@
       "child": "Çocuk",
       "spouse": "Eş",
       "sibling": "Kardeş",
-      "other": "Diğer"
+      "other": "Diğer",
+      "unknown": "Bilinmeyen"
     },
     "yearsOld": "yaşında",
     "gridView": "Kart Görünümü",

@@ -154,7 +154,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   return (
     <div className="image-gallery">
       <div className="gallery-header">
-        <h3>📸 {t('veranstaltungen:detailPage.imageGallery.title')} ({sortedImages.length})</h3>
+        <h2 className="section-title">{t('veranstaltungen:detailPage.imageGallery.title')} ({sortedImages.length})</h2>
         <div className="gallery-header-actions">
           {/* View Mode Toggle */}
           {sortedImages.length > 0 && onViewModeChange && (

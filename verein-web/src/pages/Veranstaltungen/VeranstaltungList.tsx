@@ -407,45 +407,43 @@ const VeranstaltungList: React.FC = () => {
           )}
         </div>
 
-        <div className="filter-controls">
-          {/* Admin: Verein Filter */}
-          {user?.type === 'admin' && (
-            <select
-              value={selectedVereinId || ''}
-              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
-              className="filter-select"
-            >
-              <option value="">{t('common:filter.allVereine')}</option>
-              {vereine.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name}
-                </option>
-              ))}
-            </select>
-          )}
+        {/* Admin: Verein Filter */}
+        {user?.type === 'admin' && (
+          <select
+            value={selectedVereinId || ''}
+            onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+            className="filter-select"
+          >
+            <option value="">{t('common:filter.allVereine')}</option>
+            {vereine.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.name}
+              </option>
+            ))}
+          </select>
+        )}
 
-          <div className="view-toggle">
-            <button
-              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
-              title={t('veranstaltungen:listPage.gridView')}
-            >
-              <GridIcon />
-            </button>
-            <button
-              className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
-              title={t('veranstaltungen:listPage.tableView')}
-            >
-              <TableIcon />
-            </button>
-          </div>
-
-          <button className="btn-primary" onClick={handleOpenCreateModal}>
-            <PlusIcon />
-            <span>{t('veranstaltungen:listPage.actions.newEvent')}</span>
+        <div className="view-toggle">
+          <button
+            className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            title={t('veranstaltungen:listPage.gridView')}
+          >
+            <GridIcon />
+          </button>
+          <button
+            className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+            onClick={() => setViewMode('table')}
+            title={t('veranstaltungen:listPage.tableView')}
+          >
+            <TableIcon />
           </button>
         </div>
+
+        <button className="btn-primary" onClick={handleOpenCreateModal}>
+          <PlusIcon />
+          <span>{t('veranstaltungen:listPage.actions.newEvent')}</span>
+        </button>
       </div>
 
       {/* Filter Tabs */}
