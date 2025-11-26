@@ -2,22 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { healthService, vereinService } from '../../services/vereinService';
+import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
 import { veranstaltungService } from '../../services/veranstaltungService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
-import ErrorMessage from '../../components/Common/ErrorMessage';
 import './Dashboard.css';
-
-interface HealthStatus {
-  status: string;
-  timestamp: string;
-  version?: string;
-  environment?: string;
-  database?: string;
-  uptime?: string;
-}
 
 interface DashboardStats {
   totalVereine: number;
@@ -37,18 +27,6 @@ const Dashboard: React.FC = () => {
     totalVeranstaltungen: 0,
   });
 
-  // Health check query
-  const {
-    data: healthStatus,
-    isLoading: healthLoading,
-    error: healthError,
-    refetch: refetchHealth
-  } = useQuery<HealthStatus>({
-    queryKey: ['health'],
-    queryFn: healthService.check,
-    refetchInterval: 30000, // Refetch every 30 seconds
-  });
-
   // Vereine query for stats - filtered by user role
   const {
     data: vereine,
@@ -64,7 +42,7 @@ const Dashboard: React.FC = () => {
       // Admin and Dernek can see all Vereine
       return vereinService.getAll();
     },
-    enabled: !!healthStatus && !!user, // Only fetch if health check passes and user is loaded
+    enabled: !!user, // Only fetch if user is loaded
   });
 
   // Mitglieder query for stats - filtered by user role
@@ -80,7 +58,7 @@ const Dashboard: React.FC = () => {
       // Admin and Dernek can see all members
       return mitgliedService.getAll({ pageNumber: 1, pageSize: 1000 });
     },
-    enabled: !!healthStatus && !!user,
+    enabled: !!user,
   });
 
   // Veranstaltungen query for stats - filtered by user role
@@ -96,7 +74,7 @@ const Dashboard: React.FC = () => {
       // Admin and Dernek can see all events
       return veranstaltungService.getAll();
     },
-    enabled: !!healthStatus && !!user,
+    enabled: !!user,
   });
 
   // Update stats when data changes
@@ -116,54 +94,10 @@ const Dashboard: React.FC = () => {
     }
   }, [vereine, mitgliederData, veranstaltungen]);
 
-  const isConnected = healthStatus?.status === 'Healthy';
-
-  if (healthLoading) {
-    return <Loading text={t('dashboard:systemStatus.checking')} />;
-  }
-
-  if (healthError) {
-    return (
-      <ErrorMessage
-        title={t('dashboard:errors.connectionError')}
-        message={t('dashboard:errors.apiError')}
-        onRetry={() => refetchHealth()}
-      />
-    );
-  }
-
   return (
     <div className="dashboard">
       <div className="page-header">
         <h1 className="page-title">{t('dashboard:title')}</h1>
-      </div>
-
-      {/* System Status */}
-      <div className="status-section">
-        <div className={`status-card ${isConnected ? 'status-connected' : 'status-disconnected'}`}>
-          <div className="status-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-            </svg>
-          </div>
-          <div className="status-info">
-            <h3>{t('dashboard:systemStatus.title')}</h3>
-            <p className="status-text">
-              {isConnected ? t('dashboard:systemStatus.connected') : t('dashboard:systemStatus.disconnected')}
-            </p>
-            {healthStatus && (
-              <div className="status-details">
-                <span>{t('dashboard:systemStatus.version')}: {healthStatus.version || 'N/A'}</span>
-                <span>{t('dashboard:systemStatus.environment')}: {healthStatus.environment || 'N/A'}</span>
-                <span>{t('dashboard:systemStatus.database')}: {healthStatus.database || 'N/A'}</span>
-                {healthStatus.uptime && <span>{t('dashboard:systemStatus.uptime')}: {healthStatus.uptime}</span>}
-              </div>
-            )}
-          </div>
-          <div className="status-timestamp">
-            {healthStatus && new Date(healthStatus.timestamp).toLocaleString('tr-TR')}
-          </div>
-        </div>
       </div>
 
       {/* Statistics */}

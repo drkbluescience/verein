@@ -586,16 +586,6 @@ const Login: React.FC = () => {
               <p className="demo-title">{t('auth:demo.title')}</p>
               <div className="demo-buttons">
                 <button
-                  className="demo-btn demo-admin"
-                  onClick={() => handleDemoLogin('admin@system.de')}
-                  disabled={loading}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>
-                  </svg>
-                  {t('auth:demo.admin')}
-                </button>
-                <button
                   className="demo-btn demo-dernek"
                   onClick={() => handleDemoLogin('ahmet.yilmaz@email.com')}
                   disabled={loading}
@@ -603,7 +593,7 @@ const Login: React.FC = () => {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/>
                   </svg>
-                  {t('auth:demo.verein')} (Ahmet)
+                  {t('auth:demo.verein')}
                 </button>
                 <button
                   className="demo-btn demo-mitglied"
@@ -613,7 +603,7 @@ const Login: React.FC = () => {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                   </svg>
-                  {t('auth:demo.member')} (Fatma)
+                  {t('auth:demo.member')}
                 </button>
               </div>
             </div>
