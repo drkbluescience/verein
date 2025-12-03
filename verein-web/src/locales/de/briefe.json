@@ -55,9 +55,17 @@
     "notFound": "Brief nicht gefunden"
   },
   "confirmDelete": "Möchten Sie den Brief \"{{name}}\" wirklich löschen?",
+  "deleteModal": {
+    "title": "Brief löschen",
+    "message": "Brief wirklich löschen?",
+    "warning": "Diese Aktion kann nicht rückgängig gemacht werden."
+  },
   "detail": {
     "sentAt": "Gesendet am",
-    "content": "Inhalt"
+    "content": "Inhalt",
+    "noRecipients": "Noch kein Empfänger ausgewählt",
+    "read": "Gelesen",
+    "unread": "Ungelesen"
   },
   "nachrichten": {
     "title": "Meine Nachrichten",

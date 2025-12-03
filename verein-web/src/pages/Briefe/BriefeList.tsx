@@ -42,7 +42,9 @@ const BriefeList: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'all' | 'drafts' | 'sent'>('all');
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedBrief, setSelectedBrief] = useState<BriefDto | null>(null);
+  const [briefToDelete, setBriefToDelete] = useState<BriefDto | null>(null);
   const [selectedMitglieder, setSelectedMitglieder] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -92,9 +94,16 @@ const BriefeList: React.FC = () => {
     onError: () => showError(t('briefe:messages.sendError')),
   });
 
-  const handleDelete = (id: number, name: string) => {
-    if (window.confirm(t('briefe:confirmDelete', { name }))) {
-      deleteMutation.mutate(id);
+  const openDeleteModal = (brief: BriefDto) => {
+    setBriefToDelete(brief);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (briefToDelete) {
+      deleteMutation.mutate(briefToDelete.id);
+      setShowDeleteModal(false);
+      setBriefToDelete(null);
     }
   };
 
@@ -157,23 +166,23 @@ const BriefeList: React.FC = () => {
       <div className="actions-bar">
         <div style={{ flex: 1 }}></div>
         <button className="btn-primary" onClick={() => navigate('/briefe/neu')}>
-          ✉️ {t('briefe:newLetter')}
+          {t('briefe:newLetter')}
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="tabs-container">
-        <button className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+      {/* Filter Tabs */}
+      <div className="filter-tabs">
+        <button className={`filter-tab ${activeTab === 'all' ? 'active' : ''}`}
           onClick={() => setActiveTab('all')}>
-          {t('briefe:tabs.all')}
+          {t('briefe:tabs.all')} <span className="tab-count">{briefe.length}</span>
         </button>
-        <button className={`tab ${activeTab === 'drafts' ? 'active' : ''}`}
+        <button className={`filter-tab ${activeTab === 'drafts' ? 'active' : ''}`}
           onClick={() => setActiveTab('drafts')}>
-          {t('briefe:tabs.drafts')}
+          {t('briefe:tabs.drafts')} <span className="tab-count">{briefe.filter(b => b.status === BriefStatus.Entwurf).length}</span>
         </button>
-        <button className={`tab ${activeTab === 'sent' ? 'active' : ''}`}
+        <button className={`filter-tab ${activeTab === 'sent' ? 'active' : ''}`}
           onClick={() => setActiveTab('sent')}>
-          {t('briefe:tabs.sent')}
+          {t('briefe:tabs.sent')} <span className="tab-count">{briefe.filter(b => b.status === BriefStatus.Gesendet).length}</span>
         </button>
       </div>
 
@@ -228,7 +237,7 @@ const BriefeList: React.FC = () => {
                           title={t('common:send')}><SendIcon /></button>
                         <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}/bearbeiten`)}
                           title={t('common:edit')}><EditIcon /></button>
-                        <button className="table-action-btn delete" onClick={() => handleDelete(brief.id, brief.titel)}
+                        <button className="table-action-btn delete" onClick={() => openDeleteModal(brief)}
                           title={t('common:delete')}><DeleteIcon /></button>
                       </>
                     )}
@@ -294,6 +303,38 @@ const BriefeList: React.FC = () => {
                 disabled={selectedMitglieder.length === 0 || sendMutation.isPending}
               >
                 {sendMutation.isPending ? '...' : `📤 ${t('common:send')} (${selectedMitglieder.length})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && briefToDelete && (
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+          <div className="modal-content delete-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <h2>{t('briefe:deleteModal.title')}</h2>
+            <p className="delete-message">
+              <strong>"{briefToDelete.titel}"</strong> {t('briefe:deleteModal.message')}
+            </p>
+            <p className="delete-warning">{t('briefe:deleteModal.warning')}</p>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                {t('common:cancel')}
+              </button>
+              <button
+                className="btn-danger"
+                onClick={confirmDelete}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? '...' : t('common:delete')}
               </button>
             </div>
           </div>

@@ -55,6 +55,17 @@ export interface UpdateBriefVorlageDto {
 
 // ==================== Letter Draft DTOs ====================
 
+export interface BriefRecipientDto {
+  id: number;
+  mitgliedId: number;
+  vorname: string;
+  nachname: string;
+  email?: string;
+  istGelesen: boolean;
+  gelesenDatum?: string;
+  gesendetDatum: string;
+}
+
 export interface BriefDto {
   id: number;
   vereinId: number;
@@ -71,6 +82,7 @@ export interface BriefDto {
   nachrichtenCount: number;
   selectedMitgliedIds?: number[];
   selectedMitgliedCount?: number;
+  recipients?: BriefRecipientDto[];
   created?: string;
   createdBy?: number;
   modified?: string;

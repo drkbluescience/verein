@@ -58,6 +58,12 @@ public class BriefDto
     [JsonPropertyName("selectedMitgliedCount")]
     public int SelectedMitgliedCount => SelectedMitgliedIds?.Count ?? 0;
 
+    /// <summary>
+    /// Recipients info for sent letters (from Nachrichten table)
+    /// </summary>
+    [JsonPropertyName("recipients")]
+    public List<BriefRecipientDto>? Recipients { get; set; }
+
     [JsonPropertyName("created")]
     public DateTime? Created { get; set; }
 

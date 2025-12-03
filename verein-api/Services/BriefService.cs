@@ -46,6 +46,7 @@ public class BriefService : IBriefService
             .AsNoTracking()
             .Include(b => b.Vorlage)
             .Include(b => b.Nachrichten)
+                .ThenInclude(n => n.Mitglied)
             .FirstOrDefaultAsync(b => b.Id == id && b.DeletedFlag != true, cancellationToken);
 
         return brief == null ? null : _mapper.Map<BriefDto>(brief);

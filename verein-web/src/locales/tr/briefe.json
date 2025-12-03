@@ -55,9 +55,17 @@
     "notFound": "Mektup bulunamadı"
   },
   "confirmDelete": "\"{{name}}\" mektubunu silmek istediğinize emin misiniz?",
+  "deleteModal": {
+    "title": "Mektubu Sil",
+    "message": "mektubunu silmek istediğinize emin misiniz?",
+    "warning": "Bu işlem geri alınamaz."
+  },
   "detail": {
     "sentAt": "Gönderilme Tarihi",
-    "content": "İçerik"
+    "content": "İçerik",
+    "noRecipients": "Henüz alıcı seçilmedi",
+    "read": "Okundu",
+    "unread": "Okunmadı"
   },
   "nachrichten": {
     "title": "Mesajlarım",

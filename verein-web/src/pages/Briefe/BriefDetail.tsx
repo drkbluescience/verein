@@ -34,12 +34,35 @@ const BriefDetail: React.FC = () => {
     enabled: !!id,
   });
 
-  // Fetch members for send modal
+  // Fetch all members for recipient info and send modal
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', user?.vereinId],
     queryFn: () => mitgliedService.getByVereinId(user?.vereinId || 0),
-    enabled: showSendModal && !!user?.vereinId,
+    enabled: !!user?.vereinId,
   });
+
+  // Get recipient details for display
+  // For sent letters, use recipients from API; for drafts, match with mitglieder
+  const recipientDetails = React.useMemo(() => {
+    if (!brief) return [];
+
+    if (brief.status === BriefStatus.Gesendet && brief.recipients?.length) {
+      // For sent letters, use recipients from API
+      return brief.recipients.map(r => ({
+        id: r.mitgliedId,
+        vorname: r.vorname,
+        nachname: r.nachname,
+        email: r.email,
+        istGelesen: r.istGelesen,
+        gelesenDatum: r.gelesenDatum,
+        gesendetDatum: r.gesendetDatum
+      }));
+    } else {
+      // For drafts, show selected members
+      const ids = brief.selectedMitgliedIds || [];
+      return mitglieder.filter(m => ids.includes(m.id));
+    }
+  }, [brief, mitglieder]);
 
   const deleteMutation = useMutation({
     mutationFn: () => briefService.delete(Number(id)),
@@ -165,13 +188,36 @@ const BriefDetail: React.FC = () => {
             </div>
           )}
           <div className="meta-item">
-            <span className="label">{t('briefe:table.recipients')}:</span>
-            <span className="value">{brief.nachrichtenCount || 0}</span>
-          </div>
-          <div className="meta-item">
             <span className="label">{t('common:created')}:</span>
             <span className="value">{formatDate(brief.created)}</span>
           </div>
+        </div>
+
+        {/* Recipients Section */}
+        <div className="recipients-section">
+          <h3>{t('briefe:table.recipients')} ({recipientDetails.length})</h3>
+          {recipientDetails.length > 0 ? (
+            <div className="recipients-list">
+              {recipientDetails.map(m => (
+                <div key={m.id} className={`recipient-item ${('istGelesen' in m && m.istGelesen) ? 'read' : ''}`}>
+                  <div className="recipient-avatar">
+                    {m.vorname.charAt(0)}{m.nachname.charAt(0)}
+                  </div>
+                  <div className="recipient-info">
+                    <span className="recipient-name">{m.vorname} {m.nachname}</span>
+                    <span className="recipient-email">{m.email}</span>
+                    {'istGelesen' in m && (
+                      <span className={`recipient-status ${m.istGelesen ? 'read' : 'unread'}`}>
+                        {m.istGelesen ? `✓ ${t('briefe:detail.read')}` : t('briefe:detail.unread')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="no-recipients">{t('briefe:detail.noRecipients')}</p>
+          )}
         </div>
 
         <div className="brief-body">

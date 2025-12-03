@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -28,6 +28,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 }) => {
   const { i18n } = useTranslation();
 
+  const initialContentRef = useRef(content);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -46,12 +48,20 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       }),
       Highlight.configure({ multicolor: true }),
     ],
-    content,
+    content: initialContentRef.current,
     editable,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
+
+  // Update editor content when content prop changes (e.g., when editing existing brief)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML() && content !== initialContentRef.current) {
+      editor.commands.setContent(content);
+      initialContentRef.current = content;
+    }
+  }, [content, editor]);
 
   const insertPlaceholder = useCallback((placeholderKey: string) => {
     if (editor) {

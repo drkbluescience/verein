@@ -58,8 +58,22 @@ public class BriefProfile : Profile
         // Brief mappings
         CreateMap<Brief, BriefDto>()
             .ForMember(dest => dest.VorlageName, opt => opt.MapFrom(src => src.Vorlage != null ? src.Vorlage.Name : null))
-            .ForMember(dest => dest.NachrichtenCount, opt => opt.MapFrom(src => src.Nachrichten != null ? src.Nachrichten.Count : 0))
-            .ForMember(dest => dest.SelectedMitgliedIds, opt => opt.MapFrom(src => DeserializeIds(src.SelectedMitgliedIds)));
+            .ForMember(dest => dest.NachrichtenCount, opt => opt.MapFrom(src => src.Nachrichten != null ? src.Nachrichten.Count(n => !n.DeletedFlag) : 0))
+            .ForMember(dest => dest.SelectedMitgliedIds, opt => opt.MapFrom(src => DeserializeIds(src.SelectedMitgliedIds)))
+            .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src =>
+                src.Nachrichten != null && src.Nachrichten.Any(n => !n.DeletedFlag)
+                    ? src.Nachrichten.Where(n => !n.DeletedFlag).Select(n => new BriefRecipientDto
+                    {
+                        Id = n.Id,
+                        MitgliedId = n.MitgliedId,
+                        Vorname = n.Mitglied != null ? n.Mitglied.Vorname : "",
+                        Nachname = n.Mitglied != null ? n.Mitglied.Nachname : "",
+                        Email = n.Mitglied != null ? n.Mitglied.Email : null,
+                        IstGelesen = n.IstGelesen,
+                        GelesenDatum = n.GelesenDatum,
+                        GesendetDatum = n.GesendetDatum
+                    }).ToList()
+                    : null));
 
         CreateMap<CreateBriefDto, Brief>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
