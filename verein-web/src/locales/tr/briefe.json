@@ -63,6 +63,7 @@
     "title": "Mesajlarım",
     "unread": "okunmamış",
     "empty": "Henüz mesajınız yok",
+    "emptyDescription": "Derneğinizden mesaj aldığınızda burada görünecek",
     "from": "Gönderen",
     "selectMessage": "Okumak için bir mesaj seçin"
   },

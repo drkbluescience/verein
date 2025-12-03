@@ -1,43 +1,60 @@
+/* Nachrichten (Messages) Page - Modern Design */
 .nachrichten-page {
+  min-height: 100vh;
+  background: var(--color-background);
   padding: 0;
-  height: calc(100vh - 120px);
-  display: flex;
-  flex-direction: column;
 }
 
-/* Page header uses global styles from page-header.css */
-
-.nachrichten-page .page-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
+/* Header - Using global styles from page-header.css */
 
 .unread-badge {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
+/* Layout */
 .nachrichten-layout {
   display: grid;
-  grid-template-columns: 350px 1fr;
-  gap: 24px;
-  flex: 1;
-  min-height: 0;
-  padding: 0 24px 24px;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0 24px 24px;
+  min-height: calc(100vh - 200px);
+  text-align: left;
 }
 
+/* Message List */
 .nachrichten-list {
-  background: white;
+  background: var(--color-surface);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+}
+
+.nachrichten-list-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-secondary);
+}
+
+.nachrichten-list-header h3 {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.nachrichten-list-content {
+  flex: 1;
   overflow-y: auto;
 }
 
@@ -46,71 +63,78 @@
   justify-content: center;
   align-items: center;
   min-height: 200px;
+  padding: 40px;
 }
 
-.empty-state {
+/* Empty State */
+.nachrichten-page .empty-state {
+  max-width: 400px;
+  margin: 60px auto;
   text-align: center;
-  padding: 60px 20px;
-  color: #6b7280;
+  padding: 40px 20px;
 }
 
-.empty-icon {
-  font-size: 48px;
-  display: block;
-  margin-bottom: 16px;
+.nachrichten-page .empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  background: var(--color-surface-secondary);
+  border-radius: 50%;
+  margin-bottom: 20px;
 }
 
+.nachrichten-page .empty-icon svg {
+  width: 36px;
+  height: 36px;
+  stroke: var(--color-text-tertiary);
+}
+
+.nachrichten-page .empty-state h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.nachrichten-page .empty-state p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Message Item */
 .nachricht-item {
   padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
   position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.nachricht-item:last-child {
+  border-bottom: none;
 }
 
 .nachricht-item:hover {
-  background: #f9fafb;
+  background: var(--color-surface-secondary);
 }
 
 .nachricht-item.selected {
-  background: #eff6ff;
+  background: rgba(59, 130, 246, 0.08);
   border-left: 3px solid #3b82f6;
 }
 
 .nachricht-item.unread {
-  background: #fefce8;
+  background: rgba(59, 130, 246, 0.04);
 }
 
-.nachricht-item.unread .nachricht-subject {
-  font-weight: 600;
-}
-
-.nachricht-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.sender {
-  font-size: 13px;
-  color: #374151;
-  font-weight: 500;
-}
-
-.date {
-  font-size: 12px;
-  color: #9ca3af;
-}
-
-.nachricht-subject {
-  font-size: 14px;
-  color: #111827;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.unread-dot {
+.nachricht-item.unread::before {
+  content: '';
   position: absolute;
   left: 8px;
   top: 50%;
@@ -121,62 +145,218 @@
   border-radius: 50%;
 }
 
+.nachricht-item.unread .nachricht-subject {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.nachricht-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
+}
+
+.nachricht-avatar svg {
+  width: 20px;
+  height: 20px;
+  stroke: white;
+}
+
+.nachricht-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.nachricht-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  gap: 8px;
+}
+
+.sender {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nachricht-subject {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unread-dot {
+  display: none; /* Using ::before pseudo-element instead */
+}
+
+/* Message Detail */
 .nachricht-detail {
-  background: white;
+  background: var(--color-surface);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--color-border);
+  text-align: left;
 }
 
 .detail-header {
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  text-align: left;
 }
 
 .detail-header h2 {
-  margin: 0 0 12px 0;
-  font-size: 20px;
-  color: #111827;
+  margin: 0 0 16px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.4;
 }
 
 .detail-meta {
   display: flex;
-  gap: 24px;
-  font-size: 13px;
-  color: #6b7280;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.detail-meta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-meta svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-text-tertiary);
 }
 
 .detail-content {
   padding: 24px;
   flex: 1;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  overflow-y: auto;
+  text-align: left;
 }
 
+.detail-content p {
+  margin: 0 0 16px 0;
+}
+
+.detail-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* No Selection State */
 .no-selection {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #9ca3af;
+  padding: 60px 40px;
+  text-align: center;
 }
 
 .no-selection .icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: var(--color-surface-secondary);
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.no-selection .icon svg {
+  width: 40px;
+  height: 40px;
+  stroke: var(--color-text-tertiary);
+}
+
+.no-selection p {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .nachrichten-layout {
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+  }
 }
 
 @media (max-width: 768px) {
+  .nachrichten-page {
+    padding: 16px;
+  }
+
   .nachrichten-layout {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
+
+  .nachrichten-list {
+    max-height: 50vh;
+  }
+
   .nachricht-detail {
     display: none;
   }
+
   .nachricht-detail.has-selection {
     display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    border-radius: 0;
+  }
+
+  .nachricht-item {
+    padding: 14px 16px;
+  }
+
+  .nachricht-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .nachricht-avatar svg {
+    width: 18px;
+    height: 18px;
   }
 }
 

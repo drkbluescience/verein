@@ -63,6 +63,7 @@
     "title": "Meine Nachrichten",
     "unread": "ungelesen",
     "empty": "Noch keine Nachrichten",
+    "emptyDescription": "Nachrichten von Ihrem Verein werden hier angezeigt",
     "from": "Von",
     "selectMessage": "Wählen Sie eine Nachricht zum Lesen"
   },
