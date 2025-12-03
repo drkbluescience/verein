@@ -135,7 +135,7 @@ export interface BriefStatisticsDto {
 }
 
 export interface UnreadCountDto {
-  unreadCount: number;
+  count: number;
 }
 
 // ==================== UI Helper Types ====================

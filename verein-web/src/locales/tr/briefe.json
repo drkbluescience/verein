@@ -31,6 +31,7 @@
     "subjectPlaceholder": "Mektubun konusunu girin",
     "content": "İçerik",
     "contentPlaceholder": "Mektup içeriğinizi buraya yazın...",
+    "recipient": "Alıcı",
     "recipients": "Alıcılar",
     "searchMembers": "Üye ara...",
     "selectAll": "Tümünü Seç",

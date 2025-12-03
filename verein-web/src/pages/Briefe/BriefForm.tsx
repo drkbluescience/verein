@@ -154,11 +154,11 @@ const BriefForm: React.FC = () => {
   return (
     <div className="brief-form-page">
       <div className="page-header">
-        <h1>{isEdit ? t('briefe:editLetter') : t('briefe:newLetter')}</h1>
+        <h1 className="page-title">{isEdit ? t('briefe:editLetter') : t('briefe:newLetter')}</h1>
       </div>
 
       {/* Actions Bar with Back Button */}
-      <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center', padding: '0 24px', maxWidth: '1400px', margin: '0 auto 2rem' }}>
+      <div className="actions-bar">
         <button
           className="btn-icon"
           onClick={() => navigate('/briefe')}
@@ -215,12 +215,11 @@ const BriefForm: React.FC = () => {
           {/* Right Column - Recipients */}
           <div className="form-column recipients-column">
             <div className="recipients-panel">
-              <h3>{t('briefe:form.recipients')}</h3>
+              <h3>{t('briefe:form.recipient')}</h3>
 
               {/* Selected Member Display */}
               {selectedMitglied && (
                 <div className="selected-member-display">
-                  <strong>{t('briefe:form.selectedRecipient')}:</strong>
                   <span>{mitglieder.find(m => m.id === selectedMitglied)?.vorname} {mitglieder.find(m => m.id === selectedMitglied)?.nachname}</span>
                   <button type="button" className="btn-text" onClick={() => setSelectedMitglied(null)}>
                     {t('briefe:form.changeRecipient')}

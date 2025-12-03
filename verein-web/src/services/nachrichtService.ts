@@ -10,10 +10,11 @@ import {
 
 export const nachrichtService = {
   /**
-   * Get all messages for the current member (inbox)
+   * Get all messages for a specific member (inbox)
+   * @param mitgliedId - Member ID to get messages for
    */
-  getAll: async (): Promise<NachrichtDto[]> => {
-    return api.get<NachrichtDto[]>('/api/Nachrichten');
+  getByMitgliedId: async (mitgliedId: number): Promise<NachrichtDto[]> => {
+    return api.get<NachrichtDto[]>(`/api/Nachrichten/mitglied/${mitgliedId}`);
   },
 
   /**
@@ -24,56 +25,64 @@ export const nachrichtService = {
   },
 
   /**
-   * Get unread messages only
+   * Get unread messages for a specific member
+   * @param mitgliedId - Member ID to get unread messages for
    */
-  getUnread: async (): Promise<NachrichtDto[]> => {
-    return api.get<NachrichtDto[]>('/api/Nachrichten/ungelesen');
+  getUnreadByMitgliedId: async (mitgliedId: number): Promise<NachrichtDto[]> => {
+    return api.get<NachrichtDto[]>(`/api/Nachrichten/mitglied/${mitgliedId}/unread`);
   },
 
   /**
-   * Get unread message count
+   * Get unread message count for a specific member
+   * @param mitgliedId - Member ID to get unread count for
    */
-  getUnreadCount: async (): Promise<UnreadCountDto> => {
-    return api.get<UnreadCountDto>('/api/Nachrichten/ungelesen-anzahl');
+  getUnreadCount: async (mitgliedId: number): Promise<UnreadCountDto> => {
+    return api.get<UnreadCountDto>(`/api/Nachrichten/mitglied/${mitgliedId}/unread-count`);
   },
 
   /**
-   * Get messages from a specific Verein
+   * Get messages sent from a specific letter (for Verein view)
+   * @param briefId - Letter ID to get sent messages for
    */
-  getByVerein: async (vereinId: number): Promise<NachrichtDto[]> => {
+  getByBriefId: async (briefId: number): Promise<NachrichtDto[]> => {
+    return api.get<NachrichtDto[]>(`/api/Nachrichten/brief/${briefId}`);
+  },
+
+  /**
+   * Get all messages sent by a Verein
+   * @param vereinId - Verein ID to get sent messages for
+   */
+  getByVereinId: async (vereinId: number): Promise<NachrichtDto[]> => {
     return api.get<NachrichtDto[]>(`/api/Nachrichten/verein/${vereinId}`);
   },
 
   /**
-   * Get messages for a specific member (admin view)
-   */
-  getByMitglied: async (mitgliedId: number): Promise<NachrichtDto[]> => {
-    return api.get<NachrichtDto[]>(`/api/Nachrichten/mitglied/${mitgliedId}`);
-  },
-
-  /**
    * Get message statistics for a member
+   * @param mitgliedId - Member ID to get statistics for
    */
   getStatistics: async (mitgliedId: number): Promise<BriefStatisticsDto> => {
-    return api.get<BriefStatisticsDto>(`/api/Nachrichten/mitglied/${mitgliedId}/statistiken`);
+    return api.get<BriefStatisticsDto>(`/api/Nachrichten/mitglied/${mitgliedId}/statistics`);
   },
 
   /**
    * Mark a message as read
+   * @param id - Message ID to mark as read
    */
   markAsRead: async (id: number): Promise<NachrichtDto> => {
-    return api.patch<NachrichtDto>(`/api/Nachrichten/${id}/gelesen`);
+    return api.patch<NachrichtDto>(`/api/Nachrichten/${id}/read`);
   },
 
   /**
    * Mark multiple messages as read
+   * @param ids - Array of message IDs to mark as read
    */
-  markMultipleAsRead: async (ids: number[]): Promise<void> => {
-    return api.patch('/api/Nachrichten/mehrere-gelesen', { ids });
+  markMultipleAsRead: async (ids: number[]): Promise<number> => {
+    return api.patch<number>('/api/Nachrichten/mark-read', ids);
   },
 
   /**
    * Delete a message (soft delete - only hides from member's view)
+   * @param id - Message ID to delete
    */
   delete: async (id: number): Promise<void> => {
     return api.delete(`/api/Nachrichten/${id}`);

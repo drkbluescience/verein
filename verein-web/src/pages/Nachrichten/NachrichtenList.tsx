@@ -3,29 +3,36 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { nachrichtService } from '../../services';
 import { NachrichtDto } from '../../types/brief.types';
+import { useAuth } from '../../contexts/AuthContext';
 import './NachrichtenList.css';
 
 const NachrichtenList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation(['common', 'briefe']);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedNachricht, setSelectedNachricht] = useState<NachrichtDto | null>(null);
 
+  // Get mitgliedId from authenticated user
+  const mitgliedId = user?.mitgliedId;
+
   const { data: nachrichten = [], isLoading } = useQuery({
-    queryKey: ['nachrichten'],
-    queryFn: () => nachrichtService.getAll(),
+    queryKey: ['nachrichten', mitgliedId],
+    queryFn: () => nachrichtService.getByMitgliedId(mitgliedId!),
+    enabled: !!mitgliedId,
   });
 
   const { data: unreadCount } = useQuery({
-    queryKey: ['nachrichten-unread'],
-    queryFn: () => nachrichtService.getUnreadCount(),
+    queryKey: ['nachrichten-unread', mitgliedId],
+    queryFn: () => nachrichtService.getUnreadCount(mitgliedId!),
+    enabled: !!mitgliedId,
   });
 
   const markAsReadMutation = useMutation({
     mutationFn: (id: number) => nachrichtService.markAsRead(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['nachrichten'] });
-      queryClient.invalidateQueries({ queryKey: ['nachrichten-unread'] });
+      queryClient.invalidateQueries({ queryKey: ['nachrichten', mitgliedId] });
+      queryClient.invalidateQueries({ queryKey: ['nachrichten-unread', mitgliedId] });
     },
   });
 
@@ -47,8 +54,8 @@ const NachrichtenList: React.FC = () => {
     <div className="nachrichten-page">
       <div className="page-header">
         <h1 className="page-title">{t('briefe:nachrichten.title')}</h1>
-        {unreadCount && unreadCount.unreadCount > 0 && (
-          <span className="unread-badge">{unreadCount.unreadCount} {t('briefe:nachrichten.unread')}</span>
+        {unreadCount && unreadCount.count > 0 && (
+          <span className="unread-badge">{unreadCount.count} {t('briefe:nachrichten.unread')}</span>
         )}
       </div>
 
