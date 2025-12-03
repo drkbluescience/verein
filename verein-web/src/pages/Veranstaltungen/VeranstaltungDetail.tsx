@@ -276,8 +276,7 @@ const VeranstaltungDetail: React.FC = () => {
 
   // Fetch participant count (for all users)
   const {
-    data: participantCount,
-    isLoading: participantCountLoading
+    data: participantCount
   } = useQuery({
     queryKey: ['veranstaltung-participant-count', eventId],
     queryFn: () => veranstaltungAnmeldungService.getParticipantCount(eventId),

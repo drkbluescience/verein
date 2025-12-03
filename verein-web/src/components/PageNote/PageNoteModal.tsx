@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { pageNoteService } from '../../services';
 import { useAuth } from '../../contexts/AuthContext';
@@ -6,11 +6,7 @@ import { useToast } from '../../contexts/ToastContext';
 import {
   PageNoteDto,
   PageNoteCategory,
-  PageNotePriority,
-  CategoryLabels,
-  PriorityLabels,
-  CategoryIcons,
-  PriorityColors
+  PageNotePriority
 } from '../../types/pageNote.types';
 import PageNoteForm from './PageNoteForm';
 import PageNoteList from './PageNoteList';
@@ -46,8 +42,6 @@ const PageNoteModal: React.FC<PageNoteModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [editingNote, setEditingNote] = useState<PageNoteDto | null>(null);
 
-  const currentLang = i18n.language as 'de' | 'tr';
-
   // Get modal title based on state
   const getModalTitle = () => {
     if (isAdmin) {
@@ -62,14 +56,7 @@ const PageNoteModal: React.FC<PageNoteModalProps> = ({
     return t('pageNotes.myNotes');
   };
 
-  // Load all user notes (not filtered by page) - skip for admin
-  useEffect(() => {
-    if (isOpen && user && !isAdmin) {
-      loadNotes();
-    }
-  }, [isOpen, user, isAdmin]);
-
-  const loadNotes = async () => {
+  const loadNotes = useCallback(async () => {
     try {
       setLoading(true);
       const data = await pageNoteService.getMyNotes();
@@ -80,7 +67,14 @@ const PageNoteModal: React.FC<PageNoteModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast, t]);
+
+  // Load all user notes (not filtered by page) - skip for admin
+  useEffect(() => {
+    if (isOpen && user && !isAdmin) {
+      loadNotes();
+    }
+  }, [isOpen, user, isAdmin, loadNotes]);
 
   const handleCreateNote = async (data: {
     title: string;

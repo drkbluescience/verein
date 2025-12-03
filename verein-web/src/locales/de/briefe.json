@@ -1,0 +1,92 @@
+{
+  "title": "Briefe",
+  "subtitle": "Senden und verwalten Sie Briefe an Ihre Mitglieder",
+  "newLetter": "Brief erstellen",
+  "editLetter": "Brief bearbeiten",
+  "sendNow": "Jetzt senden",
+  "sending": "Wird gesendet...",
+  "tabs": {
+    "all": "Alle",
+    "drafts": "Entwürfe",
+    "sent": "Gesendet"
+  },
+  "table": {
+    "name": "Name",
+    "subject": "Betreff",
+    "status": "Status",
+    "recipients": "Empfänger",
+    "date": "Datum",
+    "actions": "Aktionen"
+  },
+  "emptyState": {
+    "title": "Noch keine Briefe",
+    "description": "Erstellen Sie einen neuen Brief, um ihn an Ihre Mitglieder zu senden."
+  },
+  "form": {
+    "template": "Vorlage",
+    "noTemplate": "Keine Vorlage",
+    "name": "Briefname",
+    "namePlaceholder": "Geben Sie einen Namen für diesen Brief ein",
+    "subject": "Betreff",
+    "subjectPlaceholder": "Geben Sie den Betreff des Briefes ein",
+    "content": "Inhalt",
+    "contentPlaceholder": "Schreiben Sie hier Ihren Briefinhalt...",
+    "recipients": "Empfänger",
+    "searchMembers": "Mitglied suchen...",
+    "selectAll": "Alle auswählen",
+    "clearSelection": "Auswahl aufheben",
+    "selected": "ausgewählt",
+    "selectedRecipient": "Ausgewählter Empfänger",
+    "changeRecipient": "Ändern"
+  },
+  "messages": {
+    "created": "Brief erstellt",
+    "updated": "Brief aktualisiert",
+    "deleted": "Brief gelöscht",
+    "sent": "Brief an {{count}} Personen gesendet",
+    "createError": "Fehler beim Erstellen des Briefes",
+    "updateError": "Fehler beim Aktualisieren des Briefes",
+    "deleteError": "Fehler beim Löschen des Briefes",
+    "sendError": "Fehler beim Senden des Briefes"
+  },
+  "errors": {
+    "noRecipients": "Bitte wählen Sie mindestens einen Empfänger",
+    "notFound": "Brief nicht gefunden"
+  },
+  "confirmDelete": "Möchten Sie den Brief \"{{name}}\" wirklich löschen?",
+  "detail": {
+    "sentAt": "Gesendet am",
+    "content": "Inhalt"
+  },
+  "nachrichten": {
+    "title": "Meine Nachrichten",
+    "unread": "ungelesen",
+    "empty": "Noch keine Nachrichten",
+    "from": "Von",
+    "selectMessage": "Wählen Sie eine Nachricht zum Lesen"
+  },
+  "vorlagen": {
+    "title": "Vorlagen",
+    "subtitle": "Erstellen und verwalten Sie Briefvorlagen",
+    "newTemplate": "Neue Vorlage",
+    "editTemplate": "Vorlage bearbeiten",
+    "emptyState": {
+      "title": "Noch keine Vorlagen",
+      "description": "Erstellen Sie Ihre erste Vorlage."
+    },
+    "form": {
+      "name": "Vorlagenname",
+      "category": "Kategorie"
+    },
+    "messages": {
+      "created": "Vorlage erstellt",
+      "updated": "Vorlage aktualisiert",
+      "deleted": "Vorlage gelöscht",
+      "createError": "Fehler beim Erstellen der Vorlage",
+      "updateError": "Fehler beim Aktualisieren der Vorlage",
+      "deleteError": "Fehler beim Löschen der Vorlage"
+    },
+    "confirmDelete": "Möchten Sie die Vorlage \"{{name}}\" wirklich löschen?"
+  }
+}
+

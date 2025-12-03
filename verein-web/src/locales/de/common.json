@@ -1,6 +1,13 @@
 {
   "loading": "Laden...",
   "uploading": "Hochladen...",
+  "processing": "Verarbeitung...",
+  "retry": "Erneut versuchen",
+  "unauthorized": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "saving": "Wird gespeichert...",
+  "back": "Zurück",
   "app": {
     "name": "Vereinsverwaltungssystem",
     "title": "Verein"
@@ -30,7 +37,13 @@
     "profile": "Profil",
     "logout": "Abmelden",
     "etkinlikler": "Veranstaltungen",
-    "ailem": "Meine Familie"
+    "ailem": "Meine Familie",
+    "briefe": "Briefe",
+    "briefeErstellen": "Erstellen",
+    "briefeEntwuerfe": "Entwürfe",
+    "briefeVorlagen": "Vorlagen",
+    "briefeVerlauf": "Sendeverlauf",
+    "nachrichten": "Meine Nachrichten"
   },
   "pageNotes": {
     "myNotes": "Meine Notizen",

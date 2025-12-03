@@ -1152,7 +1152,7 @@ CREATE TABLE [Verein].[VereinSatzung](
 	[VereinId] [int] NOT NULL,
 	[DosyaPfad] [nvarchar](500) NOT NULL,
 	[SatzungVom] [date] NOT NULL,
-	[Aktif] [bit] NOT NULL DEFAULT 1,
+	[Aktiv] [bit] NOT NULL DEFAULT 1,
 	[Bemerkung] [nvarchar](500) NULL,
 	[DosyaAdi] [nvarchar](200) NULL,
 	[DosyaBoyutu] [bigint] NULL,
@@ -1698,9 +1698,9 @@ CREATE NONCLUSTERED INDEX [IX_VereinSatzung_DeletedFlag] ON [Verein].[VereinSatz
 )WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
-CREATE NONCLUSTERED INDEX [IX_VereinSatzung_Aktif] ON [Verein].[VereinSatzung]
+CREATE NONCLUSTERED INDEX [IX_VereinSatzung_Aktiv] ON [Verein].[VereinSatzung]
 (
-	[Aktif] ASC
+	[Aktiv] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 

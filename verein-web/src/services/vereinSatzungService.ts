@@ -45,7 +45,7 @@ export const vereinSatzungService = {
     const response = await fetch(`${API_URL}/api/VereinSatzung/upload/${vereinId}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
       },
       body: formData,
     });
@@ -63,7 +63,7 @@ export const vereinSatzungService = {
     const response = await fetch(`${API_URL}/api/VereinSatzung/${id}/download`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
       },
     });
 
@@ -80,6 +80,24 @@ export const vereinSatzungService = {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  },
+
+  // Open statute file in new tab (inline viewing)
+  openSatzungInNewTab: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_URL}/api/VereinSatzung/${id}/view`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to open file');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
   },
 
   // Update statute

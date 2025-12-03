@@ -1,6 +1,13 @@
 {
   "loading": "Yükleniyor...",
   "uploading": "Yükleniyor...",
+  "processing": "İşleniyor...",
+  "retry": "Tekrar Dene",
+  "unauthorized": "Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.",
+  "save": "Kaydet",
+  "cancel": "İptal",
+  "saving": "Kaydediliyor...",
+  "back": "Geri",
   "app": {
     "name": "Verein Yönetim Sistemi",
     "title": "Verein"
@@ -30,7 +37,13 @@
     "profile": "Profil",
     "logout": "Çıkış Yap",
     "etkinlikler": "Etkinlikler",
-    "ailem": "Ailem"
+    "ailem": "Ailem",
+    "briefe": "Mektuplar",
+    "briefeErstellen": "Oluştur",
+    "briefeEntwuerfe": "Taslaklar",
+    "briefeVorlagen": "Şablonlar",
+    "briefeVerlauf": "Gönderim Geçmişi",
+    "nachrichten": "Mesajlarım"
   },
   "pageNotes": {
     "myNotes": "Notlarım",

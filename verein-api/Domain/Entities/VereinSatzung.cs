@@ -33,7 +33,7 @@ public class VereinSatzung : AuditableEntity
     /// Whether this is the active/current statute version
     /// </summary>
     [Required]
-    public bool Aktif { get; set; } = true;
+    public bool Aktiv { get; set; } = true;
 
     /// <summary>
     /// Notes or remarks about this statute version

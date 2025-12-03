@@ -16,6 +16,7 @@ using VereinsApi.Middleware;
 // using VereinsApi.Validators;
 using VereinsApi.DTOs.Verein;
 using VereinsApi.Common.Extensions;
+using VereinsApi.Filters;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -227,6 +228,11 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IPageNoteService, Vere
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IUserService, VereinsApi.Services.UserService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IUserRoleService, VereinsApi.Services.UserRoleService>();
 
+// Brief (Letter) Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBriefVorlageService, VereinsApi.Services.BriefVorlageService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IBriefService, VereinsApi.Services.BriefService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.INachrichtService, VereinsApi.Services.NachrichtService>();
+
 // JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();
 
@@ -279,6 +285,36 @@ builder.Services.AddSwaggerGen(c =>
     {
         c.IncludeXmlComments(xmlPath);
     }
+
+    // Configure file upload parameters for Swagger
+    c.OperationFilter<FileUploadOperationFilter>();
+
+    // Configure custom schema IDs to avoid conflicts
+    c.CustomSchemaIds(type =>
+    {
+        var fullName = type.FullName ?? type.Name;
+        
+        // Handle generic types with full namespace
+        if (type.IsGenericType)
+        {
+            var genericTypeName = type.GetGenericTypeDefinition().Name;
+            var genericArgs = string.Join("_", type.GetGenericArguments()
+                .Select(arg => arg.Name));
+            var namespaceParts = type.Namespace?.Split('.') ?? Array.Empty<string>();
+            var lastNamespacePart = namespaceParts.LastOrDefault();
+            return $"{lastNamespacePart}_{genericTypeName}_{genericArgs}";
+        }
+        
+        // Handle nested classes with same name
+        if (type.Namespace != null)
+        {
+            var namespaceParts = type.Namespace.Split('.');
+            var lastNamespacePart = namespaceParts.LastOrDefault();
+            return $"{lastNamespacePart}_{type.Name}";
+        }
+        
+        return type.Name;
+    });
 });
 
 // CORS Configuration

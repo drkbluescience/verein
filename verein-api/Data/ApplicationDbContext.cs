@@ -125,6 +125,25 @@ public class ApplicationDbContext : DbContext
 
     #endregion
 
+    #region Brief DbSets
+
+    /// <summary>
+    /// BriefVorlagen table (Brief schema) - Letter templates
+    /// </summary>
+    public DbSet<BriefVorlage> BriefVorlagen { get; set; }
+
+    /// <summary>
+    /// Briefe table (Brief schema) - Letter drafts
+    /// </summary>
+    public DbSet<Brief> Briefe { get; set; }
+
+    /// <summary>
+    /// Nachrichten table (Brief schema) - Sent messages
+    /// </summary>
+    public DbSet<Nachricht> Nachrichten { get; set; }
+
+    #endregion
+
     #region Keytable DbSets
 
     /// <summary>
@@ -313,6 +332,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MitgliedVorauszahlungConfiguration());
         modelBuilder.ApplyConfiguration(new VeranstaltungZahlungConfiguration());
         modelBuilder.ApplyConfiguration(new VereinDitibZahlungConfiguration());
+        modelBuilder.ApplyConfiguration(new VereinSatzungConfiguration());
 
         // Apply Keytable entity configurations
         modelBuilder.ApplyConfiguration(new GeschlechtConfiguration());
@@ -351,6 +371,11 @@ public class ApplicationDbContext : DbContext
         // Apply Web entity configurations
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new PageNoteConfiguration());
+
+        // Apply Brief entity configurations
+        modelBuilder.ApplyConfiguration(new BriefVorlageConfiguration());
+        modelBuilder.ApplyConfiguration(new BriefConfiguration());
+        modelBuilder.ApplyConfiguration(new NachrichtConfiguration());
 
         // Apply global query filters for soft delete
         ApplyGlobalQueryFilters(modelBuilder);
@@ -404,6 +429,7 @@ public class ApplicationDbContext : DbContext
                     // Only set Aktiv for entities that have this column in database
                     // Finanz tables don't use Aktiv column - they use DeletedFlag for soft delete
                     // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild also don't have Aktiv column
+                    // Brief entities don't have Aktiv column
                     if (entry.Entity is not BankBuchung
                         && entry.Entity is not MitgliedForderung
                         && entry.Entity is not MitgliedForderungZahlung
@@ -412,7 +438,9 @@ public class ApplicationDbContext : DbContext
                         && entry.Entity is not VeranstaltungZahlung
                         && entry.Entity is not MitgliedFamilie
                         && entry.Entity is not VeranstaltungAnmeldung
-                        && entry.Entity is not VeranstaltungBild)
+                        && entry.Entity is not VeranstaltungBild
+                        && entry.Entity is not Brief
+                        && entry.Entity is not BriefVorlage)
                     {
                         entry.Entity.Aktiv = true;
                     }

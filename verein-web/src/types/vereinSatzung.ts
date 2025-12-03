@@ -3,7 +3,7 @@ export interface VereinSatzungDto {
   vereinId: number;
   dosyaPfad: string;
   satzungVom: string;
-  aktif: boolean;
+  aktiv: boolean;
   bemerkung?: string;
   dosyaAdi?: string;
   dosyaBoyutu?: number;

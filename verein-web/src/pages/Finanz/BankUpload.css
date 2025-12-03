@@ -33,11 +33,11 @@
   transform: translateX(-2px) scale(0.95);
 }
 
-.page-header {
+.bank-upload-container .page-header {
   margin-bottom: 2rem;
 }
 
-.page-header h1 {
+.bank-upload-container .page-header h1 {
   font-size: 2rem;
   font-weight: 600;
   color: var(--color-text-primary);

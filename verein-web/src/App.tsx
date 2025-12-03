@@ -36,6 +36,11 @@ import VereinDitibZahlungList from './pages/Finanz/VereinDitibZahlungList';
 import VereinDitibZahlungDetail from './pages/Finanz/VereinDitibZahlungDetail';
 import VereinDitibZahlungForm from './pages/Finanz/VereinDitibZahlungForm';
 import PageNotesAdmin from './pages/Admin/PageNotesAdmin';
+import BriefeList from './pages/Briefe/BriefeList';
+import BriefForm from './pages/Briefe/BriefForm';
+import BriefDetail from './pages/Briefe/BriefDetail';
+import BriefVorlagenList from './pages/Briefe/BriefVorlagenList';
+import NachrichtenList from './pages/Nachrichten/NachrichtenList';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
 
@@ -86,9 +91,6 @@ const AppContent: React.FC = () => {
   }, [user, getUserSettingsKey]);
 
   // Determine which dashboard to show based on user type
-  const DashboardComponent = user?.type === 'admin' ? Dashboard :
-                            user?.type === 'dernek' ? VereinDashboard :
-                            MitgliedDashboard;
 
   // Show loading spinner while initializing (loading user from localStorage)
   if (initializing) {
@@ -117,7 +119,13 @@ const AppContent: React.FC = () => {
         <>
           <Route path="/startseite" element={
             <Layout>
-              <DashboardComponent />
+              {user?.type === 'admin' ? (
+                <Dashboard />
+              ) : user?.type === 'dernek' ? (
+                <VereinDashboard />
+              ) : (
+                <MitgliedDashboard />
+              )}
             </Layout>
           } />
 
@@ -285,6 +293,46 @@ const AppContent: React.FC = () => {
             <Route path="/admin/page-notes" element={
               <Layout>
                 <PageNotesAdmin />
+              </Layout>
+            } />
+          )}
+
+          {/* Briefe - Only for dernek users */}
+          {user?.type === 'dernek' && (
+            <>
+              <Route path="/briefe" element={
+                <Layout>
+                  <BriefeList />
+                </Layout>
+              } />
+              <Route path="/briefe/neu" element={
+                <Layout>
+                  <BriefForm />
+                </Layout>
+              } />
+              <Route path="/briefe/:id/bearbeiten" element={
+                <Layout>
+                  <BriefForm />
+                </Layout>
+              } />
+              <Route path="/briefe/:id" element={
+                <Layout>
+                  <BriefDetail />
+                </Layout>
+              } />
+              <Route path="/briefe/vorlagen" element={
+                <Layout>
+                  <BriefVorlagenList />
+                </Layout>
+              } />
+            </>
+          )}
+
+          {/* Nachrichten - Only for mitglied users */}
+          {user?.type === 'mitglied' && (
+            <Route path="/nachrichten" element={
+              <Layout>
+                <NachrichtenList />
               </Layout>
             } />
           )}

@@ -21,8 +21,8 @@ public class CreateVereinSatzungDto
     [JsonPropertyName("satzungVom")]
     public DateTime SatzungVom { get; set; }
 
-    [JsonPropertyName("aktif")]
-    public bool Aktif { get; set; } = true;
+    [JsonPropertyName("aktiv")]
+    public bool Aktiv { get; set; } = true;
 
     [MaxLength(500)]
     [JsonPropertyName("bemerkung")]

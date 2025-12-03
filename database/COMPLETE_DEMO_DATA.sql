@@ -1482,8 +1482,75 @@ GO
 PRINT '  ✓ Finanz verileri tamamlandı';
 GO
 
+-- =============================================
+-- 6. DERNEK TÜZÜKLERİ (VereinSatzung)
+-- =============================================
+
+PRINT '6. Dernek tüzükleri ekleniyor...';
+
+-- Dernek ID'lerini al
+DECLARE @MuenchenVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'TDKV München');
+DECLARE @BerlinVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'DTF Berlin');
+
+-- Tüzük belgelerini ekle
+INSERT INTO [Verein].[VereinSatzung] (
+    VereinId, DosyaPfad, SatzungVom, Aktiv, Bemerkung, DosyaAdi, DosyaBoyutu,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+(
+    @MuenchenVereinId,
+    '/documents/satzungen/tdkv-muenchen-satzung.pdf',
+    '2024-01-15',
+    1,
+    N'TDKV München Tüzüğü - Türkisch-Deutscher Kulturverein München e.V. resmi tüzüğü. Derneğin amaçları, çalışma alanları, üyelik koşulları ve yönetim yapısı hakkında detaylı bilgiler içerir.',
+    'TDKV_Muenchen_Satzung_2024.pdf',
+    245760, -- 240 KB
+    0,
+    GETDATE(),
+    1
+),
+(
+    @BerlinVereinId,
+    '/documents/satzungen/dtf-berlin-satzung.pdf',
+    '2023-06-20',
+    1,
+    N'DTF Berlin Tüzüğü - Deutsch-Türkische Freundschaft Berlin e.V. resmi tüzüğü. Derneğin kültürel faaliyetleri, üyelik süreçleri ve organları hakkında bilgiler içerir.',
+    'DTF_Berlin_Satzung_2023.pdf',
+    312320, -- 305 KB
+    0,
+    GETDATE(),
+    1
+),
+(
+    @MuenchenVereinId,
+    '/documents/satzungen/tdkv-muenchen-yonetmelik.pdf',
+    '2024-02-01',
+    1,
+    N'TDKV München İç Yönetmelik - Derneğin iç çalışma düzeni, toplantı usulleri ve karar alma mekanizmaları hakkında detaylı yönetmelik.',
+    'TDKV_Muenchen_Yonetmelik_2024.pdf',
+    156672, -- 153 KB
+    0,
+    GETDATE(),
+    1
+),
+(
+    @BerlinVereinId,
+    '/documents/satzungen/dtf-berlin-etik.pdf',
+    '2023-09-10',
+    1,
+    N'DTF Berlin Etik Kuralları - Üyeler arası ilişkiler, etik davranış standartları ve disiplin süreci hakkında kurallar.',
+    'DTF_Berlin_Etik_Kurallari_2023.pdf',
+    98304, -- 96 KB
+    0,
+    GETDATE(),
+    1
+);
+
+PRINT '  ✓ 4 Dernek tüzüğü eklendi (2 München, 2 Berlin)';
+GO
+
 -- ============================================================================
--- 6. PASIF DERNEKLER (ADD_INACTIVE_VEREINE.sql'den)
+-- 7. PASIF DERNEKLER (ADD_INACTIVE_VEREINE.sql'den)
 -- ============================================================================
 
 PRINT '';
@@ -1667,6 +1734,7 @@ PRINT '  ✓ 1 Üye ödemesi (Dernek yöneticileri üye değil)';
 PRINT '  ✓ 1 Ödeme-Alacak eşleştirmesi (Fatma - kısmi ödeme)';
 PRINT '  ✓ 0 Ön ödeme (Fatma ödemesi alacağa eşleştirildi)';
 PRINT '  ✓ 4 Etkinlik ödemesi';
+PRINT '  ✓ 4 Dernek tüzüğü (2 München, 2 Berlin)';
 PRINT '  ✓ 13 User (1 admin + 2 dernek yöneticisi + 10 üye)';
 PRINT '  ✓ 13 UserRole (authentication için)';
 PRINT '';
@@ -2087,12 +2155,17 @@ UNION ALL
 SELECT 'Kontotyp', COUNT(*) FROM [Keytable].[Kontotyp]
 UNION ALL
 SELECT 'Rechtsform', COUNT(*) FROM [Keytable].[Rechtsform]
+UNION ALL
+SELECT 'VereinSatzung', COUNT(*) FROM [Verein].[VereinSatzung]
 ORDER BY Tablo;
 
 PRINT '';
 PRINT '╔════════════════════════════════════════════════════════════════╗';
 PRINT '║         ✅ DEMO VERİLERİ BAŞARIYLA YÜKLENDİ!                  ║';
 PRINT '╚════════════════════════════════════════════════════════════════╝';
+PRINT '';
+GO
+
 PRINT '';
 GO
 

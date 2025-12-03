@@ -115,7 +115,15 @@
     "confirmSetActive": "Möchten Sie diese Satzung wirklich aktivieren?",
     "confirmDelete": "Möchten Sie diese Satzung wirklich löschen?",
     "invalidFileType": "Nur Word-Dateien (.doc, .docx) können hochgeladen werden",
-    "fileTooLarge": "Dateigröße darf 10 MB nicht überschreiten"
+    "fileTooLarge": "Dateigröße darf 10 MB nicht überschreiten",
+    "exportPdf": "PDF Herunterladen",
+    "fileNotFound": "Datei wurde auf dem Server nicht gefunden. Die Datei wurde möglicherweise gelöscht oder verschoben.",
+    "loadError": "Fehler beim Laden des Dokuments",
+    "deleteTitle": "Satzung löschen",
+    "deleteWarning": "Die Satzung wird aus der Liste entfernt.",
+    "setActiveTitle": "Satzung aktivieren",
+    "setActiveInfo": "Die aktuelle aktive Satzung wird deaktiviert und diese Satzung wird als aktiv gesetzt.",
+    "setActiveConfirm": "Aktivieren"
   },
   "fields": {
     "name": "Vereinsname",

@@ -18,6 +18,14 @@
     "totalMitglieder": "Mitglieder gesamt",
     "totalVeranstaltungen": "Veranstaltungen gesamt"
   },
+  "latestStatute": {
+    "title": "Satzungsinformation",
+    "lastUploadDate": "Letztes Satzung-Upload-Datum",
+    "noStatute": "Noch keine Satzung hochgeladen",
+    "fileName": "Dateiname",
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
   "quickActions": {
     "title": "Schnellaktionen",
     "manageVereine": {

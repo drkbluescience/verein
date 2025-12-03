@@ -47,7 +47,7 @@ public class VereinSatzungService : IVereinSatzungService
     public async Task<VereinSatzungDto?> GetActiveByVereinIdAsync(int vereinId, CancellationToken cancellationToken = default)
     {
         var satzung = await _context.VereinSatzungen
-            .Where(s => s.VereinId == vereinId && s.Aktif && s.DeletedFlag != true)
+            .Where(s => s.VereinId == vereinId && s.Aktiv && s.DeletedFlag != true)
             .OrderByDescending(s => s.SatzungVom)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -65,7 +65,7 @@ public class VereinSatzungService : IVereinSatzungService
     public async Task<VereinSatzungDto> CreateAsync(CreateVereinSatzungDto createDto, CancellationToken cancellationToken = default)
     {
         // If setting as active, deactivate all others for this Verein
-        if (createDto.Aktif)
+        if (createDto.Aktiv)
         {
             await DeactivateAllForVereinAsync(createDto.VereinId, cancellationToken);
         }
@@ -75,7 +75,7 @@ public class VereinSatzungService : IVereinSatzungService
             VereinId = createDto.VereinId,
             DosyaPfad = createDto.DosyaPfad,
             SatzungVom = createDto.SatzungVom,
-            Aktif = createDto.Aktif,
+            Aktiv = createDto.Aktiv,
             Bemerkung = createDto.Bemerkung,
             DosyaAdi = createDto.DosyaAdi,
             DosyaBoyutu = createDto.DosyaBoyutu,
@@ -101,7 +101,7 @@ public class VereinSatzungService : IVereinSatzungService
         }
 
         // If setting as active, deactivate all others for this Verein
-        if (updateDto.Aktif == true && !satzung.Aktif)
+        if (updateDto.Aktiv == true && !satzung.Aktiv)
         {
             await DeactivateAllForVereinAsync(satzung.VereinId, cancellationToken);
         }
@@ -109,8 +109,8 @@ public class VereinSatzungService : IVereinSatzungService
         if (updateDto.SatzungVom.HasValue)
             satzung.SatzungVom = updateDto.SatzungVom.Value;
 
-        if (updateDto.Aktif.HasValue)
-            satzung.Aktif = updateDto.Aktif.Value;
+        if (updateDto.Aktiv.HasValue)
+            satzung.Aktiv = updateDto.Aktiv.Value;
 
         if (updateDto.Bemerkung != null)
             satzung.Bemerkung = updateDto.Bemerkung;
@@ -193,7 +193,7 @@ public class VereinSatzungService : IVereinSatzungService
             VereinId = vereinId,
             DosyaPfad = relativePath,
             SatzungVom = satzungVom,
-            Aktif = setAsActive,
+            Aktiv = setAsActive,
             Bemerkung = bemerkung,
             DosyaAdi = fileName,
             DosyaBoyutu = fileContent.Length
@@ -216,7 +216,7 @@ public class VereinSatzungService : IVereinSatzungService
         await DeactivateAllForVereinAsync(satzung.VereinId, cancellationToken);
 
         // Activate this one
-        satzung.Aktif = true;
+        satzung.Aktiv = true;
         satzung.Modified = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -226,7 +226,7 @@ public class VereinSatzungService : IVereinSatzungService
         return true;
     }
 
-    public async Task<(byte[] content, string fileName, string contentType)?> GetFileAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<FileDataDto?> GetFileAsync(int id, CancellationToken cancellationToken = default)
     {
         var satzung = await _context.VereinSatzungen
             .FirstOrDefaultAsync(s => s.Id == id && s.DeletedFlag != true, cancellationToken);
@@ -250,18 +250,23 @@ public class VereinSatzungService : IVereinSatzungService
             ? "application/msword"
             : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-        return (content, fileName, contentType);
+        return new FileDataDto
+        {
+            Content = content,
+            FileName = fileName,
+            ContentType = contentType
+        };
     }
 
     private async Task DeactivateAllForVereinAsync(int vereinId, CancellationToken cancellationToken)
     {
         var activeSatzungen = await _context.VereinSatzungen
-            .Where(s => s.VereinId == vereinId && s.Aktif && s.DeletedFlag != true)
+            .Where(s => s.VereinId == vereinId && s.Aktiv && s.DeletedFlag != true)
             .ToListAsync(cancellationToken);
 
         foreach (var satzung in activeSatzungen)
         {
-            satzung.Aktif = false;
+            satzung.Aktiv = false;
             satzung.Modified = DateTime.UtcNow;
         }
 
@@ -279,7 +284,7 @@ public class VereinSatzungService : IVereinSatzungService
             VereinId = satzung.VereinId,
             DosyaPfad = satzung.DosyaPfad,
             SatzungVom = satzung.SatzungVom,
-            Aktif = satzung.Aktif,
+            Aktiv = satzung.Aktiv,
             Bemerkung = satzung.Bemerkung,
             DosyaAdi = satzung.DosyaAdi,
             DosyaBoyutu = satzung.DosyaBoyutu,
@@ -291,4 +296,3 @@ public class VereinSatzungService : IVereinSatzungService
         };
     }
 }
-

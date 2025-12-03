@@ -1,0 +1,92 @@
+{
+  "title": "Mektuplar",
+  "subtitle": "Üyelerinize mektup gönderin ve yönetin",
+  "newLetter": "Mektup Oluştur",
+  "editLetter": "Mektup Düzenle",
+  "sendNow": "Şimdi Gönder",
+  "sending": "Gönderiliyor...",
+  "tabs": {
+    "all": "Tümü",
+    "drafts": "Taslaklar",
+    "sent": "Gönderilenler"
+  },
+  "table": {
+    "name": "Ad",
+    "subject": "Konu",
+    "status": "Durum",
+    "recipients": "Alıcılar",
+    "date": "Tarih",
+    "actions": "İşlemler"
+  },
+  "emptyState": {
+    "title": "Henüz mektup yok",
+    "description": "Üyelerinize göndermek için yeni bir mektup oluşturun."
+  },
+  "form": {
+    "template": "Şablon",
+    "noTemplate": "Şablon seçmeyin",
+    "name": "Mektup Adı",
+    "namePlaceholder": "Bu mektup için bir ad girin",
+    "subject": "Konu",
+    "subjectPlaceholder": "Mektubun konusunu girin",
+    "content": "İçerik",
+    "contentPlaceholder": "Mektup içeriğinizi buraya yazın...",
+    "recipients": "Alıcılar",
+    "searchMembers": "Üye ara...",
+    "selectAll": "Tümünü Seç",
+    "clearSelection": "Seçimi Temizle",
+    "selected": "seçili",
+    "selectedRecipient": "Seçilen Alıcı",
+    "changeRecipient": "Değiştir"
+  },
+  "messages": {
+    "created": "Mektup oluşturuldu",
+    "updated": "Mektup güncellendi",
+    "deleted": "Mektup silindi",
+    "sent": "{{count}} kişiye mektup gönderildi",
+    "createError": "Mektup oluşturulurken hata oluştu",
+    "updateError": "Mektup güncellenirken hata oluştu",
+    "deleteError": "Mektup silinirken hata oluştu",
+    "sendError": "Mektup gönderilirken hata oluştu"
+  },
+  "errors": {
+    "noRecipients": "Lütfen en az bir alıcı seçin",
+    "notFound": "Mektup bulunamadı"
+  },
+  "confirmDelete": "\"{{name}}\" mektubunu silmek istediğinize emin misiniz?",
+  "detail": {
+    "sentAt": "Gönderilme Tarihi",
+    "content": "İçerik"
+  },
+  "nachrichten": {
+    "title": "Mesajlarım",
+    "unread": "okunmamış",
+    "empty": "Henüz mesajınız yok",
+    "from": "Gönderen",
+    "selectMessage": "Okumak için bir mesaj seçin"
+  },
+  "vorlagen": {
+    "title": "Şablonlar",
+    "subtitle": "Mektup şablonlarını oluşturun ve yönetin",
+    "newTemplate": "Yeni Şablon",
+    "editTemplate": "Şablonu Düzenle",
+    "emptyState": {
+      "title": "Henüz şablon yok",
+      "description": "İlk şablonunuzu oluşturarak başlayın."
+    },
+    "form": {
+      "name": "Şablon Adı",
+      "category": "Kategori"
+    },
+    "messages": {
+      "created": "Şablon oluşturuldu",
+      "updated": "Şablon güncellendi",
+      "deleted": "Şablon silindi",
+      "createError": "Şablon oluşturulurken hata oluştu",
+      "updateError": "Şablon güncellenirken hata oluştu",
+      "deleteError": "Şablon silinirken hata oluştu"
+    },
+    "confirmDelete": "\"{{name}}\" şablonunu silmek istediğinize emin misiniz?"
+  }
+}
+

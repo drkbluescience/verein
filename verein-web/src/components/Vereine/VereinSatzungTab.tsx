@@ -8,6 +8,9 @@ import { vereinSatzungService } from '../../services/vereinSatzungService';
 import { VereinSatzungDto } from '../../types/vereinSatzung';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
+import SatzungSetActiveDialog from './SatzungSetActiveDialog';
+import SatzungDeleteDialog from './SatzungDeleteDialog';
+import SatzungViewerModal from './SatzungViewerModal';
 import './VereinSatzungTab.css';
 
 // Register locales for date picker
@@ -31,6 +34,10 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
   const [setAsActive, setSetAsActive] = useState(true);
   const [bemerkung, setBemerkung] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isSetActiveDialogOpen, setIsSetActiveDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
+  const [selectedSatzung, setSelectedSatzung] = useState<VereinSatzungDto | null>(null);
 
   // Fetch statute versions
   const { data: satzungen = [], isLoading } = useQuery({
@@ -136,16 +143,19 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
     }
   };
 
-  const handleSetActive = (id: number) => {
-    if (window.confirm(t('vereine:satzung.confirmSetActive'))) {
-      setActiveMutation.mutate(id);
-    }
+  const handleViewSatzung = (satzung: VereinSatzungDto) => {
+    setSelectedSatzung(satzung);
+    setIsViewerModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (window.confirm(t('vereine:satzung.confirmDelete'))) {
-      deleteMutation.mutate(id);
-    }
+  const handleSetActive = (satzung: VereinSatzungDto) => {
+    setSelectedSatzung(satzung);
+    setIsSetActiveDialogOpen(true);
+  };
+
+  const handleDelete = (satzung: VereinSatzungDto) => {
+    setSelectedSatzung(satzung);
+    setIsDeleteDialogOpen(true);
   };
 
   const canEdit = user?.type === 'admin' || (user?.type === 'dernek' && user.vereinId === vereinId);
@@ -172,11 +182,11 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
       ) : (
         <div className="satzung-list">
           {satzungen.map((satzung) => (
-            <div key={satzung.id} className={`satzung-card ${satzung.aktif ? 'active' : ''}`}>
-              <div className="satzung-info">
+            <div key={satzung.id} className={`satzung-card ${satzung.aktiv ? 'active' : ''}`}>
+              <div className="satzung-info" onClick={() => handleViewSatzung(satzung)} style={{ cursor: 'pointer' }}>
                 <div className="satzung-header-row">
                   <h3>{satzung.dosyaAdi || `Tüzük ${satzung.id}`}</h3>
-                  {satzung.aktif && <span className="badge-active">{t('vereine:satzung.active')}</span>}
+                  {satzung.aktiv && <span className="badge-active">{t('vereine:satzung.active')}</span>}
                 </div>
                 <p className="satzung-date">
                   {t('vereine:satzung.effectiveDate')}: {new Date(satzung.satzungVom).toLocaleDateString('tr-TR')}
@@ -192,13 +202,13 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
                 <button className="btn-secondary" onClick={() => handleDownload(satzung)}>
                   {t('vereine:satzung.download')}
                 </button>
-                {canEdit && !satzung.aktif && (
-                  <button className="btn-secondary" onClick={() => handleSetActive(satzung.id)}>
+                {canEdit && !satzung.aktiv && (
+                  <button className="btn-secondary" onClick={() => handleSetActive(satzung)}>
                     {t('vereine:satzung.setActive')}
                   </button>
                 )}
                 {canEdit && (
-                  <button className="btn-danger" onClick={() => handleDelete(satzung.id)}>
+                  <button className="btn-danger" onClick={() => handleDelete(satzung)}>
                     {t('common:actions.delete')}
                   </button>
                 )}
@@ -272,6 +282,46 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
           </div>
         </div>
       )}
+
+      {/* Set Active Dialog */}
+      <SatzungSetActiveDialog
+        isOpen={isSetActiveDialogOpen}
+        onClose={() => {
+          setIsSetActiveDialogOpen(false);
+          setSelectedSatzung(null);
+        }}
+        satzung={selectedSatzung}
+        onSuccess={() => {
+          setIsSetActiveDialogOpen(false);
+          setSelectedSatzung(null);
+          showSuccess(t('vereine:satzung.setActiveSuccess'));
+        }}
+      />
+
+      {/* Delete Dialog */}
+      <SatzungDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setSelectedSatzung(null);
+        }}
+        satzung={selectedSatzung}
+        onSuccess={() => {
+          setIsDeleteDialogOpen(false);
+          setSelectedSatzung(null);
+          showSuccess(t('vereine:satzung.deleteSuccess'));
+        }}
+      />
+
+      {/* Satzung Viewer Modal */}
+      <SatzungViewerModal
+        isOpen={isViewerModalOpen}
+        onClose={() => {
+          setIsViewerModalOpen(false);
+          setSelectedSatzung(null);
+        }}
+        satzung={selectedSatzung}
+      />
     </div>
   );
 };

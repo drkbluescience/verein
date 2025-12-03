@@ -72,6 +72,18 @@ const FileTextIcon = () => (
   </svg>
 );
 
+const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+  </svg>
+);
+
+const InboxIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+  </svg>
+);
+
 const adminMenuItems: MenuItem[] = [
   { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/vereine', labelKey: 'navigation.vereine', icon: <BuildingIcon /> },
@@ -88,6 +100,7 @@ const dernekMenuItems: MenuItem[] = [
   { path: '/verein', labelKey: 'navigation.dernek', icon: <BuildingIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitgliederimiz', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.etkinliklerimiz', icon: <CalendarIcon /> },
+  { path: '/briefe', labelKey: 'navigation.briefe', icon: <MailIcon /> },
   { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
   { path: '/berichte', labelKey: 'navigation.raporlarimiz', icon: <BarChartIcon /> },
   { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
@@ -95,6 +108,7 @@ const dernekMenuItems: MenuItem[] = [
 
 const mitgliedMenuItems: MenuItem[] = [
   { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
+  { path: '/nachrichten', labelKey: 'navigation.nachrichten', icon: <InboxIcon /> },
   { path: '/meine-veranstaltungen', labelKey: 'navigation.etkinlikler', icon: <CalendarIcon /> },
   { path: '/meine-familie', labelKey: 'navigation.ailem', icon: <UsersIcon /> },
   { path: '/meine-finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
 import { veranstaltungService } from '../../services/veranstaltungService';
+import { vereinSatzungService } from '../../services/vereinSatzungService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import './Dashboard.css';
@@ -75,6 +76,59 @@ const Dashboard: React.FC = () => {
       return veranstaltungService.getAll();
     },
     enabled: !!user,
+  });
+
+  // Debug: Log user info immediately - Force console to work
+  setTimeout(() => {
+    console.log('=== DASHBOARD DEBUG ===');
+    console.log('Dashboard - User:', user);
+    console.log('Dashboard - User type:', user?.type, 'typeof:', typeof user?.type);
+    console.log('Dashboard - VereinId:', user?.vereinId);
+    console.log('Dashboard - Permissions:', user?.permissions);
+    console.log('=== END DEBUG ===');
+  }, 100);
+
+  // Get latest statute for Dernek Yöneticisi - Always try to fetch
+  const {
+    data: latestSatzung,
+    isLoading: satzungLoading
+  } = useQuery({
+    queryKey: ['latestSatzung', user?.vereinId],
+    queryFn: async () => {
+      // Debug: Log user type and vereinId
+      console.log('=== SATZUNG QUERY START ===');
+      console.log('Dashboard Query - User:', user);
+      console.log('Dashboard Query - User type:', user?.type);
+      console.log('Dashboard Query - VereinId:', user?.vereinId);
+      
+      // Check for multiple possible user type values
+      const userTypeStr = (user?.type as string)?.toString().toLowerCase();
+      const isDernekUser = userTypeStr === 'dernek' ||
+                         userTypeStr === 'vorstand' || // German for association board
+                         user?.permissions?.includes('verein_management') ||
+                         user?.permissions?.includes('dernek_yonetimi');
+      
+      console.log('Dashboard Query - userTypeStr:', userTypeStr, 'isDernekUser:', isDernekUser);
+      
+      // Always try to fetch if we have a vereinId
+      if (user?.vereinId) {
+        console.log('Dashboard Query - Fetching satzung for vereinId:', user.vereinId);
+        try {
+          const result = await vereinSatzungService.getActiveByVereinId(user.vereinId);
+          console.log('Dashboard Query - Satzung result:', result);
+          console.log('=== SATZUNG QUERY END ===');
+          return result;
+        } catch (error) {
+          console.error('Dashboard Query - Error fetching satzung:', error);
+          console.log('=== SATZUNG QUERY ERROR ===');
+          return null;
+        }
+      }
+      console.log('Dashboard Query - No vereinId, not fetching');
+      console.log('=== SATZUNG QUERY END ===');
+      return null;
+    },
+    enabled: !!user?.vereinId, // Only need vereinId, not user type check
   });
 
   // Update stats when data changes
@@ -157,6 +211,50 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Latest Statute Info - Show for users with vereinId */}
+      {user?.vereinId && (
+        <div className="satzung-section">
+          <h2>{t('dashboard:latestStatute.title')}</h2>
+          <div className="satzung-info-card">
+            <div className="satzung-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <div className="satzung-info">
+              <h3>{t('dashboard:latestStatute.lastUploadDate')}</h3>
+              <div className="satzung-date">
+                {satzungLoading ? (
+                  <Loading size="small" />
+                ) : latestSatzung?.created ? (
+                  <>
+                    {new Date(latestSatzung.created).toLocaleDateString('tr-TR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                    <span className={`satzung-status-badge ${latestSatzung.aktiv ? 'active' : 'inactive'}`}>
+                      {latestSatzung.aktiv ? t('dashboard:latestStatute.active') : t('dashboard:latestStatute.inactive')}
+                    </span>
+                  </>
+                ) : (
+                  <span className="no-satzung">{t('dashboard:latestStatute.noStatute')}</span>
+                )}
+              </div>
+              {latestSatzung?.dosyaAdi && (
+                <div className="satzung-filename">
+                  {t('dashboard:latestStatute.fileName')}: {latestSatzung.dosyaAdi}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="actions-section">

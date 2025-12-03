@@ -52,6 +52,10 @@ export { default as keytableService } from './keytableService';
 // PageNote Service
 export { pageNoteService } from './pageNoteService';
 
+// Brief (Letter/Message) Services
+export { briefVorlageService, briefService } from './briefService';
+export { nachrichtService } from './nachrichtService';
+
 // Re-export types for convenience
 export type {
   // Verein Types
@@ -136,6 +140,26 @@ export type {
   PageNoteFormData,
   PageNoteFilters
 } from '../types/pageNote.types';
+
+export type {
+  // Brief Types
+  BriefVorlageDto,
+  CreateBriefVorlageDto,
+  UpdateBriefVorlageDto,
+  BriefDto,
+  CreateBriefDto,
+  UpdateBriefDto,
+  SendBriefDto,
+  QuickSendBriefDto,
+  NachrichtDto,
+  BriefStatisticsDto,
+  UnreadCountDto,
+  BriefStatus,
+  BriefVorlageKategorie,
+  BriefFormData,
+  BriefFilters,
+  NachrichtFilters
+} from '../types/brief.types';
 
 /**
  * Usage Examples:

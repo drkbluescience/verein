@@ -11,7 +11,7 @@
 -- GO
 
 PRINT '╔════════════════════════════════════════════════════════════════╗';
-PRINT '║         ⚠️  TÜÜN VERİTABANI VERİLERİ SİLİNİYOR...             ║';
+PRINT '║         ⚠️  TÜM VERİTABANI VERİLERİ SİLİNİYOR...             ║';
 PRINT '║         Bu işlem GERİ ALINAMAZ!                               ║';
 PRINT '╚════════════════════════════════════════════════════════════════╝';
 PRINT '';

@@ -19,8 +19,8 @@ public class VereinSatzungDto
     [JsonPropertyName("satzungVom")]
     public DateTime SatzungVom { get; set; }
 
-    [JsonPropertyName("aktif")]
-    public bool Aktif { get; set; }
+    [JsonPropertyName("aktiv")]
+    public bool Aktiv { get; set; }
 
     [JsonPropertyName("bemerkung")]
     public string? Bemerkung { get; set; }

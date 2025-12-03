@@ -165,11 +165,40 @@ public class VereinSatzungController : ControllerBase
                 return NotFound("Statute file not found");
             }
 
-            return File(fileData.Value.content, fileData.Value.contentType, fileData.Value.fileName);
+            return File(fileData.Content, fileData.ContentType, fileData.FileName);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error downloading statute {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// View statute file inline (opens in browser without download prompt)
+    /// </summary>
+    [HttpGet("{id}/view")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ViewSatzung(int id)
+    {
+        try
+        {
+            var fileData = await _service.GetFileAsync(id);
+
+            if (fileData == null)
+            {
+                return NotFound("Statute file not found");
+            }
+
+            // Return file without Content-Disposition: attachment to allow inline viewing
+            Response.Headers.Append("Content-Disposition", $"inline; filename=\"{fileData.FileName}\"");
+            return File(fileData.Content, fileData.ContentType);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error viewing statute {Id}", id);
             return StatusCode(500, "Internal server error");
         }
     }
@@ -249,4 +278,3 @@ public class VereinSatzungController : ControllerBase
         }
     }
 }
-

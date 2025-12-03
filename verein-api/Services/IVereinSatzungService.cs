@@ -58,6 +58,5 @@ public interface IVereinSatzungService
     /// <summary>
     /// Get file content for download
     /// </summary>
-    Task<(byte[] content, string fileName, string contentType)?> GetFileAsync(int id, CancellationToken cancellationToken = default);
+    Task<FileDataDto?> GetFileAsync(int id, CancellationToken cancellationToken = default);
 }
-

@@ -115,7 +115,15 @@
     "confirmSetActive": "Bu tüzüğü aktif yapmak istediğinizden emin misiniz?",
     "confirmDelete": "Bu tüzüğü silmek istediğinizden emin misiniz?",
     "invalidFileType": "Sadece Word dosyaları (.doc, .docx) yüklenebilir",
-    "fileTooLarge": "Dosya boyutu 10 MB'dan büyük olamaz"
+    "fileTooLarge": "Dosya boyutu 10 MB'dan büyük olamaz",
+    "exportPdf": "PDF İndir",
+    "fileNotFound": "Dosya sunucuda bulunamadı. Dosya silinmiş veya taşınmış olabilir.",
+    "loadError": "Belge yüklenirken hata oluştu",
+    "deleteTitle": "Tüzük Sil",
+    "deleteWarning": "Tüzük listeden kaldırılacaktır.",
+    "setActiveTitle": "Tüzüğü Aktif Yap",
+    "setActiveInfo": "Mevcut aktif tüzük pasif yapılacak ve bu tüzük aktif olarak ayarlanacaktır.",
+    "setActiveConfirm": "Aktif Yap"
   },
   "fields": {
     "name": "Dernek Adı",

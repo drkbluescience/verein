@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace VereinsApi.DTOs.Finanz;
 
@@ -11,18 +13,20 @@ public class BankUploadRequestDto
     /// Verein ID for which the transactions are being uploaded
     /// </summary>
     [JsonPropertyName("vereinId")]
+    [FromForm(Name = "vereinId")]
     public int VereinId { get; set; }
 
     /// <summary>
     /// Bank account ID for the transactions
     /// </summary>
     [JsonPropertyName("bankKontoId")]
+    [FromForm(Name = "bankKontoId")]
     public int BankKontoId { get; set; }
 
     /// <summary>
     /// Excel file (sent as multipart/form-data)
     /// </summary>
-    [JsonIgnore]
+    [FromForm(Name = "file")]
     public IFormFile? File { get; set; }
 }
 

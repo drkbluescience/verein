@@ -6,11 +6,11 @@
   padding: 2rem;
 }
 
-.page-header {
+.manual-matching-container .page-header {
   margin-bottom: 2rem;
 }
 
-.page-header h1 {
+.manual-matching-container .page-header h1 {
   font-size: 2rem;
   font-weight: 600;
   color: var(--color-text-primary);

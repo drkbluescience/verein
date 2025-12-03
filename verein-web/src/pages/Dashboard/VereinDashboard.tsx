@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { mitgliedService } from '../../services/mitgliedService';
 import { veranstaltungService, veranstaltungUtils } from '../../services/veranstaltungService';
+import { vereinSatzungService } from '../../services/vereinSatzungService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import './VereinDashboard.css';
@@ -55,6 +56,44 @@ const VereinDashboard: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['dashboard', 'common']);
   const { user } = useAuth();
+
+  // Debug: Log user info
+  console.log('=== VEREIN DASHBOARD DEBUG ===');
+  console.log('VereinDashboard - User:', user);
+  console.log('VereinDashboard - User type:', user?.type);
+  console.log('VereinDashboard - VereinId:', user?.vereinId);
+  console.log('=== END DEBUG ===');
+
+  // Get latest statute for Dernek Yöneticisi
+  const {
+    data: latestSatzung,
+    isLoading: satzungLoading
+  } = useQuery({
+    queryKey: ['latestSatzung', user?.vereinId],
+    queryFn: async () => {
+      console.log('=== VEREIN SATZUNG QUERY START ===');
+      console.log('VereinDashboard Query - User:', user);
+      console.log('VereinDashboard Query - VereinId:', user?.vereinId);
+      
+      if (user?.vereinId) {
+        console.log('VereinDashboard Query - Fetching satzung for vereinId:', user?.vereinId);
+        try {
+          const result = await vereinSatzungService.getActiveByVereinId(user.vereinId);
+          console.log('VereinDashboard Query - Satzung result:', result);
+          console.log('=== VEREIN SATZUNG QUERY END ===');
+          return result;
+        } catch (error) {
+          console.error('VereinDashboard Query - Error fetching satzung:', error);
+          console.log('=== VEREIN SATZUNG QUERY ERROR ===');
+          return null;
+        }
+      }
+      console.log('VereinDashboard Query - No vereinId, not fetching');
+      console.log('=== VEREIN SATZUNG QUERY END ===');
+      return null;
+    },
+    enabled: !!user?.vereinId,
+  });
   const vereinId = user?.vereinId || 1; // Get from user context
   const [stats, setStats] = useState<VereinStats>({
     totalMitglieder: 0,
@@ -210,6 +249,50 @@ const VereinDashboard: React.FC = () => {
       <div className="page-header">
         <h1 className="page-title">{t('dashboard:verein.header.title')}</h1>
       </div>
+
+      {/* Latest Statute Info - Only for Dernek Yöneticisi */}
+      {user?.vereinId && (
+        <div className="satzung-section">
+          <h2>{t('dashboard:latestStatute.title')}</h2>
+          <Link to={`/vereine/${user.vereinId}?tab=satzung`} className="satzung-info-card">
+            <div className="satzung-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <div className="satzung-info">
+              <h3>{t('dashboard:latestStatute.lastUploadDate')}</h3>
+              <div className="satzung-date">
+                {satzungLoading ? (
+                  <div className="loading-spinner">Yükleniyor...</div>
+                ) : latestSatzung?.created ? (
+                  <>
+                    {new Date(latestSatzung.created).toLocaleDateString('tr-TR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                    <span className={`satzung-status-badge ${latestSatzung.aktiv ? 'active' : 'inactive'}`}>
+                      {latestSatzung.aktiv ? t('dashboard:latestStatute.active') : t('dashboard:latestStatute.inactive')}
+                    </span>
+                  </>
+                ) : (
+                  <span className="no-satzung">{t('dashboard:latestStatute.noStatute')}</span>
+                )}
+              </div>
+              {latestSatzung?.dosyaAdi && (
+                <div className="satzung-filename">
+                  {t('dashboard:latestStatute.fileName')}: {latestSatzung.dosyaAdi}
+                </div>
+              )}
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="stats-section">

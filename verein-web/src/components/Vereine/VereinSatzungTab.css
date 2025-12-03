@@ -38,8 +38,28 @@
 }
 
 .satzung-card.active {
-  border-color: var(--primary-color);
-  background: #f0f7ff;
+  border: 2px solid #22c55e;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+  position: relative;
+}
+
+.satzung-card.active::before {
+  content: '✓';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
 }
 
 .satzung-info {
@@ -61,12 +81,15 @@
 }
 
 .badge-active {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 16px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
 }
 
 .satzung-date {

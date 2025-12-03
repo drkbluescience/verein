@@ -11,8 +11,8 @@ public class UpdateVereinSatzungDto
     [JsonPropertyName("satzungVom")]
     public DateTime? SatzungVom { get; set; }
 
-    [JsonPropertyName("aktif")]
-    public bool? Aktif { get; set; }
+    [JsonPropertyName("aktiv")]
+    public bool? Aktiv { get; set; }
 
     [MaxLength(500)]
     [JsonPropertyName("bemerkung")]

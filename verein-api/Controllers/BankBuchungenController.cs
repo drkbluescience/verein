@@ -263,21 +263,12 @@ public class BankBuchungenController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<BankUploadResponseDto>> UploadExcel(
-        [FromForm] int vereinId,
-        [FromForm] int bankKontoId,
-        [FromForm] IFormFile file)
+        [FromForm] BankUploadRequestDto request)
     {
         try
         {
             _logger.LogInformation("Received Excel upload request for Verein {VereinId}, BankKonto {BankKontoId}",
-                vereinId, bankKontoId);
-
-            var request = new BankUploadRequestDto
-            {
-                VereinId = vereinId,
-                BankKontoId = bankKontoId,
-                File = file
-            };
+                request.VereinId, request.BankKontoId);
 
             var response = await _uploadService.ProcessBankUploadAsync(request);
 

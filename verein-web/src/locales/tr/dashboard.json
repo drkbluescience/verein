@@ -18,6 +18,14 @@
     "totalMitglieder": "Toplam Üyeler",
     "totalVeranstaltungen": "Toplam Etkinlikler"
   },
+  "latestStatute": {
+    "title": "Tüzük Bilgisi",
+    "lastUploadDate": "Son Tüzük Ekleme Tarihi",
+    "noStatute": "Henüz tüzük yüklenmemiş",
+    "fileName": "Dosya Adı",
+    "active": "Aktif",
+    "inactive": "Pasif"
+  },
   "quickActions": {
     "title": "Hızlı İşlemler",
     "manageVereine": {

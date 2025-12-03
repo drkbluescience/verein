@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../contexts/ToastContext';
@@ -69,9 +69,18 @@ const VereinDetail: React.FC = () => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'info' | 'adresse' | 'mitglieder' | 'satzung'>('info');
   const [mitgliederViewMode, setMitgliederViewMode] = useState<'grid' | 'table'>('grid');
   const [isVereinModalOpen, setIsVereinModalOpen] = useState(false);
+
+  // Check for tab parameter in URL and set active tab accordingly
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['info', 'adresse', 'mitglieder', 'satzung'].includes(tabParam)) {
+      setActiveTab(tabParam as 'info' | 'adresse' | 'mitglieder' | 'satzung');
+    }
+  }, [searchParams]);
 
   // Fetch Verein data
   const {
