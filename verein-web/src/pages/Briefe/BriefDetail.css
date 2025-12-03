@@ -28,18 +28,21 @@
   margin-bottom: 24px;
 }
 
-.btn-back {
-  background: none;
-  border: 1px solid #d1d5db;
-  padding: 8px 16px;
-  border-radius: 6px;
+.btn-icon-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
   color: #374151;
   transition: all 0.2s;
 }
 
-.btn-back:hover {
+.btn-icon-back:hover {
   background: #f3f4f6;
 }
 

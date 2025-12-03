@@ -70,6 +70,11 @@ public class Brief : AuditableEntity
     [MaxLength(20)]
     public string Status { get; set; } = "Entwurf";
 
+    /// <summary>
+    /// Selected member IDs for draft (JSON array stored as string)
+    /// </summary>
+    public string? SelectedMitgliedIds { get; set; }
+
     // Navigation properties
     /// <summary>
     /// Verein that owns this draft

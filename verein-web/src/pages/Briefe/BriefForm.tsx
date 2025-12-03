@@ -71,6 +71,10 @@ const BriefForm: React.FC = () => {
         inhalt: existingBrief.inhalt,
         vorlageId: existingBrief.vorlageId,
       });
+      // Load selected recipient if exists
+      if (existingBrief.selectedMitgliedIds?.length) {
+        setSelectedMitglied(existingBrief.selectedMitgliedIds[0]);
+      }
     }
   }, [existingBrief]);
 
@@ -123,10 +127,14 @@ const BriefForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const dataToSubmit = {
+      ...formData,
+      selectedMitgliedIds: selectedMitglied ? [selectedMitglied] : undefined,
+    };
     if (isEdit) {
-      updateMutation.mutate(formData);
+      updateMutation.mutate(dataToSubmit);
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(dataToSubmit);
     }
   };
 

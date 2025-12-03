@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using VereinsApi.Domain.Entities;
 using VereinsApi.DTOs.Brief;
@@ -9,6 +10,21 @@ namespace VereinsApi.Profiles;
 /// </summary>
 public class BriefProfile : Profile
 {
+    private static readonly JsonSerializerOptions JsonOptions = new();
+
+    private static List<int>? DeserializeIds(string? json)
+    {
+        if (string.IsNullOrEmpty(json)) return null;
+        try { return JsonSerializer.Deserialize<List<int>>(json, JsonOptions); }
+        catch { return null; }
+    }
+
+    private static string? SerializeIds(List<int>? ids)
+    {
+        if (ids == null || ids.Count == 0) return null;
+        return JsonSerializer.Serialize(ids, JsonOptions);
+    }
+
     public BriefProfile()
     {
         // BriefVorlage mappings
@@ -42,11 +58,13 @@ public class BriefProfile : Profile
         // Brief mappings
         CreateMap<Brief, BriefDto>()
             .ForMember(dest => dest.VorlageName, opt => opt.MapFrom(src => src.Vorlage != null ? src.Vorlage.Name : null))
-            .ForMember(dest => dest.NachrichtenCount, opt => opt.MapFrom(src => src.Nachrichten != null ? src.Nachrichten.Count : 0));
+            .ForMember(dest => dest.NachrichtenCount, opt => opt.MapFrom(src => src.Nachrichten != null ? src.Nachrichten.Count : 0))
+            .ForMember(dest => dest.SelectedMitgliedIds, opt => opt.MapFrom(src => DeserializeIds(src.SelectedMitgliedIds)));
 
         CreateMap<CreateBriefDto, Brief>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Entwurf"))
+            .ForMember(dest => dest.SelectedMitgliedIds, opt => opt.MapFrom(src => SerializeIds(src.SelectedMitgliedIds)))
             .ForMember(dest => dest.Created, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
             .ForMember(dest => dest.Modified, opt => opt.Ignore())
@@ -61,6 +79,7 @@ public class BriefProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.VereinId, opt => opt.Ignore())
             .ForMember(dest => dest.Status, opt => opt.Ignore())
+            .ForMember(dest => dest.SelectedMitgliedIds, opt => opt.MapFrom(src => SerializeIds(src.SelectedMitgliedIds)))
             .ForMember(dest => dest.Created, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
             .ForMember(dest => dest.Modified, opt => opt.Ignore())

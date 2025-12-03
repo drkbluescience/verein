@@ -69,6 +69,8 @@ export interface BriefDto {
   status: BriefStatus;
   vorlageName?: string;
   nachrichtenCount: number;
+  selectedMitgliedIds?: number[];
+  selectedMitgliedCount?: number;
   created?: string;
   createdBy?: number;
   modified?: string;
@@ -81,6 +83,7 @@ export interface CreateBriefDto {
   titel: string;
   betreff: string;
   inhalt: string;
+  selectedMitgliedIds?: number[];
 }
 
 export interface UpdateBriefDto {
@@ -88,6 +91,7 @@ export interface UpdateBriefDto {
   titel?: string;
   betreff?: string;
   inhalt?: string;
+  selectedMitgliedIds?: number[];
 }
 
 export interface SendBriefDto {

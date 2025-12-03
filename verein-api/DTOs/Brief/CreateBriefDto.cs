@@ -44,5 +44,11 @@ public class CreateBriefDto
     [Range(8, 72, ErrorMessage = "Schriftgroesse must be between 8 and 72")]
     [JsonPropertyName("schriftgroesse")]
     public int Schriftgroesse { get; set; } = 14;
+
+    /// <summary>
+    /// Selected member IDs for draft (stored as JSON in database)
+    /// </summary>
+    [JsonPropertyName("selectedMitgliedIds")]
+    public List<int>? SelectedMitgliedIds { get; set; }
 }
 

@@ -8,6 +8,14 @@ import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import './BriefDetail.css';
 
+// Back Icon
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
 const BriefDetail: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation(['common', 'briefe']);
@@ -119,12 +127,14 @@ const BriefDetail: React.FC = () => {
   return (
     <div className="brief-detail-page">
       <div className="page-header">
-        <button className="btn-back" onClick={() => navigate('/briefe')}>←</button>
+        <button className="btn-icon-back" onClick={() => navigate('/briefe')} title={t('common:back')}>
+          <BackIcon />
+        </button>
         <div className="header-actions">
           {brief.status === BriefStatus.Entwurf && (
             <>
               <button className="btn-primary" onClick={() => setShowSendModal(true)}>
-                📤 {t('common:send')}
+                {t('common:send')}
               </button>
               <button className="btn-secondary" onClick={() => navigate(`/briefe/${id}/bearbeiten`)}>
                 {t('common:edit')}

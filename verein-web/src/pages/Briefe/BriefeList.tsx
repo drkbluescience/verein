@@ -215,7 +215,9 @@ const BriefeList: React.FC = () => {
                   </td>
                   <td>{brief.betreff}</td>
                   <td>{getStatusBadge(brief.status)}</td>
-                  <td>{brief.nachrichtenCount > 0 ? brief.nachrichtenCount : '-'}</td>
+                  <td>{brief.status === BriefStatus.Gesendet
+                    ? brief.nachrichtenCount
+                    : (brief.selectedMitgliedIds?.length || brief.selectedMitgliedCount || '-')}</td>
                   <td>{formatDate(brief.modified || brief.created)}</td>
                   <td className="actions-cell">
                     <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}`)}

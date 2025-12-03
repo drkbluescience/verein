@@ -46,6 +46,18 @@ public class BriefDto
     [JsonPropertyName("nachrichtenCount")]
     public int NachrichtenCount { get; set; }
 
+    /// <summary>
+    /// Selected member IDs for draft (from JSON in database)
+    /// </summary>
+    [JsonPropertyName("selectedMitgliedIds")]
+    public List<int>? SelectedMitgliedIds { get; set; }
+
+    /// <summary>
+    /// Count of selected members (for display in list)
+    /// </summary>
+    [JsonPropertyName("selectedMitgliedCount")]
+    public int SelectedMitgliedCount => SelectedMitgliedIds?.Count ?? 0;
+
     [JsonPropertyName("created")]
     public DateTime? Created { get; set; }
 
