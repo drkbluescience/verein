@@ -31,7 +31,8 @@ const BriefForm: React.FC = () => {
 
   // Form state
   const [formData, setFormData] = useState<CreateBriefDto>({
-    name: '',
+    vereinId: user?.vereinId || 0,
+    titel: '',
     betreff: '',
     inhalt: '',
     vorlageId: undefined,
@@ -64,7 +65,8 @@ const BriefForm: React.FC = () => {
   useEffect(() => {
     if (existingBrief) {
       setFormData({
-        name: existingBrief.name,
+        vereinId: existingBrief.vereinId,
+        titel: existingBrief.titel,
         betreff: existingBrief.betreff,
         inhalt: existingBrief.inhalt,
         vorlageId: existingBrief.vorlageId,
@@ -184,12 +186,12 @@ const BriefForm: React.FC = () => {
               </select>
             </div>
 
-            {/* Name */}
+            {/* Titel */}
             <div className="form-group">
-              <label>{t('briefe:form.name')} *</label>
-              <input type="text" value={formData.name} required
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder={t('briefe:form.namePlaceholder')} />
+              <label>{t('briefe:form.title')} *</label>
+              <input type="text" value={formData.titel} required
+                onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
+                placeholder={t('briefe:form.titlePlaceholder')} />
             </div>
 
             {/* Subject */}

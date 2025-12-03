@@ -11,7 +11,7 @@
     "sent": "Gönderilenler"
   },
   "table": {
-    "name": "Ad",
+    "title": "Başlık",
     "subject": "Konu",
     "status": "Durum",
     "recipients": "Alıcılar",
@@ -25,8 +25,8 @@
   "form": {
     "template": "Şablon",
     "noTemplate": "Şablon seçmeyin",
-    "name": "Mektup Adı",
-    "namePlaceholder": "Bu mektup için bir ad girin",
+    "title": "Mektup Başlığı",
+    "titlePlaceholder": "Bu mektup için bir başlık girin",
     "subject": "Konu",
     "subjectPlaceholder": "Mektubun konusunu girin",
     "content": "İçerik",

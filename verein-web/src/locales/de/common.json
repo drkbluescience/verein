@@ -6,8 +6,10 @@
   "unauthorized": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
   "save": "Speichern",
   "cancel": "Abbrechen",
+  "send": "Senden",
   "saving": "Wird gespeichert...",
   "back": "Zurück",
+  "noResults": "Keine Ergebnisse gefunden",
   "app": {
     "name": "Vereinsverwaltungssystem",
     "title": "Verein"

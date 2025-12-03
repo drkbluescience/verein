@@ -2,10 +2,36 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { briefService } from '../../services';
+import { briefService, mitgliedService } from '../../services';
 import { BriefDto, BriefStatus, StatusLabels } from '../../types/brief.types';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 import './BriefeList.css';
+
+// SVG Icons
+const ViewIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
+const DeleteIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  </svg>
+);
+
+const SendIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+  </svg>
+);
 
 const BriefeList: React.FC = () => {
   // @ts-ignore - i18next type definitions
@@ -13,18 +39,34 @@ const BriefeList: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'all' | 'drafts' | 'sent'>('all');
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [selectedBrief, setSelectedBrief] = useState<BriefDto | null>(null);
+  const [selectedMitglieder, setSelectedMitglieder] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const vereinId = user?.vereinId;
 
   // Fetch briefe based on active tab
   const { data: briefe = [], isLoading } = useQuery({
-    queryKey: ['briefe', activeTab],
+    queryKey: ['briefe', activeTab, vereinId],
     queryFn: async () => {
+      if (!vereinId) return [];
       switch (activeTab) {
-        case 'drafts': return briefService.getDrafts();
-        case 'sent': return briefService.getSent();
-        default: return briefService.getAll();
+        case 'drafts': return briefService.getDraftsByVereinId(vereinId);
+        case 'sent': return briefService.getSentByVereinId(vereinId);
+        default: return briefService.getByVereinId(vereinId);
       }
     },
+    enabled: !!vereinId,
+  });
+
+  // Fetch members for send modal
+  const { data: mitglieder = [] } = useQuery({
+    queryKey: ['mitglieder', vereinId],
+    queryFn: () => mitgliedService.getByVereinId(vereinId || 0),
+    enabled: showSendModal && !!vereinId,
   });
 
   // Delete mutation
@@ -37,9 +79,56 @@ const BriefeList: React.FC = () => {
     onError: () => showError(t('briefe:messages.deleteError')),
   });
 
+  // Send mutation
+  const sendMutation = useMutation({
+    mutationFn: (data: { briefId: number; mitgliedIds: number[] }) => briefService.send(data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['briefe'] });
+      showSuccess(t('briefe:messages.sent', { count: data.length }));
+      setShowSendModal(false);
+      setSelectedBrief(null);
+      setSelectedMitglieder([]);
+    },
+    onError: () => showError(t('briefe:messages.sendError')),
+  });
+
   const handleDelete = (id: number, name: string) => {
     if (window.confirm(t('briefe:confirmDelete', { name }))) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const openSendModal = (brief: BriefDto) => {
+    setSelectedBrief(brief);
+    setSelectedMitglieder([]);
+    setSearchQuery('');
+    setShowSendModal(true);
+  };
+
+  const handleSend = () => {
+    if (!selectedBrief || selectedMitglieder.length === 0) {
+      showError(t('briefe:errors.noRecipients'));
+      return;
+    }
+    sendMutation.mutate({ briefId: selectedBrief.id, mitgliedIds: selectedMitglieder });
+  };
+
+  const toggleMitglied = (mitgliedId: number) => {
+    setSelectedMitglieder(prev =>
+      prev.includes(mitgliedId) ? prev.filter(id => id !== mitgliedId) : [...prev, mitgliedId]
+    );
+  };
+
+  const filteredMitglieder = mitglieder.filter(m =>
+    `${m.vorname} ${m.nachname}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    m.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const toggleAllMitglieder = () => {
+    if (selectedMitglieder.length === filteredMitglieder.length) {
+      setSelectedMitglieder([]);
+    } else {
+      setSelectedMitglieder(filteredMitglieder.map(m => m.id));
     }
   };
 
@@ -107,7 +196,7 @@ const BriefeList: React.FC = () => {
           <table className="briefe-table">
             <thead>
               <tr>
-                <th>{t('briefe:table.name')}</th>
+                <th>{t('briefe:table.title')}</th>
                 <th>{t('briefe:table.subject')}</th>
                 <th>{t('briefe:table.status')}</th>
                 <th>{t('briefe:table.recipients')}</th>
@@ -119,24 +208,26 @@ const BriefeList: React.FC = () => {
               {briefe.map((brief: BriefDto) => (
                 <tr key={brief.id}>
                   <td className="name-cell">
-                    <span className="brief-name">{brief.name}</span>
+                    <span className="brief-name">{brief.titel}</span>
                     {brief.vorlageName && (
                       <span className="template-badge">📋 {brief.vorlageName}</span>
                     )}
                   </td>
                   <td>{brief.betreff}</td>
                   <td>{getStatusBadge(brief.status)}</td>
-                  <td>{brief.empfaengerAnzahl > 0 ? brief.empfaengerAnzahl : '-'}</td>
-                  <td>{formatDate(brief.gesendetDatum || brief.modified || brief.created)}</td>
+                  <td>{brief.nachrichtenCount > 0 ? brief.nachrichtenCount : '-'}</td>
+                  <td>{formatDate(brief.modified || brief.created)}</td>
                   <td className="actions-cell">
-                    <button className="btn-icon" onClick={() => navigate(`/briefe/${brief.id}`)}
-                      title={t('common:view')}>👁️</button>
+                    <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}`)}
+                      title={t('common:view')}><ViewIcon /></button>
                     {brief.status === BriefStatus.Entwurf && (
                       <>
-                        <button className="btn-icon" onClick={() => navigate(`/briefe/${brief.id}/bearbeiten`)}
-                          title={t('common:edit')}>✏️</button>
-                        <button className="btn-icon delete" onClick={() => handleDelete(brief.id, brief.name)}
-                          title={t('common:delete')}>🗑️</button>
+                        <button className="table-action-btn send" onClick={() => openSendModal(brief)}
+                          title={t('common:send')}><SendIcon /></button>
+                        <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}/bearbeiten`)}
+                          title={t('common:edit')}><EditIcon /></button>
+                        <button className="table-action-btn delete" onClick={() => handleDelete(brief.id, brief.titel)}
+                          title={t('common:delete')}><DeleteIcon /></button>
                       </>
                     )}
                   </td>
@@ -144,6 +235,66 @@ const BriefeList: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Send Modal */}
+      {showSendModal && selectedBrief && (
+        <div className="modal-overlay" onClick={() => setShowSendModal(false)}>
+          <div className="modal-content send-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📤 {t('common:send')}: {selectedBrief.titel}</h2>
+              <button className="modal-close" onClick={() => setShowSendModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="search-box">
+                <input
+                  type="text"
+                  placeholder={t('briefe:form.searchMembers')}
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="select-actions">
+                <button type="button" className="btn-link" onClick={toggleAllMitglieder}>
+                  {selectedMitglieder.length === filteredMitglieder.length
+                    ? t('briefe:form.clearSelection')
+                    : t('briefe:form.selectAll')}
+                </button>
+                <span className="selected-count">
+                  {selectedMitglieder.length} {t('briefe:form.selected')}
+                </span>
+              </div>
+              <div className="members-list">
+                {filteredMitglieder.map(m => (
+                  <label key={m.id} className="member-item">
+                    <input
+                      type="checkbox"
+                      checked={selectedMitglieder.includes(m.id)}
+                      onChange={() => toggleMitglied(m.id)}
+                    />
+                    <span className="member-name">{m.vorname} {m.nachname}</span>
+                    <span className="member-email">{m.email}</span>
+                  </label>
+                ))}
+                {filteredMitglieder.length === 0 && (
+                  <div className="empty-state-modal">{t('common:noResults')}</div>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowSendModal(false)}>
+                {t('common:cancel')}
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleSend}
+                disabled={selectedMitglieder.length === 0 || sendMutation.isPending}
+              >
+                {sendMutation.isPending ? '...' : `📤 ${t('common:send')} (${selectedMitglieder.length})`}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

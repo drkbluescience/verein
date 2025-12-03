@@ -11,7 +11,7 @@
     "sent": "Gesendet"
   },
   "table": {
-    "name": "Name",
+    "title": "Titel",
     "subject": "Betreff",
     "status": "Status",
     "recipients": "Empfänger",
@@ -25,8 +25,8 @@
   "form": {
     "template": "Vorlage",
     "noTemplate": "Keine Vorlage",
-    "name": "Briefname",
-    "namePlaceholder": "Geben Sie einen Namen für diesen Brief ein",
+    "title": "Brieftitel",
+    "titlePlaceholder": "Geben Sie einen Titel für diesen Brief ein",
     "subject": "Betreff",
     "subjectPlaceholder": "Geben Sie den Betreff des Briefes ein",
     "content": "Inhalt",

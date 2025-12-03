@@ -6,8 +6,10 @@
   "unauthorized": "Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.",
   "save": "Kaydet",
   "cancel": "İptal",
+  "send": "Gönder",
   "saving": "Kaydediliyor...",
   "back": "Geri",
+  "noResults": "Sonuç bulunamadı",
   "app": {
     "name": "Verein Yönetim Sistemi",
     "title": "Verein"

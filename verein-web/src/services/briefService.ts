@@ -87,10 +87,10 @@ export const briefVorlageService = {
 
 export const briefService = {
   /**
-   * Get all letters for the current Verein
+   * Get all letters for a Verein
    */
-  getAll: async (): Promise<BriefDto[]> => {
-    return api.get<BriefDto[]>('/api/Briefe');
+  getByVereinId: async (vereinId: number): Promise<BriefDto[]> => {
+    return api.get<BriefDto[]>(`/api/Briefe/verein/${vereinId}`);
   },
 
   /**
@@ -101,24 +101,24 @@ export const briefService = {
   },
 
   /**
-   * Get draft letters only
+   * Get draft letters for a Verein
    */
-  getDrafts: async (): Promise<BriefDto[]> => {
-    return api.get<BriefDto[]>('/api/Briefe/entwuerfe');
+  getDraftsByVereinId: async (vereinId: number): Promise<BriefDto[]> => {
+    return api.get<BriefDto[]>(`/api/Briefe/verein/${vereinId}/drafts`);
   },
 
   /**
-   * Get sent letters only
+   * Get sent letters for a Verein
    */
-  getSent: async (): Promise<BriefDto[]> => {
-    return api.get<BriefDto[]>('/api/Briefe/gesendet');
+  getSentByVereinId: async (vereinId: number): Promise<BriefDto[]> => {
+    return api.get<BriefDto[]>(`/api/Briefe/verein/${vereinId}/sent`);
   },
 
   /**
-   * Get letter statistics
+   * Get letter statistics for a Verein
    */
-  getStatistics: async (): Promise<BriefStatisticsDto> => {
-    return api.get<BriefStatisticsDto>('/api/Briefe/statistiken');
+  getStatisticsByVereinId: async (vereinId: number): Promise<BriefStatisticsDto> => {
+    return api.get<BriefStatisticsDto>(`/api/Briefe/verein/${vereinId}/statistics`);
   },
 
   /**
@@ -146,14 +146,14 @@ export const briefService = {
    * Send a letter to selected members
    */
   send: async (data: SendBriefDto): Promise<NachrichtDto[]> => {
-    return api.post<NachrichtDto[]>('/api/Briefe/senden', data);
+    return api.post<NachrichtDto[]>('/api/Briefe/send', data);
   },
 
   /**
    * Create and send a letter in one step
    */
   quickSend: async (data: QuickSendBriefDto): Promise<NachrichtDto[]> => {
-    return api.post<NachrichtDto[]>('/api/Briefe/schnell-senden', data);
+    return api.post<NachrichtDto[]>('/api/Briefe/quick-send', data);
   },
 
   /**

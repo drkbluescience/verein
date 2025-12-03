@@ -59,31 +59,33 @@ export interface BriefDto {
   id: number;
   vereinId: number;
   vorlageId?: number;
-  name: string;
+  titel: string;
   betreff: string;
   inhalt: string;
+  logoUrl?: string;
+  logoPosition: string;
+  schriftart: string;
+  schriftgroesse: number;
   status: BriefStatus;
-  gesendetDatum?: string;
-  empfaengerAnzahl: number;
-  aktiv: boolean;
-  created: string;
-  createdBy?: string;
-  modified?: string;
-  modifiedBy?: string;
-  // Navigation
   vorlageName?: string;
+  nachrichtenCount: number;
+  created?: string;
+  createdBy?: number;
+  modified?: string;
+  modifiedBy?: number;
 }
 
 export interface CreateBriefDto {
+  vereinId: number;
   vorlageId?: number;
-  name: string;
+  titel: string;
   betreff: string;
   inhalt: string;
 }
 
 export interface UpdateBriefDto {
   vorlageId?: number;
-  name?: string;
+  titel?: string;
   betreff?: string;
   inhalt?: string;
 }
