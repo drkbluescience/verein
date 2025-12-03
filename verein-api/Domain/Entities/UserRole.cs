@@ -62,7 +62,7 @@ public class UserRole : AuditableEntity
     /// <summary>
     /// Is this role record active?
     /// </summary>
-    public bool? Aktiv { get; set; } = true;
+    public new bool? Aktiv { get; set; } = true;
 
     // Navigation properties
     /// <summary>

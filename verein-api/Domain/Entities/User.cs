@@ -68,7 +68,7 @@ public class User : AuditableEntity
     /// <summary>
     /// Is this user record active?
     /// </summary>
-    public bool? Aktiv { get; set; } = true;
+    public new bool? Aktiv { get; set; } = true;
 
     // Navigation properties
     /// <summary>

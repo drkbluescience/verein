@@ -97,7 +97,7 @@ public class PageNote : AuditableEntity
     /// <summary>
     /// Is this note active?
     /// </summary>
-    public bool? Aktiv { get; set; } = true;
+    public new bool? Aktiv { get; set; } = true;
 
     // Override CreatedBy and ModifiedBy to use string instead of int
     // because PageNote table uses nvarchar(256) for these fields
