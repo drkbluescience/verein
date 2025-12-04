@@ -16,7 +16,34 @@
     "phone": "Telefon",
     "address": "Adres",
     "birthDate": "Doğum Tarihi",
-    "memberNumber": "Üyelik Numarası"
+    "birthPlace": "Doğum Yeri",
+    "gender": "Cinsiyet",
+    "nationality": "Uyruk"
+  },
+  "contactInfo": {
+    "title": "İletişim Bilgileri",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "mobile": "Cep Telefonu"
+  },
+  "membershipInfo": {
+    "title": "Üyelik Bilgileri",
+    "memberNumber": "Üye Numarası",
+    "memberStatus": "Üyelik Durumu",
+    "memberType": "Üyelik Tipi",
+    "memberSince": "Üyelik Başlangıç",
+    "memberUntil": "Üyelik Bitiş",
+    "isActive": "Aktif mi?"
+  },
+  "feeInfo": {
+    "title": "Aidat / Ödeme Bilgileri",
+    "feeAmount": "Aidat Tutarı",
+    "feePeriod": "Aidat Dönemi",
+    "paymentDay": "Ödeme Günü",
+    "paymentDayType": "Ödeme Günü Tipi",
+    "feeRequired": "Aidat Zorunlu mu?",
+    "yes": "Evet",
+    "no": "Hayır"
   },
   "accountInfo": {
     "title": "Hesap Bilgileri",

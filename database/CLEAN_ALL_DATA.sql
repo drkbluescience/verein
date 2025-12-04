@@ -218,6 +218,41 @@ PRINT '   ✓ ' + CAST(@DeletedUserCount AS VARCHAR(10)) + ' kullanıcı silindi
 GO
 
 -- ============================================================================
+-- BRIEF ŞEMASINI SİL (Nachricht, Brief, BriefVorlage)
+-- ============================================================================
+PRINT '📧 Brief şeması siliniyor...';
+
+DECLARE @DeletedNachrichtCount INT = 0;
+DECLARE @DeletedBriefCount INT = 0;
+DECLARE @DeletedBriefVorlageCount INT = 0;
+
+-- Önce Nachricht (mesajlar)
+IF OBJECT_ID('[Brief].[Nachricht]', 'U') IS NOT NULL
+BEGIN
+    DELETE FROM [Brief].[Nachricht];
+    SET @DeletedNachrichtCount = @@ROWCOUNT;
+END
+
+-- Sonra Brief (mektup taslakları)
+IF OBJECT_ID('[Brief].[Brief]', 'U') IS NOT NULL
+BEGIN
+    DELETE FROM [Brief].[Brief];
+    SET @DeletedBriefCount = @@ROWCOUNT;
+END
+
+-- En son BriefVorlage (şablonlar)
+IF OBJECT_ID('[Brief].[BriefVorlage]', 'U') IS NOT NULL
+BEGIN
+    DELETE FROM [Brief].[BriefVorlage];
+    SET @DeletedBriefVorlageCount = @@ROWCOUNT;
+END
+
+PRINT '   ✓ ' + CAST(@DeletedNachrichtCount AS VARCHAR(10)) + ' mesaj silindi';
+PRINT '   ✓ ' + CAST(@DeletedBriefCount AS VARCHAR(10)) + ' mektup taslağı silindi';
+PRINT '   ✓ ' + CAST(@DeletedBriefVorlageCount AS VARCHAR(10)) + ' mektup şablonu silindi';
+GO
+
+-- ============================================================================
 -- 1️⃣4️⃣ ÜYELERİ SİL (Mitglied)
 -- ============================================================================
 PRINT '1️⃣4️⃣ Üyeler siliniyor...';
@@ -418,6 +453,14 @@ DBCC CHECKIDENT ('[Finanz].[MitgliedVorauszahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[VeranstaltungZahlung]', RESEED, 0);
 DBCC CHECKIDENT ('[Finanz].[VereinDitibZahlung]', RESEED, 0);
 
+-- Brief Schema (varsa)
+IF OBJECT_ID('[Brief].[Nachricht]', 'U') IS NOT NULL
+    DBCC CHECKIDENT ('[Brief].[Nachricht]', RESEED, 0);
+IF OBJECT_ID('[Brief].[Brief]', 'U') IS NOT NULL
+    DBCC CHECKIDENT ('[Brief].[Brief]', RESEED, 0);
+IF OBJECT_ID('[Brief].[BriefVorlage]', 'U') IS NOT NULL
+    DBCC CHECKIDENT ('[Brief].[BriefVorlage]', RESEED, 0);
+
 -- Keytable Schema
 DBCC CHECKIDENT ('[Keytable].[Geschlecht]', RESEED, 0);
 DBCC CHECKIDENT ('[Keytable].[MitgliedStatus]', RESEED, 0);
@@ -483,6 +526,12 @@ SELECT 'MitgliedVorauszahlung', COUNT(*) FROM [Finanz].[MitgliedVorauszahlung]
 UNION ALL
 SELECT 'VeranstaltungZahlung', COUNT(*) FROM [Finanz].[VeranstaltungZahlung]
 UNION ALL
+SELECT 'Brief.Nachricht', ISNULL((SELECT COUNT(*) FROM [Brief].[Nachricht]), 0)
+UNION ALL
+SELECT 'Brief.Brief', ISNULL((SELECT COUNT(*) FROM [Brief].[Brief]), 0)
+UNION ALL
+SELECT 'Brief.BriefVorlage', ISNULL((SELECT COUNT(*) FROM [Brief].[BriefVorlage]), 0)
+UNION ALL
 SELECT 'Geschlecht', COUNT(*) FROM [Keytable].[Geschlecht]
 UNION ALL
 SELECT 'MitgliedStatus', COUNT(*) FROM [Keytable].[MitgliedStatus]
@@ -541,6 +590,9 @@ PRINT '      ✓ Üye Adresleri (MitgliedAdresse)';
 PRINT '      ✓ Aile İlişkileri (MitgliedFamilie)';
 PRINT '      ✓ Kullanıcı Rolleri (UserRole)';
 PRINT '      ✓ Kullanıcılar (User)';
+PRINT '      ✓ Mesajlar (Brief.Nachricht)';
+PRINT '      ✓ Mektup Taslakları (Brief.Brief)';
+PRINT '      ✓ Mektup Şablonları (Brief.BriefVorlage)';
 PRINT '      ✓ Üyeler (Mitglied)';
 PRINT '      ✓ Banka Hesapları (Bankkonto)';
 PRINT '      ✓ Sayfa Notları (PageNote)';

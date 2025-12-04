@@ -58,6 +58,11 @@ public interface IVeranstaltungZahlungService
     /// </summary>
     Task<decimal> GetTotalPaymentAmountAsync(int veranstaltungId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Gets all zahlungen for a specific mitglied (through anmeldung)
+    /// </summary>
+    Task<IEnumerable<VeranstaltungZahlungDto>> GetByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default);
+
     #endregion
 }
 

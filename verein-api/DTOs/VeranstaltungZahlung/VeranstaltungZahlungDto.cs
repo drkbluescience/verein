@@ -27,6 +27,12 @@ public class VeranstaltungZahlungDto
     public int AnmeldungId { get; set; }
 
     /// <summary>
+    /// Veranstaltung title (navigation property)
+    /// </summary>
+    [JsonPropertyName("veranstaltungTitel")]
+    public string? VeranstaltungTitel { get; set; }
+
+    /// <summary>
     /// Name of the person making the payment
     /// </summary>
     [JsonPropertyName("name")]

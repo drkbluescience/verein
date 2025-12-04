@@ -12,7 +12,8 @@ public class VeranstaltungZahlungProfile : Profile
     public VeranstaltungZahlungProfile()
     {
         // Entity -> DTO
-        CreateMap<VeranstaltungZahlung, VeranstaltungZahlungDto>();
+        CreateMap<VeranstaltungZahlung, VeranstaltungZahlungDto>()
+            .ForMember(dest => dest.VeranstaltungTitel, opt => opt.MapFrom(src => src.Veranstaltung != null ? src.Veranstaltung.Titel : null));
         
         // CreateDTO -> Entity
         CreateMap<CreateVeranstaltungZahlungDto, VeranstaltungZahlung>()

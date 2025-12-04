@@ -114,6 +114,9 @@
       "birthDate": "Geburtsdatum",
       "age": "Alter",
       "birthPlace": "Geburtsort",
+      "gender": "Geschlecht",
+      "nationality": "Staatsangehörigkeit",
+      "memberType": "Mitgliedstyp",
       "email": "E-Mail",
       "phone": "Telefon",
       "mobile": "Mobiltelefon",
@@ -123,10 +126,15 @@
       "membershipDuration": "Mitgliedschaftsdauer",
       "exitDate": "Austrittsdatum",
       "feeAmount": "Beitragshöhe",
+      "feePeriod": "Beitragsperiode",
+      "paymentDay": "Zahlungstag",
+      "feeRequired": "Beitragspflicht",
       "notSpecified": "Nicht angegeben",
       "loading": "Wird geladen...",
       "unknown": "Unbekannt",
-      "yearsOld": "Jahre alt"
+      "yearsOld": "Jahre alt",
+      "yes": "Ja",
+      "no": "Nein"
     },
     "address": {
       "title": "Adresse",

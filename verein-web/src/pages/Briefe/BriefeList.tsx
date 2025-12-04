@@ -33,6 +33,15 @@ const SendIcon = () => (
   </svg>
 );
 
+// Check Icon
+const CheckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
+type TabType = 'all' | 'drafts' | 'sent' | 'read' | 'unread';
+
 const BriefeList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation(['common', 'briefe']);
@@ -40,7 +49,7 @@ const BriefeList: React.FC = () => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'all' | 'drafts' | 'sent'>('all');
+  const [activeTab, setActiveTab] = useState<TabType>('all');
   const [showSendModal, setShowSendModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedBrief, setSelectedBrief] = useState<BriefDto | null>(null);
@@ -50,19 +59,54 @@ const BriefeList: React.FC = () => {
 
   const vereinId = user?.vereinId;
 
-  // Fetch briefe based on active tab
-  const { data: briefe = [], isLoading } = useQuery({
-    queryKey: ['briefe', activeTab, vereinId],
+  // Fetch all briefe
+  const { data: allBriefe = [], isLoading } = useQuery({
+    queryKey: ['briefe', vereinId],
     queryFn: async () => {
       if (!vereinId) return [];
-      switch (activeTab) {
-        case 'drafts': return briefService.getDraftsByVereinId(vereinId);
-        case 'sent': return briefService.getSentByVereinId(vereinId);
-        default: return briefService.getByVereinId(vereinId);
-      }
+      return briefService.getByVereinId(vereinId);
     },
     enabled: !!vereinId,
   });
+
+  // Helper to check if a brief has all messages read
+  const getReadStatus = (brief: BriefDto) => {
+    if (brief.status !== BriefStatus.Gesendet || !brief.recipients || brief.recipients.length === 0) {
+      return null; // Not applicable for drafts
+    }
+    const readCount = brief.recipients.filter(r => r.istGelesen).length;
+    const totalCount = brief.recipients.length;
+    return { readCount, totalCount, allRead: readCount === totalCount };
+  };
+
+  // Filter briefe based on active tab
+  const briefe = allBriefe.filter((brief: BriefDto) => {
+    switch (activeTab) {
+      case 'drafts': return brief.status === BriefStatus.Entwurf;
+      case 'sent': return brief.status === BriefStatus.Gesendet;
+      case 'read': {
+        const status = getReadStatus(brief);
+        return status && status.allRead;
+      }
+      case 'unread': {
+        const status = getReadStatus(brief);
+        return status && !status.allRead;
+      }
+      default: return true;
+    }
+  });
+
+  // Count for tabs
+  const draftsCount = allBriefe.filter((b: BriefDto) => b.status === BriefStatus.Entwurf).length;
+  const sentCount = allBriefe.filter((b: BriefDto) => b.status === BriefStatus.Gesendet).length;
+  const readCount = allBriefe.filter((b: BriefDto) => {
+    const status = getReadStatus(b);
+    return status && status.allRead;
+  }).length;
+  const unreadCount = allBriefe.filter((b: BriefDto) => {
+    const status = getReadStatus(b);
+    return status && !status.allRead;
+  }).length;
 
   // Fetch members for send modal
   const { data: mitglieder = [] } = useQuery({
@@ -183,15 +227,23 @@ const BriefeList: React.FC = () => {
       <div className="filter-tabs">
         <button className={`filter-tab ${activeTab === 'all' ? 'active' : ''}`}
           onClick={() => setActiveTab('all')}>
-          {t('briefe:tabs.all')} <span className="tab-count">{briefe.length}</span>
+          {t('briefe:tabs.all')} <span className="tab-count">{allBriefe.length}</span>
         </button>
         <button className={`filter-tab ${activeTab === 'drafts' ? 'active' : ''}`}
           onClick={() => setActiveTab('drafts')}>
-          {t('briefe:tabs.drafts')} <span className="tab-count">{briefe.filter(b => b.status === BriefStatus.Entwurf).length}</span>
+          {t('briefe:tabs.drafts')} <span className="tab-count">{draftsCount}</span>
         </button>
         <button className={`filter-tab ${activeTab === 'sent' ? 'active' : ''}`}
           onClick={() => setActiveTab('sent')}>
-          {t('briefe:tabs.sent')} <span className="tab-count">{briefe.filter(b => b.status === BriefStatus.Gesendet).length}</span>
+          {t('briefe:tabs.sent')} <span className="tab-count">{sentCount}</span>
+        </button>
+        <button className={`filter-tab ${activeTab === 'read' ? 'active' : ''}`}
+          onClick={() => setActiveTab('read')}>
+          {t('briefe:tabs.read')} <span className="tab-count">{readCount}</span>
+        </button>
+        <button className={`filter-tab ${activeTab === 'unread' ? 'active' : ''}`}
+          onClick={() => setActiveTab('unread')}>
+          {t('briefe:tabs.unread')} <span className="tab-count">{unreadCount}</span>
         </button>
       </div>
 
@@ -218,43 +270,58 @@ const BriefeList: React.FC = () => {
                 <th>{t('briefe:table.subject')}</th>
                 <th>{t('briefe:table.status')}</th>
                 <th>{t('briefe:table.recipients')}</th>
+                <th>{t('briefe:table.readStatus')}</th>
                 <th>{t('briefe:table.date')}</th>
                 <th>{t('briefe:table.time')}</th>
                 <th>{t('briefe:table.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {briefe.map((brief: BriefDto) => (
-                <tr key={brief.id}>
-                  <td className="name-cell">
-                    <span className="brief-name">{brief.titel}</span>
-                    {brief.vorlageName && (
-                      <span className="template-badge">📋 {brief.vorlageName}</span>
-                    )}
-                  </td>
-                  <td>{brief.betreff}</td>
-                  <td>{getStatusBadge(brief.status)}</td>
-                  <td className="center-cell">{brief.status === BriefStatus.Gesendet
-                    ? brief.nachrichtenCount
-                    : (brief.selectedMitgliedIds?.length || brief.selectedMitgliedCount || '-')}</td>
-                  <td>{formatDate(brief.modified || brief.created)}</td>
-                  <td>{formatTime(brief.modified || brief.created)}</td>
-                  <td className="actions-cell">
-                    <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}`)}
-                      title={t('common:view')}><ViewIcon /></button>
-                    {brief.status === BriefStatus.Entwurf && (
-                      <>
-                        <button className="table-action-btn send" onClick={() => openSendModal(brief)}
-                          title={t('common:send')}><SendIcon /></button>
-                        <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}/bearbeiten`)}
-                          title={t('common:edit')}><EditIcon /></button>
-                        <button className="table-action-btn delete" onClick={() => openDeleteModal(brief)}
-                          title={t('common:delete')}><DeleteIcon /></button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {briefe.map((brief: BriefDto) => {
+                const readStatus = getReadStatus(brief);
+                return (
+                  <tr key={brief.id}>
+                    <td className="name-cell">
+                      <span className="brief-name">{brief.titel}</span>
+                      {brief.vorlageName && (
+                        <span className="template-badge">📋 {brief.vorlageName}</span>
+                      )}
+                    </td>
+                    <td>{brief.betreff}</td>
+                    <td>{getStatusBadge(brief.status)}</td>
+                    <td className="center-cell">{brief.status === BriefStatus.Gesendet
+                      ? brief.nachrichtenCount
+                      : (brief.selectedMitgliedIds?.length || brief.selectedMitgliedCount || '-')}</td>
+                    <td className="center-cell">
+                      {readStatus ? (
+                        <span className={`read-status-badge ${readStatus.allRead ? 'all-read' : 'partial'}`}>
+                          {readStatus.allRead ? (
+                            <><CheckIcon /> {t('briefe:table.allRead')}</>
+                          ) : (
+                            `${readStatus.readCount}/${readStatus.totalCount}`
+                          )}
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td>{formatDate(brief.modified || brief.created)}</td>
+                    <td>{formatTime(brief.modified || brief.created)}</td>
+                    <td className="actions-cell">
+                      <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}`)}
+                        title={t('common:view')}><ViewIcon /></button>
+                      {brief.status === BriefStatus.Entwurf && (
+                        <>
+                          <button className="table-action-btn send" onClick={() => openSendModal(brief)}
+                            title={t('common:send')}><SendIcon /></button>
+                          <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}/bearbeiten`)}
+                            title={t('common:edit')}><EditIcon /></button>
+                          <button className="table-action-btn delete" onClick={() => openDeleteModal(brief)}
+                            title={t('common:delete')}><DeleteIcon /></button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

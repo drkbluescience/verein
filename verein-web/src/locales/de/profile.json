@@ -16,7 +16,34 @@
     "phone": "Telefon",
     "address": "Adresse",
     "birthDate": "Geburtsdatum",
-    "memberNumber": "Mitgliedsnummer"
+    "birthPlace": "Geburtsort",
+    "gender": "Geschlecht",
+    "nationality": "Staatsangehörigkeit"
+  },
+  "contactInfo": {
+    "title": "Kontaktinformationen",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "mobile": "Mobiltelefon"
+  },
+  "membershipInfo": {
+    "title": "Mitgliedschaftsinformationen",
+    "memberNumber": "Mitgliedsnummer",
+    "memberStatus": "Mitgliedsstatus",
+    "memberType": "Mitgliedstyp",
+    "memberSince": "Mitglied seit",
+    "memberUntil": "Mitglied bis",
+    "isActive": "Aktiv?"
+  },
+  "feeInfo": {
+    "title": "Beitrags- / Zahlungsinformationen",
+    "feeAmount": "Beitragshöhe",
+    "feePeriod": "Beitragsperiode",
+    "paymentDay": "Zahlungstag",
+    "paymentDayType": "Zahlungstagtyp",
+    "feeRequired": "Beitragspflicht?",
+    "yes": "Ja",
+    "no": "Nein"
   },
   "accountInfo": {
     "title": "Kontoinformationen",

@@ -93,6 +93,18 @@ public class MitgliedForderungDto
     public DateTime? BezahltAm { get; set; }
 
     /// <summary>
+    /// Amount already paid (partial payments from MitgliedForderungZahlung)
+    /// </summary>
+    [JsonPropertyName("paidAmount")]
+    public decimal PaidAmount { get; set; }
+
+    /// <summary>
+    /// Remaining amount to be paid (Betrag - PaidAmount)
+    /// </summary>
+    [JsonPropertyName("remainingAmount")]
+    public decimal RemainingAmount { get; set; }
+
+    /// <summary>
     /// Created timestamp
     /// </summary>
     [JsonPropertyName("created")]

@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "overview": "Özet",
+    "beitrag": "Aidat Planım",
+    "events": "Etkinliklerim",
+    "claims": "Borçlarım"
+  },
   "dashboard": {
     "title": "Finans Yönetimi",
     "subtitle": "Derneğin finansal durumunu izleyin",
@@ -81,7 +87,14 @@
     "empty": "Henüz alacak kaydı yok",
     "total": "Toplam Alacak",
     "totalAmount": "Toplam Tutar",
-    "deleteConfirm": "Bu alacak kaydını silmek istediğinizden emin misiniz?"
+    "deleteConfirm": "Bu alacak kaydını silmek istediğinizden emin misiniz?",
+    "paymentProgress": "Ödeme Durumu",
+    "paid": "ödendi",
+    "paidAmount": "Ödenen",
+    "paymentHistory": "Ödeme Geçmişi",
+    "pendingPayment": "Beklenen ödeme...",
+    "noPaymentsYet": "Henüz ödeme yapılmadı",
+    "waitingForPayment": "Bu borç için ödeme bekleniyor"
   },
   "verein": {
     "name": "Dernek Adı"
@@ -241,7 +254,9 @@
   "status": {
     "paid": "Ödendi",
     "unpaid": "Ödenmedi",
-    "open": "Açık"
+    "open": "Açık",
+    "confirmed": "Onaylandı",
+    "waiting": "Bekleniyor"
   },
   "transaction": {
     "income": "Gelir",
@@ -259,16 +274,20 @@
   "mitgliedFinanz": {
     "title": "Finansal Durum",
     "subtitle": "Aidat ve ödeme bilgilerinizi görüntüleyin",
-    "currentBalance": "Toplam Borcum",
-    "totalDebt": "Toplam Borcum",
+    "totalDebt": "Ödenmemiş Borç",
     "totalPaid": "Toplam Ödediğim",
     "totalPayments": "Toplam Ödemelerim",
-    "overdueClaims": "Vadesi Geçmiş Borçlar",
-    "unpaidClaims": "ödenmemiş",
+    "overdueClaims": "Vadesi Geçmiş",
+    "overdueItems": "vadesi geçmiş",
+    "creditBalance": "Kredi Bakiyesi",
+    "availableCredit": "Kullanılabilir kredi",
+    "unpaidClaims": "ödenmemiş borç",
     "paidClaims": "ödenmiş",
+    "paidThisYear": "Bu Yıl Ödediğim",
     "payments": "ödeme",
     "overdueCount": "vade geçmiş",
-    "unpaidClaimsTitle": "Ödenmemiş Borçlarım",
+    "unpaidClaimsTitle": "Ödenmemiş Aidat Borçlarım",
+    "unpaidEventClaimsTitle": "Ödenmemiş Etkinlik Borçlarım",
     "paymentHistory": "Ödeme Geçmişim",
     "allClaims": "Tüm Borçlarım",
     "noPayments": "Henüz ödeme kaydınız bulunmuyor",
@@ -281,6 +300,8 @@
     "daysLeft": "gün kaldı",
     "daysOverdue": "gün gecikti",
     "dueToday": "Bugün ödenmeli",
+    "dueTomorrow": "Yarın ödenmeli",
+    "days": "gün",
     "paymentReference": "Ödeme Referansı",
     "useThisReference": "Bu referans numarasını kullanarak ödeme yapın",
     "paymentInstructions": "Banka havalesi ile ödeme yaparken bu referans numarasını mutlaka kullanın",
@@ -304,7 +325,14 @@
     "showPaidClaims": "Ödenen Borçları Göster",
     "hidePaidClaims": "Ödenen Borçları Gizle",
     "paid": "Ödendi",
-    "unpaid": "Ödenmedi"
+    "unpaid": "Ödenmedi",
+    "partiallyPaid": "Kısmi Ödendi",
+    "yearlyStats": "Bu Yıl Özeti",
+    "totalPaymentsCount": "Toplam Ödeme",
+    "totalPaidThisYear": "Bu Yıl Ödenen",
+    "avgPaymentTime": "Ort. Ödeme Süresi",
+    "preferredMethod": "Tercih Edilen Yöntem",
+    "upcomingPayments": "Yaklaşan Ödemeler"
   },
   "bankUpload": {
     "title": "Banka Ödemeleri Yükle",
@@ -464,6 +492,8 @@
   "paymentHistory": {
     "title": "Ödeme Geçmişim",
     "subtitle": "Tüm ödemelerinizi görüntüleyin ve filtreleyin",
+    "description": "Tüm ödeme kayıtlarınızı görüntüleyin, filtreleyin ve dışa aktarın.",
+    "viewAll": "Tüm Ödemeleri Görüntüle",
     "noPayments": "Henüz ödeme kaydınız bulunmuyor",
     "totalPayments": "Toplam Ödeme",
     "totalAmount": "Toplam Tutar",
@@ -493,7 +523,48 @@
     "sortByDate": "Tarihe Göre",
     "sortByAmount": "Tutara Göre",
     "sortAscending": "Artan",
-    "sortDescending": "Azalan"
+    "sortDescending": "Azalan",
+    "actions": "İşlemler",
+    "memberPayment": "Üyelik Ödemesi",
+    "eventPayment": "Etkinlik Ödemesi",
+    "paymentType": "Ödeme Tipi"
+  },
+  "beitragPlan": {
+    "title": "Aidat Planım",
+    "paymentDay": "Ödeme Günü",
+    "dayOfMonth": "günü",
+    "lastDayOfMonth": "Ayın son günü",
+    "mandatory": "Zorunlu Aidat",
+    "paymentCalendar": "Ödeme Takvimi",
+    "period": {
+      "monthly": "Aylık",
+      "quarterly": "3 Aylık",
+      "yearly": "Yıllık"
+    },
+    "status": {
+      "paid": "Ödendi",
+      "unpaid": "Ödenmedi",
+      "overdue": "Gecikmiş"
+    },
+    "noPlan": "Henüz bir aidat planınız bulunmuyor."
+  },
+  "veranstaltungen": {
+    "title": "Etkinlik Katılımlarım",
+    "paid": "Ödendi",
+    "pending": "Beklemede",
+    "unpaid": "Ödenmedi",
+    "free": "Ücretsiz",
+    "status": {
+      "confirmed": "Onaylandı",
+      "pending": "Beklemede",
+      "cancelled": "İptal Edildi",
+      "bestaetigt": "Onaylandı",
+      "ausstehend": "Beklemede",
+      "storniert": "İptal Edildi",
+      "abgelehnt": "Reddedildi",
+      "warteliste": "Bekleme Listesinde"
+    },
+    "noEvents": "Henüz bir etkinlik kaydınız bulunmuyor."
   }
 }
 

@@ -245,49 +245,95 @@ const MitgliedForderungDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Payment History */}
-        {allocations.length > 0 && (
-          <div className="detail-section">
-            <h2>💰 Ödeme Geçmişi</h2>
-            <div className="payment-summary">
-              <div className="summary-item">
-                <label>Toplam Fatura:</label>
-                <strong className="amount-total">€ {forderung.betrag.toFixed(2)}</strong>
-              </div>
-              <div className="summary-item">
-                <label>Ödenen:</label>
-                <strong className="amount-paid">€ {totalAllocated.toFixed(2)}</strong>
-              </div>
-              <div className="summary-item">
-                <label>Kalan:</label>
-                <strong className={remainingAmount > 0 ? "amount-remaining" : "amount-zero"}>
-                  € {remainingAmount.toFixed(2)}
-                </strong>
-              </div>
-            </div>
+        {/* Payment Progress Section */}
+        <div className="detail-section payment-progress-section">
+          <h2>💰 {t('finanz:claims.paymentProgress')}</h2>
 
-            <div className="payment-history-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Tarih</th>
-                    <th>Tutar</th>
-                    <th>Ödeme ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allocations.map((allocation) => (
-                    <tr key={allocation.id}>
-                      <td>{allocation.created ? new Date(allocation.created).toLocaleDateString('tr-TR') : '-'}</td>
-                      <td><strong>€ {allocation.betrag.toFixed(2)}</strong></td>
-                      <td>#{allocation.zahlungId}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* Progress Bar */}
+          <div className="payment-progress-container">
+            <div className="progress-header">
+              <span className="progress-label">{t('finanz:claims.totalAmount')}: € {forderung.betrag.toFixed(2)}</span>
+              <span className="progress-percentage">
+                {Math.round((totalAllocated / forderung.betrag) * 100)}% {t('finanz:claims.paid')}
+              </span>
+            </div>
+            <div className="progress-bar-wrapper">
+              <div
+                className={`progress-bar-fill ${isFullyPaid ? 'complete' : isPartiallyPaid ? 'partial' : 'empty'}`}
+                style={{ width: `${Math.min((totalAllocated / forderung.betrag) * 100, 100)}%` }}
+              />
+            </div>
+            <div className="progress-amounts">
+              <div className="progress-paid">
+                <span className="amount-label">{t('finanz:claims.paidAmount')}:</span>
+                <span className="amount-value success">€ {totalAllocated.toFixed(2)}</span>
+              </div>
+              <div className="progress-remaining">
+                <span className="amount-label">{t('finanz:claims.remainingAmount')}:</span>
+                <span className={`amount-value ${remainingAmount > 0 ? 'warning' : 'success'}`}>
+                  € {remainingAmount.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
-        )}
+
+          {/* Payment Timeline */}
+          {allocations.length > 0 && (
+            <div className="payment-timeline">
+              <h3>📜 {t('finanz:claims.paymentHistory')}</h3>
+              <div className="timeline-container">
+                {allocations.map((allocation, index) => (
+                  <div key={allocation.id} className="timeline-item">
+                    <div className="timeline-marker">
+                      <div className="marker-dot completed" />
+                      {index < allocations.length - 1 && <div className="marker-line" />}
+                    </div>
+                    <div className="timeline-content">
+                      <div className="timeline-date">
+                        {allocation.created
+                          ? new Date(allocation.created).toLocaleDateString('tr-TR', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric'
+                            })
+                          : '-'}
+                      </div>
+                      <div className="timeline-details">
+                        <span className="timeline-amount">€ {allocation.betrag.toFixed(2)}</span>
+                        <span className="timeline-id">#{allocation.zahlungId}</span>
+                        <span className="timeline-status">{t('finanz:status.confirmed')}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {/* Pending payment indicator if not fully paid */}
+                {remainingAmount > 0 && (
+                  <div className="timeline-item pending">
+                    <div className="timeline-marker">
+                      <div className="marker-dot pending" />
+                    </div>
+                    <div className="timeline-content">
+                      <div className="timeline-date">{t('finanz:claims.pendingPayment')}</div>
+                      <div className="timeline-details">
+                        <span className="timeline-amount pending">€ {remainingAmount.toFixed(2)}</span>
+                        <span className="timeline-status pending">{t('finanz:status.waiting')}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* No payments yet */}
+          {allocations.length === 0 && (
+            <div className="no-payments-message">
+              <div className="no-payments-icon">💳</div>
+              <p>{t('finanz:claims.noPaymentsYet')}</p>
+              <p className="no-payments-hint">{t('finanz:claims.waitingForPayment')}</p>
+            </div>
+          )}
+        </div>
 
 
       </div>

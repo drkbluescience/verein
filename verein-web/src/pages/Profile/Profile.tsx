@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import i18n from '../../i18n/config';
 import { useAuth } from '../../contexts/AuthContext';
+import { mitgliedService } from '../../services/mitgliedService';
+import keytableService, { Waehrung } from '../../services/keytableService';
+import Loading from '../../components/Common/Loading';
 import './Profile.css';
 
 // SVG Icons
@@ -53,6 +58,56 @@ const Profile: React.FC = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
+  // Fetch mitglied data if user is a member
+  const { data: mitglied, isLoading: mitgliedLoading } = useQuery({
+    queryKey: ['mitglied-profile', user?.mitgliedId],
+    queryFn: () => mitgliedService.getById(user!.mitgliedId!),
+    enabled: user?.type === 'mitglied' && !!user?.mitgliedId,
+  });
+
+  // Fetch keytable data
+  const { data: geschlechter } = useQuery({
+    queryKey: ['geschlechter'],
+    queryFn: () => keytableService.getGeschlechter(),
+    enabled: user?.type === 'mitglied',
+  });
+
+  const { data: staatsangehoerigkeiten } = useQuery({
+    queryKey: ['staatsangehoerigkeiten'],
+    queryFn: () => keytableService.getStaatsangehoerigkeiten(),
+    enabled: user?.type === 'mitglied',
+  });
+
+  const { data: mitgliedTypen } = useQuery({
+    queryKey: ['mitgliedTypen'],
+    queryFn: () => keytableService.getMitgliedTypen(),
+    enabled: user?.type === 'mitglied',
+  });
+
+  const { data: mitgliedStatuse } = useQuery({
+    queryKey: ['mitgliedStatuse'],
+    queryFn: () => keytableService.getMitgliedStatuse(),
+    enabled: user?.type === 'mitglied',
+  });
+
+  const { data: beitragPerioden } = useQuery({
+    queryKey: ['beitragPerioden'],
+    queryFn: () => keytableService.getBeitragPerioden(),
+    enabled: user?.type === 'mitglied',
+  });
+
+  const { data: beitragZahlungstagTypen } = useQuery({
+    queryKey: ['beitragZahlungstagTypen'],
+    queryFn: () => keytableService.getBeitragZahlungstagTypen(),
+    enabled: user?.type === 'mitglied',
+  });
+
+  const { data: waehrungen } = useQuery({
+    queryKey: ['waehrungen'],
+    queryFn: () => keytableService.getWaehrungen(),
+    enabled: user?.type === 'mitglied',
+  });
+
   const getUserTypeLabel = () => {
     switch (user?.type) {
       case 'admin':
@@ -79,7 +134,75 @@ const Profile: React.FC = () => {
     }
   };
 
+  // Helper function to get keytable name by id
+  const getKeytableName = (items: any[] | undefined, id: number | undefined): string => {
+    if (!items || !id) return t('profile:placeholders.notAvailable');
+    const item = items.find(i => i.id === id);
+    if (!item) return t('profile:placeholders.notAvailable');
 
+    const currentLang = i18n.language?.substring(0, 2) || 'tr';
+
+    // Önce uebersetzungen dizisinden çeviriyi ara
+    if (item.uebersetzungen && item.uebersetzungen.length > 0) {
+      const translation = item.uebersetzungen.find((u: any) => u.sprache === currentLang);
+      if (translation?.name) return translation.name;
+
+      // Fallback: Almanca çeviriyi ara
+      const german = item.uebersetzungen.find((u: any) => u.sprache === 'de');
+      if (german?.name) return german.name;
+
+      // Fallback: İlk çeviriyi kullan
+      if (item.uebersetzungen[0]?.name) return item.uebersetzungen[0].name;
+    }
+
+    // Eğer uebersetzungen yoksa name property'sini kullan (keytableService tarafından eklenen)
+    return item.name || item.code || t('profile:placeholders.notAvailable');
+  };
+
+  // Helper function to get keytable name by code
+  const getKeytableNameByCode = (items: any[] | undefined, code: string | undefined): string => {
+    if (!items || !code) return t('profile:placeholders.notAvailable');
+    const item = items.find(i => i.code === code);
+    if (!item) return t('profile:placeholders.notAvailable');
+
+    const currentLang = i18n.language?.substring(0, 2) || 'tr';
+
+    // Önce uebersetzungen dizisinden çeviriyi ara
+    if (item.uebersetzungen && item.uebersetzungen.length > 0) {
+      const translation = item.uebersetzungen.find((u: any) => u.sprache === currentLang);
+      if (translation?.name) return translation.name;
+
+      // Fallback: Almanca çeviriyi ara
+      const german = item.uebersetzungen.find((u: any) => u.sprache === 'de');
+      if (german?.name) return german.name;
+
+      // Fallback: İlk çeviriyi kullan
+      if (item.uebersetzungen[0]?.name) return item.uebersetzungen[0].name;
+    }
+
+    // Eğer uebersetzungen yoksa name property'sini kullan
+    return item.name || item.code || t('profile:placeholders.notAvailable');
+  };
+
+  // Helper function to get currency symbol
+  const getCurrencySymbol = (waehrungId: number | undefined): string => {
+    if (!waehrungId || !waehrungen) return '';
+    const waehrung = waehrungen.find((w: Waehrung) => w.id === waehrungId);
+    return waehrung?.symbol || waehrung?.code || '';
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return t('profile:placeholders.notAvailable');
+    return new Date(dateString).toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'tr-TR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  if (user?.type === 'mitglied' && mitgliedLoading) {
+    return <Loading text={t('common:loading')} />;
+  }
 
   return (
     <div className="profile-page">
@@ -170,32 +293,22 @@ const Profile: React.FC = () => {
             </div>
           ) : (
             <div className="info-grid">
+              {/* 1. KİŞİSEL BİLGİLER - Ad, Soyad, Cinsiyet, Doğum Tarihi, Doğum Yeri, Uyruk */}
               <div className="info-item">
                 <label className="info-label">{t('profile:personalInfo.firstName')}</label>
-                <div className="info-value">{user?.firstName || t('profile:placeholders.notAvailable')}</div>
+                <div className="info-value">{user?.firstName || mitglied?.vorname || t('profile:placeholders.notAvailable')}</div>
               </div>
 
               <div className="info-item">
                 <label className="info-label">{t('profile:personalInfo.lastName')}</label>
-                <div className="info-value">{user?.lastName || t('profile:placeholders.notAvailable')}</div>
+                <div className="info-value">{user?.lastName || mitglied?.nachname || t('profile:placeholders.notAvailable')}</div>
               </div>
 
-              <div className="info-item">
-                <label className="info-label">
-                  <MailIcon />
-                  <span>{t('profile:personalInfo.email')}</span>
-                </label>
-                <div className="info-value">{user?.email || t('profile:placeholders.notAvailable')}</div>
-              </div>
-
-              {user?.type === 'mitglied' && (
+              {user?.type === 'mitglied' && mitglied && (
                 <>
                   <div className="info-item">
-                    <label className="info-label">
-                      <PhoneIcon />
-                      <span>{t('profile:personalInfo.phone')}</span>
-                    </label>
-                    <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
+                    <label className="info-label">{t('profile:personalInfo.gender')}</label>
+                    <div className="info-value">{getKeytableName(geschlechter, mitglied.geschlechtId)}</div>
                   </div>
 
                   <div className="info-item">
@@ -203,12 +316,17 @@ const Profile: React.FC = () => {
                       <CalendarIcon />
                       <span>{t('profile:personalInfo.birthDate')}</span>
                     </label>
-                    <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
+                    <div className="info-value">{formatDate(mitglied.geburtsdatum)}</div>
                   </div>
 
                   <div className="info-item">
-                    <label className="info-label">{t('profile:personalInfo.memberNumber')}</label>
-                    <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
+                    <label className="info-label">{t('profile:personalInfo.birthPlace')}</label>
+                    <div className="info-value">{mitglied.geburtsort || t('profile:placeholders.notAvailable')}</div>
+                  </div>
+
+                  <div className="info-item">
+                    <label className="info-label">{t('profile:personalInfo.nationality')}</label>
+                    <div className="info-value">{getKeytableName(staatsangehoerigkeiten, mitglied.staatsangehoerigkeitId)}</div>
                   </div>
                 </>
               )}
@@ -216,47 +334,166 @@ const Profile: React.FC = () => {
           )}
         </div>
 
-        {/* Account Information */}
+        {/* 2. İLETİŞİM BİLGİLERİ - E-posta, Telefon, Cep Telefonu */}
         <div className="profile-section">
           <div className="section-header">
-            <ShieldIcon />
-            <h2>{t('profile:accountInfo.title')}</h2>
+            <MailIcon />
+            <h2>{t('profile:contactInfo.title')}</h2>
           </div>
 
           <div className="info-grid">
             <div className="info-item">
-              <label className="info-label">{t('profile:accountInfo.userType')}</label>
-              <div className="info-value">{getUserTypeLabel()}</div>
+              <label className="info-label">
+                <MailIcon />
+                <span>{t('profile:contactInfo.email')}</span>
+              </label>
+              <div className="info-value">{user?.email || mitglied?.email || t('profile:placeholders.notAvailable')}</div>
             </div>
 
-            <div className="info-item">
-              <label className="info-label">{t('profile:accountInfo.accountStatus')}</label>
-              <div className="info-value">
-                <span className="status-badge status-active">{t('profile:status.active')}</span>
-              </div>
-            </div>
+            {user?.type === 'mitglied' && mitglied && (
+              <>
+                <div className="info-item">
+                  <label className="info-label">
+                    <PhoneIcon />
+                    <span>{t('profile:contactInfo.phone')}</span>
+                  </label>
+                  <div className="info-value">{mitglied.telefon || t('profile:placeholders.notAvailable')}</div>
+                </div>
 
-            {user?.type === 'dernek' && user?.vereinId && (
-              <div className="info-item">
-                <label className="info-label">
-                  <BuildingIcon />
-                  <span>{t('profile:accountInfo.vereinId')}</span>
-                </label>
-                <div className="info-value">{user.vereinId}</div>
-              </div>
+                <div className="info-item">
+                  <label className="info-label">
+                    <PhoneIcon />
+                    <span>{t('profile:contactInfo.mobile')}</span>
+                  </label>
+                  <div className="info-value">{mitglied.mobiltelefon || t('profile:placeholders.notAvailable')}</div>
+                </div>
+              </>
             )}
-
-            <div className="info-item">
-              <label className="info-label">{t('profile:accountInfo.memberSince')}</label>
-              <div className="info-value">{t('profile:placeholders.notAvailable')}</div>
-            </div>
-
-            <div className="info-item">
-              <label className="info-label">{t('profile:accountInfo.lastLogin')}</label>
-              <div className="info-value">{t('profile:accountInfo.now')}</div>
-            </div>
           </div>
         </div>
+
+        {/* 3. ÜYELİK BİLGİLERİ - Üye Numarası, Üyelik Durumu, Üyelik Tipi, Giriş/Çıkış Tarihi, Aktif */}
+        {user?.type === 'mitglied' && mitglied && (
+          <div className="profile-section">
+            <div className="section-header">
+              <ShieldIcon />
+              <h2>{t('profile:membershipInfo.title')}</h2>
+            </div>
+
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">{t('profile:membershipInfo.memberNumber')}</label>
+                <div className="info-value">{mitglied.mitgliedsnummer || t('profile:placeholders.notAvailable')}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:membershipInfo.memberStatus')}</label>
+                <div className="info-value">{getKeytableName(mitgliedStatuse, mitglied.mitgliedStatusId)}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:membershipInfo.memberType')}</label>
+                <div className="info-value">{getKeytableName(mitgliedTypen, mitglied.mitgliedTypId)}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:membershipInfo.memberSince')}</label>
+                <div className="info-value">{formatDate(mitglied.eintrittsdatum)}</div>
+              </div>
+
+              {mitglied.austrittsdatum && (
+                <div className="info-item">
+                  <label className="info-label">{t('profile:membershipInfo.memberUntil')}</label>
+                  <div className="info-value">{formatDate(mitglied.austrittsdatum)}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 4. AİDAT / ÖDEME BİLGİLERİ */}
+        {user?.type === 'mitglied' && mitglied && (
+          <div className="profile-section">
+            <div className="section-header">
+              <BuildingIcon />
+              <h2>{t('profile:feeInfo.title')}</h2>
+            </div>
+
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">{t('profile:feeInfo.feeAmount')}</label>
+                <div className="info-value">
+                  {mitglied.beitragBetrag !== undefined && mitglied.beitragBetrag !== null
+                    ? `${mitglied.beitragBetrag} ${getCurrencySymbol(mitglied.beitragWaehrungId)}`
+                    : t('profile:placeholders.notAvailable')}
+                </div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:feeInfo.feePeriod')}</label>
+                <div className="info-value">{getKeytableNameByCode(beitragPerioden, mitglied.beitragPeriodeCode)}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:feeInfo.paymentDay')}</label>
+                <div className="info-value">{mitglied.beitragZahlungsTag || t('profile:placeholders.notAvailable')}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:feeInfo.paymentDayType')}</label>
+                <div className="info-value">{getKeytableNameByCode(beitragZahlungstagTypen, mitglied.beitragZahlungstagTypCode)}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:feeInfo.feeRequired')}</label>
+                <div className="info-value">
+                  {mitglied.beitragIstPflicht !== undefined && mitglied.beitragIstPflicht !== null
+                    ? (mitglied.beitragIstPflicht ? t('profile:feeInfo.yes') : t('profile:feeInfo.no'))
+                    : t('profile:placeholders.notAvailable')}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Dernek kullanıcıları için hesap bilgileri */}
+        {user?.type !== 'mitglied' && (
+          <div className="profile-section">
+            <div className="section-header">
+              <ShieldIcon />
+              <h2>{t('profile:accountInfo.title')}</h2>
+            </div>
+
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">{t('profile:accountInfo.userType')}</label>
+                <div className="info-value">{getUserTypeLabel()}</div>
+              </div>
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:accountInfo.accountStatus')}</label>
+                <div className="info-value">
+                  <span className="status-badge status-active">{t('profile:status.active')}</span>
+                </div>
+              </div>
+
+              {user?.type === 'dernek' && user?.vereinId && (
+                <div className="info-item">
+                  <label className="info-label">
+                    <BuildingIcon />
+                    <span>{t('profile:accountInfo.vereinId')}</span>
+                  </label>
+                  <div className="info-value">{user.vereinId}</div>
+                </div>
+              )}
+
+              <div className="info-item">
+                <label className="info-label">{t('profile:accountInfo.lastLogin')}</label>
+                <div className="info-value">{t('profile:accountInfo.now')}</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Info Message */}
         <div className="info-message">

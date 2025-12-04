@@ -50,11 +50,7 @@ const XIcon = () => (
   </svg>
 );
 
-const BackIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-  </svg>
-);
+
 
 const MitgliedZahlungHistory: React.FC = () => {
   // @ts-ignore - i18next type definitions
@@ -189,15 +185,7 @@ const MitgliedZahlungHistory: React.FC = () => {
       </div>
 
       {/* Actions Bar */}
-      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <button
-          className="btn-icon"
-          onClick={() => navigate('/meine-finanzen')}
-          title={t('common:back')}
-        >
-          <BackIcon />
-        </button>
-        <div style={{ flex: 1 }}></div>
+      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'flex-end' }}>
         <button
           className="btn btn-primary"
           onClick={exportToExcel}

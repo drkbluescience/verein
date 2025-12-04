@@ -13,13 +13,17 @@
   "tabs": {
     "all": "Tümü",
     "drafts": "Taslaklar",
-    "sent": "Gönderilenler"
+    "sent": "Gönderilenler",
+    "read": "Okundu",
+    "unread": "Okunmadı"
   },
   "table": {
     "title": "Başlık",
     "subject": "Konu",
     "status": "Durum",
     "recipients": "Alıcılar",
+    "readStatus": "Okunma",
+    "allRead": "Tümü Okundu",
     "date": "Tarih",
     "time": "Saat",
     "actions": "İşlemler"

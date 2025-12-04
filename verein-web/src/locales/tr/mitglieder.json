@@ -114,6 +114,9 @@
       "birthDate": "Doğum Tarihi",
       "age": "Yaş",
       "birthPlace": "Doğum Yeri",
+      "gender": "Cinsiyet",
+      "nationality": "Vatandaşlık",
+      "memberType": "Üye Tipi",
       "email": "E-posta",
       "phone": "Telefon",
       "mobile": "Mobil Telefon",
@@ -123,10 +126,15 @@
       "membershipDuration": "Üyelik Süresi",
       "exitDate": "Çıkış Tarihi",
       "feeAmount": "Aidat Miktarı",
+      "feePeriod": "Aidat Periyodu",
+      "paymentDay": "Ödeme Günü",
+      "feeRequired": "Aidat Zorunlu",
       "notSpecified": "Belirtilmemiş",
       "loading": "Yükleniyor...",
       "unknown": "Bilinmiyor",
-      "yearsOld": "yaşında"
+      "yearsOld": "yaşında",
+      "yes": "Evet",
+      "no": "Hayır"
     },
     "address": {
       "title": "Adres",

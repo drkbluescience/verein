@@ -1827,6 +1827,7 @@ CREATE TABLE [Web].[PageNote](
 
 	-- Additional Status
 	[Aktiv] [bit] NOT NULL DEFAULT 1,
+	[UserType] [nvarchar](50) NULL,
 
 PRIMARY KEY CLUSTERED
 (
@@ -2137,4 +2138,154 @@ ORDER BY ORDINAL_POSITION;
 GO
 
 PRINT '✓ All recurring event columns verified!';
+GO
+
+-- =============================================
+-- BRIEF SCHEMA - MEKTUP/MESAJ SİSTEMİ
+-- =============================================
+
+/****** Object:  Schema [Brief] ******/
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Brief')
+BEGIN
+    EXEC('CREATE SCHEMA [Brief]');
+END
+GO
+
+/****** Object:  Table [Brief].[BriefVorlage] - Letter Templates ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Brief].[BriefVorlage](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [VereinId] [int] NOT NULL,
+    [Name] [nvarchar](150) NOT NULL,
+    [Beschreibung] [nvarchar](500) NULL,
+    [Betreff] [nvarchar](200) NOT NULL,
+    [Inhalt] [nvarchar](max) NOT NULL,
+    [Kategorie] [nvarchar](50) NULL,
+    [LogoPosition] [nvarchar](20) NULL DEFAULT 'top',
+    [Schriftart] [nvarchar](50) NULL DEFAULT 'Arial',
+    [Schriftgroesse] [int] NULL DEFAULT 14,
+    [IstSystemvorlage] [bit] NULL DEFAULT 0,
+    [IstAktiv] [bit] NULL DEFAULT 1,
+    [Created] [datetime] NULL DEFAULT GETDATE(),
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [Aktiv] [bit] NULL DEFAULT 1,
+PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+/****** Object:  Table [Brief].[Brief] - Letter Drafts ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Brief].[Brief](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [VereinId] [int] NOT NULL,
+    [VorlageId] [int] NULL,
+    [Titel] [nvarchar](200) NOT NULL,
+    [Betreff] [nvarchar](200) NOT NULL,
+    [Inhalt] [nvarchar](max) NOT NULL,
+    [LogoUrl] [nvarchar](500) NULL,
+    [LogoPosition] [nvarchar](20) NULL DEFAULT 'top',
+    [Schriftart] [nvarchar](50) NULL DEFAULT 'Arial',
+    [Schriftgroesse] [int] NULL DEFAULT 14,
+    [Status] [nvarchar](20) NULL DEFAULT 'Entwurf',
+    [SelectedMitgliedIds] [nvarchar](max) NULL,
+    [Created] [datetime] NULL DEFAULT GETDATE(),
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [Aktiv] [bit] NULL DEFAULT 1,
+PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+/****** Object:  Table [Brief].[Nachricht] - Sent Messages ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Brief].[Nachricht](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [BriefId] [int] NOT NULL,
+    [VereinId] [int] NOT NULL,
+    [MitgliedId] [int] NOT NULL,
+    [Betreff] [nvarchar](200) NOT NULL,
+    [Inhalt] [nvarchar](max) NOT NULL,
+    [LogoUrl] [nvarchar](500) NULL,
+    [IstGelesen] [bit] NULL DEFAULT 0,
+    [GelesenDatum] [datetime] NULL,
+    [GesendetDatum] [datetime] NULL DEFAULT GETDATE(),
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+-- =============================================
+-- BRIEF SCHEMA - FOREIGN KEY CONSTRAINTS
+-- =============================================
+ALTER TABLE [Brief].[BriefVorlage] WITH CHECK ADD CONSTRAINT [FK_BriefVorlage_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id]) ON DELETE CASCADE
+GO
+
+ALTER TABLE [Brief].[Brief] WITH CHECK ADD CONSTRAINT [FK_Brief_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id]) ON DELETE NO ACTION
+GO
+
+ALTER TABLE [Brief].[Brief] WITH CHECK ADD CONSTRAINT [FK_Brief_Vorlage]
+FOREIGN KEY([VorlageId]) REFERENCES [Brief].[BriefVorlage] ([Id]) ON DELETE NO ACTION
+GO
+
+ALTER TABLE [Brief].[Nachricht] WITH CHECK ADD CONSTRAINT [FK_Nachricht_Brief]
+FOREIGN KEY([BriefId]) REFERENCES [Brief].[Brief] ([Id]) ON DELETE NO ACTION
+GO
+
+ALTER TABLE [Brief].[Nachricht] WITH CHECK ADD CONSTRAINT [FK_Nachricht_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id]) ON DELETE NO ACTION
+GO
+
+ALTER TABLE [Brief].[Nachricht] WITH CHECK ADD CONSTRAINT [FK_Nachricht_Mitglied]
+FOREIGN KEY([MitgliedId]) REFERENCES [Mitglied].[Mitglied] ([Id]) ON DELETE NO ACTION
+GO
+
+-- =============================================
+-- BRIEF SCHEMA - INDEXES
+-- =============================================
+CREATE NONCLUSTERED INDEX [IX_BriefVorlage_VereinId] ON [Brief].[BriefVorlage]([VereinId]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_BriefVorlage_Kategorie] ON [Brief].[BriefVorlage]([Kategorie]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_BriefVorlage_IstAktiv] ON [Brief].[BriefVorlage]([IstAktiv]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Brief_VereinId] ON [Brief].[Brief]([VereinId]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Brief_VorlageId] ON [Brief].[Brief]([VorlageId]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Brief_Status] ON [Brief].[Brief]([Status]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Brief_Created] ON [Brief].[Brief]([Created] DESC) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Nachricht_BriefId] ON [Brief].[Nachricht]([BriefId]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Nachricht_VereinId] ON [Brief].[Nachricht]([VereinId]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Nachricht_MitgliedId] ON [Brief].[Nachricht]([MitgliedId]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Nachricht_IstGelesen] ON [Brief].[Nachricht]([IstGelesen]) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Nachricht_GesendetDatum] ON [Brief].[Nachricht]([GesendetDatum] DESC) WHERE [DeletedFlag] = 0
+GO
+CREATE NONCLUSTERED INDEX [IX_Nachricht_MitgliedInbox] ON [Brief].[Nachricht]([MitgliedId], [DeletedFlag], [GesendetDatum] DESC)
+GO
+
+PRINT '✓ Brief schema and tables created successfully!';
 GO

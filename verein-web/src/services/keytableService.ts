@@ -94,6 +94,7 @@ export interface Forderungsstatus {
 export interface Waehrung {
   id: number;
   code: string;
+  symbol?: string;
   name?: string;
   uebersetzungen: KeytableUebersetzung[];
 }

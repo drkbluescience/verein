@@ -348,6 +348,11 @@ export const veranstaltungZahlungService = {
     return api.get<VeranstaltungZahlungDto[]>(`/api/VeranstaltungZahlungen/veranstaltung/${veranstaltungId}`);
   },
 
+  // Get event payments by Mitglied ID
+  getByMitgliedId: async (mitgliedId: number): Promise<VeranstaltungZahlungDto[]> => {
+    return api.get<VeranstaltungZahlungDto[]>(`/api/VeranstaltungZahlungen/mitglied/${mitgliedId}`);
+  },
+
   // Create new event payment
   create: async (data: CreateVeranstaltungZahlungDto): Promise<VeranstaltungZahlungDto> => {
     return api.post<VeranstaltungZahlungDto>('/api/VeranstaltungZahlungen', data);

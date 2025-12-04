@@ -698,3 +698,275 @@
   }
 }
 
+/* ============================================
+   PAYMENT PROGRESS SECTION
+   ============================================ */
+
+.payment-progress-section {
+  margin: 0 var(--spacing-lg);
+}
+
+.payment-progress-container {
+  background: var(--color-background);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.progress-bar-wrapper {
+  height: 12px;
+  background: var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.progress-bar-fill.complete {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.progress-bar-fill.partial {
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.progress-bar-fill.empty {
+  background: var(--color-border);
+}
+
+.progress-amounts {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.progress-paid,
+.progress-remaining {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.progress-paid {
+  text-align: left;
+}
+
+.progress-remaining {
+  text-align: right;
+}
+
+.amount-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.amount-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.amount-value.success {
+  color: var(--color-success);
+}
+
+.amount-value.warning {
+  color: #d97706;
+}
+
+/* ============================================
+   PAYMENT TIMELINE
+   ============================================ */
+
+.payment-timeline {
+  margin-top: var(--spacing-lg);
+}
+
+.payment-timeline h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--spacing-md);
+  position: relative;
+}
+
+.timeline-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.marker-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.marker-dot.completed {
+  background: var(--color-success);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+}
+
+.marker-dot.pending {
+  background: var(--color-border);
+  border: 2px dashed var(--color-text-secondary);
+  box-shadow: 0 0 0 4px rgba(156, 163, 175, 0.2);
+}
+
+.marker-line {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: var(--color-success);
+  margin: 4px 0;
+}
+
+.timeline-content {
+  flex: 1;
+  padding-bottom: var(--spacing-md);
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.timeline-details {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.timeline-amount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.timeline-amount.pending {
+  color: var(--color-text-secondary);
+}
+
+.timeline-id {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  font-family: monospace;
+}
+
+.timeline-status {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  font-weight: 500;
+}
+
+.timeline-status.pending {
+  background: rgba(156, 163, 175, 0.1);
+  color: var(--color-text-secondary);
+}
+
+.timeline-item.pending .timeline-date {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* ============================================
+   NO PAYMENTS MESSAGE
+   ============================================ */
+
+.no-payments-message {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  background: var(--color-background);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-border);
+}
+
+.no-payments-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.no-payments-message p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.no-payments-message p:first-of-type {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.no-payments-hint {
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 576px) {
+  .progress-amounts {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .progress-paid,
+  .progress-remaining {
+    text-align: left;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .timeline-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+}
+

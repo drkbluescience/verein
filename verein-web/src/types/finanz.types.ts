@@ -265,6 +265,8 @@ export interface MitgliedForderungDto {
   beschreibung?: string;
   statusId: number;
   bezahltAm?: string;
+  paidAmount: number;       // Ödenen tutar (kısmi ödemeler)
+  remainingAmount: number;  // Kalan tutar (betrag - paidAmount)
   created?: string;
   createdBy?: number;
   modified?: string;
@@ -303,11 +305,74 @@ export interface MitgliedFinanzSummaryDto {
   totalPaid: number;
   totalOverdue: number;
   overdueCount: number;
+  totalDebt: number;
+  creditBalance: number;
   nextPayment: MitgliedForderungDto | null;
   daysUntilNextPayment: number;
   last12MonthsTrend: MonthlyTrendDto[];
   unpaidClaims: MitgliedForderungDto[];
   paidClaims: MitgliedForderungDto[];
+  upcomingPayments: UpcomingPaymentDto[];
+  yearlyStats: YearlyStatsDto | null;
+  beitragPlan: BeitragPlanDto | null;
+  veranstaltungAnmeldungen: MitgliedVeranstaltungDto[];
+  unpaidEventClaims: MitgliedVeranstaltungDto[];
+}
+
+export interface UpcomingPaymentDto {
+  dueDate: string;
+  description: string;
+  amount: number;
+  daysUntil: number;
+  isExisting: boolean;
+  forderungId?: number;
+}
+
+export interface YearlyStatsDto {
+  year: number;
+  totalPayments: number;
+  totalAmount: number;
+  averagePaymentDays: number;
+  preferredPaymentMethod?: string;
+  preferredMethodPercentage: number;
+}
+
+export interface BeitragPlanDto {
+  betrag: number;
+  waehrungId?: number;
+  waehrungCode?: string;
+  periodeCode?: string;
+  periodeName?: string;
+  zahlungsTag?: number;
+  zahlungstagTypCode?: string;
+  zahlungstagTypName?: string;
+  istPflicht: boolean;
+  nextPaymentDates: BeitragPaymentDateDto[];
+}
+
+export interface BeitragPaymentDateDto {
+  date: string;
+  month: number;
+  year: number;
+  monthName: string;
+  amount: number;
+  status: 'PAID' | 'UNPAID' | 'OVERDUE';
+  forderungId?: number;
+}
+
+export interface MitgliedVeranstaltungDto {
+  id: number;
+  veranstaltungId: number;
+  titel: string;
+  startdatum: string;
+  enddatum?: string;
+  ort?: string;
+  preis?: number;
+  waehrungId?: number;
+  anmeldungStatus?: string;
+  zahlungStatusId?: number;
+  zahlungStatus?: string;
+  anmeldungDatum?: string;
 }
 
 // ============================================================================
@@ -413,6 +478,7 @@ export interface VeranstaltungZahlungDto {
   id: number;
   veranstaltungId: number;
   anmeldungId: number;
+  veranstaltungTitel?: string;
   name?: string;
   email?: string;
   betrag: number;

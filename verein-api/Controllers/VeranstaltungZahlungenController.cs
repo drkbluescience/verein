@@ -115,6 +115,28 @@ public class VeranstaltungZahlungenController : ControllerBase
     }
 
     /// <summary>
+    /// Get Zahlungen by Mitglied ID
+    /// </summary>
+    [HttpGet("mitglied/{mitgliedId:int}")]
+    [ProducesResponseType(typeof(IEnumerable<VeranstaltungZahlungDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<VeranstaltungZahlungDto>>> GetByMitglied(
+        int mitgliedId,
+        [FromQuery] bool includeDeleted = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var zahlungen = await _service.GetByMitgliedIdAsync(mitgliedId, includeDeleted, cancellationToken);
+            return Ok(zahlungen);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting zahlungen for mitglied {MitgliedId}", mitgliedId);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
     /// Get Zahlungen by date range
     /// </summary>
     [HttpGet("date-range")]

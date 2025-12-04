@@ -76,5 +76,22 @@ public class VeranstaltungZahlungRepository : Repository<VeranstaltungZahlung>, 
                 .ThenInclude(a => a!.Mitglied)
             .FirstOrDefaultAsync(vz => vz.Id == id, cancellationToken);
     }
+
+    public async Task<IEnumerable<VeranstaltungZahlung>> GetByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        IQueryable<VeranstaltungZahlung> query = _dbSet;
+
+        if (includeDeleted)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        return await query
+            .Include(vz => vz.Veranstaltung)
+            .Include(vz => vz.Anmeldung)
+            .Where(vz => vz.Anmeldung != null && vz.Anmeldung.MitgliedId == mitgliedId)
+            .OrderByDescending(vz => vz.Zahlungsdatum)
+            .ToListAsync(cancellationToken);
+    }
 }
 

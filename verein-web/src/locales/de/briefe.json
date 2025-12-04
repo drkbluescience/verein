@@ -13,13 +13,17 @@
   "tabs": {
     "all": "Alle",
     "drafts": "Entwürfe",
-    "sent": "Gesendet"
+    "sent": "Gesendet",
+    "read": "Gelesen",
+    "unread": "Ungelesen"
   },
   "table": {
     "title": "Titel",
     "subject": "Betreff",
     "status": "Status",
     "recipients": "Empfänger",
+    "readStatus": "Lesestatus",
+    "allRead": "Alle gelesen",
     "date": "Datum",
     "time": "Uhrzeit",
     "actions": "Aktionen"

@@ -148,6 +148,14 @@ public class VeranstaltungZahlungService : IVeranstaltungZahlungService
         return await _repository.GetTotalPaymentAmountAsync(veranstaltungId, cancellationToken);
     }
 
+    public async Task<IEnumerable<VeranstaltungZahlungDto>> GetByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Getting zahlungen for mitglied {MitgliedId}", mitgliedId);
+
+        var zahlungen = await _repository.GetByMitgliedIdAsync(mitgliedId, includeDeleted, cancellationToken);
+        return _mapper.Map<IEnumerable<VeranstaltungZahlungDto>>(zahlungen);
+    }
+
     #endregion
 }
 

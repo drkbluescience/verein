@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "overview": "Übersicht",
+    "beitrag": "Mein Beitragsplan",
+    "events": "Meine Veranstaltungen",
+    "claims": "Meine Forderungen"
+  },
   "dashboard": {
     "title": "Finanzverwaltung",
     "subtitle": "Überwachen Sie die finanzielle Situation des Vereins",
@@ -74,6 +80,7 @@
     "number": "Forderungsnummer",
     "member": "Mitglied",
     "amount": "Betrag",
+    "remainingAmount": "Restbetrag",
     "dueDate": "Fälligkeitsdatum",
     "status": "Status",
     "description": "Beschreibung",
@@ -81,7 +88,14 @@
     "empty": "Noch keine Forderungseinträge",
     "total": "Gesamtforderungen",
     "totalAmount": "Gesamtbetrag",
-    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Forderungseintrag löschen möchten?"
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Forderungseintrag löschen möchten?",
+    "paymentProgress": "Zahlungsfortschritt",
+    "paid": "bezahlt",
+    "paidAmount": "Bezahlt",
+    "paymentHistory": "Zahlungshistorie",
+    "pendingPayment": "Ausstehende Zahlung...",
+    "noPaymentsYet": "Noch keine Zahlungen",
+    "waitingForPayment": "Zahlung für diese Forderung wird erwartet"
   },
   "member": {
     "information": "Mitgliedsinformationen",
@@ -155,7 +169,9 @@
   "status": {
     "paid": "Bezahlt",
     "unpaid": "Unbezahlt",
-    "open": "Offen"
+    "open": "Offen",
+    "confirmed": "Bestätigt",
+    "waiting": "Ausstehend"
   },
   "transaction": {
     "income": "Einnahme",
@@ -173,24 +189,31 @@
   "mitgliedFinanz": {
     "title": "Finanzielle Situation",
     "subtitle": "Sehen Sie Ihre Beitrags- und Zahlungsinformationen ein",
-    "currentBalance": "Aktueller Saldo",
-    "totalDebt": "Gesamtschuld",
+    "totalDebt": "Offene Forderungen",
     "totalPaid": "Gesamt bezahlt",
     "totalPayments": "Gesamtzahlungen",
-    "overdueClaims": "Überfällige Forderungen",
-    "unpaidClaims": "unbezahlt",
+    "overdueClaims": "Überfällig",
+    "overdueItems": "überfällig",
+    "creditBalance": "Guthaben",
+    "availableCredit": "Verfügbares Guthaben",
+    "unpaidClaims": "offene Forderungen",
     "paidClaims": "bezahlt",
-    "payments": "Zahlung(en)",
-    "overdueCount": "überfällig",
+    "paidThisYear": "Dieses Jahr bezahlt",
     "payments": "Zahlungen",
     "overdueCount": "überfällig",
-    "unpaidClaimsTitle": "Unbezahlte Forderungen",
+    "unpaidClaimsTitle": "Unbezahlte Beitragsforderungen",
+    "unpaidEventClaimsTitle": "Unbezahlte Veranstaltungsgebühren",
     "paymentHistory": "Zahlungshistorie",
     "allClaims": "Alle Forderungen",
     "noPayments": "Sie haben noch keine Zahlungen",
     "noClaims": "Sie haben noch keine Forderungen",
     "overdue": "Überfällig",
+    "urgent": "Dringend",
     "payNow": "Jetzt bezahlen",
+    "daysLeft": "Tage übrig",
+    "dueToday": "Heute fällig",
+    "dueTomorrow": "Morgen fällig",
+    "days": "Tage",
     "paymentModalTitle": "Zahlung durchführen",
     "paymentNotice": "Sie werden zur sicheren Zahlungsseite weitergeleitet.",
     "proceedToPayment": "Zur Zahlung fortfahren",
@@ -207,7 +230,18 @@
     "pdfDate": "Datum",
     "pdfAmount": "Betrag",
     "pdfPaymentMethod": "Zahlungsmethode",
-    "pdfReference": "Referenz"
+    "pdfReference": "Referenz",
+    "showPaidClaims": "Bezahlte Forderungen anzeigen",
+    "hidePaidClaims": "Bezahlte Forderungen ausblenden",
+    "paid": "Bezahlt",
+    "unpaid": "Unbezahlt",
+    "partiallyPaid": "Teilweise bezahlt",
+    "yearlyStats": "Jahresübersicht",
+    "totalPaymentsCount": "Gesamtzahlungen",
+    "totalPaidThisYear": "Dieses Jahr bezahlt",
+    "avgPaymentTime": "Durchschn. Zahlungszeit",
+    "preferredMethod": "Bevorzugte Methode",
+    "upcomingPayments": "Anstehende Zahlungen"
   },
   "bankUpload": {
     "title": "Bankzahlungen hochladen",
@@ -367,6 +401,8 @@
   "paymentHistory": {
     "title": "Meine Zahlungshistorie",
     "subtitle": "Sehen Sie alle Ihre Zahlungen ein und filtern Sie sie",
+    "description": "Sehen Sie alle Ihre Zahlungen ein, filtern und exportieren Sie sie.",
+    "viewAll": "Alle Zahlungen anzeigen",
     "noPayments": "Sie haben noch keine Zahlungen",
     "totalPayments": "Gesamtzahlungen",
     "totalAmount": "Gesamtbetrag",
@@ -396,7 +432,48 @@
     "sortByDate": "Nach Datum",
     "sortByAmount": "Nach Betrag",
     "sortAscending": "Aufsteigend",
-    "sortDescending": "Absteigend"
+    "sortDescending": "Absteigend",
+    "actions": "Aktionen",
+    "memberPayment": "Mitgliedszahlung",
+    "eventPayment": "Veranstaltungszahlung",
+    "paymentType": "Zahlungsart"
+  },
+  "beitragPlan": {
+    "title": "Mein Beitragsplan",
+    "paymentDay": "Zahlungstag",
+    "dayOfMonth": "des Monats",
+    "lastDayOfMonth": "Letzter Tag des Monats",
+    "mandatory": "Pflichtbeitrag",
+    "paymentCalendar": "Zahlungskalender",
+    "period": {
+      "monthly": "Monatlich",
+      "quarterly": "Vierteljährlich",
+      "yearly": "Jährlich"
+    },
+    "status": {
+      "paid": "Bezahlt",
+      "unpaid": "Unbezahlt",
+      "overdue": "Überfällig"
+    },
+    "noPlan": "Sie haben noch keinen Beitragsplan."
+  },
+  "veranstaltungen": {
+    "title": "Meine Veranstaltungen",
+    "paid": "Bezahlt",
+    "pending": "Ausstehend",
+    "unpaid": "Unbezahlt",
+    "free": "Kostenlos",
+    "status": {
+      "confirmed": "Bestätigt",
+      "pending": "Ausstehend",
+      "cancelled": "Storniert",
+      "bestaetigt": "Bestätigt",
+      "ausstehend": "Ausstehend",
+      "storniert": "Storniert",
+      "abgelehnt": "Abgelehnt",
+      "warteliste": "Warteliste"
+    },
+    "noEvents": "Sie haben noch keine Veranstaltungsanmeldungen."
   }
 }
 

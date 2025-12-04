@@ -50,5 +50,14 @@ public interface IVeranstaltungZahlungRepository : IRepository<VeranstaltungZahl
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Zahlung with related data or null if not found</returns>
     Task<VeranstaltungZahlung?> GetWithRelatedDataAsync(int id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets zahlungen by mitglied ID (through anmeldung)
+    /// </summary>
+    /// <param name="mitgliedId">Mitglied ID</param>
+    /// <param name="includeDeleted">Whether to include soft-deleted zahlungen</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Collection of zahlungen with related data</returns>
+    Task<IEnumerable<VeranstaltungZahlung>> GetByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default);
 }
 

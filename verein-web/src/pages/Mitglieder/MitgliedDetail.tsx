@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n/config';
 import { mitgliedService, mitgliedAdresseService, mitgliedFamilieService, mitgliedUtils } from '../../services/mitgliedService';
 import { vereinService } from '../../services/vereinService';
+import keytableService, { BeitragPeriode } from '../../services/keytableService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
@@ -157,6 +159,49 @@ const MitgliedDetail: React.FC = () => {
     },
     enabled: !!familieRelationships && familieRelationships.length > 0,
   });
+
+  // Fetch keytable data for display
+  const { data: geschlechter } = useQuery({
+    queryKey: ['geschlechter'],
+    queryFn: () => keytableService.getGeschlechter(),
+  });
+
+  const { data: staatsangehoerigkeiten } = useQuery({
+    queryKey: ['staatsangehoerigkeiten'],
+    queryFn: () => keytableService.getStaatsangehoerigkeiten(),
+  });
+
+  const { data: mitgliedTypen } = useQuery({
+    queryKey: ['mitgliedTypen'],
+    queryFn: () => keytableService.getMitgliedTypen(),
+  });
+
+  const { data: beitragPerioden } = useQuery({
+    queryKey: ['beitragPerioden'],
+    queryFn: () => keytableService.getBeitragPerioden(),
+  });
+
+  // Helper function to get keytable name by id
+  const getKeytableName = (items: any[] | undefined, id: number | undefined): string => {
+    if (!items || !id) return t('mitglieder:detailPage.fields.notSpecified');
+    const item = items.find(i => i.id === id);
+    if (!item) return t('mitglieder:detailPage.fields.notSpecified');
+
+    const currentLang = i18n.language?.substring(0, 2) || 'tr';
+    const translation = item.uebersetzungen?.find((u: any) => u.sprache === currentLang);
+    return translation?.name || item.name || item.code || t('mitglieder:detailPage.fields.notSpecified');
+  };
+
+  // Helper function to get period name by code
+  const getPeriodName = (code: string | undefined): string => {
+    if (!code || !beitragPerioden) return t('mitglieder:detailPage.fields.notSpecified');
+    const period = beitragPerioden.find((p: BeitragPeriode) => p.code === code);
+    if (!period) return t('mitglieder:detailPage.fields.notSpecified');
+
+    const currentLang = i18n.language?.substring(0, 2) || 'tr';
+    const translation = period.uebersetzungen?.find((u: any) => u.sprache === currentLang);
+    return translation?.name || period.name || period.code || t('mitglieder:detailPage.fields.notSpecified');
+  };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return t('mitglieder:detailPage.fields.notSpecified');
@@ -318,6 +363,24 @@ const MitgliedDetail: React.FC = () => {
                 <p>{mitglied.geburtsort}</p>
               </div>
             )}
+            {mitglied.geschlechtId && (
+              <div className="info-item">
+                <label>{t('mitglieder:detailPage.fields.gender')}</label>
+                <p>{getKeytableName(geschlechter, mitglied.geschlechtId)}</p>
+              </div>
+            )}
+            {mitglied.staatsangehoerigkeitId && (
+              <div className="info-item">
+                <label>{t('mitglieder:detailPage.fields.nationality')}</label>
+                <p>{getKeytableName(staatsangehoerigkeiten, mitglied.staatsangehoerigkeitId)}</p>
+              </div>
+            )}
+            {mitglied.mitgliedTypId && (
+              <div className="info-item">
+                <label>{t('mitglieder:detailPage.fields.memberType')}</label>
+                <p>{getKeytableName(mitgliedTypen, mitglied.mitgliedTypId)}</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -382,10 +445,28 @@ const MitgliedDetail: React.FC = () => {
                 <p>{formatDate(mitglied.austrittsdatum)}</p>
               </div>
             )}
-            {mitglied.beitragBetrag && (
+            {mitglied.beitragBetrag !== undefined && mitglied.beitragBetrag !== null && (
               <div className="info-item">
                 <label>{t('mitglieder:detailPage.fields.feeAmount')}</label>
                 <p>{mitglied.beitragBetrag} {mitglied.beitragWaehrungId === 1 ? '€' : 'TL'}</p>
+              </div>
+            )}
+            {mitglied.beitragPeriodeCode && (
+              <div className="info-item">
+                <label>{t('mitglieder:detailPage.fields.feePeriod')}</label>
+                <p>{getPeriodName(mitglied.beitragPeriodeCode)}</p>
+              </div>
+            )}
+            {mitglied.beitragZahlungsTag && (
+              <div className="info-item">
+                <label>{t('mitglieder:detailPage.fields.paymentDay')}</label>
+                <p>{mitglied.beitragZahlungsTag}</p>
+              </div>
+            )}
+            {mitglied.beitragIstPflicht !== undefined && mitglied.beitragIstPflicht !== null && (
+              <div className="info-item">
+                <label>{t('mitglieder:detailPage.fields.feeRequired')}</label>
+                <p>{mitglied.beitragIstPflicht ? t('mitglieder:detailPage.fields.yes') : t('mitglieder:detailPage.fields.no')}</p>
               </div>
             )}
           </div>

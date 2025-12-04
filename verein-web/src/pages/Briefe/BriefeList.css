@@ -167,7 +167,7 @@
 /* Equal column widths */
 .briefe-table th,
 .briefe-table td {
-  width: calc(100% / 7);
+  width: calc(100% / 8);
 }
 
 .center-cell {
@@ -230,6 +230,32 @@
 .status-badge.gesendet {
   background: #d1fae5;
   color: #065f46;
+}
+
+/* Read Status Badge */
+.read-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.read-status-badge.all-read {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.read-status-badge.partial {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.read-status-badge svg {
+  width: 12px;
+  height: 12px;
 }
 
 /* Actions */

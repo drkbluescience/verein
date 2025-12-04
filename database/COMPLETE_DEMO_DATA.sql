@@ -122,6 +122,7 @@ GO
 PRINT '1. Referans tabloları kontrol ediliyor...';
 
 -- Geschlecht (Cinsiyet)
+-- Geschlecht (Cinsiyet) - Ana kayıtlar
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[Geschlecht] WHERE Code = 'M')
 BEGIN
     INSERT INTO [Keytable].[Geschlecht] (Code) VALUES ('M');
@@ -134,51 +135,228 @@ BEGIN
     PRINT '  ✓ Geschlecht F eklendi';
 END
 
--- MitgliedStatus
+-- Geschlecht çevirilerini ekle
+DECLARE @GeschlechtMId INT = (SELECT Id FROM [Keytable].[Geschlecht] WHERE Code = 'M');
+IF @GeschlechtMId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[GeschlechtUebersetzung] WHERE GeschlechtId = @GeschlechtMId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[GeschlechtUebersetzung] (GeschlechtId, Sprache, Name) VALUES (@GeschlechtMId, 'tr', N'Erkek');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[GeschlechtUebersetzung] WHERE GeschlechtId = @GeschlechtMId AND Sprache = 'de')
+        INSERT INTO [Keytable].[GeschlechtUebersetzung] (GeschlechtId, Sprache, Name) VALUES (@GeschlechtMId, 'de', N'Männlich');
+    PRINT '  ✓ Geschlecht M çevirileri eklendi';
+END
+
+DECLARE @GeschlechtFId INT = (SELECT Id FROM [Keytable].[Geschlecht] WHERE Code = 'F');
+IF @GeschlechtFId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[GeschlechtUebersetzung] WHERE GeschlechtId = @GeschlechtFId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[GeschlechtUebersetzung] (GeschlechtId, Sprache, Name) VALUES (@GeschlechtFId, 'tr', N'Kadın');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[GeschlechtUebersetzung] WHERE GeschlechtId = @GeschlechtFId AND Sprache = 'de')
+        INSERT INTO [Keytable].[GeschlechtUebersetzung] (GeschlechtId, Sprache, Name) VALUES (@GeschlechtFId, 'de', N'Weiblich');
+    PRINT '  ✓ Geschlecht F çevirileri eklendi';
+END
+
+-- MitgliedStatus - Çevirilerle birlikte
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatus] WHERE Code = 'AKTIV')
 BEGIN
     INSERT INTO [Keytable].[MitgliedStatus] (Code) VALUES ('AKTIV');
     PRINT '  ✓ MitgliedStatus AKTIV eklendi';
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatus] WHERE Code = 'PASSIV')
+BEGIN
+    INSERT INTO [Keytable].[MitgliedStatus] (Code) VALUES ('PASSIV');
+    PRINT '  ✓ MitgliedStatus PASSIV eklendi';
+END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatus] WHERE Code = 'AUSGETRETEN')
+BEGIN
+    INSERT INTO [Keytable].[MitgliedStatus] (Code) VALUES ('AUSGETRETEN');
+    PRINT '  ✓ MitgliedStatus AUSGETRETEN eklendi';
+END
 
--- MitgliedTyp
+-- MitgliedStatus çevirilerini ekle
+DECLARE @MitgliedStatusAktivId INT = (SELECT Id FROM [Keytable].[MitgliedStatus] WHERE Code = 'AKTIV');
+IF @MitgliedStatusAktivId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatusUebersetzung] WHERE MitgliedStatusId = @MitgliedStatusAktivId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedStatusUebersetzung] (MitgliedStatusId, Sprache, Name) VALUES (@MitgliedStatusAktivId, 'tr', N'Aktif');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatusUebersetzung] WHERE MitgliedStatusId = @MitgliedStatusAktivId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedStatusUebersetzung] (MitgliedStatusId, Sprache, Name) VALUES (@MitgliedStatusAktivId, 'de', N'Aktiv');
+END
+
+DECLARE @MitgliedStatusPassivId INT = (SELECT Id FROM [Keytable].[MitgliedStatus] WHERE Code = 'PASSIV');
+IF @MitgliedStatusPassivId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatusUebersetzung] WHERE MitgliedStatusId = @MitgliedStatusPassivId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedStatusUebersetzung] (MitgliedStatusId, Sprache, Name) VALUES (@MitgliedStatusPassivId, 'tr', N'Pasif');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatusUebersetzung] WHERE MitgliedStatusId = @MitgliedStatusPassivId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedStatusUebersetzung] (MitgliedStatusId, Sprache, Name) VALUES (@MitgliedStatusPassivId, 'de', N'Passiv');
+END
+
+DECLARE @MitgliedStatusAusgetretenId INT = (SELECT Id FROM [Keytable].[MitgliedStatus] WHERE Code = 'AUSGETRETEN');
+IF @MitgliedStatusAusgetretenId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatusUebersetzung] WHERE MitgliedStatusId = @MitgliedStatusAusgetretenId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedStatusUebersetzung] (MitgliedStatusId, Sprache, Name) VALUES (@MitgliedStatusAusgetretenId, 'tr', N'Ayrılmış');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedStatusUebersetzung] WHERE MitgliedStatusId = @MitgliedStatusAusgetretenId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedStatusUebersetzung] (MitgliedStatusId, Sprache, Name) VALUES (@MitgliedStatusAusgetretenId, 'de', N'Ausgetreten');
+END
+PRINT '  ✓ MitgliedStatus çevirileri eklendi';
+
+-- MitgliedTyp - Çevirilerle birlikte
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTyp] WHERE Code = 'VOLLMITGLIED')
 BEGIN
     INSERT INTO [Keytable].[MitgliedTyp] (Code) VALUES ('VOLLMITGLIED');
     PRINT '  ✓ MitgliedTyp VOLLMITGLIED eklendi';
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTyp] WHERE Code = 'FOERDERMITGLIED')
+BEGIN
+    INSERT INTO [Keytable].[MitgliedTyp] (Code) VALUES ('FOERDERMITGLIED');
+    PRINT '  ✓ MitgliedTyp FOERDERMITGLIED eklendi';
+END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTyp] WHERE Code = 'EHRENMITGLIED')
+BEGIN
+    INSERT INTO [Keytable].[MitgliedTyp] (Code) VALUES ('EHRENMITGLIED');
+    PRINT '  ✓ MitgliedTyp EHRENMITGLIED eklendi';
+END
 
--- FamilienbeziehungTyp (Aile İlişki Tipleri)
+-- MitgliedTyp çevirilerini ekle
+DECLARE @VollmitgliedId INT = (SELECT Id FROM [Keytable].[MitgliedTyp] WHERE Code = 'VOLLMITGLIED');
+IF @VollmitgliedId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTypUebersetzung] WHERE MitgliedTypId = @VollmitgliedId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedTypUebersetzung] (MitgliedTypId, Sprache, Name) VALUES (@VollmitgliedId, 'tr', N'Tam Üye');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTypUebersetzung] WHERE MitgliedTypId = @VollmitgliedId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedTypUebersetzung] (MitgliedTypId, Sprache, Name) VALUES (@VollmitgliedId, 'de', N'Vollmitglied');
+END
+
+DECLARE @FoerdermitgliedId INT = (SELECT Id FROM [Keytable].[MitgliedTyp] WHERE Code = 'FOERDERMITGLIED');
+IF @FoerdermitgliedId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTypUebersetzung] WHERE MitgliedTypId = @FoerdermitgliedId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedTypUebersetzung] (MitgliedTypId, Sprache, Name) VALUES (@FoerdermitgliedId, 'tr', N'Destekçi Üye');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTypUebersetzung] WHERE MitgliedTypId = @FoerdermitgliedId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedTypUebersetzung] (MitgliedTypId, Sprache, Name) VALUES (@FoerdermitgliedId, 'de', N'Fördermitglied');
+END
+
+DECLARE @EhrenmitgliedId INT = (SELECT Id FROM [Keytable].[MitgliedTyp] WHERE Code = 'EHRENMITGLIED');
+IF @EhrenmitgliedId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTypUebersetzung] WHERE MitgliedTypId = @EhrenmitgliedId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedTypUebersetzung] (MitgliedTypId, Sprache, Name) VALUES (@EhrenmitgliedId, 'tr', N'Onursal Üye');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedTypUebersetzung] WHERE MitgliedTypId = @EhrenmitgliedId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedTypUebersetzung] (MitgliedTypId, Sprache, Name) VALUES (@EhrenmitgliedId, 'de', N'Ehrenmitglied');
+END
+PRINT '  ✓ MitgliedTyp çevirileri eklendi';
+
+-- FamilienbeziehungTyp (Aile İlişki Tipleri) - Çevirilerle birlikte
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'EBEVEYN')
 BEGIN
     INSERT INTO [Keytable].[FamilienbeziehungTyp] (Code) VALUES ('EBEVEYN');
+    DECLARE @EbeveynId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+        (@EbeveynId, 'tr', N'Ebeveyn'),
+        (@EbeveynId, 'de', N'Elternteil');
     PRINT '  ✓ FamilienbeziehungTyp EBEVEYN eklendi';
+END
+ELSE
+BEGIN
+    DECLARE @ExistingEbeveynId INT = (SELECT Id FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'EBEVEYN');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTypUebersetzung] WHERE FamilienbeziehungTypId = @ExistingEbeveynId AND Sprache = 'tr')
+    BEGIN
+        INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+            (@ExistingEbeveynId, 'tr', N'Ebeveyn'),
+            (@ExistingEbeveynId, 'de', N'Elternteil');
+        PRINT '  ✓ FamilienbeziehungTyp EBEVEYN çevirileri eklendi';
+    END
 END
 
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'COCUK')
 BEGIN
     INSERT INTO [Keytable].[FamilienbeziehungTyp] (Code) VALUES ('COCUK');
+    DECLARE @CocukId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+        (@CocukId, 'tr', N'Çocuk'),
+        (@CocukId, 'de', N'Kind');
     PRINT '  ✓ FamilienbeziehungTyp COCUK eklendi';
+END
+ELSE
+BEGIN
+    DECLARE @ExistingCocukId INT = (SELECT Id FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'COCUK');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTypUebersetzung] WHERE FamilienbeziehungTypId = @ExistingCocukId AND Sprache = 'tr')
+    BEGIN
+        INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+            (@ExistingCocukId, 'tr', N'Çocuk'),
+            (@ExistingCocukId, 'de', N'Kind');
+        PRINT '  ✓ FamilienbeziehungTyp COCUK çevirileri eklendi';
+    END
 END
 
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'ES')
 BEGIN
     INSERT INTO [Keytable].[FamilienbeziehungTyp] (Code) VALUES ('ES');
+    DECLARE @EsId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+        (@EsId, 'tr', N'Eş'),
+        (@EsId, 'de', N'Ehepartner');
     PRINT '  ✓ FamilienbeziehungTyp ES eklendi';
+END
+ELSE
+BEGIN
+    DECLARE @ExistingEsId INT = (SELECT Id FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'ES');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTypUebersetzung] WHERE FamilienbeziehungTypId = @ExistingEsId AND Sprache = 'tr')
+    BEGIN
+        INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+            (@ExistingEsId, 'tr', N'Eş'),
+            (@ExistingEsId, 'de', N'Ehepartner');
+        PRINT '  ✓ FamilienbeziehungTyp ES çevirileri eklendi';
+    END
 END
 
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'KARDES')
 BEGIN
     INSERT INTO [Keytable].[FamilienbeziehungTyp] (Code) VALUES ('KARDES');
+    DECLARE @KardesId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+        (@KardesId, 'tr', N'Kardeş'),
+        (@KardesId, 'de', N'Geschwister');
     PRINT '  ✓ FamilienbeziehungTyp KARDES eklendi';
 END
-
--- MitgliedFamilieStatus
-IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatus] WHERE Code = 'AKTIV')
+ELSE
 BEGIN
-    INSERT INTO [Keytable].[MitgliedFamilieStatus] (Code) VALUES ('AKTIV');
-    PRINT '  ✓ MitgliedFamilieStatus AKTIV eklendi';
+    DECLARE @ExistingKardesId INT = (SELECT Id FROM [Keytable].[FamilienbeziehungTyp] WHERE Code = 'KARDES');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[FamilienbeziehungTypUebersetzung] WHERE FamilienbeziehungTypId = @ExistingKardesId AND Sprache = 'tr')
+    BEGIN
+        INSERT INTO [Keytable].[FamilienbeziehungTypUebersetzung] (FamilienbeziehungTypId, Sprache, Name) VALUES
+            (@ExistingKardesId, 'tr', N'Kardeş'),
+            (@ExistingKardesId, 'de', N'Geschwister');
+        PRINT '  ✓ FamilienbeziehungTyp KARDES çevirileri eklendi';
+    END
 END
+
+-- MitgliedFamilieStatus - Çevirilerle birlikte
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatus] WHERE Code = 'AKTIV')
+    INSERT INTO [Keytable].[MitgliedFamilieStatus] (Code) VALUES ('AKTIV');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatus] WHERE Code = 'INAKTIV')
+    INSERT INTO [Keytable].[MitgliedFamilieStatus] (Code) VALUES ('INAKTIV');
+
+DECLARE @FamilieStatusAktivId2 INT = (SELECT Id FROM [Keytable].[MitgliedFamilieStatus] WHERE Code = 'AKTIV');
+IF @FamilieStatusAktivId2 IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatusUebersetzung] WHERE MitgliedFamilieStatusId = @FamilieStatusAktivId2 AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedFamilieStatusUebersetzung] (MitgliedFamilieStatusId, Sprache, Name) VALUES (@FamilieStatusAktivId2, 'tr', N'Aktif');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatusUebersetzung] WHERE MitgliedFamilieStatusId = @FamilieStatusAktivId2 AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedFamilieStatusUebersetzung] (MitgliedFamilieStatusId, Sprache, Name) VALUES (@FamilieStatusAktivId2, 'de', N'Aktiv');
+END
+
+DECLARE @FamilieStatusInaktivId INT = (SELECT Id FROM [Keytable].[MitgliedFamilieStatus] WHERE Code = 'INAKTIV');
+IF @FamilieStatusInaktivId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatusUebersetzung] WHERE MitgliedFamilieStatusId = @FamilieStatusInaktivId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[MitgliedFamilieStatusUebersetzung] (MitgliedFamilieStatusId, Sprache, Name) VALUES (@FamilieStatusInaktivId, 'tr', N'Pasif');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[MitgliedFamilieStatusUebersetzung] WHERE MitgliedFamilieStatusId = @FamilieStatusInaktivId AND Sprache = 'de')
+        INSERT INTO [Keytable].[MitgliedFamilieStatusUebersetzung] (MitgliedFamilieStatusId, Sprache, Name) VALUES (@FamilieStatusInaktivId, 'de', N'Inaktiv');
+END
+PRINT '  ✓ MitgliedFamilieStatus çevirileri eklendi';
 
 -- ZahlungStatus (Ödeme Durumu)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatus] WHERE Code = 'BEZAHLT')
@@ -195,17 +373,186 @@ END
 
 -- ZahlungTyp (Ödeme Tipi)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTyp] WHERE Code = 'MITGLIEDSBEITRAG')
-BEGIN
     INSERT INTO [Keytable].[ZahlungTyp] (Code) VALUES ('MITGLIEDSBEITRAG');
-    PRINT '  ✓ ZahlungTyp MITGLIEDSBEITRAG eklendi';
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTyp] WHERE Code = 'SPENDE')
+    INSERT INTO [Keytable].[ZahlungTyp] (Code) VALUES ('SPENDE');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTyp] WHERE Code = 'VERANSTALTUNG')
+    INSERT INTO [Keytable].[ZahlungTyp] (Code) VALUES ('VERANSTALTUNG');
+PRINT '  ✓ ZahlungTyp kayıtları eklendi';
+
+-- ZahlungTyp çevirilerini ekle
+DECLARE @ZahlungTypMitgliedsbeitragId INT = (SELECT Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'MITGLIEDSBEITRAG');
+IF @ZahlungTypMitgliedsbeitragId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTypUebersetzung] WHERE ZahlungTypId = @ZahlungTypMitgliedsbeitragId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ZahlungTypUebersetzung] (ZahlungTypId, Sprache, Name) VALUES (@ZahlungTypMitgliedsbeitragId, 'tr', N'Üyelik Aidatı');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTypUebersetzung] WHERE ZahlungTypId = @ZahlungTypMitgliedsbeitragId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ZahlungTypUebersetzung] (ZahlungTypId, Sprache, Name) VALUES (@ZahlungTypMitgliedsbeitragId, 'de', N'Mitgliedsbeitrag');
 END
+
+DECLARE @ZahlungTypSpendeId INT = (SELECT Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'SPENDE');
+IF @ZahlungTypSpendeId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTypUebersetzung] WHERE ZahlungTypId = @ZahlungTypSpendeId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ZahlungTypUebersetzung] (ZahlungTypId, Sprache, Name) VALUES (@ZahlungTypSpendeId, 'tr', N'Bağış');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTypUebersetzung] WHERE ZahlungTypId = @ZahlungTypSpendeId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ZahlungTypUebersetzung] (ZahlungTypId, Sprache, Name) VALUES (@ZahlungTypSpendeId, 'de', N'Spende');
+END
+
+DECLARE @ZahlungTypVeranstaltungId INT = (SELECT Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'VERANSTALTUNG');
+IF @ZahlungTypVeranstaltungId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTypUebersetzung] WHERE ZahlungTypId = @ZahlungTypVeranstaltungId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ZahlungTypUebersetzung] (ZahlungTypId, Sprache, Name) VALUES (@ZahlungTypVeranstaltungId, 'tr', N'Etkinlik');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungTypUebersetzung] WHERE ZahlungTypId = @ZahlungTypVeranstaltungId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ZahlungTypUebersetzung] (ZahlungTypId, Sprache, Name) VALUES (@ZahlungTypVeranstaltungId, 'de', N'Veranstaltung');
+END
+PRINT '  ✓ ZahlungTyp çevirileri eklendi';
+
+-- ZahlungStatus çevirilerini ekle
+DECLARE @ZahlungStatusBezahltId INT = (SELECT Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'BEZAHLT');
+IF @ZahlungStatusBezahltId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatusUebersetzung] WHERE ZahlungStatusId = @ZahlungStatusBezahltId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ZahlungStatusUebersetzung] (ZahlungStatusId, Sprache, Name) VALUES (@ZahlungStatusBezahltId, 'tr', N'Ödendi');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatusUebersetzung] WHERE ZahlungStatusId = @ZahlungStatusBezahltId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ZahlungStatusUebersetzung] (ZahlungStatusId, Sprache, Name) VALUES (@ZahlungStatusBezahltId, 'de', N'Bezahlt');
+END
+
+DECLARE @ZahlungStatusOffenId INT = (SELECT Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'OFFEN');
+IF @ZahlungStatusOffenId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatusUebersetzung] WHERE ZahlungStatusId = @ZahlungStatusOffenId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ZahlungStatusUebersetzung] (ZahlungStatusId, Sprache, Name) VALUES (@ZahlungStatusOffenId, 'tr', N'Açık');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ZahlungStatusUebersetzung] WHERE ZahlungStatusId = @ZahlungStatusOffenId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ZahlungStatusUebersetzung] (ZahlungStatusId, Sprache, Name) VALUES (@ZahlungStatusOffenId, 'de', N'Offen');
+END
+PRINT '  ✓ ZahlungStatus çevirileri eklendi';
 
 -- Waehrung (Para Birimi)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[Waehrung] WHERE Code = 'EUR')
-BEGIN
     INSERT INTO [Keytable].[Waehrung] (Code) VALUES ('EUR');
-    PRINT '  ✓ Waehrung EUR eklendi';
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Waehrung] WHERE Code = 'TRY')
+    INSERT INTO [Keytable].[Waehrung] (Code) VALUES ('TRY');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Waehrung] WHERE Code = 'USD')
+    INSERT INTO [Keytable].[Waehrung] (Code) VALUES ('USD');
+PRINT '  ✓ Waehrung kayıtları eklendi';
+
+-- Waehrung çevirilerini ekle
+DECLARE @WaehrungEurId INT = (SELECT Id FROM [Keytable].[Waehrung] WHERE Code = 'EUR');
+IF @WaehrungEurId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[WaehrungUebersetzung] WHERE WaehrungId = @WaehrungEurId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[WaehrungUebersetzung] (WaehrungId, Sprache, Name) VALUES (@WaehrungEurId, 'tr', N'Euro');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[WaehrungUebersetzung] WHERE WaehrungId = @WaehrungEurId AND Sprache = 'de')
+        INSERT INTO [Keytable].[WaehrungUebersetzung] (WaehrungId, Sprache, Name) VALUES (@WaehrungEurId, 'de', N'Euro');
 END
+
+DECLARE @WaehrungTryId INT = (SELECT Id FROM [Keytable].[Waehrung] WHERE Code = 'TRY');
+IF @WaehrungTryId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[WaehrungUebersetzung] WHERE WaehrungId = @WaehrungTryId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[WaehrungUebersetzung] (WaehrungId, Sprache, Name) VALUES (@WaehrungTryId, 'tr', N'Türk Lirası');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[WaehrungUebersetzung] WHERE WaehrungId = @WaehrungTryId AND Sprache = 'de')
+        INSERT INTO [Keytable].[WaehrungUebersetzung] (WaehrungId, Sprache, Name) VALUES (@WaehrungTryId, 'de', N'Türkische Lira');
+END
+
+DECLARE @WaehrungUsdId INT = (SELECT Id FROM [Keytable].[Waehrung] WHERE Code = 'USD');
+IF @WaehrungUsdId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[WaehrungUebersetzung] WHERE WaehrungId = @WaehrungUsdId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[WaehrungUebersetzung] (WaehrungId, Sprache, Name) VALUES (@WaehrungUsdId, 'tr', N'ABD Doları');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[WaehrungUebersetzung] WHERE WaehrungId = @WaehrungUsdId AND Sprache = 'de')
+        INSERT INTO [Keytable].[WaehrungUebersetzung] (WaehrungId, Sprache, Name) VALUES (@WaehrungUsdId, 'de', N'US-Dollar');
+END
+PRINT '  ✓ Waehrung çevirileri eklendi';
+
+-- Forderungsart (Alacak Türü)
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsart] WHERE Code = 'BEITRAG')
+    INSERT INTO [Keytable].[Forderungsart] (Code) VALUES ('BEITRAG');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsart] WHERE Code = 'VERANSTALTUNG')
+    INSERT INTO [Keytable].[Forderungsart] (Code) VALUES ('VERANSTALTUNG');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsart] WHERE Code = 'SONSTIGE')
+    INSERT INTO [Keytable].[Forderungsart] (Code) VALUES ('SONSTIGE');
+PRINT '  ✓ Forderungsart kayıtları eklendi';
+
+-- Forderungsart çevirilerini ekle
+DECLARE @ForderungsartBeitragId INT = (SELECT Id FROM [Keytable].[Forderungsart] WHERE Code = 'BEITRAG');
+IF @ForderungsartBeitragId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsartUebersetzung] WHERE ForderungsartId = @ForderungsartBeitragId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsartUebersetzung] (ForderungsartId, Sprache, Name) VALUES (@ForderungsartBeitragId, 'tr', N'Aidat');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsartUebersetzung] WHERE ForderungsartId = @ForderungsartBeitragId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsartUebersetzung] (ForderungsartId, Sprache, Name) VALUES (@ForderungsartBeitragId, 'de', N'Beitrag');
+END
+
+DECLARE @ForderungsartVeranstaltungId INT = (SELECT Id FROM [Keytable].[Forderungsart] WHERE Code = 'VERANSTALTUNG');
+IF @ForderungsartVeranstaltungId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsartUebersetzung] WHERE ForderungsartId = @ForderungsartVeranstaltungId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsartUebersetzung] (ForderungsartId, Sprache, Name) VALUES (@ForderungsartVeranstaltungId, 'tr', N'Etkinlik');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsartUebersetzung] WHERE ForderungsartId = @ForderungsartVeranstaltungId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsartUebersetzung] (ForderungsartId, Sprache, Name) VALUES (@ForderungsartVeranstaltungId, 'de', N'Veranstaltung');
+END
+
+DECLARE @ForderungsartSonstigeId INT = (SELECT Id FROM [Keytable].[Forderungsart] WHERE Code = 'SONSTIGE');
+IF @ForderungsartSonstigeId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsartUebersetzung] WHERE ForderungsartId = @ForderungsartSonstigeId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsartUebersetzung] (ForderungsartId, Sprache, Name) VALUES (@ForderungsartSonstigeId, 'tr', N'Diğer');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsartUebersetzung] WHERE ForderungsartId = @ForderungsartSonstigeId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsartUebersetzung] (ForderungsartId, Sprache, Name) VALUES (@ForderungsartSonstigeId, 'de', N'Sonstige');
+END
+PRINT '  ✓ Forderungsart çevirileri eklendi';
+
+-- Forderungsstatus (Alacak Durumu)
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsstatus] WHERE Code = 'OFFEN')
+    INSERT INTO [Keytable].[Forderungsstatus] (Code) VALUES ('OFFEN');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsstatus] WHERE Code = 'BEZAHLT')
+    INSERT INTO [Keytable].[Forderungsstatus] (Code) VALUES ('BEZAHLT');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsstatus] WHERE Code = 'TEILBEZAHLT')
+    INSERT INTO [Keytable].[Forderungsstatus] (Code) VALUES ('TEILBEZAHLT');
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Forderungsstatus] WHERE Code = 'STORNIERT')
+    INSERT INTO [Keytable].[Forderungsstatus] (Code) VALUES ('STORNIERT');
+PRINT '  ✓ Forderungsstatus kayıtları eklendi';
+
+-- Forderungsstatus çevirilerini ekle
+DECLARE @ForderungsstatusOffenId INT = (SELECT Id FROM [Keytable].[Forderungsstatus] WHERE Code = 'OFFEN');
+IF @ForderungsstatusOffenId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusOffenId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusOffenId, 'tr', N'Açık');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusOffenId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusOffenId, 'de', N'Offen');
+END
+
+DECLARE @ForderungsstatusBezahltId INT = (SELECT Id FROM [Keytable].[Forderungsstatus] WHERE Code = 'BEZAHLT');
+IF @ForderungsstatusBezahltId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusBezahltId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusBezahltId, 'tr', N'Ödendi');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusBezahltId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusBezahltId, 'de', N'Bezahlt');
+END
+
+DECLARE @ForderungsstatusTeilbezahltId INT = (SELECT Id FROM [Keytable].[Forderungsstatus] WHERE Code = 'TEILBEZAHLT');
+IF @ForderungsstatusTeilbezahltId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusTeilbezahltId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusTeilbezahltId, 'tr', N'Kısmi Ödendi');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusTeilbezahltId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusTeilbezahltId, 'de', N'Teilbezahlt');
+END
+
+DECLARE @ForderungsstatusStorniertId INT = (SELECT Id FROM [Keytable].[Forderungsstatus] WHERE Code = 'STORNIERT');
+IF @ForderungsstatusStorniertId IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusStorniertId AND Sprache = 'tr')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusStorniertId, 'tr', N'İptal Edildi');
+    IF NOT EXISTS (SELECT 1 FROM [Keytable].[ForderungsstatusUebersetzung] WHERE ForderungsstatusId = @ForderungsstatusStorniertId AND Sprache = 'de')
+        INSERT INTO [Keytable].[ForderungsstatusUebersetzung] (ForderungsstatusId, Sprache, Name) VALUES (@ForderungsstatusStorniertId, 'de', N'Storniert');
+END
+PRINT '  ✓ Forderungsstatus çevirileri eklendi';
 
 -- Staatsangehoerigkeit (Uyruk) - KEYTABLE_SEED_DATA.sql'den
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[Staatsangehoerigkeit] WHERE ISO2 = 'TR')
@@ -233,20 +580,42 @@ IF NOT EXISTS (SELECT 1 FROM [Keytable].[BeitragPeriode] WHERE Code = 'MONTHLY')
 BEGIN
     INSERT INTO [Keytable].[BeitragPeriode] (Code, Sort) VALUES ('MONTHLY', 1);
     INSERT INTO [Keytable].[BeitragPeriodeUebersetzung] (BeitragPeriodeCode, Sprache, Name) VALUES
-        ('MONTHLY', 'tr', N'Aylık'),
-        ('MONTHLY', 'de', N'Monatlich');
-    PRINT '  ✓ BeitragPeriode MONTHLY eklendi';
+        ('MONTHLY', 'tr', N'Aylık'), ('MONTHLY', 'de', N'Monatlich');
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[BeitragPeriode] WHERE Code = 'YEARLY')
+BEGIN
+    INSERT INTO [Keytable].[BeitragPeriode] (Code, Sort) VALUES ('YEARLY', 2);
+    INSERT INTO [Keytable].[BeitragPeriodeUebersetzung] (BeitragPeriodeCode, Sprache, Name) VALUES
+        ('YEARLY', 'tr', N'Yıllık'), ('YEARLY', 'de', N'Jährlich');
+END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[BeitragPeriode] WHERE Code = 'QUARTERLY')
+BEGIN
+    INSERT INTO [Keytable].[BeitragPeriode] (Code, Sort) VALUES ('QUARTERLY', 3);
+    INSERT INTO [Keytable].[BeitragPeriodeUebersetzung] (BeitragPeriodeCode, Sprache, Name) VALUES
+        ('QUARTERLY', 'tr', N'Üç Aylık'), ('QUARTERLY', 'de', N'Vierteljährlich');
+END
+PRINT '  ✓ BeitragPeriode kayıtları eklendi';
 
 -- BeitragZahlungstagTyp (Ödeme Günü Tipi)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[BeitragZahlungstagTyp] WHERE Code = 'DAY_OF_MONTH')
 BEGIN
     INSERT INTO [Keytable].[BeitragZahlungstagTyp] (Code, Sort) VALUES ('DAY_OF_MONTH', 1);
     INSERT INTO [Keytable].[BeitragZahlungstagTypUebersetzung] (Code, Sprache, Name) VALUES
-        ('DAY_OF_MONTH', 'tr', N'Ayın Günü'),
-        ('DAY_OF_MONTH', 'de', N'Tag des Monats');
-    PRINT '  ✓ BeitragZahlungstagTyp DAY_OF_MONTH eklendi';
+        ('DAY_OF_MONTH', 'tr', N'Ayın Günü'), ('DAY_OF_MONTH', 'de', N'Tag des Monats');
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[BeitragZahlungstagTyp] WHERE Code = 'FIRST_DAY')
+BEGIN
+    INSERT INTO [Keytable].[BeitragZahlungstagTyp] (Code, Sort) VALUES ('FIRST_DAY', 2);
+    INSERT INTO [Keytable].[BeitragZahlungstagTypUebersetzung] (Code, Sprache, Name) VALUES
+        ('FIRST_DAY', 'tr', N'Ayın İlk Günü'), ('FIRST_DAY', 'de', N'Erster Tag');
+END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[BeitragZahlungstagTyp] WHERE Code = 'LAST_DAY')
+BEGIN
+    INSERT INTO [Keytable].[BeitragZahlungstagTyp] (Code, Sort) VALUES ('LAST_DAY', 3);
+    INSERT INTO [Keytable].[BeitragZahlungstagTypUebersetzung] (Code, Sprache, Name) VALUES
+        ('LAST_DAY', 'tr', N'Ayın Son Günü'), ('LAST_DAY', 'de', N'Letzter Tag');
+END
+PRINT '  ✓ BeitragZahlungstagTyp kayıtları eklendi';
 
 -- Rechtsform (Hukuki Yapı)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[Rechtsform] WHERE Code = 'EV')
@@ -254,10 +623,16 @@ BEGIN
     INSERT INTO [Keytable].[Rechtsform] (Code) VALUES ('EV');
     DECLARE @EvId INT = SCOPE_IDENTITY();
     INSERT INTO [Keytable].[RechtsformUebersetzung] (RechtsformId, Sprache, Name) VALUES
-        (@EvId, 'tr', N'Dernek (e.V.)'),
-        (@EvId, 'de', N'Eingetragener Verein (e.V.)');
-    PRINT '  ✓ Rechtsform EV eklendi';
+        (@EvId, 'tr', N'Dernek (e.V.)'), (@EvId, 'de', N'Eingetragener Verein (e.V.)');
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Rechtsform] WHERE Code = 'GMBH')
+BEGIN
+    INSERT INTO [Keytable].[Rechtsform] (Code) VALUES ('GMBH');
+    DECLARE @GmbhId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[RechtsformUebersetzung] (RechtsformId, Sprache, Name) VALUES
+        (@GmbhId, 'tr', N'Limited Şirket'), (@GmbhId, 'de', N'GmbH');
+END
+PRINT '  ✓ Rechtsform kayıtları eklendi';
 
 -- AdresseTyp (Adres Tipi)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[AdresseTyp] WHERE Code = 'HOME')
@@ -265,10 +640,16 @@ BEGIN
     INSERT INTO [Keytable].[AdresseTyp] (Code) VALUES ('HOME');
     DECLARE @HomeId INT = SCOPE_IDENTITY();
     INSERT INTO [Keytable].[AdresseTypUebersetzung] (AdresseTypId, Sprache, Name) VALUES
-        (@HomeId, 'tr', N'Ev'),
-        (@HomeId, 'de', N'Privat');
-    PRINT '  ✓ AdresseTyp HOME eklendi';
+        (@HomeId, 'tr', N'Ev'), (@HomeId, 'de', N'Privat');
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[AdresseTyp] WHERE Code = 'WORK')
+BEGIN
+    INSERT INTO [Keytable].[AdresseTyp] (Code) VALUES ('WORK');
+    DECLARE @WorkId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[AdresseTypUebersetzung] (AdresseTypId, Sprache, Name) VALUES
+        (@WorkId, 'tr', N'İş'), (@WorkId, 'de', N'Geschäftlich');
+END
+PRINT '  ✓ AdresseTyp kayıtları eklendi';
 
 -- Kontotyp (Hesap Tipi)
 IF NOT EXISTS (SELECT 1 FROM [Keytable].[Kontotyp] WHERE Code = 'CHECKING')
@@ -276,10 +657,16 @@ BEGIN
     INSERT INTO [Keytable].[Kontotyp] (Code) VALUES ('CHECKING');
     DECLARE @CheckingId INT = SCOPE_IDENTITY();
     INSERT INTO [Keytable].[KontotypUebersetzung] (KontotypId, Sprache, Name) VALUES
-        (@CheckingId, 'tr', N'Vadesiz Hesap'),
-        (@CheckingId, 'de', N'Girokonto');
-    PRINT '  ✓ Kontotyp CHECKING eklendi';
+        (@CheckingId, 'tr', N'Vadesiz Hesap'), (@CheckingId, 'de', N'Girokonto');
 END
+IF NOT EXISTS (SELECT 1 FROM [Keytable].[Kontotyp] WHERE Code = 'SAVINGS')
+BEGIN
+    INSERT INTO [Keytable].[Kontotyp] (Code) VALUES ('SAVINGS');
+    DECLARE @SavingsId INT = SCOPE_IDENTITY();
+    INSERT INTO [Keytable].[KontotypUebersetzung] (KontotypId, Sprache, Name) VALUES
+        (@SavingsId, 'tr', N'Vadeli Hesap'), (@SavingsId, 'de', N'Sparkonto');
+END
+PRINT '  ✓ Kontotyp kayıtları eklendi';
 
 PRINT '  ✓ Referans tabloları hazır';
 GO
@@ -439,9 +826,13 @@ DECLARE @GeschlechtF INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE C
 
 -- München Derneği Üyeleri
 -- NOT: Ahmet Yılmaz dernek başkanıdır, üye değildir - User tablosunda tanımlanacak
+-- Aidat bilgileri: BeitragBetrag, BeitragWaehrungId (1=EUR), BeitragPeriodeCode, BeitragZahlungsTag, BeitragIstPflicht
+DECLARE @EurWaehrungId INT = (SELECT TOP 1 Id FROM [Keytable].[Waehrung] WHERE Code = 'EUR');
+
 INSERT INTO [Mitglied].[Mitglied] (
     VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
     Vorname, Nachname, GeschlechtId, Email, Telefon, Geburtsdatum, Eintrittsdatum,
+    BeitragBetrag, BeitragWaehrungId, BeitragPeriodeCode, BeitragZahlungsTag, BeitragZahlungstagTypCode, BeitragIstPflicht,
     Aktiv, DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -456,6 +847,12 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 89 222222222',
     '1982-09-08',
     '2021-03-10',
+    120.00,              -- BeitragBetrag: 120 EUR
+    @EurWaehrungId,      -- BeitragWaehrungId: EUR
+    'QUARTERLY',         -- BeitragPeriodeCode: Üç aylık
+    15,                  -- BeitragZahlungsTag: Ayın 15'i
+    'DAY_OF_MONTH',      -- BeitragZahlungstagTypCode
+    1,                   -- BeitragIstPflicht: Evet
     1,
     0,
     GETDATE(),
@@ -473,6 +870,12 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 89 333333333',
     '1990-12-03',
     '2022-06-20',
+    60.00,               -- BeitragBetrag: 60 EUR
+    @EurWaehrungId,      -- BeitragWaehrungId: EUR
+    'MONTHLY',           -- BeitragPeriodeCode: Aylık
+    1,                   -- BeitragZahlungsTag: Ayın 1'i
+    'FIRST_DAY',         -- BeitragZahlungstagTypCode
+    1,                   -- BeitragIstPflicht: Evet
     1,
     0,
     GETDATE(),
@@ -484,6 +887,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 INSERT INTO [Mitglied].[Mitglied] (
     VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
     Vorname, Nachname, GeschlechtId, Email, Telefon, Geburtsdatum, Eintrittsdatum,
+    BeitragBetrag, BeitragWaehrungId, BeitragPeriodeCode, BeitragZahlungsTag, BeitragZahlungstagTypCode, BeitragIstPflicht,
     Aktiv, DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -498,6 +902,12 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 30 555555555',
     '1985-02-14',
     '2020-04-18',
+    100.00,              -- BeitragBetrag: 100 EUR
+    @EurWaehrungId,      -- BeitragWaehrungId: EUR
+    'QUARTERLY',         -- BeitragPeriodeCode: Üç aylık
+    1,                   -- BeitragZahlungsTag: Ayın 1'i
+    'FIRST_DAY',         -- BeitragZahlungstagTypCode
+    1,                   -- BeitragIstPflicht: Evet
     1,
     0,
     GETDATE(),
@@ -508,6 +918,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 INSERT INTO [Mitglied].[Mitglied] (
     VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
     Vorname, Nachname, GeschlechtId, Email, Telefon, Geburtsdatum, Eintrittsdatum,
+    BeitragBetrag, BeitragWaehrungId, BeitragPeriodeCode, BeitragZahlungsTag, BeitragZahlungstagTypCode, BeitragIstPflicht,
     Aktiv, DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -522,6 +933,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 89 444444444',
     '2005-03-15',
     DATEADD(MONTH, -2, GETDATE()), -- 2 ay önce
+    30.00, @EurWaehrungId, 'MONTHLY', 1, 'FIRST_DAY', 1,  -- Genç üye indirimi
     1,
     0,
     GETDATE(),
@@ -539,6 +951,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 89 555555555',
     '1995-07-22',
     DATEADD(MONTH, -4, GETDATE()), -- 4 ay önce
+    60.00, @EurWaehrungId, 'MONTHLY', 15, 'DAY_OF_MONTH', 1,
     1,
     0,
     GETDATE(),
@@ -556,6 +969,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 89 666666666',
     '1988-11-30',
     DATEADD(MONTH, -6, GETDATE()), -- 6 ay önce
+    240.00, @EurWaehrungId, 'YEARLY', 1, 'FIRST_DAY', 1,  -- Yıllık ödeme
     1,
     0,
     GETDATE(),
@@ -573,6 +987,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 89 777777777',
     '1962-04-18',
     DATEADD(MONTH, -8, GETDATE()), -- 8 ay önce
+    50.00, @EurWaehrungId, 'MONTHLY', NULL, 'LAST_DAY', 1,  -- Emekli indirimi
     1,
     0,
     GETDATE(),
@@ -583,6 +998,7 @@ INSERT INTO [Mitglied].[Mitglied] (
 INSERT INTO [Mitglied].[Mitglied] (
     VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
     Vorname, Nachname, GeschlechtId, Email, Telefon, Geburtsdatum, Eintrittsdatum,
+    BeitragBetrag, BeitragWaehrungId, BeitragPeriodeCode, BeitragZahlungsTag, BeitragZahlungstagTypCode, BeitragIstPflicht,
     Aktiv, DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -597,6 +1013,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 30 666666666',
     '2008-09-12',
     DATEADD(MONTH, -3, GETDATE()), -- 3 ay önce
+    25.00, @EurWaehrungId, 'MONTHLY', 1, 'FIRST_DAY', 1,  -- Genç üye indirimi
     1,
     0,
     GETDATE(),
@@ -614,6 +1031,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 30 777777777',
     '1978-06-25',
     DATEADD(MONTH, -5, GETDATE()), -- 5 ay önce
+    100.00, @EurWaehrungId, 'QUARTERLY', 15, 'DAY_OF_MONTH', 1,
     1,
     0,
     GETDATE(),
@@ -631,6 +1049,7 @@ INSERT INTO [Mitglied].[Mitglied] (
     '+49 30 888888888',
     '1992-01-08',
     DATEADD(MONTH, -7, GETDATE()), -- 7 ay önce
+    50.00, @EurWaehrungId, 'MONTHLY', 10, 'DAY_OF_MONTH', 1,
     1,
     0,
     GETDATE(),
@@ -638,6 +1057,138 @@ INSERT INTO [Mitglied].[Mitglied] (
 );
 
 PRINT '  ✓ 10 Üye eklendi (6 München, 4 Berlin)';
+GO
+
+-- =============================================
+-- 2b. MEVCUT ÜYELERİN AİDAT BİLGİLERİNİ GÜNCELLE
+-- =============================================
+-- Bu bölüm, daha önce aidat bilgisi olmadan eklenen üyeleri günceller
+
+PRINT '2b. Mevcut üyelerin aidat bilgileri güncelleniyor...';
+
+DECLARE @EurWaehrungIdUpd INT = (SELECT TOP 1 Id FROM [Keytable].[Waehrung] WHERE Code = 'EUR');
+
+-- München üyelerini güncelle
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 120.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'QUARTERLY',
+    BeitragZahlungsTag = 15,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M001' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 60.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 1,
+    BeitragZahlungstagTypCode = 'FIRST_DAY',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M002' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 30.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 1,
+    BeitragZahlungstagTypCode = 'FIRST_DAY',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M003' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 60.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 15,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M004' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 240.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'YEARLY',
+    BeitragZahlungsTag = 1,
+    BeitragZahlungstagTypCode = 'FIRST_DAY',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M005' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 50.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = NULL,
+    BeitragZahlungstagTypCode = 'LAST_DAY',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M006' AND BeitragBetrag IS NULL;
+
+-- Aile üyeleri için aidat bilgileri
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 120.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'QUARTERLY',
+    BeitragZahlungsTag = 15,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'M008' AND BeitragBetrag IS NULL;  -- Mehmet Özkan
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 20.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 15,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 0
+WHERE Mitgliedsnummer = 'M009' AND BeitragBetrag IS NULL;  -- Ali Özkan (çocuk)
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 20.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 15,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 0
+WHERE Mitgliedsnummer = 'M010' AND BeitragBetrag IS NULL;  -- Elif Özkan (çocuk)
+
+-- Berlin üyelerini güncelle
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 100.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'QUARTERLY',
+    BeitragZahlungsTag = 1,
+    BeitragZahlungstagTypCode = 'FIRST_DAY',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'B001' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 25.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 1,
+    BeitragZahlungstagTypCode = 'FIRST_DAY',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'B002' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 100.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'QUARTERLY',
+    BeitragZahlungsTag = 15,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'B003' AND BeitragBetrag IS NULL;
+
+UPDATE [Mitglied].[Mitglied]
+SET BeitragBetrag = 50.00,
+    BeitragWaehrungId = @EurWaehrungIdUpd,
+    BeitragPeriodeCode = 'MONTHLY',
+    BeitragZahlungsTag = 10,
+    BeitragZahlungstagTypCode = 'DAY_OF_MONTH',
+    BeitragIstPflicht = 1
+WHERE Mitgliedsnummer = 'B004' AND BeitragBetrag IS NULL;
+
+PRINT '  ✓ Mevcut üyelerin aidat bilgileri güncellendi';
 GO
 
 -- =============================================
@@ -1249,11 +1800,13 @@ INSERT INTO [Finanz].[MitgliedForderung] (
     Beschreibung, Jahr, Quartal, Monat, StatusId,
     DeletedFlag, Created, CreatedBy
 ) VALUES
--- München alacakları (Ahmet Yılmaz üye değil, alacağı yok)
-(@MuenchenVereinId, @FatmaId, 1, 'F-2025-001', 120.00, 1, DATEADD(DAY, 15, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
-(@MuenchenVereinId, @CanId, 1, 'F-2025-002', 120.00, 1, DATEADD(DAY, -5, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1),
--- Berlin alacakları (Mehmet Demir üye değil, alacağı yok)
-(@BerlinVereinId, @AyseId, 1, 'F-2025-101', 100.00, 1, DATEADD(DAY, 10, GETDATE()), N'Mitgliedsbeitrag Q1 2025', 2025, 1, NULL, 2, 0, GETDATE(), 1);
+-- München alacakları - Q4 2025 (Ekim-Kasım-Aralık dönemi)
+-- Fatma: 15 Aralık 2025 vadeli (BeitragZahlungsTag=15 ile uyumlu)
+(@MuenchenVereinId, @FatmaId, 1, 'F-2025-001', 120.00, 1, '2025-12-15', N'Mitgliedsbeitrag Q4 2025', 2025, 4, 12, 2, 0, GETDATE(), 1),
+-- Can: 5 gün önce vadesi geçmiş
+(@MuenchenVereinId, @CanId, 1, 'F-2025-002', 120.00, 1, DATEADD(DAY, -5, GETDATE()), N'Mitgliedsbeitrag Q4 2025', 2025, 4, 12, 2, 0, GETDATE(), 1),
+-- Berlin alacakları - Q4 2025
+(@BerlinVereinId, @AyseId, 1, 'F-2025-101', 100.00, 1, DATEADD(DAY, 10, GETDATE()), N'Mitgliedsbeitrag Q4 2025', 2025, 4, 12, 2, 0, GETDATE(), 1);
 
 DECLARE @Forderung1Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-001');
 DECLARE @Forderung2Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung] WHERE Forderungsnummer = 'F-2025-002');
@@ -2159,13 +2712,132 @@ UNION ALL
 SELECT 'VereinSatzung', COUNT(*) FROM [Verein].[VereinSatzung]
 ORDER BY Tablo;
 
+-- Çeviri tablolarının durumu
+PRINT '';
+PRINT '--- ÇEVİRİ TABLOLARI DURUMU ---';
+SELECT 'GeschlechtUebersetzung' AS Tablo, COUNT(*) AS Kayit FROM [Keytable].[GeschlechtUebersetzung]
+UNION ALL
+SELECT 'MitgliedStatusUebersetzung', COUNT(*) FROM [Keytable].[MitgliedStatusUebersetzung]
+UNION ALL
+SELECT 'MitgliedTypUebersetzung', COUNT(*) FROM [Keytable].[MitgliedTypUebersetzung]
+UNION ALL
+SELECT 'FamilienbeziehungTypUebersetzung', COUNT(*) FROM [Keytable].[FamilienbeziehungTypUebersetzung]
+UNION ALL
+SELECT 'StaatsangehoerigkeitUebersetzung', COUNT(*) FROM [Keytable].[StaatsangehoerigkeitUebersetzung]
+UNION ALL
+SELECT 'BeitragPeriodeUebersetzung', COUNT(*) FROM [Keytable].[BeitragPeriodeUebersetzung]
+UNION ALL
+SELECT 'ZahlungTypUebersetzung', COUNT(*) FROM [Keytable].[ZahlungTypUebersetzung]
+UNION ALL
+SELECT 'ZahlungStatusUebersetzung', COUNT(*) FROM [Keytable].[ZahlungStatusUebersetzung]
+UNION ALL
+SELECT 'WaehrungUebersetzung', COUNT(*) FROM [Keytable].[WaehrungUebersetzung]
+UNION ALL
+SELECT 'ForderungsartUebersetzung', COUNT(*) FROM [Keytable].[ForderungsartUebersetzung]
+UNION ALL
+SELECT 'ForderungsstatusUebersetzung', COUNT(*) FROM [Keytable].[ForderungsstatusUebersetzung]
+ORDER BY Tablo;
+
+-- =====================================================
+-- BRIEF VORLAGEN (Mektup Şablonları)
+-- =====================================================
+PRINT '';
+PRINT '--- 12. Brief Vorlagen (Mektup Şablonları) Ekleniyor ---';
+
+-- Her dernek için sistem şablonları ekle
+DECLARE @VereinId INT;
+DECLARE @VereinName NVARCHAR(200);
+
+DECLARE verein_cursor CURSOR FOR
+SELECT Id, Name FROM Verein.Verein WHERE DeletedFlag = 0;
+
+OPEN verein_cursor;
+FETCH NEXT FROM verein_cursor INTO @VereinId, @VereinName;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Şablonların zaten var olup olmadığını kontrol et
+    IF NOT EXISTS (SELECT 1 FROM Brief.BriefVorlage WHERE VereinId = @VereinId AND IstSystemvorlage = 1)
+    BEGIN
+        -- 1. Hoş Geldiniz Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Hoş Geldiniz', N'Yeni üyeler için karşılama mektubu',
+                N'{{vereinName}} Ailesine Hoş Geldiniz!',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} ailesine hoş geldiniz!</p><p>Üyelik numaranız: <strong>{{mitgliedsnummer}}</strong></p><p>Derneğimize katıldığınız için çok mutluyuz.</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Willkommen', 1);
+
+        -- 2. Aidat Hatırlatma Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Aidat Hatırlatması', N'Üyelik aidatı ödeme hatırlatması',
+                N'Aidat Ödeme Hatırlatması',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} üyelik aidatınızı hatırlatmak isteriz.</p><p>Ödenmemiş aidat tutarı: <strong>{{beitragBetrag}}</strong></p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Zahlung', 1);
+
+        -- 3. Ödeme Teşekkür Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Ödeme Teşekkür', N'Ödeme sonrası teşekkür mektubu',
+                N'Ödemeniz İçin Teşekkürler',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>Ödemeniz başarıyla alınmıştır.</p><p>{{vereinName}} adına teşekkür ederiz.</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Zahlung', 1);
+
+        -- 4. Etkinlik Daveti Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Etkinlik Daveti', N'Genel etkinlik davet mektubu',
+                N'Etkinliğimize Davetlisiniz!',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} olarak düzenleyeceğimiz etkinliğe sizi davet ediyoruz.</p><p>Katılımınızı bekliyoruz.</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Einladung', 1);
+
+        -- 5. Toplantı Daveti Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Toplantı Daveti', N'Genel kurul veya toplantı daveti',
+                N'Toplantı Daveti',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} toplantısına katılmanızı rica ederiz.</p><p>Katılımınız bizim için önemlidir.</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Einladung', 1);
+
+        -- 6. Yeni Yıl Kutlaması Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Yeni Yıl Kutlaması', N'Yılbaşı kutlama mesajı',
+                N'Yeni Yılınız Kutlu Olsun!',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} ailesi olarak yeni yılınızı en içten dileklerimizle kutlarız.</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Feiertag', 1);
+
+        -- 7. Bayram Kutlaması Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Bayram Kutlaması', N'Dini ve milli bayram kutlamaları',
+                N'Bayramınız Kutlu Olsun!',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} ailesi olarak bayramınızı en içten dileklerimizle kutlarız.</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Feiertag', 1);
+
+        -- 8. Genel Duyuru Şablonu
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Genel Duyuru', N'Genel bilgilendirme mektubu',
+                N'Önemli Duyuru',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p>{{vereinName}} olarak sizlere önemli bir duyuru iletmek istiyoruz.</p><p>[Duyuru içeriğini buraya yazın]</p><p>Saygılarımızla,<br/>Yönetim Kurulu</p>',
+                N'Allgemein', 1);
+
+        -- 9. Boş Şablon
+        INSERT INTO Brief.BriefVorlage (VereinId, Name, Beschreibung, Betreff, Inhalt, Kategorie, IstSystemvorlage)
+        VALUES (@VereinId, N'Boş Şablon', N'Sadece logo ve başlık içeren boş şablon',
+                N'Konu',
+                N'<p>Sayın {{vorname}} {{nachname}},</p><p></p><p>Saygılarımızla,<br/>{{vereinName}}<br/>Yönetim Kurulu</p>',
+                N'Allgemein', 1);
+
+        PRINT '  ✓ Şablonlar eklendi: ' + @VereinName;
+    END
+
+    FETCH NEXT FROM verein_cursor INTO @VereinId, @VereinName;
+END
+
+CLOSE verein_cursor;
+DEALLOCATE verein_cursor;
+GO
+
+-- =====================================================
+-- ÖZET RAPOR
+-- =====================================================
 PRINT '';
 PRINT '╔════════════════════════════════════════════════════════════════╗';
 PRINT '║         ✅ DEMO VERİLERİ BAŞARIYLA YÜKLENDİ!                  ║';
 PRINT '╚════════════════════════════════════════════════════════════════╝';
 PRINT '';
 GO
-
-PRINT '';
-GO
-
