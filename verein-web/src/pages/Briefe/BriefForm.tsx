@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { briefService, briefVorlageService } from '../../services';
+import { briefService, briefVorlageService, vereinService } from '../../services';
 import { mitgliedService } from '../../services/mitgliedService';
-import { TiptapEditor } from '../../components/Brief';
+import { TiptapEditor, TiptapEditorRef } from '../../components/Brief';
 import { CreateBriefDto, UpdateBriefDto, BriefVorlageDto } from '../../types/brief.types';
 import { MitgliedDto } from '../../types/mitglied';
 import { useToast } from '../../contexts/ToastContext';
@@ -16,6 +16,20 @@ const BackIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="19" y1="12" x2="5" y2="12"/>
     <polyline points="12 19 5 12 12 5"/>
+  </svg>
+);
+
+const PreviewIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
   </svg>
 );
 
@@ -39,6 +53,12 @@ const BriefForm: React.FC = () => {
   });
   const [selectedMitglied, setSelectedMitglied] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewContent, setPreviewContent] = useState<{ betreff: string; inhalt: string } | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+  // TipTap editor ref for inserting text
+  const editorRef = useRef<TiptapEditorRef>(null);
 
   // Fetch brief if editing
   const { data: existingBrief } = useQuery({
@@ -60,6 +80,40 @@ const BriefForm: React.FC = () => {
     queryFn: () => mitgliedService.getByVereinId(user!.vereinId!, true),
     enabled: !!user?.vereinId,
   });
+
+  // Fetch Verein data for placeholder values
+  const { data: verein } = useQuery({
+    queryKey: ['verein', user?.vereinId],
+    queryFn: () => vereinService.getById(user!.vereinId!),
+    enabled: !!user?.vereinId,
+  });
+
+  // Get selected member object
+  const selectedMember = useMemo(() => {
+    if (!selectedMitglied) return null;
+    return mitglieder.find((m: MitgliedDto) => m.id === selectedMitglied) || null;
+  }, [selectedMitglied, mitglieder]);
+
+  // Member field values for quick insert
+  const memberFieldValues = useMemo(() => {
+    if (!selectedMember) return [];
+    return [
+      { key: 'vorname', label: 'Ad', value: selectedMember.vorname || '-' },
+      { key: 'nachname', label: 'Soyad', value: selectedMember.nachname || '-' },
+      { key: 'vollname', label: 'Tam Ad', value: `${selectedMember.vorname || ''} ${selectedMember.nachname || ''}`.trim() || '-' },
+      { key: 'email', label: 'E-posta', value: selectedMember.email || '-' },
+      { key: 'mitgliedsnummer', label: 'Üye No', value: selectedMember.mitgliedsnummer || '-' },
+      { key: 'vereinName', label: 'Dernek Adı', value: verein?.name || '-' },
+      { key: 'vereinKurzname', label: 'Dernek Kısa Adı', value: verein?.kurzname || '-' },
+      { key: 'beitragBetrag', label: 'Aidat Tutarı', value: selectedMember.beitragBetrag?.toString() || '-' },
+    ];
+  }, [selectedMember, verein]);
+
+  // Insert value to content using TipTap editor ref
+  const insertValueToContent = useCallback((value: string) => {
+    if (value === '-') return; // Don't insert empty values
+    editorRef.current?.insertText(value);
+  }, []);
 
   // Load existing brief data
   useEffect(() => {
@@ -161,6 +215,30 @@ const BriefForm: React.FC = () => {
     }
   };
 
+  // Önizleme fonksiyonu - placeholder'ları gerçek değerlerle değiştirir
+  const handlePreview = useCallback(async () => {
+    if (!selectedMitglied || !user?.vereinId) return;
+
+    setIsLoadingPreview(true);
+    try {
+      const [previewedBetreff, previewedInhalt] = await Promise.all([
+        briefService.previewContent(formData.betreff, selectedMitglied, user.vereinId),
+        briefService.previewContent(formData.inhalt, selectedMitglied, user.vereinId)
+      ]);
+      setPreviewContent({ betreff: previewedBetreff, inhalt: previewedInhalt });
+      setShowPreview(true);
+    } catch (error) {
+      showError(t('briefe:errors.previewError'));
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  }, [selectedMitglied, user?.vereinId, formData.betreff, formData.inhalt, showError, t]);
+
+  const closePreview = () => {
+    setShowPreview(false);
+    setPreviewContent(null);
+  };
+
   return (
     <div className="brief-form-page">
       <div className="page-header">
@@ -214,6 +292,7 @@ const BriefForm: React.FC = () => {
             <div className="form-group">
               <label>{t('briefe:form.content')} *</label>
               <TiptapEditor
+                ref={editorRef}
                 content={formData.inhalt}
                 onChange={(content) => setFormData({ ...formData, inhalt: content })}
                 placeholder={t('briefe:form.contentPlaceholder')}
@@ -230,10 +309,37 @@ const BriefForm: React.FC = () => {
               {/* Selected Member Display */}
               {selectedMitglied && (
                 <div className="selected-member-display">
-                  <span>{mitglieder.find(m => m.id === selectedMitglied)?.vorname} {mitglieder.find(m => m.id === selectedMitglied)?.nachname}</span>
-                  <button type="button" className="btn-text" onClick={() => setSelectedMitglied(null)}>
-                    {t('briefe:form.changeRecipient')}
-                  </button>
+                  <span className="member-name">{selectedMember?.vorname} {selectedMember?.nachname}</span>
+                  <div className="selected-member-actions">
+                    <button type="button" className="btn-preview" onClick={handlePreview} disabled={isLoadingPreview}>
+                      <PreviewIcon />
+                      {isLoadingPreview ? t('common:loading') : t('briefe:preview.title')}
+                    </button>
+                    <button type="button" className="btn-text" onClick={() => setSelectedMitglied(null)}>
+                      {t('briefe:form.changeRecipient')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Member Field Values - Quick Insert */}
+              {selectedMitglied && memberFieldValues.length > 0 && (
+                <div className="member-fields-panel">
+                  <h4>{t('briefe:form.memberFields')}</h4>
+                  <p className="hint-text">{t('briefe:form.memberFieldsHint')}</p>
+                  <div className="member-fields-list">
+                    {memberFieldValues.map((field) => (
+                      <div
+                        key={field.key}
+                        className={`member-field-item ${field.value === '-' ? 'disabled' : ''}`}
+                        onClick={() => insertValueToContent(field.value)}
+                        title={field.value !== '-' ? t('briefe:form.clickToInsert') : undefined}
+                      >
+                        <span className="field-label">{field.label}:</span>
+                        <span className="field-value">{field.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -294,6 +400,70 @@ const BriefForm: React.FC = () => {
           )}
         </div>
       </form>
+
+      {/* Preview Modal */}
+      {showPreview && previewContent && (
+        <div className="modal-overlay" onClick={closePreview}>
+          <div className="modal-content preview-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2><MailIcon /> {t('briefe:preview.title')}</h2>
+              <button className="btn-close" onClick={closePreview}>×</button>
+            </div>
+            <div className="preview-content">
+              {/* Letter Paper */}
+              <div className="letter-paper">
+                {/* Letter Header */}
+                <div className="letter-header">
+                  <div className="letter-logo">
+                    {verein?.kurzname?.substring(0, 2) || verein?.name?.substring(0, 2) || 'V'}
+                  </div>
+                  <div className="letter-sender-info">
+                    <span className="sender-name">{verein?.name}</span>
+                    {verein?.email && <span className="sender-detail">✉ {verein.email}</span>}
+                    {verein?.telefon && <span className="sender-detail">☏ {verein.telefon}</span>}
+                  </div>
+                </div>
+
+                <div className="letter-divider"></div>
+
+                {/* Recipient Info */}
+                <div className="letter-recipient">
+                  <span className="recipient-label">{t('briefe:form.recipient')}</span>
+                  <span className="recipient-name">{selectedMember?.vorname} {selectedMember?.nachname}</span>
+                  {selectedMember?.email && <span className="recipient-email">{selectedMember.email}</span>}
+                </div>
+
+                {/* Date */}
+                <div className="letter-date">
+                  {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                </div>
+
+                {/* Subject */}
+                <div className="letter-subject">
+                  <span className="subject-label">{t('briefe:form.subject')}:</span>
+                  <span className="subject-text">{previewContent.betreff || '-'}</span>
+                </div>
+
+                {/* Content */}
+                <div className="letter-body" dangerouslySetInnerHTML={{ __html: previewContent.inhalt }} />
+
+                {/* Footer */}
+                <div className="letter-footer">
+                  <div className="footer-signature">
+                    {t('briefe:preview.regards')},<br />
+                    <strong>{verein?.name}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-actions single-action">
+              <button type="button" className="btn-primary" onClick={closePreview}>
+                {t('briefe:preview.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

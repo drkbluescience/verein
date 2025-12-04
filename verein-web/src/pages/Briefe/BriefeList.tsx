@@ -143,7 +143,16 @@ const BriefeList: React.FC = () => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'tr-TR');
+    const date = new Date(dateString);
+    const locale = i18n.language === 'de' ? 'de-DE' : 'tr-TR';
+    return date.toLocaleDateString(locale);
+  };
+
+  const formatTime = (dateString?: string) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    const locale = i18n.language === 'de' ? 'de-DE' : 'tr-TR';
+    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   const getStatusBadge = (status: BriefStatus) => {
@@ -210,6 +219,7 @@ const BriefeList: React.FC = () => {
                 <th>{t('briefe:table.status')}</th>
                 <th>{t('briefe:table.recipients')}</th>
                 <th>{t('briefe:table.date')}</th>
+                <th>{t('briefe:table.time')}</th>
                 <th>{t('briefe:table.actions')}</th>
               </tr>
             </thead>
@@ -224,10 +234,11 @@ const BriefeList: React.FC = () => {
                   </td>
                   <td>{brief.betreff}</td>
                   <td>{getStatusBadge(brief.status)}</td>
-                  <td>{brief.status === BriefStatus.Gesendet
+                  <td className="center-cell">{brief.status === BriefStatus.Gesendet
                     ? brief.nachrichtenCount
                     : (brief.selectedMitgliedIds?.length || brief.selectedMitgliedCount || '-')}</td>
                   <td>{formatDate(brief.modified || brief.created)}</td>
+                  <td>{formatTime(brief.modified || brief.created)}</td>
                   <td className="actions-cell">
                     <button className="table-action-btn" onClick={() => navigate(`/briefe/${brief.id}`)}
                       title={t('common:view')}><ViewIcon /></button>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -8,7 +8,6 @@ import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import { useTranslation } from 'react-i18next';
-import { AvailablePlaceholders } from '../../types/brief.types';
 import './TiptapEditor.css';
 
 interface TiptapEditorProps {
@@ -19,16 +18,22 @@ interface TiptapEditorProps {
   minHeight?: string;
 }
 
-const TiptapEditor: React.FC<TiptapEditorProps> = ({
+export interface TiptapEditorRef {
+  insertText: (text: string) => void;
+}
+
+const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(({
   content,
   onChange,
   placeholder = 'Mektup içeriğinizi buraya yazın...',
   editable = true,
   minHeight = '300px'
-}) => {
-  const { i18n } = useTranslation();
-
+}, ref) => {
+  // @ts-ignore - i18next type definitions
+  const { t } = useTranslation(['common', 'briefe']);
   const initialContentRef = useRef(content);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
 
   const editor = useEditor({
     extensions: [
@@ -63,11 +68,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     }
   }, [content, editor]);
 
-  const insertPlaceholder = useCallback((placeholderKey: string) => {
-    if (editor) {
-      editor.chain().focus().insertContent(placeholderKey).run();
+  // Expose insertText function to parent component
+  useImperativeHandle(ref, () => ({
+    insertText: (text: string) => {
+      if (editor) {
+        editor.chain().focus().insertContent(text).run();
+      }
     }
-  }, [editor]);
+  }), [editor]);
 
   const addImage = useCallback(() => {
     const input = document.createElement('input');
@@ -87,51 +95,103 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     input.click();
   }, [editor]);
 
-  const setLink = useCallback(() => {
+  const openLinkModal = useCallback(() => {
     if (!editor) return;
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL:', previousUrl);
-    if (url === null) return;
-    if (url === '') {
+    const previousUrl = editor.getAttributes('link').href || '';
+    setLinkUrl(previousUrl);
+    setShowLinkModal(true);
+  }, [editor]);
+
+  const handleLinkSubmit = useCallback(() => {
+    if (!editor) return;
+    if (linkUrl === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
+    } else {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run();
     }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    setShowLinkModal(false);
+    setLinkUrl('');
+  }, [editor, linkUrl]);
+
+  const handleLinkCancel = useCallback(() => {
+    setShowLinkModal(false);
+    setLinkUrl('');
+  }, []);
+
+  const handleRemoveLink = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    setShowLinkModal(false);
+    setLinkUrl('');
   }, [editor]);
 
   if (!editor) return null;
 
   return (
     <div className="tiptap-editor-container" style={{ '--min-height': minHeight } as React.CSSProperties}>
-      <MenuBar 
-        editor={editor} 
-        onInsertPlaceholder={insertPlaceholder}
+      <MenuBar
+        editor={editor}
         onAddImage={addImage}
-        onSetLink={setLink}
-        language={i18n.language}
+        onSetLink={openLinkModal}
       />
       <EditorContent editor={editor} className="tiptap-editor-content" />
+
+      {/* Link Modal */}
+      {showLinkModal && (
+        <div className="link-modal-overlay" onClick={handleLinkCancel}>
+          <div className="link-modal" onClick={e => e.stopPropagation()}>
+            <div className="link-modal-header">
+              <h3>{t('briefe:editor.insertLink')}</h3>
+              <button className="link-modal-close" onClick={handleLinkCancel}>×</button>
+            </div>
+            <div className="link-modal-body">
+              <label htmlFor="link-url">{t('briefe:editor.linkUrl')}</label>
+              <input
+                id="link-url"
+                type="url"
+                value={linkUrl}
+                onChange={e => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+                autoFocus
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleLinkSubmit();
+                  if (e.key === 'Escape') handleLinkCancel();
+                }}
+              />
+            </div>
+            <div className="link-modal-actions">
+              {linkUrl && (
+                <button type="button" className="btn-danger-outline" onClick={handleRemoveLink}>
+                  {t('briefe:editor.removeLink')}
+                </button>
+              )}
+              <div className="link-modal-actions-right">
+                <button type="button" className="btn-secondary" onClick={handleLinkCancel}>
+                  {t('common:actions.cancel')}
+                </button>
+                <button type="button" className="btn-primary" onClick={handleLinkSubmit}>
+                  {t('common:actions.save')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+});
 
 interface MenuBarProps {
   editor: Editor;
-  onInsertPlaceholder: (key: string) => void;
   onAddImage: () => void;
   onSetLink: () => void;
-  language: string;
 }
 
-const MenuBar: React.FC<MenuBarProps> = ({ 
-  editor, 
-  onInsertPlaceholder, 
-  onAddImage, 
-  onSetLink,
-  language 
+const MenuBar: React.FC<MenuBarProps> = ({
+  editor,
+  onAddImage,
+  onSetLink
 }) => {
-  const [showPlaceholders, setShowPlaceholders] = React.useState(false);
-
   return (
     <div className="tiptap-menu-bar">
       {/* Text Formatting */}
@@ -207,25 +267,6 @@ const MenuBar: React.FC<MenuBarProps> = ({
         <button type="button" onClick={onAddImage} title="Add Image">
           🖼️
         </button>
-      </div>
-
-      {/* Placeholders */}
-      <div className="menu-group placeholder-group">
-        <button type="button" onClick={() => setShowPlaceholders(!showPlaceholders)}
-          className={showPlaceholders ? 'is-active' : ''} title="Insert Placeholder">
-          {'{{}}'}
-        </button>
-        {showPlaceholders && (
-          <div className="placeholder-dropdown">
-            {AvailablePlaceholders.map((p) => (
-              <button key={p.key} type="button"
-                onClick={() => { onInsertPlaceholder(p.key); setShowPlaceholders(false); }}>
-                <span className="placeholder-key">{p.key}</span>
-                <span className="placeholder-label">{p.label[language as 'de' | 'tr'] || p.label.de}</span>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Color */}

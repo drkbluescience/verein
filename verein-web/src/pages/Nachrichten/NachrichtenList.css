@@ -1,63 +1,134 @@
-/* Nachrichten (Messages) Page - Modern Design */
+/* Nachrichten (Messages) Page - Modern Table Design */
 .nachrichten-page {
   min-height: 100vh;
   background: var(--color-background);
   padding: 0;
 }
 
-/* Header - Using global styles from page-header.css */
-
-.unread-badge {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-}
-
-/* Layout */
-.nachrichten-layout {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 20px;
+/* Actions Bar */
+.nachrichten-page .actions-bar {
+  padding: 0 24px 16px;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 24px 24px;
-  min-height: calc(100vh - 200px);
-  text-align: left;
-}
-
-/* Message List */
-.nachrichten-list {
-  background: var(--color-surface);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  border: 1px solid var(--color-border);
+  justify-content: flex-start;
+  gap: 12px;
+  align-items: center;
 }
 
-.nachrichten-list-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border);
+.nachrichten-page .search-box {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.nachrichten-page .search-box:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.nachrichten-page .search-box svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.nachrichten-page .search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--color-text-primary);
+  background: transparent;
+}
+
+.nachrichten-page .search-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.nachrichten-page .clear-search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.nachrichten-page .clear-search-btn:hover {
   background: var(--color-surface-secondary);
-}
-
-.nachrichten-list-header h3 {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 600;
   color: var(--color-text-primary);
 }
 
-.nachrichten-list-content {
-  flex: 1;
-  overflow-y: auto;
+/* Filter Tabs */
+.nachrichten-page .filter-tabs {
+  max-width: 1400px;
+  margin: 0 auto 24px;
+  display: flex;
+  gap: 8px;
+  background: var(--color-surface);
+  padding: 6px;
+  border-radius: 12px;
+  width: fit-content;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.nachrichten-page .filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nachrichten-page .filter-tab:hover {
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.nachrichten-page .filter-tab.active {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.nachrichten-page .tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nachrichten-page .filter-tab.active .tab-count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Loading */
 .loading-container {
   display: flex;
   justify-content: center;
@@ -78,16 +149,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   background: var(--color-surface-secondary);
   border-radius: 50%;
   margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .nachrichten-page .empty-icon svg {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   stroke: var(--color-text-tertiary);
 }
 
@@ -104,259 +176,184 @@
   margin: 0;
 }
 
-/* Message Item */
-.nachricht-item {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+
+/* Table Container */
+.nachrichten-table-container {
+  padding: 0 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow-x: auto;
 }
 
-.nachricht-item:last-child {
+.nachrichten-table {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: 12px;
+  overflow: hidden;
+  border-collapse: collapse;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.nachrichten-table thead {
+  background: var(--color-surface-secondary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.nachrichten-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.nachrichten-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s ease;
+}
+
+.nachrichten-table tbody tr:last-child {
   border-bottom: none;
 }
 
-.nachricht-item:hover {
+.nachrichten-table tbody tr:hover {
   background: var(--color-surface-secondary);
 }
 
-.nachricht-item.selected {
-  background: rgba(59, 130, 246, 0.08);
-  border-left: 3px solid #3b82f6;
-}
-
-.nachricht-item.unread {
-  background: rgba(59, 130, 246, 0.04);
-}
-
-.nachricht-item.unread::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  background: #3b82f6;
-  border-radius: 50%;
-}
-
-.nachricht-item.unread .nachricht-subject {
-  font-weight: 600;
+.nachrichten-table td {
+  padding: 14px 16px;
+  font-size: 14px;
   color: var(--color-text-primary);
-}
-
-.nachricht-avatar {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
-}
-
-.nachricht-avatar svg {
-  width: 20px;
-  height: 20px;
-  stroke: white;
-}
-
-.nachricht-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.nachricht-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  gap: 8px;
-}
-
-.sender {
-  font-size: 0.9375rem;
-  color: var(--color-text-primary);
-  font-weight: 600;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.date {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.nachricht-subject {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.unread-dot {
-  display: none; /* Using ::before pseudo-element instead */
-}
-
-/* Message Detail */
-.nachricht-detail {
-  background: var(--color-surface);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--color-border);
-  text-align: left;
-}
-
-.detail-header {
-  padding: 24px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
-  text-align: left;
-}
-
-.detail-header h2 {
-  margin: 0 0 16px 0;
-  font-size: 1.25rem;
-  font-weight: 700;
+.nachrichten-table .table-link {
   color: var(--color-text-primary);
-  line-height: 1.4;
+  font-weight: 500;
 }
 
-.detail-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.detail-meta span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.detail-meta svg {
-  width: 16px;
-  height: 16px;
-  stroke: var(--color-text-tertiary);
-}
-
-.detail-content {
-  padding: 24px;
-  flex: 1;
-  line-height: 1.7;
-  font-size: 0.9375rem;
-  color: var(--color-text-primary);
-  overflow-y: auto;
-  text-align: left;
-}
-
-.detail-content p {
-  margin: 0 0 16px 0;
-}
-
-.detail-content p:last-child {
-  margin-bottom: 0;
-}
-
-/* No Selection State */
-.no-selection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 60px 40px;
-  text-align: center;
-}
-
-.no-selection .icon {
+/* Status Badge */
+.nachrichten-table .status-badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nachrichten-table .status-badge.read {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.nachrichten-table .status-badge.unread {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.nachrichten-table .status-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* New Badge */
+.nachrichten-table .new-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Table Actions */
+.nachrichten-table .table-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
-  background: var(--color-surface-secondary);
-  border-radius: 50%;
-  margin-bottom: 20px;
 }
 
-.no-selection .icon svg {
-  width: 40px;
-  height: 40px;
-  stroke: var(--color-text-tertiary);
-}
-
-.no-selection p {
-  font-size: 1rem;
+.nachrichten-table .table-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
   color: var(--color-text-secondary);
-  margin: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nachrichten-table .table-action-btn:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.nachrichten-table .table-action-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .nachrichten-layout {
-    grid-template-columns: 320px 1fr;
-    gap: 16px;
-  }
-}
-
 @media (max-width: 768px) {
-  .nachrichten-page {
-    padding: 16px;
+  .nachrichten-page .actions-bar {
+    padding: 0 16px 16px;
+    flex-direction: column;
   }
 
-  .nachrichten-layout {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .nachrichten-page .search-box {
+    min-width: 100%;
   }
 
-  .nachrichten-list {
-    max-height: 50vh;
+  .nachrichten-page .filter-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+    margin: 0 16px 16px;
   }
 
-  .nachricht-detail {
-    display: none;
+  .nachrichten-table-container {
+    padding: 0 16px 24px;
   }
 
-  .nachricht-detail.has-selection {
-    display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
-    border-radius: 0;
-  }
-
-  .nachricht-item {
-    padding: 14px 16px;
-  }
-
-  .nachricht-avatar {
-    width: 36px;
-    height: 36px;
-  }
-
-  .nachricht-avatar svg {
-    width: 18px;
-    height: 18px;
+  .nachrichten-table th,
+  .nachrichten-table td {
+    padding: 10px 12px;
+    font-size: 13px;
   }
 }
 
+/* Dark Theme */
+[data-theme="dark"] .nachrichten-table tbody tr:hover {
+  background: var(--color-surface-secondary);
+}
+
+[data-theme="dark"] .nachrichten-table .status-badge.read {
+  background: rgba(22, 163, 74, 0.2);
+  color: #4ade80;
+}
+
+[data-theme="dark"] .nachrichten-table .status-badge.unread {
+  background: rgba(217, 119, 6, 0.2);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .nachrichten-page .search-box svg {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .nachrichten-page .empty-icon svg {
+  color: #e5e7eb !important;
+}

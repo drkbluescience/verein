@@ -5,6 +5,11 @@
   "editLetter": "Brief bearbeiten",
   "sendNow": "Jetzt senden",
   "sending": "Wird gesendet...",
+  "preview": {
+    "title": "Vorschau",
+    "regards": "Mit freundlichen Grüßen",
+    "confirm": "Bestätigen und Fortfahren"
+  },
   "tabs": {
     "all": "Alle",
     "drafts": "Entwürfe",
@@ -16,6 +21,7 @@
     "status": "Status",
     "recipients": "Empfänger",
     "date": "Datum",
+    "time": "Uhrzeit",
     "actions": "Aktionen"
   },
   "emptyState": {
@@ -38,7 +44,15 @@
     "clearSelection": "Auswahl aufheben",
     "selected": "ausgewählt",
     "selectedRecipient": "Ausgewählter Empfänger",
-    "changeRecipient": "Ändern"
+    "changeRecipient": "Ändern",
+    "memberFields": "Mitgliedsdaten",
+    "memberFieldsHint": "Klicken Sie, um den Wert in den Inhalt einzufügen",
+    "clickToInsert": "Klicken, um einzufügen"
+  },
+  "editor": {
+    "insertLink": "Link einfügen",
+    "linkUrl": "URL-Adresse",
+    "removeLink": "Link entfernen"
   },
   "messages": {
     "created": "Brief erstellt",
@@ -52,7 +66,8 @@
   },
   "errors": {
     "noRecipients": "Bitte wählen Sie mindestens einen Empfänger",
-    "notFound": "Brief nicht gefunden"
+    "notFound": "Brief nicht gefunden",
+    "previewError": "Fehler beim Laden der Vorschau"
   },
   "confirmDelete": "Möchten Sie den Brief \"{{name}}\" wirklich löschen?",
   "deleteModal": {
@@ -72,31 +87,76 @@
     "unread": "ungelesen",
     "empty": "Noch keine Nachrichten",
     "emptyDescription": "Nachrichten von Ihrem Verein werden hier angezeigt",
+    "noMessages": "Keine Nachrichten in dieser Kategorie",
+    "noMessagesDescription": "Versuchen Sie einen anderen Filter",
     "from": "Von",
-    "selectMessage": "Wählen Sie eine Nachricht zum Lesen"
+    "selectMessage": "Wählen Sie eine Nachricht zum Lesen",
+    "officialMessage": "Offizielle Korrespondenz",
+    "messageDetail": "Nachricht Details",
+    "notFound": "Nachricht nicht gefunden",
+    "search": "Nachricht suchen...",
+    "filters": {
+      "all": "Alle",
+      "unread": "Ungelesen",
+      "read": "Gelesen"
+    },
+    "table": {
+      "sender": "Absender",
+      "subject": "Betreff",
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "status": "Status",
+      "actions": "Aktionen",
+      "view": "Anzeigen",
+      "read": "Gelesen",
+      "unread": "Ungelesen"
+    }
   },
   "vorlagen": {
     "title": "Vorlagen",
     "subtitle": "Erstellen und verwalten Sie Briefvorlagen",
     "newTemplate": "Neue Vorlage",
     "editTemplate": "Vorlage bearbeiten",
+    "systemTemplate": "Systemvorlage",
+    "inactive": "Inaktiv",
+    "preview": "Vorschau",
+    "duplicate": "Duplizieren",
+    "copy": "Kopie",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren",
+    "noResults": "Keine Vorlagen in dieser Kategorie gefunden",
+    "noResultsDescription": "Wählen Sie eine andere Kategorie oder erstellen Sie eine neue Vorlage.",
     "emptyState": {
       "title": "Noch keine Vorlagen",
       "description": "Erstellen Sie Ihre erste Vorlage."
     },
     "form": {
       "name": "Vorlagenname",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Wofür wird diese Vorlage verwendet?",
       "category": "Kategorie"
+    },
+    "placeholders": {
+      "title": "Platzhalter",
+      "hint": "Klicken Sie, um in den Inhalt einzufügen"
     },
     "messages": {
       "created": "Vorlage erstellt",
       "updated": "Vorlage aktualisiert",
       "deleted": "Vorlage gelöscht",
+      "activated": "Vorlage aktiviert",
+      "deactivated": "Vorlage deaktiviert",
       "createError": "Fehler beim Erstellen der Vorlage",
       "updateError": "Fehler beim Aktualisieren der Vorlage",
-      "deleteError": "Fehler beim Löschen der Vorlage"
+      "deleteError": "Fehler beim Löschen der Vorlage",
+      "toggleError": "Fehler beim Ändern des Vorlagenstatus"
     },
-    "confirmDelete": "Möchten Sie die Vorlage \"{{name}}\" wirklich löschen?"
+    "confirmDelete": "Möchten Sie die Vorlage \"{{name}}\" wirklich löschen?",
+    "deleteModal": {
+      "title": "Vorlage löschen",
+      "message": "Vorlage wirklich löschen?",
+      "warning": "Diese Aktion kann nicht rückgängig gemacht werden."
+    }
   }
 }
 

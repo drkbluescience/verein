@@ -164,6 +164,16 @@
   white-space: nowrap;
 }
 
+/* Equal column widths */
+.briefe-table th,
+.briefe-table td {
+  width: calc(100% / 7);
+}
+
+.center-cell {
+  text-align: center;
+}
+
 .briefe-table tbody tr {
   border-bottom: 1px solid #f3f4f6;
   transition: background 0.2s ease;
@@ -186,19 +196,21 @@
 
 /* Name Cell */
 .name-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  display: block;
 }
 
 .brief-name {
   font-weight: 600;
   color: var(--color-text-primary);
+  display: block;
+  white-space: nowrap;
 }
 
 .template-badge {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
+  display: block;
+  margin-top: 0.25rem;
 }
 
 /* Status Badge */
@@ -224,6 +236,7 @@
 .actions-cell {
   display: flex;
   gap: 0.25rem;
+  justify-content: flex-start;
 }
 
 .table-action-btn {

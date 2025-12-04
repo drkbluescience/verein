@@ -41,6 +41,7 @@ import BriefForm from './pages/Briefe/BriefForm';
 import BriefDetail from './pages/Briefe/BriefDetail';
 import BriefVorlagenList from './pages/Briefe/BriefVorlagenList';
 import NachrichtenList from './pages/Nachrichten/NachrichtenList';
+import NachrichtDetail from './pages/Nachrichten/NachrichtDetail';
 import './i18n/config'; // Initialize i18n
 import './styles/globals.css';
 
@@ -330,11 +331,18 @@ const AppContent: React.FC = () => {
 
           {/* Nachrichten - Only for mitglied users */}
           {user?.type === 'mitglied' && (
-            <Route path="/nachrichten" element={
-              <Layout>
-                <NachrichtenList />
-              </Layout>
-            } />
+            <>
+              <Route path="/nachrichten" element={
+                <Layout>
+                  <NachrichtenList />
+                </Layout>
+              } />
+              <Route path="/nachrichten/:id" element={
+                <Layout>
+                  <NachrichtDetail />
+                </Layout>
+              } />
+            </>
           )}
 
           {/* Mitglied specific routes */}

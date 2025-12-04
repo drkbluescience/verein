@@ -5,6 +5,11 @@
   "editLetter": "Mektup Düzenle",
   "sendNow": "Şimdi Gönder",
   "sending": "Gönderiliyor...",
+  "preview": {
+    "title": "Önizleme",
+    "regards": "Saygılarımızla",
+    "confirm": "Onayla ve Devam Et"
+  },
   "tabs": {
     "all": "Tümü",
     "drafts": "Taslaklar",
@@ -16,6 +21,7 @@
     "status": "Durum",
     "recipients": "Alıcılar",
     "date": "Tarih",
+    "time": "Saat",
     "actions": "İşlemler"
   },
   "emptyState": {
@@ -38,7 +44,15 @@
     "clearSelection": "Seçimi Temizle",
     "selected": "seçili",
     "selectedRecipient": "Seçilen Alıcı",
-    "changeRecipient": "Değiştir"
+    "changeRecipient": "Değiştir",
+    "memberFields": "Üye Bilgileri",
+    "memberFieldsHint": "Değeri içeriğe eklemek için tıklayın",
+    "clickToInsert": "İçeriğe eklemek için tıkla"
+  },
+  "editor": {
+    "insertLink": "Bağlantı Ekle",
+    "linkUrl": "URL Adresi",
+    "removeLink": "Bağlantıyı Kaldır"
   },
   "messages": {
     "created": "Mektup oluşturuldu",
@@ -52,7 +66,8 @@
   },
   "errors": {
     "noRecipients": "Lütfen en az bir alıcı seçin",
-    "notFound": "Mektup bulunamadı"
+    "notFound": "Mektup bulunamadı",
+    "previewError": "Önizleme yüklenirken hata oluştu"
   },
   "confirmDelete": "\"{{name}}\" mektubunu silmek istediğinize emin misiniz?",
   "deleteModal": {
@@ -72,31 +87,76 @@
     "unread": "okunmamış",
     "empty": "Henüz mesajınız yok",
     "emptyDescription": "Derneğinizden mesaj aldığınızda burada görünecek",
+    "noMessages": "Bu kategoride mesaj yok",
+    "noMessagesDescription": "Farklı bir filtre seçmeyi deneyin",
     "from": "Gönderen",
-    "selectMessage": "Okumak için bir mesaj seçin"
+    "selectMessage": "Okumak için bir mesaj seçin",
+    "officialMessage": "Resmi Yazışma",
+    "messageDetail": "Mesaj Detayı",
+    "notFound": "Mesaj bulunamadı",
+    "search": "Mesaj ara...",
+    "filters": {
+      "all": "Tümü",
+      "unread": "Okunmamış",
+      "read": "Okunmuş"
+    },
+    "table": {
+      "sender": "Gönderen",
+      "subject": "Konu",
+      "date": "Tarih",
+      "time": "Saat",
+      "status": "Durum",
+      "actions": "İşlemler",
+      "view": "Görüntüle",
+      "read": "Okundu",
+      "unread": "Okunmadı"
+    }
   },
   "vorlagen": {
     "title": "Şablonlar",
     "subtitle": "Mektup şablonlarını oluşturun ve yönetin",
     "newTemplate": "Yeni Şablon",
     "editTemplate": "Şablonu Düzenle",
+    "systemTemplate": "Sistem Şablonu",
+    "inactive": "Pasif",
+    "preview": "Önizle",
+    "duplicate": "Kopyala",
+    "copy": "Kopya",
+    "activate": "Aktif Yap",
+    "deactivate": "Pasif Yap",
+    "noResults": "Bu kategoride şablon bulunamadı",
+    "noResultsDescription": "Başka bir kategori seçin veya yeni şablon oluşturun.",
     "emptyState": {
       "title": "Henüz şablon yok",
       "description": "İlk şablonunuzu oluşturarak başlayın."
     },
     "form": {
       "name": "Şablon Adı",
+      "description": "Açıklama",
+      "descriptionPlaceholder": "Bu şablon ne için kullanılacak?",
       "category": "Kategori"
+    },
+    "placeholders": {
+      "title": "Yer Tutucular",
+      "hint": "İçeriğe eklemek için tıklayın"
     },
     "messages": {
       "created": "Şablon oluşturuldu",
       "updated": "Şablon güncellendi",
       "deleted": "Şablon silindi",
+      "activated": "Şablon aktif edildi",
+      "deactivated": "Şablon pasif edildi",
       "createError": "Şablon oluşturulurken hata oluştu",
       "updateError": "Şablon güncellenirken hata oluştu",
-      "deleteError": "Şablon silinirken hata oluştu"
+      "deleteError": "Şablon silinirken hata oluştu",
+      "toggleError": "Şablon durumu değiştirilirken hata oluştu"
     },
-    "confirmDelete": "\"{{name}}\" şablonunu silmek istediğinize emin misiniz?"
+    "confirmDelete": "\"{{name}}\" şablonunu silmek istediğinize emin misiniz?",
+    "deleteModal": {
+      "title": "Şablonu Sil",
+      "message": "şablonunu silmek istediğinize emin misiniz?",
+      "warning": "Bu işlem geri alınamaz."
+    }
   }
 }
 

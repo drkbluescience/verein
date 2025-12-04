@@ -37,6 +37,7 @@ export interface BriefVorlageDto {
 }
 
 export interface CreateBriefVorlageDto {
+  vereinId: number;
   name: string;
   beschreibung?: string;
   betreff: string;

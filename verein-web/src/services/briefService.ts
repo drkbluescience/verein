@@ -162,5 +162,12 @@ export const briefService = {
   preview: async (briefId: number, mitgliedId: number): Promise<string> => {
     return api.get<string>(`/api/Briefe/${briefId}/vorschau/${mitgliedId}`);
   },
+
+  /**
+   * Preview content with placeholder replacement (without saving)
+   */
+  previewContent: async (content: string, mitgliedId: number, vereinId: number): Promise<string> => {
+    return api.post<string>('/api/Briefe/preview', { content, mitgliedId, vereinId });
+  },
 };
 
