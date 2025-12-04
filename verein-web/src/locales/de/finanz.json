@@ -5,6 +5,15 @@
     "events": "Meine Veranstaltungen",
     "claims": "Meine Forderungen"
   },
+  "paymentMethods": {
+    "UEBERWEISUNG": "Überweisung",
+    "BAR": "Bar",
+    "LASTSCHRIFT": "Lastschrift",
+    "KREDITKARTE": "Kreditkarte",
+    "PAYPAL": "PayPal",
+    "SCHECK": "Scheck",
+    "SONSTIGE": "Sonstige"
+  },
   "dashboard": {
     "title": "Finanzverwaltung",
     "subtitle": "Überwachen Sie die finanzielle Situation des Vereins",

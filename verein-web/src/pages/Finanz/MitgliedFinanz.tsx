@@ -135,6 +135,16 @@ const MitgliedFinanz: React.FC = () => {
 
   const mitgliedId = user?.mitgliedId;
 
+  // Helper function to translate payment method
+  const translatePaymentMethod = (method?: string): string => {
+    if (!method) return '-';
+    const methodKey = method.toUpperCase();
+    const translationKey = `finanz:paymentMethods.${methodKey}`;
+    const translated = t(translationKey);
+    // If translation not found, return the original value
+    return translated === translationKey ? method : translated;
+  };
+
   // Active tab state
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
@@ -319,7 +329,7 @@ const MitgliedFinanz: React.FC = () => {
       [t('finanz:paymentHistory.paymentDescription')]: z.description,
       [t('finanz:paymentHistory.paymentDate')]: formatPaymentDate(z.zahlungsdatum),
       [t('finanz:paymentHistory.paymentAmount')]: formatCurrency(z.betrag),
-      [t('finanz:paymentHistory.paymentMethod')]: z.zahlungsweg || '-',
+      [t('finanz:paymentHistory.paymentMethod')]: translatePaymentMethod(z.zahlungsweg),
       [t('finanz:paymentHistory.paymentReference')]: z.referenz || '-',
     }));
 
@@ -523,7 +533,7 @@ const MitgliedFinanz: React.FC = () => {
             </div>
             {summary.yearlyStats.preferredPaymentMethod && (
               <div className="stat-item">
-                <div className="stat-value">{summary.yearlyStats.preferredPaymentMethod}</div>
+                <div className="stat-value">{translatePaymentMethod(summary.yearlyStats.preferredPaymentMethod)}</div>
                 <div className="stat-label">
                   {t('finanz:mitgliedFinanz.preferredMethod')} ({summary.yearlyStats.preferredMethodPercentage}%)
                 </div>
@@ -1054,7 +1064,7 @@ const MitgliedFinanz: React.FC = () => {
                           <td>{zahlung.description}</td>
                           <td>{formatPaymentDate(zahlung.zahlungsdatum)}</td>
                           <td className="amount-cell">{formatCurrency(zahlung.betrag)}</td>
-                          <td>{zahlung.zahlungsweg || '-'}</td>
+                          <td>{translatePaymentMethod(zahlung.zahlungsweg)}</td>
                           <td>{zahlung.referenz || '-'}</td>
                         </tr>
                       ))

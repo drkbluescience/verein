@@ -5,6 +5,15 @@
     "events": "Etkinliklerim",
     "claims": "Borçlarım"
   },
+  "paymentMethods": {
+    "UEBERWEISUNG": "Havale",
+    "BAR": "Nakit",
+    "LASTSCHRIFT": "Otomatik Ödeme",
+    "KREDITKARTE": "Kredi Kartı",
+    "PAYPAL": "PayPal",
+    "SCHECK": "Çek",
+    "SONSTIGE": "Diğer"
+  },
   "dashboard": {
     "title": "Finans Yönetimi",
     "subtitle": "Derneğin finansal durumunu izleyin",
