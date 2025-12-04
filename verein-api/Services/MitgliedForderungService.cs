@@ -393,9 +393,10 @@ public class MitgliedForderungService : IMitgliedForderungService
                 .Average(f => (f.BezahltAm!.Value.Date - f.Faelligkeit.Date).TotalDays);
         }
 
-        // Find preferred payment method
+        // Find preferred payment method (Zahlungsweg - e.g., UEBERWEISUNG, BAR)
         var paymentMethodGroups = yearZahlungen
-            .GroupBy(z => z.ZahlungTypId)
+            .Where(z => !string.IsNullOrEmpty(z.Zahlungsweg))
+            .GroupBy(z => z.Zahlungsweg)
             .OrderByDescending(g => g.Count())
             .FirstOrDefault();
 
@@ -404,17 +405,9 @@ public class MitgliedForderungService : IMitgliedForderungService
 
         if (paymentMethodGroups != null && yearZahlungen.Any())
         {
-            // Get payment type name from keytable
-            var zahlungTyp = await _context.ZahlungTypen
-                .Include(z => z.Uebersetzungen)
-                .FirstOrDefaultAsync(z => z.Id == paymentMethodGroups.Key, cancellationToken);
-
-            if (zahlungTyp != null)
-            {
-                var translation = zahlungTyp.Uebersetzungen?.FirstOrDefault(u => u.Sprache == "tr");
-                preferredMethod = translation?.Name ?? zahlungTyp.Code;
-            }
-
+            // Return the payment method code (e.g., UEBERWEISUNG, BAR)
+            // Frontend will handle translation
+            preferredMethod = paymentMethodGroups.Key;
             preferredMethodPercentage = (double)paymentMethodGroups.Count() / yearZahlungen.Count * 100;
         }
 
