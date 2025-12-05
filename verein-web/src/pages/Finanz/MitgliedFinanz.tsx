@@ -164,6 +164,10 @@ const MitgliedFinanz: React.FC = () => {
   const [paymentSortOrder, setPaymentSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showPaymentFilters, setShowPaymentFilters] = useState(false);
 
+  // Payment detail modal state
+  const [selectedPayment, setSelectedPayment] = useState<UnifiedPayment | null>(null);
+  const [showPaymentDetailModal, setShowPaymentDetailModal] = useState(false);
+
   // Copy to clipboard function
   const copyToClipboard = (text: string, forderungId: number) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -213,6 +217,9 @@ const MitgliedFinanz: React.FC = () => {
     bemerkung?: string;
     statusId: number;
     description: string;
+    created?: string;
+    modified?: string;
+    veranstaltungTitel?: string;
   };
 
   // Fetch member payments for history tab
@@ -220,8 +227,7 @@ const MitgliedFinanz: React.FC = () => {
     queryKey: ['mitglied-zahlungen', mitgliedId],
     queryFn: async () => {
       if (!mitgliedId) return [];
-      const allZahlungen = await mitgliedZahlungService.getAll();
-      return allZahlungen.filter(z => z.mitgliedId === mitgliedId);
+      return await mitgliedZahlungService.getByMitgliedId(mitgliedId);
     },
     enabled: !!mitgliedId && activeTab === 'history',
   });
@@ -250,6 +256,8 @@ const MitgliedFinanz: React.FC = () => {
       bemerkung: z.bemerkung,
       statusId: z.statusId,
       description: z.bemerkung || t('finanz:paymentHistory.memberPayment'),
+      created: z.created,
+      modified: z.modified,
     }));
 
     const eventPayments: UnifiedPayment[] = veranstaltungZahlungen.map(z => ({
@@ -262,6 +270,9 @@ const MitgliedFinanz: React.FC = () => {
       bemerkung: undefined,
       statusId: z.statusId,
       description: z.veranstaltungTitel || t('finanz:paymentHistory.eventPayment'),
+      created: z.created,
+      modified: z.modified,
+      veranstaltungTitel: z.veranstaltungTitel,
     }));
 
     return [...mitgliedPayments, ...eventPayments];
@@ -1053,7 +1064,16 @@ const MitgliedFinanz: React.FC = () => {
                       </tr>
                     ) : (
                       filteredZahlungen.map(zahlung => (
-                        <tr key={`${zahlung.type}-${zahlung.id}`}>
+                        <tr
+                          key={`${zahlung.type}-${zahlung.id}`}
+                          onClick={() => {
+                            setSelectedPayment(zahlung);
+                            setShowPaymentDetailModal(true);
+                          }}
+                          style={{ cursor: 'pointer' }}
+                          title={t('finanz:paymentHistory.clickToViewDetails')}
+                          className="clickable-row"
+                        >
                           <td>
                             <span className={`payment-type-badge ${zahlung.type}`}>
                               {zahlung.type === 'mitglied'
@@ -1077,6 +1097,95 @@ const MitgliedFinanz: React.FC = () => {
         )}
 
       </div>
+
+      {/* Payment Detail Modal */}
+      {showPaymentDetailModal && selectedPayment && (
+        <div className="modal-overlay" onClick={() => setShowPaymentDetailModal(false)}>
+          <div className="modal-content payment-detail-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{t('finanz:paymentHistory.detailsTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowPaymentDetailModal(false)}>
+                <XIcon />
+              </button>
+            </div>
+            <div className="modal-body">
+              {/* Payment Type */}
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
+                  {selectedPayment.type === 'mitglied'
+                    ? t('finanz:paymentHistory.memberPayment')
+                    : t('finanz:paymentHistory.eventPayment')}
+                </h3>
+              </div>
+
+              {/* Main Details Grid */}
+              <div className="detail-grid">
+                <div className="detail-item">
+                  <label>{t('finanz:paymentHistory.paymentId')}</label>
+                  <span>#{selectedPayment.id}</span>
+                </div>
+                <div className="detail-item">
+                  <label>{t('finanz:paymentHistory.paymentDate')}</label>
+                  <span>{formatPaymentDate(selectedPayment.zahlungsdatum)}</span>
+                </div>
+                <div className="detail-item">
+                  <label>{t('finanz:paymentHistory.paymentAmount')}</label>
+                  <span className="amount-highlight">{formatCurrency(selectedPayment.betrag)}</span>
+                </div>
+                <div className="detail-item">
+                  <label>{t('finanz:paymentHistory.paymentMethod')}</label>
+                  <span>{translatePaymentMethod(selectedPayment.zahlungsweg)}</span>
+                </div>
+                <div className="detail-item">
+                  <label>{t('finanz:paymentHistory.paymentReference')}</label>
+                  <span>{selectedPayment.referenz || '-'}</span>
+                </div>
+                <div className="detail-item">
+                  <label>{t('finanz:paymentHistory.status')}</label>
+                  <span className="status-badge status-active">
+                    {t('finanz:paymentHistory.statusActive')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description/Event Name */}
+              <div className="detail-section">
+                <label>{t('finanz:paymentHistory.paymentDescription')}</label>
+                <p>{selectedPayment.description}</p>
+              </div>
+
+              {/* Notes (only for member payments) */}
+              {selectedPayment.type === 'mitglied' && (
+                <div className="detail-section">
+                  <label>{t('finanz:paymentHistory.notes')}</label>
+                  <p>{selectedPayment.bemerkung || t('finanz:paymentHistory.noNotes')}</p>
+                </div>
+              )}
+
+              {/* Timestamps */}
+              <div className="detail-timestamps">
+                {selectedPayment.created && (
+                  <div className="timestamp-item">
+                    <label>{t('finanz:paymentHistory.createdDate')}</label>
+                    <span>{formatPaymentDate(selectedPayment.created)}</span>
+                  </div>
+                )}
+                {selectedPayment.modified && (
+                  <div className="timestamp-item">
+                    <label>{t('finanz:paymentHistory.modifiedDate')}</label>
+                    <span>{formatPaymentDate(selectedPayment.modified)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowPaymentDetailModal(false)}>
+                {t('finanz:paymentHistory.close')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

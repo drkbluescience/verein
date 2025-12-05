@@ -445,7 +445,19 @@
     "actions": "Aktionen",
     "memberPayment": "Mitgliedszahlung",
     "eventPayment": "Veranstaltungszahlung",
-    "paymentType": "Zahlungsart"
+    "paymentType": "Zahlungsart",
+    "detailsTitle": "Zahlungsdetails",
+    "close": "Schließen",
+    "paymentId": "Zahlungs-ID",
+    "createdDate": "Erstellungsdatum",
+    "modifiedDate": "Änderungsdatum",
+    "status": "Status",
+    "statusActive": "Aktiv",
+    "statusPending": "Ausstehend",
+    "notes": "Notizen",
+    "noNotes": "Keine Notizen",
+    "eventName": "Veranstaltungsname",
+    "clickToViewDetails": "Klicken für Details"
   },
   "beitragPlan": {
     "title": "Mein Beitragsplan",

@@ -536,7 +536,19 @@
     "actions": "İşlemler",
     "memberPayment": "Üyelik Ödemesi",
     "eventPayment": "Etkinlik Ödemesi",
-    "paymentType": "Ödeme Tipi"
+    "paymentType": "Ödeme Tipi",
+    "detailsTitle": "Ödeme Detayları",
+    "close": "Kapat",
+    "paymentId": "Ödeme ID",
+    "createdDate": "Oluşturma Tarihi",
+    "modifiedDate": "Değişiklik Tarihi",
+    "status": "Durum",
+    "statusActive": "Aktif",
+    "statusPending": "Beklemede",
+    "notes": "Notlar",
+    "noNotes": "Not bulunmuyor",
+    "eventName": "Etkinlik Adı",
+    "clickToViewDetails": "Detaylar için tıklayın"
   },
   "beitragPlan": {
     "title": "Aidat Planım",

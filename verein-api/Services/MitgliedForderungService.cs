@@ -216,9 +216,15 @@ public class MitgliedForderungService : IMitgliedForderungService
             var forderungen = await _repository.GetByMitgliedIdAsync(mitgliedId, false, cancellationToken);
             var forderungenList = forderungen.ToList();
 
-            // Get all zahlungen for the member
+            // Get all zahlungen for the member (membership payments)
             var zahlungen = await _zahlungRepository.GetByMitgliedIdAsync(mitgliedId, false, cancellationToken);
             var zahlungenList = zahlungen.ToList();
+
+            // Get all event payments for the member (VeranstaltungZahlung)
+            var eventZahlungen = await _context.VeranstaltungZahlungen
+                .Include(z => z.Anmeldung)
+                .Where(z => z.Anmeldung != null && z.Anmeldung.MitgliedId == mitgliedId && z.DeletedFlag != true)
+                .ToListAsync(cancellationToken);
 
             // Separate paid and unpaid claims
             var unpaidForderungen = forderungenList.Where(f => f.StatusId == 2).ToList();
@@ -237,7 +243,7 @@ public class MitgliedForderungService : IMitgliedForderungService
                 ? (int)(nextPayment.Faelligkeit.Date - today).TotalDays
                 : 0;
 
-            // Calculate last 12 months trend
+            // Calculate last 12 months trend (including event payments)
             var last12MonthsTrend = new List<MonthlyTrendDto>();
             for (int i = 11; i >= 0; i--)
             {
@@ -245,7 +251,13 @@ public class MitgliedForderungService : IMitgliedForderungService
                 var monthStart = new DateTime(month.Year, month.Month, 1);
                 var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-                var monthZahlungen = zahlungenList
+                // Membership payments
+                var monthMitgliedZahlungen = zahlungenList
+                    .Where(z => z.Zahlungsdatum.Date >= monthStart && z.Zahlungsdatum.Date <= monthEnd)
+                    .ToList();
+
+                // Event payments
+                var monthEventZahlungen = eventZahlungen
                     .Where(z => z.Zahlungsdatum.Date >= monthStart && z.Zahlungsdatum.Date <= monthEnd)
                     .ToList();
 
@@ -254,8 +266,8 @@ public class MitgliedForderungService : IMitgliedForderungService
                     Month = month.Month,
                     Year = month.Year,
                     MonthName = month.ToString("MMM yy"),
-                    Amount = monthZahlungen.Sum(z => z.Betrag),
-                    Count = monthZahlungen.Count
+                    Amount = monthMitgliedZahlungen.Sum(z => z.Betrag) + monthEventZahlungen.Sum(z => z.Betrag),
+                    Count = monthMitgliedZahlungen.Count + monthEventZahlungen.Count
                 });
             }
 
@@ -276,7 +288,8 @@ public class MitgliedForderungService : IMitgliedForderungService
             // Remaining debt = Original debt - Partial payments
             var totalDebt = unpaidForderungen.Sum(f => f.Betrag) - partialPaymentsForUnpaid;
             var totalOverdue = overdueForderungen.Sum(f => f.Betrag) - partialPaymentsForOverdue;
-            var totalPaid = zahlungenList.Sum(z => z.Betrag);
+            // Total paid includes both membership and event payments
+            var totalPaid = zahlungenList.Sum(z => z.Betrag) + eventZahlungen.Sum(z => z.Betrag);
             var currentBalance = totalDebt;
 
             // Get credit balance (Vorauszahlung)
@@ -284,9 +297,9 @@ public class MitgliedForderungService : IMitgliedForderungService
                 .Where(v => v.MitgliedId == mitgliedId && v.DeletedFlag != true)
                 .SumAsync(v => v.Betrag, cancellationToken);
 
-            // Calculate yearly stats
+            // Calculate yearly stats (including event payments)
             var currentYear = DateTime.UtcNow.Year;
-            var yearlyStats = await CalculateYearlyStatsAsync(mitgliedId, currentYear, zahlungenList, paidForderungen, cancellationToken);
+            var yearlyStats = await CalculateYearlyStatsAsync(mitgliedId, currentYear, zahlungenList, eventZahlungen, paidForderungen, cancellationToken);
 
             // Calculate upcoming payments (next 3 months)
             var upcomingPayments = CalculateUpcomingPayments(unpaidForderungen, today);
@@ -369,18 +382,29 @@ public class MitgliedForderungService : IMitgliedForderungService
     private async Task<YearlyStatsDto> CalculateYearlyStatsAsync(
         int mitgliedId,
         int year,
-        List<MitgliedZahlung> allZahlungen,
+        List<MitgliedZahlung> allMitgliedZahlungen,
+        List<VeranstaltungZahlung> allEventZahlungen,
         List<MitgliedForderung> paidForderungen,
         CancellationToken cancellationToken)
     {
         var yearStart = new DateTime(year, 1, 1);
         var yearEnd = new DateTime(year, 12, 31);
 
-        var yearZahlungen = allZahlungen
+        // Membership payments this year
+        var yearMitgliedZahlungen = allMitgliedZahlungen
             .Where(z => z.Zahlungsdatum.Date >= yearStart && z.Zahlungsdatum.Date <= yearEnd)
             .ToList();
 
-        // Calculate average payment days (from due date to payment date)
+        // Event payments this year
+        var yearEventZahlungen = allEventZahlungen
+            .Where(z => z.Zahlungsdatum.Date >= yearStart && z.Zahlungsdatum.Date <= yearEnd)
+            .ToList();
+
+        // Total payments count and amount (both membership and event)
+        var totalPaymentsCount = yearMitgliedZahlungen.Count + yearEventZahlungen.Count;
+        var totalAmount = yearMitgliedZahlungen.Sum(z => z.Betrag) + yearEventZahlungen.Sum(z => z.Betrag);
+
+        // Calculate average payment days (from due date to payment date) - only for membership claims
         var paidThisYear = paidForderungen
             .Where(f => f.BezahltAm.HasValue && f.BezahltAm.Value.Year == year)
             .ToList();
@@ -394,28 +418,36 @@ public class MitgliedForderungService : IMitgliedForderungService
         }
 
         // Find preferred payment method (Zahlungsweg - e.g., UEBERWEISUNG, BAR)
-        var paymentMethodGroups = yearZahlungen
+        // Combine both membership and event payment methods
+        var allPaymentMethods = yearMitgliedZahlungen
             .Where(z => !string.IsNullOrEmpty(z.Zahlungsweg))
-            .GroupBy(z => z.Zahlungsweg)
+            .Select(z => z.Zahlungsweg!)
+            .Concat(yearEventZahlungen
+                .Where(z => !string.IsNullOrEmpty(z.Zahlungsweg))
+                .Select(z => z.Zahlungsweg!))
+            .ToList();
+
+        var paymentMethodGroups = allPaymentMethods
+            .GroupBy(m => m)
             .OrderByDescending(g => g.Count())
             .FirstOrDefault();
 
         string? preferredMethod = null;
         double preferredMethodPercentage = 0;
 
-        if (paymentMethodGroups != null && yearZahlungen.Any())
+        if (paymentMethodGroups != null && allPaymentMethods.Any())
         {
             // Return the payment method code (e.g., UEBERWEISUNG, BAR)
             // Frontend will handle translation
             preferredMethod = paymentMethodGroups.Key;
-            preferredMethodPercentage = (double)paymentMethodGroups.Count() / yearZahlungen.Count * 100;
+            preferredMethodPercentage = (double)paymentMethodGroups.Count() / allPaymentMethods.Count * 100;
         }
 
         return new YearlyStatsDto
         {
             Year = year,
-            TotalPayments = yearZahlungen.Count,
-            TotalAmount = yearZahlungen.Sum(z => z.Betrag),
+            TotalPayments = totalPaymentsCount,
+            TotalAmount = totalAmount,
             AveragePaymentDays = Math.Round(avgPaymentDays, 1),
             PreferredPaymentMethod = preferredMethod,
             PreferredMethodPercentage = Math.Round(preferredMethodPercentage, 1)
