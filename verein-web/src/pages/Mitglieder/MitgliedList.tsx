@@ -293,6 +293,21 @@ const MitgliedList: React.FC = () => {
             <TableIcon />
           </button>
         </div>
+
+        {/* New Member Button - Admin and Dernek users */}
+        {(user?.type === 'admin' || user?.type === 'dernek') && (
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setSelectedMitglied(null);
+              setFormMode('create');
+              setIsFormModalOpen(true);
+            }}
+          >
+            <PlusIcon />
+            {t('mitglieder:listPage.actions.newMember')}
+          </button>
+        )}
       </div>
 
       {/* Filter Tabs */}
