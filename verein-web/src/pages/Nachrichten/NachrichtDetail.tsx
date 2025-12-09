@@ -51,7 +51,7 @@ const NachrichtDetail: React.FC = () => {
     if (nachricht && !nachricht.gelesenDatum) {
       markAsReadMutation.mutate(nachricht.id);
     }
-  }, [nachricht?.id]);
+  }, [nachricht?.id, markAsReadMutation, nachricht]);
 
   const formatFullDate = (dateString?: string) => {
     if (!dateString) return '-';

@@ -12,11 +12,9 @@ import './PageNoteButton.css';
  */
 const PageNoteButton: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [noteCount, setNoteCount] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   // Don't show on auth pages or admin page notes page
   const isAuthPage = location.pathname.startsWith('/auth') ||
@@ -31,7 +29,6 @@ const PageNoteButton: React.FC = () => {
 
     const loadNoteCount = async () => {
       try {
-        setLoading(true);
         // Admin sees all notes count, dernek and others see their own
         const notes = user?.type === 'admin'
           ? await pageNoteService.getAll(false)
@@ -40,8 +37,6 @@ const PageNoteButton: React.FC = () => {
       } catch (error) {
         console.error('Failed to load note count:', error);
         setNoteCount(0);
-      } finally {
-        setLoading(false);
       }
     };
 

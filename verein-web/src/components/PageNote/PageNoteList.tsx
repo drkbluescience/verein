@@ -6,7 +6,6 @@ import {
   CategoryLabels,
   PriorityLabels,
   StatusLabels,
-  CategoryIcons,
   PriorityColors
 } from '../../types/pageNote.types';
 import { formatDistanceToNow } from 'date-fns';

@@ -315,9 +315,6 @@ export const veranstaltungUtils = {
         // For weekly events with specific days
         if (wiederholungTage) {
           const daysOfWeek = wiederholungTage.split(',').map(d => d.trim());
-          const dayMap: { [key: string]: number } = {
-            'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6, 'Sun': 0
-          };
 
           // Find the next occurrence starting from the later of today or start date
           let found = false;

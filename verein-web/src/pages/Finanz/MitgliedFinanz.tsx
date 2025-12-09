@@ -4,7 +4,7 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -102,11 +102,6 @@ const SearchIcon = () => (
   </svg>
 );
 
-const EyeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-  </svg>
-);
 
 const DownloadIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -152,7 +147,7 @@ const MitgliedFinanz: React.FC = () => {
   const [showPaidClaims, setShowPaidClaims] = useState(false);
 
   // Copied reference state
-  const [copiedReference, setCopiedReference] = useState<number | null>(null);
+  const [copiedReference] = useState<number | null>(null);
 
   // Payment history states
   const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
@@ -306,12 +301,10 @@ const MitgliedFinanz: React.FC = () => {
   };
 
   // Pagination state for payment history
-  const [paymentPage, setPaymentPage] = useState(1);
   const [paymentPageSize] = useState(20);
-  const [hasMorePayments, setHasMorePayments] = useState(true);
 
   // Fetch member payments for history tab with pagination and caching
-  const { data: mitgliedZahlungen, isLoading: isLoadingMitgliedPayments, fetchNextPage, hasNextPage } = useInfiniteQuery<InfiniteQueryResult<MitgliedZahlungDto>>({
+  const { data: mitgliedZahlungen, isLoading: isLoadingMitgliedPayments, hasNextPage } = useInfiniteQuery<InfiniteQueryResult<MitgliedZahlungDto>>({
     queryKey: ['mitglied-zahlungen', mitgliedId, paymentPageSize],
     queryFn: async ({ pageParam = 1 }) => {
       const currentPage = pageParam as number;
@@ -341,7 +334,7 @@ const MitgliedFinanz: React.FC = () => {
   });
 
   // Fetch event payments for history tab with pagination and caching
-  const { data: veranstaltungZahlungen, isLoading: isLoadingEventPayments, fetchNextPage: fetchEventPayments, hasNextPage: hasNextEventPage } = useInfiniteQuery<InfiniteQueryResult<VeranstaltungZahlungDto>>({
+  const { data: veranstaltungZahlungen, isLoading: isLoadingEventPayments, hasNextPage: hasNextEventPage } = useInfiniteQuery<InfiniteQueryResult<VeranstaltungZahlungDto>>({
     queryKey: ['veranstaltung-zahlungen', mitgliedId, paymentPageSize],
     queryFn: async ({ pageParam = 1 }) => {
       const currentPage = pageParam as number;
@@ -371,13 +364,13 @@ const MitgliedFinanz: React.FC = () => {
   });
 
   // Flatten infinite query data
-  const flattenedMitgliedZahlungen = mitgliedZahlungen?.pages?.flatMap((page: InfiniteQueryResult<MitgliedZahlungDto>) => page.data) || [];
-  const flattenedVeranstaltungZahlungen = veranstaltungZahlungen?.pages?.flatMap((page: InfiniteQueryResult<VeranstaltungZahlungDto>) => page.data) || [];
-
   const isLoadingPayments = isLoadingMitgliedPayments || isLoadingEventPayments;
 
   // Combine and unify payments with flattened data
   const allPayments: UnifiedPayment[] = useMemo(() => {
+    const flattenedMitgliedZahlungen = mitgliedZahlungen?.pages?.flatMap((page: InfiniteQueryResult<MitgliedZahlungDto>) => page.data) || [];
+    const flattenedVeranstaltungZahlungen = veranstaltungZahlungen?.pages?.flatMap((page: InfiniteQueryResult<VeranstaltungZahlungDto>) => page.data) || [];
+    
     const mitgliedPayments: UnifiedPayment[] = flattenedMitgliedZahlungen.map(z => ({
       id: z.id,
       type: 'mitglied' as const,
@@ -408,7 +401,7 @@ const MitgliedFinanz: React.FC = () => {
     }));
 
     return [...mitgliedPayments, ...eventPayments];
-  }, [flattenedMitgliedZahlungen, flattenedVeranstaltungZahlungen, t]);
+  }, [mitgliedZahlungen, veranstaltungZahlungen, t]);
 
   // Filter and sort payments
   const filteredZahlungen = useMemo(() => {

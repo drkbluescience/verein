@@ -58,7 +58,7 @@ const SatzungViewerModal: React.FC<SatzungViewerModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [satzung]);
+  }, [satzung, t]);
 
   useEffect(() => {
     if (isOpen && satzung) {

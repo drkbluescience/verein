@@ -97,7 +97,6 @@ const MitgliedList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['mitglieder', 'common']);
   const { user } = useAuth();
-  const { showError } = useToast();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
