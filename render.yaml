@@ -3,17 +3,5 @@ services:
     name: verein-api
     runtime: docker
     dockerfilePath: ./Dockerfile
-    env:
-      - key: ASPNETCORE_ENVIRONMENT
-        value: Production
-      - key: ASPNETCORE_URLS
-        value: http://+:8080
-      - key: ConnectionStrings__DefaultConnection
-        value: Server=localhost,1433;Database=VEREIN;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=true;MultipleActiveResultSets=true;
-      - key: MSSQL_SA_PASSWORD
-        sync: false
-        generateValue: "VereinSecureDB2025!Render"
-      - key: JWT_SECRET
-        sync: false
-        generateValue: "VereinJWTSecretKey2025RenderSecureToken32Chars"
-    healthCheckPath: /health
+    plan: free
+    healthCheckPath: /api/health

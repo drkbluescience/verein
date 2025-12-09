@@ -1,20 +1,8 @@
-# Fly.io Multi-Service Dockerfile for Verein API
-# MSSQL + .NET API in single container
+# Render Dockerfile for Verein API
+# .NET API with external MSSQL database
 
-FROM mcr.microsoft.com/mssql/server:2022-latest AS mssql-base
-
-# Install required packages for MSSQL and API
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create app directory
-WORKDIR /app
-
-# .NET SDK stage for API build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS api-build
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
@@ -26,38 +14,31 @@ COPY . .
 WORKDIR "/src/verein-api"
 RUN dotnet publish "VereinsApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Final stage - MSSQL + API
-FROM mssql-base
-
-# Set environment variables for MSSQL
-ENV ACCEPT_EULA=Y
-ENV MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
-ENV MSSQL_PID=Express
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
 
 # Copy published API
-COPY --from=api-build /app/publish /app/api
+COPY --from=build /app/publish .
 
-# Copy startup scripts
-COPY deploy/flyio-start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-# Copy health check script
-COPY deploy/health-check.sh /app/health-check.sh
-RUN chmod +x /app/health-check.sh
-
-# Copy database scripts
-COPY database /app/database
+# Create health check endpoint
+RUN echo '#!/bin/bash\ncurl -f http://localhost:8080/api/health || exit 1' > /app/health-check.sh && \
+    chmod +x /app/health-check.sh
 
 # Create logs directory
-RUN mkdir -p /app/logs && chmod 777 /app/logs
+RUN mkdir -p /app/logs
 
-# Expose ports
-EXPOSE 8080 1433
+# Expose port
+EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD /app/health-check.sh
 
-# Start both MSSQL and API
-ENTRYPOINT ["/app/start.sh"]
+# Set environment variables
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:8080
+
+# Start the API
+ENTRYPOINT ["dotnet", "VereinsApi.dll"]
 
