@@ -353,6 +353,14 @@ builder.Services.AddCors(options =>
                   .AllowCredentials();
         }
     });
+    
+    // Add a more permissive policy for production debugging
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 // Health Checks
@@ -388,8 +396,8 @@ app.UseStaticFiles();
 // Global Exception Handling
 app.UseGlobalExceptionHandling();
 
-// CORS
-app.UseCors("AllowSpecificOrigins");
+// CORS - Use more permissive policy for production debugging
+app.UseCors("AllowAll");
 
 // Authentication & Authorization
 app.UseAuthentication();
