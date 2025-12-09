@@ -4,8 +4,8 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -169,14 +169,82 @@ const MitgliedFinanz: React.FC = () => {
   const [showPaymentDetailModal, setShowPaymentDetailModal] = useState(false);
 
   // Copy to clipboard function
-  const copyToClipboard = (text: string, forderungId: number) => {
+  const copyToClipboard = (text: string, paymentId: number) => {
     navigator.clipboard.writeText(text).then(() => {
-      setCopiedReference(forderungId);
-      setTimeout(() => setCopiedReference(null), 2000);
+      // Show success message
+      const message = document.createElement('div');
+      message.className = 'copy-success-message';
+      message.textContent = t('finanz:paymentHistory.copiedToClipboard');
+      message.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideInRight 0.3s ease-out;
+      `;
+      
+      document.body.appendChild(message);
+      
+      // Add animation styles if not already added
+      if (!document.getElementById('copy-animation-styles')) {
+        const style = document.createElement('style');
+        style.id = 'copy-animation-styles';
+        style.textContent = `
+          @keyframes slideInRight {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          @keyframes slideOutRight {
+            from {
+              transform: translateX(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      // Remove message after 3 seconds
+      setTimeout(() => {
+        message.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => {
+          if (document.body.contains(message)) {
+            document.body.removeChild(message);
+          }
+        }, 300);
+      }, 3000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      // Show success message
+      alert(t('finanz:paymentHistory.copiedToClipboard'));
     });
   };
 
-  // Fetch financial summary (single API call)
+  // Fetch financial summary (single API call) with caching
   const { data: summary, isLoading } = useQuery({
     queryKey: ['mitglied-finanz-summary', mitgliedId],
     queryFn: async () => {
@@ -184,9 +252,13 @@ const MitgliedFinanz: React.FC = () => {
       return await mitgliedForderungService.getSummary(mitgliedId);
     },
     enabled: !!mitgliedId,
+    staleTime: 2 * 60 * 1000, // 2 minutes cache for financial data
+    gcTime: 5 * 60 * 1000, // 5 minutes cache (gcTime replaced cacheTime)
+    refetchOnWindowFocus: false, // Don't refetch on window focus for financial data
+    refetchOnMount: 'always', // Always refetch on mount to get latest data
   });
 
-  // Fetch Mitglied data to get vereinId
+  // Fetch Mitglied data to get vereinId with caching
   const { data: mitglied } = useQuery({
     queryKey: ['mitglied', mitgliedId],
     queryFn: async () => {
@@ -194,9 +266,11 @@ const MitgliedFinanz: React.FC = () => {
       return await mitgliedService.getById(mitgliedId);
     },
     enabled: !!mitgliedId,
+    staleTime: 10 * 60 * 1000, // 10 minutes cache for member data
+    gcTime: 30 * 60 * 1000, // 30 minutes cache (gcTime replaced cacheTime)
   });
 
-  // Fetch Verein data to get bank account info
+  // Fetch Verein data to get bank account info with caching
   const { data: verein } = useQuery({
     queryKey: ['verein', mitglied?.vereinId],
     queryFn: async () => {
@@ -204,6 +278,8 @@ const MitgliedFinanz: React.FC = () => {
       return await vereinService.getById(mitglied.vereinId);
     },
     enabled: !!mitglied?.vereinId,
+    staleTime: 15 * 60 * 1000, // 15 minutes cache for verein data
+    gcTime: 60 * 60 * 1000, // 1 hour cache (gcTime replaced cacheTime)
   });
 
   // Unified payment type for combined display
@@ -222,31 +298,87 @@ const MitgliedFinanz: React.FC = () => {
     veranstaltungTitel?: string;
   };
 
-  // Fetch member payments for history tab
-  const { data: mitgliedZahlungen = [], isLoading: isLoadingMitgliedPayments } = useQuery({
-    queryKey: ['mitglied-zahlungen', mitgliedId],
-    queryFn: async () => {
-      if (!mitgliedId) return [];
-      return await mitgliedZahlungService.getByMitgliedId(mitgliedId);
+  // Type definitions for infinite query
+  type InfiniteQueryResult<T> = {
+    data: T[];
+    hasMore: boolean;
+    nextPage: number;
+  };
+
+  // Pagination state for payment history
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [paymentPageSize] = useState(20);
+  const [hasMorePayments, setHasMorePayments] = useState(true);
+
+  // Fetch member payments for history tab with pagination and caching
+  const { data: mitgliedZahlungen, isLoading: isLoadingMitgliedPayments, fetchNextPage, hasNextPage } = useInfiniteQuery<InfiniteQueryResult<MitgliedZahlungDto>>({
+    queryKey: ['mitglied-zahlungen', mitgliedId, paymentPageSize],
+    queryFn: async ({ pageParam = 1 }) => {
+      const currentPage = pageParam as number;
+      if (!mitgliedId) return { data: [], hasMore: false, nextPage: 1 };
+      const result = await mitgliedZahlungService.getByMitgliedId(mitgliedId, currentPage, paymentPageSize);
+      
+      // Handle both array and paginated response
+      if (Array.isArray(result)) {
+        return {
+          data: result,
+          hasMore: false,
+          nextPage: currentPage + 1
+        };
+      }
+      
+      return {
+        data: result.data || [],
+        hasMore: result.hasMore || false,
+        nextPage: currentPage + 1
+      };
     },
     enabled: !!mitgliedId && activeTab === 'history',
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextPage : undefined,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    gcTime: 10 * 60 * 1000, // 10 minutes cache (gcTime replaced cacheTime)
+    initialPageParam: 1,
   });
 
-  // Fetch event payments for history tab
-  const { data: veranstaltungZahlungen = [], isLoading: isLoadingEventPayments } = useQuery({
-    queryKey: ['veranstaltung-zahlungen', mitgliedId],
-    queryFn: async () => {
-      if (!mitgliedId) return [];
-      return veranstaltungZahlungService.getByMitgliedId(mitgliedId);
+  // Fetch event payments for history tab with pagination and caching
+  const { data: veranstaltungZahlungen, isLoading: isLoadingEventPayments, fetchNextPage: fetchEventPayments, hasNextPage: hasNextEventPage } = useInfiniteQuery<InfiniteQueryResult<VeranstaltungZahlungDto>>({
+    queryKey: ['veranstaltung-zahlungen', mitgliedId, paymentPageSize],
+    queryFn: async ({ pageParam = 1 }) => {
+      const currentPage = pageParam as number;
+      if (!mitgliedId) return { data: [], hasMore: false, nextPage: 1 };
+      const result = await veranstaltungZahlungService.getByMitgliedId(mitgliedId, currentPage, paymentPageSize);
+      
+      // Handle both array and paginated response
+      if (Array.isArray(result)) {
+        return {
+          data: result,
+          hasMore: false,
+          nextPage: currentPage + 1
+        };
+      }
+      
+      return {
+        data: result.data || [],
+        hasMore: result.hasMore || false,
+        nextPage: currentPage + 1
+      };
     },
     enabled: !!mitgliedId && activeTab === 'history',
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextPage : undefined,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    gcTime: 10 * 60 * 1000, // 10 minutes cache (gcTime replaced cacheTime)
+    initialPageParam: 1,
   });
+
+  // Flatten infinite query data
+  const flattenedMitgliedZahlungen = mitgliedZahlungen?.pages?.flatMap((page: InfiniteQueryResult<MitgliedZahlungDto>) => page.data) || [];
+  const flattenedVeranstaltungZahlungen = veranstaltungZahlungen?.pages?.flatMap((page: InfiniteQueryResult<VeranstaltungZahlungDto>) => page.data) || [];
 
   const isLoadingPayments = isLoadingMitgliedPayments || isLoadingEventPayments;
 
-  // Combine and unify payments
+  // Combine and unify payments with flattened data
   const allPayments: UnifiedPayment[] = useMemo(() => {
-    const mitgliedPayments: UnifiedPayment[] = mitgliedZahlungen.map(z => ({
+    const mitgliedPayments: UnifiedPayment[] = flattenedMitgliedZahlungen.map(z => ({
       id: z.id,
       type: 'mitglied' as const,
       betrag: z.betrag,
@@ -260,7 +392,7 @@ const MitgliedFinanz: React.FC = () => {
       modified: z.modified,
     }));
 
-    const eventPayments: UnifiedPayment[] = veranstaltungZahlungen.map(z => ({
+    const eventPayments: UnifiedPayment[] = flattenedVeranstaltungZahlungen.map(z => ({
       id: z.id,
       type: 'veranstaltung' as const,
       betrag: z.betrag,
@@ -276,7 +408,7 @@ const MitgliedFinanz: React.FC = () => {
     }));
 
     return [...mitgliedPayments, ...eventPayments];
-  }, [mitgliedZahlungen, veranstaltungZahlungen, t]);
+  }, [flattenedMitgliedZahlungen, flattenedVeranstaltungZahlungen, t]);
 
   // Filter and sort payments
   const filteredZahlungen = useMemo(() => {
@@ -924,8 +1056,29 @@ const MitgliedFinanz: React.FC = () => {
         {/* ===== HISTORY TAB ===== */}
         {activeTab === 'history' && (
           <div className="finance-list-page history-tab-embedded">
-            {/* Actions Bar */}
-            <div className="actions-bar" style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+            {/* Actions Bar - Arama, Filtreler ve Excel Export aynı satırda */}
+            <div className="actions-bar" style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              {/* Sol taraf: Arama kutucuğu ve filtreler */}
+              <div className="filters-section" style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1 }}>
+                <div className="search-box">
+                  <SearchIcon />
+                  <input
+                    type="text"
+                    placeholder={t('finanz:paymentHistory.searchPlaceholder')}
+                    value={paymentSearchTerm}
+                    onChange={e => setPaymentSearchTerm(e.target.value)}
+                  />
+                </div>
+                <button
+                  className={`btn btn-outline filter-toggle ${showPaymentFilters ? 'active' : ''}`}
+                  onClick={() => setShowPaymentFilters(!showPaymentFilters)}
+                >
+                  <FilterIcon />
+                  {t('finanz:paymentHistory.filters')}
+                </button>
+              </div>
+              
+              {/* Sağ taraf: Excel'e Aktar butonu */}
               <button
                 className="btn btn-primary"
                 onClick={exportPaymentsToExcel}
@@ -933,26 +1086,6 @@ const MitgliedFinanz: React.FC = () => {
               >
                 <DownloadIcon />
                 {t('finanz:paymentHistory.exportExcel')}
-              </button>
-            </div>
-
-            {/* Filters */}
-            <div className="list-filters">
-              <div className="search-box">
-                <SearchIcon />
-                <input
-                  type="text"
-                  placeholder={t('finanz:paymentHistory.searchPlaceholder')}
-                  value={paymentSearchTerm}
-                  onChange={e => setPaymentSearchTerm(e.target.value)}
-                />
-              </div>
-              <button
-                className={`btn btn-outline filter-toggle ${showPaymentFilters ? 'active' : ''}`}
-                onClick={() => setShowPaymentFilters(!showPaymentFilters)}
-              >
-                <FilterIcon />
-                {t('finanz:paymentHistory.filters')}
               </button>
             </div>
 
@@ -1013,8 +1146,8 @@ const MitgliedFinanz: React.FC = () => {
               </div>
             )}
 
-            {/* Payments Table */}
-            {isLoadingPayments ? (
+            {/* Payments Table with Infinite Scroll */}
+            {isLoadingPayments && filteredZahlungen.length === 0 ? (
               <Loading />
             ) : (
               <div className="list-table-wrapper">
@@ -1056,38 +1189,50 @@ const MitgliedFinanz: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredZahlungen.length === 0 ? (
+                    {filteredZahlungen.length === 0 && !isLoadingPayments ? (
                       <tr>
                         <td colSpan={6} className="empty-message">
                           {t('finanz:paymentHistory.noPayments')}
                         </td>
                       </tr>
                     ) : (
-                      filteredZahlungen.map(zahlung => (
-                        <tr
-                          key={`${zahlung.type}-${zahlung.id}`}
-                          onClick={() => {
-                            setSelectedPayment(zahlung);
-                            setShowPaymentDetailModal(true);
-                          }}
-                          style={{ cursor: 'pointer' }}
-                          title={t('finanz:paymentHistory.clickToViewDetails')}
-                          className="clickable-row"
-                        >
-                          <td>
-                            <span className={`payment-type-badge ${zahlung.type}`}>
-                              {zahlung.type === 'mitglied'
-                                ? t('finanz:paymentHistory.memberPayment')
-                                : t('finanz:paymentHistory.eventPayment')}
-                            </span>
-                          </td>
-                          <td>{zahlung.description}</td>
-                          <td>{formatPaymentDate(zahlung.zahlungsdatum)}</td>
-                          <td className="amount-cell">{formatCurrency(zahlung.betrag)}</td>
-                          <td>{translatePaymentMethod(zahlung.zahlungsweg)}</td>
-                          <td>{zahlung.referenz || '-'}</td>
-                        </tr>
-                      ))
+                      <>
+                        {filteredZahlungen.map(zahlung => (
+                          <tr
+                            key={`${zahlung.type}-${zahlung.id}`}
+                            onClick={() => {
+                              setSelectedPayment(zahlung);
+                              setShowPaymentDetailModal(true);
+                            }}
+                            style={{ cursor: 'pointer' }}
+                            title={t('finanz:paymentHistory.clickToViewDetails')}
+                            className="clickable-row"
+                          >
+                            <td>
+                              <span className={`payment-type-badge ${zahlung.type}`}>
+                                {zahlung.type === 'mitglied'
+                                  ? t('finanz:paymentHistory.memberPayment')
+                                  : t('finanz:paymentHistory.eventPayment')}
+                              </span>
+                            </td>
+                            <td>{zahlung.description}</td>
+                            <td>{formatPaymentDate(zahlung.zahlungsdatum)}</td>
+                            <td className="amount-cell">{formatCurrency(zahlung.betrag)}</td>
+                            <td>{translatePaymentMethod(zahlung.zahlungsweg)}</td>
+                            <td>{zahlung.referenz || '-'}</td>
+                          </tr>
+                        ))}
+                        {/* Loading indicator for infinite scroll */}
+                        {(hasNextPage || hasNextEventPage) && (
+                          <tr>
+                            <td colSpan={6} className="loading-more">
+                              <div className="loading-more-indicator">
+                                <span>{t('finanz:paymentHistory.loadingMore')}</span>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     )}
                   </tbody>
                 </table>
@@ -1110,8 +1255,8 @@ const MitgliedFinanz: React.FC = () => {
             </div>
             <div className="modal-body">
               {/* Payment Type */}
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
+              <div className={`payment-type-header ${selectedPayment.type === 'veranstaltung' ? 'event-payment' : ''}`}>
+                <h3>
                   {selectedPayment.type === 'mitglied'
                     ? t('finanz:paymentHistory.memberPayment')
                     : t('finanz:paymentHistory.eventPayment')}
@@ -1120,25 +1265,77 @@ const MitgliedFinanz: React.FC = () => {
 
               {/* Main Details Grid */}
               <div className="detail-grid">
-                <div className="detail-item">
+                <div className="detail-item secondary" onClick={() => copyToClipboard(`#${selectedPayment.id}`, selectedPayment.id)}>
                   <label>{t('finanz:paymentHistory.paymentId')}</label>
                   <span>#{selectedPayment.id}</span>
+                  <button
+                    className="copy-action-btn"
+                    title={t('finanz:paymentHistory.copyPaymentId')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard(`#${selectedPayment.id}`, selectedPayment.id);
+                    }}
+                  >
+                    📋
+                  </button>
                 </div>
-                <div className="detail-item">
+                <div className="detail-item secondary" onClick={() => selectedPayment.referenz && copyToClipboard(selectedPayment.referenz, selectedPayment.id)}>
                   <label>{t('finanz:paymentHistory.paymentDate')}</label>
                   <span>{formatPaymentDate(selectedPayment.zahlungsdatum)}</span>
+                  <button
+                    className="copy-action-btn"
+                    title={t('finanz:paymentHistory.copyPaymentDate')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard(formatPaymentDate(selectedPayment.zahlungsdatum), selectedPayment.id);
+                    }}
+                  >
+                    📅
+                  </button>
                 </div>
-                <div className="detail-item">
+                <div className="detail-item highlight" onClick={() => copyToClipboard(formatCurrency(selectedPayment.betrag), selectedPayment.id)}>
                   <label>{t('finanz:paymentHistory.paymentAmount')}</label>
                   <span className="amount-highlight">{formatCurrency(selectedPayment.betrag)}</span>
+                  <button
+                    className="copy-action-btn"
+                    title={t('finanz:paymentHistory.copyPaymentAmount')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard(formatCurrency(selectedPayment.betrag), selectedPayment.id);
+                    }}
+                  >
+                    💰
+                  </button>
                 </div>
-                <div className="detail-item">
+                <div className="detail-item" onClick={() => copyToClipboard(translatePaymentMethod(selectedPayment.zahlungsweg), selectedPayment.id)}>
                   <label>{t('finanz:paymentHistory.paymentMethod')}</label>
                   <span>{translatePaymentMethod(selectedPayment.zahlungsweg)}</span>
+                  <button
+                    className="copy-action-btn"
+                    title={t('finanz:paymentHistory.copyPaymentMethod')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard(translatePaymentMethod(selectedPayment.zahlungsweg), selectedPayment.id);
+                    }}
+                  >
+                    💳
+                  </button>
                 </div>
-                <div className="detail-item">
+                <div className="detail-item secondary">
                   <label>{t('finanz:paymentHistory.paymentReference')}</label>
                   <span>{selectedPayment.referenz || '-'}</span>
+                  {selectedPayment.referenz && (
+                    <button
+                      className="copy-action-btn"
+                      title={t('finanz:paymentHistory.copyPaymentReference')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(selectedPayment.referenz!, selectedPayment.id);
+                      }}
+                    >
+                      📋
+                    </button>
+                  )}
                 </div>
                 <div className="detail-item">
                   <label>{t('finanz:paymentHistory.status')}</label>
@@ -1179,8 +1376,38 @@ const MitgliedFinanz: React.FC = () => {
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowPaymentDetailModal(false)}>
-                {t('finanz:paymentHistory.close')}
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  // Print functionality
+                  window.print();
+                }}
+                title={t('finanz:paymentHistory.printPayment')}
+              >
+                {t('finanz:paymentHistory.print')}
+              </button>
+              <button
+                className="btn btn-outline"
+                onClick={() => {
+                  // Share functionality
+                  if (navigator.share) {
+                    navigator.share({
+                      title: t('finanz:paymentHistory.sharePayment'),
+                      text: `${t('finanz:paymentHistory.paymentType')}: ${selectedPayment.type === 'mitglied' ? t('finanz:paymentHistory.memberPayment') : t('finanz:paymentHistory.eventPayment')}\n${t('finanz:paymentHistory.paymentAmount')}: ${formatCurrency(selectedPayment.betrag)}\n${t('finanz:paymentHistory.paymentDate')}: ${formatPaymentDate(selectedPayment.zahlungsdatum)}\n${t('finanz:paymentHistory.paymentReference')}: ${selectedPayment.referenz || '-'}`,
+                      url: window.location.href
+                    }).catch(err => console.error('Error sharing:', err));
+                  } else {
+                    // Fallback for browsers that don't support Web Share API
+                    const text = `${t('finanz:paymentHistory.paymentType')}: ${selectedPayment.type === 'mitglied' ? t('finanz:paymentHistory.memberPayment') : t('finanz:paymentHistory.eventPayment')}\n${t('finanz:paymentHistory.paymentAmount')}: ${formatCurrency(selectedPayment.betrag)}\n${t('finanz:paymentHistory.paymentDate')}: ${formatPaymentDate(selectedPayment.zahlungsdatum)}\n${t('finanz:paymentHistory.paymentReference')}: ${selectedPayment.referenz || '-'}`;
+                    navigator.clipboard.writeText(text).then(() => {
+                      // Show success message
+                      alert(t('finanz:paymentHistory.copiedToClipboard'));
+                    });
+                  }
+                }}
+                title={t('finanz:paymentHistory.sharePayment')}
+              >
+                {t('finanz:paymentHistory.share')}
               </button>
             </div>
           </div>

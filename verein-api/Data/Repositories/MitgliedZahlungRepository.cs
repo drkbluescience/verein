@@ -28,6 +28,45 @@ public class MitgliedZahlungRepository : Repository<MitgliedZahlung>, IMitgliedZ
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<MitgliedZahlung>> GetByMitgliedIdPaginatedAsync(
+        int mitgliedId,
+        int page,
+        int pageSize,
+        bool includeDeleted = false,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<MitgliedZahlung> query = _dbSet;
+
+        if (includeDeleted)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        // Calculate skip count
+        int skipCount = (page - 1) * pageSize;
+
+        return await query
+            .Where(z => z.MitgliedId == mitgliedId)
+            .OrderByDescending(z => z.Zahlungsdatum)
+            .Skip(skipCount)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    {
+        IQueryable<MitgliedZahlung> query = _dbSet;
+
+        if (includeDeleted)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        return await query
+            .Where(z => z.MitgliedId == mitgliedId)
+            .CountAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<MitgliedZahlung>> GetByVereinIdAsync(int vereinId, bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         IQueryable<MitgliedZahlung> query = _dbSet;

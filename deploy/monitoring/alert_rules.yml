@@ -1,0 +1,178 @@
+# Alert Rules for Verein Application Performance Monitoring
+# Üye Finans Sayfası Performans Alert Kuralları
+
+groups:
+  - name: verein_performance_alerts
+    rules:
+      # API Response Time Alerts
+      - alert: HighAPIResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          service: verein-api
+        annotations:
+          summary: "API response time is high"
+          description: "95th percentile response time is {{ $value }}s for more than 2 minutes"
+
+      - alert: CriticalAPIResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 1m
+        labels:
+          severity: critical
+          service: verein-api
+        annotations:
+          summary: "API response time is critical"
+          description: "95th percentile response time is {{ $value }}s for more than 1 minute"
+
+      # Database Performance Alerts
+      - alert: SlowDatabaseQueries
+        expr: database_query_duration_seconds > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Database queries taking longer than 500ms for more than 3 minutes"
+
+      - alert: CriticalDatabaseQueries
+        expr: database_query_duration_seconds > 1
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Critical slow database queries"
+          description: "Database queries taking longer than 1s for more than 1 minute"
+
+      # Memory Usage Alerts
+      - alert: HighMemoryUsage
+        expr: (process_resident_memory_bytes / 1024 / 1024) > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: verein-api
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}MB for more than 5 minutes"
+
+      - alert: CriticalMemoryUsage
+        expr: (process_resident_memory_bytes / 1024 / 1024) > 1024
+        for: 2m
+        labels:
+          severity: critical
+          service: verein-api
+        annotations:
+          summary: "Critical memory usage"
+          description: "Memory usage is {{ $value }}MB for more than 2 minutes"
+
+      # CPU Usage Alerts
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: verein-api
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value | humanizePercentage }} for more than 5 minutes"
+
+      # Error Rate Alerts
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: verein-api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for more than 2 minutes"
+
+      - alert: CriticalErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+          service: verein-api
+        annotations:
+          summary: "Critical error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} for more than 1 minute"
+
+      # Cache Performance Alerts
+      - alert: LowCacheHitRate
+        expr: cache_hit_rate < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          service: redis-cache
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} for more than 10 minutes"
+
+      # Database Connection Alerts
+      - alert: HighDatabaseConnections
+        expr: database_connections_active > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connections"
+          description: "Active database connections: {{ $value }} for more than 5 minutes"
+
+      # Specific Finanz Page Performance Alerts
+      - alert: FinanzPageSlowLoad
+        expr: http_request_duration_seconds{endpoint="/api/mitglied-forderung/finanz-summary"} > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          service: verein-api
+          page: finanz
+        annotations:
+          summary: "Finanz page loading slowly"
+          description: "Finanz summary endpoint taking {{ $value }}s for more than 3 minutes"
+
+      - alert: FinanzPageCriticalLoad
+        expr: http_request_duration_seconds{endpoint="/api/mitglied-forderung/finanz-summary"} > 1
+        for: 1m
+        labels:
+          severity: critical
+          service: verein-api
+          page: finanz
+        annotations:
+          summary: "Finanz page critical performance"
+          description: "Finanz summary endpoint taking {{ $value }}s for more than 1 minute"
+
+      # Service Availability Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.instance }} service has been down for more than 1 minute"
+
+  - name: verein_business_alerts
+    rules:
+      # Business Logic Alerts
+      - alert: HighFailedLogins
+        expr: rate(login_attempts_failed_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "{{ $value }} failed login attempts per minute for more than 2 minutes"
+
+      - alert: HighDataProcessingErrors
+        expr: rate(data_processing_errors_total[5m]) > 2
+        for: 3m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High data processing errors"
+          description: "{{ $value }} data processing errors per minute for more than 3 minutes"

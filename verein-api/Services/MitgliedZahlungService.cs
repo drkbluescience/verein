@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using VereinsApi.Domain.Entities;
 using VereinsApi.Domain.Interfaces;
 using VereinsApi.DTOs.MitgliedZahlung;
+using VereinsApi.DTOs.Common;
 using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Services;
@@ -123,6 +124,39 @@ public class MitgliedZahlungService : IMitgliedZahlungService
 
         var zahlungen = await _repository.GetByMitgliedIdAsync(mitgliedId, includeDeleted, cancellationToken);
         return _mapper.Map<IEnumerable<MitgliedZahlungDto>>(zahlungen);
+    }
+
+    public async Task<PaginatedResponseDto<MitgliedZahlungDto>> GetByMitgliedIdPaginatedAsync(
+        int mitgliedId,
+        int page,
+        int pageSize,
+        bool includeDeleted = false,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Getting paginated zahlungen for mitglied {MitgliedId}, page {Page}, pageSize {PageSize}", mitgliedId, page, pageSize);
+
+        // Validate pagination parameters
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 20;
+
+        var zahlungen = await _repository.GetByMitgliedIdPaginatedAsync(
+            mitgliedId, page, pageSize, includeDeleted, cancellationToken);
+        
+        var totalCount = await _repository.CountByMitgliedIdAsync(mitgliedId, includeDeleted, cancellationToken);
+        
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        
+        return new PaginatedResponseDto<MitgliedZahlungDto>
+        {
+            Data = _mapper.Map<IEnumerable<MitgliedZahlungDto>>(zahlungen).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages,
+            HasMore = page < totalPages,
+            IsFirstPage = page == 1,
+            IsLastPage = page == totalPages
+        };
     }
 
     public async Task<IEnumerable<MitgliedZahlungDto>> GetByVereinIdAsync(int vereinId, bool includeDeleted = false, CancellationToken cancellationToken = default)

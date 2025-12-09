@@ -1,0 +1,33 @@
+app = "verein-api"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  ASPNETCORE_ENVIRONMENT = "Production"
+  ASPNETCORE_URLS = "http://+:8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+[mounts]
+  source = "verein-db"
+  destination = "/var/opt/mssql"
+
+[checks]
+  [checks.health]
+    port = 8080
+    path = "/health"
+    interval = "15s"
+    timeout = "10s"
+    grace_period = "30s"

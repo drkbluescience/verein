@@ -13,6 +13,10 @@ RUN apt-get update && apt-get install -y \
 # Create app directory
 WORKDIR /app
 
+# Copy MSSQL setup script
+COPY deploy/mssql-setup.sh /app/mssql-setup.sh
+RUN chmod +x /app/mssql-setup.sh
+
 # .NET SDK stage for API build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS api-build
 WORKDIR /src
@@ -45,9 +49,6 @@ RUN chmod +x /app/start.sh
 COPY deploy/health-check.sh /app/health-check.sh
 RUN chmod +x /app/health-check.sh
 
-# Copy database scripts
-COPY database /app/database
-
 # Create logs directory
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 
@@ -60,4 +61,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 # Start both MSSQL and API
 ENTRYPOINT ["/app/start.sh"]
-

@@ -1,0 +1,44 @@
+# Prometheus Configuration for Verein Application
+# Üye Finans Sayfası Performans Monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alerting rules for Verein application
+rule_files:
+  - "alert_rules.yml"
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Verein API Metrics
+  - job_name: 'verein-api'
+    static_configs:
+      - targets: ['verein-api-prod:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Redis Metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['verein-redis-prod:6379']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s

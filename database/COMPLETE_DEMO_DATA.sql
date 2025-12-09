@@ -2841,3 +2841,244 @@ PRINT '║         ✅ DEMO VERİLERİ BAŞARIYLA YÜKLENDİ!                  �
 PRINT '╚════════════════════════════════════════════════════════════════╝';
 PRINT '';
 GO
+
+-- ============================================================================
+-- 13. PERFORMANS TEST VERİLERİ (1000+ Ödemeli Üye)
+-- ============================================================================
+-- Bu bölüm, üye finans sayfasının performansını test etmek için
+-- 1000+ ödemeli üye verisi ekler
+
+PRINT '';
+PRINT '13. Performans test verileri ekleniyor (1000+ ödemeli üye)...';
+GO
+
+-- Performans testi için 1000 üye ve ödeme kaydı oluştur
+DECLARE @MuenchenVereinIdPerf INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'TDKV München');
+DECLARE @BerlinVereinIdPerf INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'DTF Berlin');
+DECLARE @AktivStatusIdPerf INT = (SELECT TOP 1 Id FROM [Keytable].[MitgliedStatus] WHERE Code = 'AKTIV');
+DECLARE @VollmitgliedTypIdPerf INT = (SELECT TOP 1 Id FROM [Keytable].[MitgliedTyp] WHERE Code = 'VOLLMITGLIED');
+DECLARE @GeschlechtMPerf INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE Code = 'M');
+DECLARE @GeschlechtFPerf INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE Code = 'F');
+DECLARE @EurWaehrungIdPerf INT = (SELECT TOP 1 Id FROM [Keytable].[Waehrung] WHERE Code = 'EUR');
+DECLARE @BeitragTypIdPerf INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'MITGLIEDSBEITRAG');
+DECLARE @BezahltStatusIdPerf INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'BEZAHLT');
+DECLARE @OffenStatusIdPerf INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'OFFEN');
+
+PRINT '  1000 performans test üyesi oluşturuluyor...';
+
+-- 1000 üye oluştur (500 München, 500 Berlin)
+DECLARE @i INT = 1;
+DECLARE @batchSize INT = 100; -- Her seferinde 100 kayıt
+
+WHILE @i <= 1000
+BEGIN
+    -- Mevcut üye sayısını kontrol et
+    DECLARE @currentMemberCount INT = (SELECT COUNT(*) FROM [Mitglied].[Mitglied] WHERE DeletedFlag = 0);
+    
+    IF @currentMemberCount >= 1000
+    BEGIN
+        PRINT '  ✓ Zaten 1000+ üye mevcut, performans verileri oluşturulmadı';
+        BREAK;
+    END
+    
+    -- Batch olarak üyeleri oluştur
+    BEGIN TRANSACTION;
+    
+    DECLARE @j INT = 1;
+    WHILE @j <= @batchSize AND @i <= 1000
+    BEGIN
+        DECLARE @isMuenchen BIT = CASE WHEN @i % 2 = 1 THEN 1 ELSE 0 END;
+        DECLARE @vereinId INT = CASE WHEN @isMuenchen = 1 THEN @MuenchenVereinIdPerf ELSE @BerlinVereinIdPerf END;
+        DECLARE @geschlechtId INT = CASE WHEN @i % 3 = 0 THEN @GeschlechtFPerf ELSE @GeschlechtMPerf END;
+        DECLARE @mitgliedsnummer NVARCHAR(20) = CASE
+            WHEN @isMuenchen = 1 THEN 'PERF-M' + RIGHT('000' + CAST(@i AS NVARCHAR(10)), 4)
+            ELSE 'PERF-B' + RIGHT('000' + CAST(@i AS NVARCHAR(10)), 4)
+        END;
+        
+        -- Rastgele isimler oluştur
+        DECLARE @vorname NVARCHAR(100) = CASE
+            WHEN @i % 10 = 0 THEN N'Muhammed'
+            WHEN @i % 10 = 1 THEN N'Fatma'
+            WHEN @i % 10 = 2 THEN N'Ahmet'
+            WHEN @i % 10 = 3 THEN N'Ayşe'
+            WHEN @i % 10 = 4 THEN N'Mehmet'
+            WHEN @i % 10 = 5 THEN N'Zeynep'
+            WHEN @i % 10 = 6 THEN N'Emre'
+            WHEN @i % 10 = 7 THEN N'Elif'
+            WHEN @i % 10 = 8 THEN N'Can'
+            ELSE N'Ali'
+        END;
+        
+        DECLARE @nachname NVARCHAR(100) = CASE
+            WHEN @i % 8 = 0 THEN N'Yılmaz'
+            WHEN @i % 8 = 1 THEN N'Öztürk'
+            WHEN @i % 8 = 2 THEN N'Kaya'
+            WHEN @i % 8 = 3 THEN N'Demir'
+            WHEN @i % 8 = 4 THEN N'Çelik'
+            WHEN @i % 8 = 5 THEN N'Koç'
+            WHEN @i % 8 = 6 THEN N'Arslan'
+            ELSE N'Şahin'
+        END;
+        
+        DECLARE @email NVARCHAR(200) = REPLACE(REPLACE(LOWER(@vorname + '.' + @nachname + CAST(@i AS NVARCHAR(10)) + '@test-perf.de'), 'ı', 'i'), 'ş', 's');
+        DECLARE @beitrag DECIMAL(10,2) = CASE
+            WHEN @i % 5 = 0 THEN 120.00  -- Standart ücret
+            WHEN @i % 5 = 1 THEN 60.00   -- İndirimli
+            WHEN @i % 5 = 2 THEN 30.00   -- Genç üye
+            WHEN @i % 5 = 3 THEN 240.00  -- Yıllık
+            ELSE 50.00              -- Emekli
+        END;
+        
+        DECLARE @beitragPeriode NVARCHAR(20) = CASE
+            WHEN @i % 4 = 0 THEN 'QUARTERLY'
+            WHEN @i % 4 = 1 THEN 'MONTHLY'
+            WHEN @i % 4 = 2 THEN 'YEARLY'
+            ELSE 'MONTHLY'
+        END;
+        
+        -- Üye kaydı oluştur
+        INSERT INTO [Mitglied].[Mitglied] (
+            VereinId, Mitgliedsnummer, MitgliedStatusId, MitgliedTypId,
+            Vorname, Nachname, GeschlechtId, Email, Telefon,
+            Geburtsdatum, Eintrittsdatum,
+            BeitragBetrag, BeitragWaehrungId, BeitragPeriodeCode,
+            BeitragZahlungsTag, BeitragZahlungstagTypCode, BeitragIstPflicht,
+            Aktiv, DeletedFlag, Created, CreatedBy
+        ) VALUES (
+            @vereinId, @mitgliedsnummer, @AktivStatusIdPerf, @VollmitgliedTypIdPerf,
+            @vorname, @nachname, @geschlechtId, @email, '+49 123456' + RIGHT('0000' + CAST(@i AS NVARCHAR(10)), 4),
+            DATEADD(YEAR, -(@i % 60 + 18), GETDATE()), -- 18-78 yaş arası
+            DATEADD(DAY, -(@i % 365), GETDATE()), -- Son 1 yıl içinde kayıt
+            @beitrag, @EurWaehrungIdPerf, @beitragPeriode,
+            (@i % 28) + 1, -- Ayın 1-28'i arasında ödeme günü
+            'DAY_OF_MONTH', 1,
+            1, 0, GETDATE(), 1
+        );
+        
+        DECLARE @mitgliedId INT = SCOPE_IDENTITY();
+        
+        -- Her üye için 5-15 arası ödeme kaydı oluştur
+        DECLARE @paymentCount INT = (@i % 10) + 5;
+        DECLARE @k INT = 1;
+        
+        WHILE @k <= @paymentCount
+        BEGIN
+            DECLARE @paymentDate DATETIME = DATEADD(DAY, -(@k * 30), GETDATE());
+            DECLARE @paymentAmount DECIMAL(10,2) = @beitrag * (0.8 + (@k % 5) * 0.1); -- 80%-120% arası ödeme
+            DECLARE @paymentStatus INT = CASE WHEN @k % 4 = 0 THEN @BezahltStatusIdPerf ELSE @OffenStatusIdPerf END;
+            
+            INSERT INTO [Finanz].[MitgliedZahlung] (
+                VereinId, MitgliedId, ZahlungTypId, Betrag, WaehrungId,
+                Zahlungsdatum, Zahlungsweg, Bemerkung, StatusId,
+                DeletedFlag, Created, CreatedBy
+            ) VALUES (
+                @vereinId, @mitgliedId, @BeitragTypIdPerf, @paymentAmount, @EurWaehrungIdPerf,
+                @paymentDate,
+                CASE WHEN @k % 3 = 0 THEN 'UEBERWEISUNG' WHEN @k % 3 = 1 THEN 'BAR' ELSE 'LASTSCHRIFT' END,
+                N'Ödeme ' + CAST(@k AS NVARCHAR(10)),
+                @paymentStatus,
+                0, GETDATE(), 1
+            );
+            
+            SET @k = @k + 1;
+        END
+        
+        -- Her üye için 2-5 arası alacak kaydı oluştur
+        DECLARE @forderungCount INT = (@i % 4) + 2;
+        DECLARE @f INT = 1;
+        
+        WHILE @f <= @forderungCount
+        BEGIN
+            DECLARE @forderungDate DATETIME = DATEADD(DAY, @f * 15, GETDATE());
+            DECLARE @forderungAmount DECIMAL(10,2) = @beitrag * (0.9 + (@f % 3) * 0.2); -- 90%-130% arası alacak
+            DECLARE @forderungStatus INT = CASE WHEN @f % 3 = 0 THEN @OffenStatusIdPerf ELSE @BezahltStatusIdPerf END;
+            
+            INSERT INTO [Finanz].[MitgliedForderung] (
+                VereinId, MitgliedId, ZahlungTypId, Forderungsnummer,
+                Betrag, WaehrungId, Faelligkeit, Beschreibung,
+                Jahr, Quartal, Monat, StatusId,
+                DeletedFlag, Created, CreatedBy
+            ) VALUES (
+                @vereinId, @mitgliedId, @BeitragTypIdPerf,
+                CASE WHEN @isMuenchen = 1 THEN 'PERF-M-' ELSE 'PERF-B-' END + CAST(@i AS NVARCHAR(10)) + '-' + CAST(@f AS NVARCHAR(10)),
+                @forderungAmount, @EurWaehrungIdPerf, @forderungDate,
+                N'Performans test alacağı ' + CAST(@f AS NVARCHAR(10)),
+                YEAR(@forderungDate),
+                CASE WHEN MONTH(@forderungDate) BETWEEN 1 AND 3 THEN 1
+                     WHEN MONTH(@forderungDate) BETWEEN 4 AND 6 THEN 2
+                     WHEN MONTH(@forderungDate) BETWEEN 7 AND 9 THEN 3
+                     ELSE 4 END,
+                MONTH(@forderungDate),
+                @forderungStatus,
+                0, GETDATE(), 1
+            );
+            
+            SET @f = @f + 1;
+        END
+        
+        SET @j = @j + 1;
+        SET @i = @i + 1;
+    END
+    
+    COMMIT TRANSACTION;
+    
+    PRINT '  ✓ Batch ' + CAST((@i - 1) / @batchSize AS NVARCHAR(10)) + ' tamamlandı (' + CAST(@i - 1 AS NVARCHAR(10)) + ' üye)';
+END
+
+PRINT '  ✓ 1000+ performans test üyesi ve ödeme kayıtları oluşturuldu';
+GO
+
+-- Performans test verileri özeti
+PRINT '';
+PRINT '╔════════════════════════════════════════════════════════════════╗';
+PRINT '║         📊 PERFORMANS TEST VERİLERİ ÖZETİ                    ║';
+PRINT '╚════════════════════════════════════════════════════════════════╝';
+PRINT '';
+
+SELECT
+    'Toplam Üye Sayısı' AS Metrik,
+    COUNT(*) AS [Değer]
+FROM [Mitglied].[Mitglied]
+WHERE DeletedFlag = 0
+
+UNION ALL
+
+SELECT
+    'Toplam Ödeme Sayısı',
+    COUNT(*)
+FROM [Finanz].[MitgliedZahlung]
+WHERE DeletedFlag = 0
+
+UNION ALL
+
+SELECT
+    'Toplam Alacak Sayısı',
+    COUNT(*)
+FROM [Finanz].[MitgliedForderung]
+WHERE DeletedFlag = 0
+
+UNION ALL
+
+SELECT
+    'Açık Alacaklar',
+    COUNT(*)
+FROM [Finanz].[MitgliedForderung]
+WHERE DeletedFlag = 0 AND StatusId = (SELECT TOP 1 Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'OFFEN')
+
+UNION ALL
+
+SELECT
+    'Ödenmiş Alacaklar',
+    COUNT(*)
+FROM [Finanz].[MitgliedForderung]
+WHERE DeletedFlag = 0 AND StatusId = (SELECT TOP 1 Id FROM [Keytable].[ZahlungStatus] WHERE Code = 'BEZAHLT');
+
+PRINT '';
+PRINT 'Performans Test Senaryoları:';
+PRINT '  - Üye finans sayfasını açın (fatma.ozkan@email.com ile giriş yapın)';
+PRINT '  - Overview sekmesinde tüm özet verilerinin yüklenme süresini ölçün';
+PRINT '  - History sekmesinde 1000+ ödeme kaydının yüklenme süresini ölçün';
+PRINT '  - Claims sekmesinde tüm alacakların yüklenme süresini ölçün';
+PRINT '  - Filtreleme ve arama fonksiyonlarının performansını test edin';
+PRINT '';
+GO

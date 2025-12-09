@@ -154,7 +154,9 @@
     "empty": "Henüz ödeme kaydı yok",
     "total": "Toplam Ödeme",
     "totalAmount": "Toplam Tutar",
-    "deleteConfirm": "Bu ödeme kaydını silmek istediğinizden emin misiniz?"
+    "deleteConfirm": "Bu ödeme kaydını silmek istediğinizden emin misiniz?",
+    "deleteSuccess": "Ödeme başarıyla silindi",
+    "deleteError": "Ödeme silinirken hata oluştu"
   },
   "payment": {
     "title": "Ödeme Yap",
@@ -548,7 +550,16 @@
     "notes": "Notlar",
     "noNotes": "Not bulunmuyor",
     "eventName": "Etkinlik Adı",
-    "clickToViewDetails": "Detaylar için tıklayın"
+    "clickToViewDetails": "Detaylar için tıklayın",
+    "copiedToClipboard": "Kopyalandı!",
+    "copyPaymentId": "Ödeme ID'sini kopyala",
+    "copyPaymentDate": "Ödeme tarihini kopyala",
+    "copyPaymentAmount": "Ödeme tutarını kopyala",
+    "copyPaymentMethod": "Ödeme yöntemini kopyala",
+    "copyPaymentReference": "Referans numarasını kopyala",
+    "print": "Yazdır",
+    "share": "Paylaş",
+    "sharePayment": "Ödeme Bilgisini Paylaş"
   },
   "beitragPlan": {
     "title": "Aidat Planım",
@@ -586,6 +597,52 @@
       "warteliste": "Bekleme Listesinde"
     },
     "noEvents": "Henüz bir etkinlik kaydınız bulunmuyor."
+  },
+  "paymentDetail": {
+    "title": "Ödeme Detayları",
+    "back": "Geri",
+    "refresh": "Yenile",
+    "print": "Yazdır",
+    "share": "Paylaş",
+    "payment_number": "Ödeme Numarası",
+    "status": "Durum",
+    "member": "Üye",
+    "issue_date": "Oluşturma Tarihi",
+    "due_date": "Vade Tarihi",
+    "description": "Açıklama",
+    "paid_date": "Ödeme Tarihi",
+    "paid_amount": "Ödenen Tutar",
+    "remaining_amount": "Kalan Tutar",
+    "payment_type": "Ödeme Türü",
+    "period": "Dönem",
+    "quarter": "Çeyrek",
+    "created_by": "Oluşturan",
+    "modified_by": "Değiştiren",
+    "member_information": "Üye Bilgileri",
+    "member_number": "Üye Numarası",
+    "member_id": "Üye ID",
+    "full_name": "Ad Soyad",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "membership_date": "Üyelik Tarihi",
+    "edit_payment": "Ödemeyi Düzenle",
+    "record_payment": "Ödeme Kaydet",
+    "delete_payment": "Ödemeyi Sil",
+    "overview": "Özet",
+    "payment_history": "Ödeme Geçmişi",
+    "documents": "Belgeler",
+    "no_payment_history": "Ödeme geçmişi bulunmuyor",
+    "no_documents": "Belge bulunmuyor",
+    "payment_not_found": "Ödeme bulunamadı",
+    "copied_to_clipboard": "panoya kopyalandı",
+    "copy_failed": "Kopyalama başarısız",
+    "share_failed": "Paylaşım başarısız",
+    "payment_link": "Ödeme linki",
+    "document_link": "Belge linki",
+    "paid": "Ödendi",
+    "unpaid": "Ödenmedi",
+    "overdue": "Vadesi Geçti",
+    "unknown": "Bilinmiyor"
   }
 }
 

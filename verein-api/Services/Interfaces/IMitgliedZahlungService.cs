@@ -1,4 +1,5 @@
 using VereinsApi.DTOs.MitgliedZahlung;
+using VereinsApi.DTOs.Common;
 
 namespace VereinsApi.Services.Interfaces;
 
@@ -42,6 +43,16 @@ public interface IMitgliedZahlungService
     /// Gets all zahlungen for a specific mitglied
     /// </summary>
     Task<IEnumerable<MitgliedZahlungDto>> GetByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets paginated zahlungen for a specific mitglied
+    /// </summary>
+    Task<PaginatedResponseDto<MitgliedZahlungDto>> GetByMitgliedIdPaginatedAsync(
+        int mitgliedId,
+        int page,
+        int pageSize,
+        bool includeDeleted = false,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all zahlungen for a specific verein

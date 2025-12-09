@@ -1998,3 +1998,158 @@
   color: #e65100;
   border: 1px solid #e65100;
 }
+
+/* ============================================
+   HISTORY TAB ACTIONS BAR STYLES
+   ============================================ */
+
+.history-tab-embedded .actions-bar {
+  padding: 0;
+  margin-bottom: 1rem;
+  background: transparent;
+  border: none;
+  align-items: center;
+}
+
+.history-tab-embedded .filters-section {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.history-tab-embedded .search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+  min-width: 280px;
+  flex: 1;
+}
+
+.history-tab-embedded .search-box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.history-tab-embedded .search-box svg {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.history-tab-embedded .search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--color-text-primary);
+  background: transparent;
+}
+
+.history-tab-embedded .search-box input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.history-tab-embedded .filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.history-tab-embedded .filter-toggle:hover {
+  background: var(--color-background);
+  border-color: var(--color-primary);
+}
+
+.history-tab-embedded .filter-toggle.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.history-tab-embedded .btn-primary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.history-tab-embedded .btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.history-tab-embedded .btn-primary:disabled {
+  background: var(--color-text-secondary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive adjustments for history tab actions bar */
+@media (max-width: 768px) {
+  .history-tab-embedded .actions-bar {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .history-tab-embedded .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .history-tab-embedded .search-box {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .history-tab-embedded .filter-toggle,
+  .history-tab-embedded .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .history-tab-embedded .search-box {
+    padding: 10px 14px;
+  }
+  
+  .history-tab-embedded .search-box input {
+    font-size: 14px;
+  }
+  
+  .history-tab-embedded .filter-toggle,
+  .history-tab-embedded .btn-primary {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}

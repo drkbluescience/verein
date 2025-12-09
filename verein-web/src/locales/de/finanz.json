@@ -65,7 +65,6 @@
     "overdueExists": ", {count} überfällige Zahlung(en) vorhanden.",
     "allPaymentsCurrent": ", alle Zahlungen sind aktuell!",
     "paymentMethods": "Zahlungsmethoden",
-    "paymentMethodsDistribution": "Verteilung der Zahlungsmethoden",
     "incomeChartLabel": "Einnahmen (Mitgliederzahlungen)",
     "expenseChartLabel": "Ausgaben (DITIB-Zahlungen)",
     "vereinComparison": "Vereinsvergleich",
@@ -457,7 +456,16 @@
     "notes": "Notizen",
     "noNotes": "Keine Notizen",
     "eventName": "Veranstaltungsname",
-    "clickToViewDetails": "Klicken für Details"
+    "clickToViewDetails": "Klicken für Details",
+    "copiedToClipboard": "Kopiert!",
+    "copyPaymentId": "Zahlungs-ID kopieren",
+    "copyPaymentDate": "Zahlungsdatum kopieren",
+    "copyPaymentAmount": "Zahlungsbetrag kopieren",
+    "copyPaymentMethod": "Zahlungsmethode kopieren",
+    "copyPaymentReference": "Referenznummer kopieren",
+    "print": "Drucken",
+    "share": "Teilen",
+    "sharePayment": "Zahlungsinformationen teilen"
   },
   "beitragPlan": {
     "title": "Mein Beitragsplan",

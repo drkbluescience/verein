@@ -228,7 +228,12 @@ export const mitgliedZahlungService = {
   },
 
   // Get payments by Mitglied ID
-  getByMitgliedId: async (mitgliedId: number): Promise<MitgliedZahlungDto[]> => {
+  getByMitgliedId: async (mitgliedId: number, page?: number, pageSize?: number): Promise<MitgliedZahlungDto[] | { data: MitgliedZahlungDto[], hasMore: boolean }> => {
+    if (page && pageSize) {
+      return api.get<{ data: MitgliedZahlungDto[], hasMore: boolean }>(
+        `/api/MitgliedZahlungen/mitglied/${mitgliedId}?page=${page}&pageSize=${pageSize}`
+      );
+    }
     return api.get<MitgliedZahlungDto[]>(`/api/MitgliedZahlungen/mitglied/${mitgliedId}`);
   },
 
@@ -349,7 +354,12 @@ export const veranstaltungZahlungService = {
   },
 
   // Get event payments by Mitglied ID
-  getByMitgliedId: async (mitgliedId: number): Promise<VeranstaltungZahlungDto[]> => {
+  getByMitgliedId: async (mitgliedId: number, page?: number, pageSize?: number): Promise<VeranstaltungZahlungDto[] | { data: VeranstaltungZahlungDto[], hasMore: boolean }> => {
+    if (page && pageSize) {
+      return api.get<{ data: VeranstaltungZahlungDto[], hasMore: boolean }>(
+        `/api/VeranstaltungZahlungen/mitglied/${mitgliedId}?page=${page}&pageSize=${pageSize}`
+      );
+    }
     return api.get<VeranstaltungZahlungDto[]>(`/api/VeranstaltungZahlungen/mitglied/${mitgliedId}`);
   },
 
