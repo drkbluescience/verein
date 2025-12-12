@@ -123,7 +123,7 @@ export const bankBuchungService = {
     formData.append('bankKontoId', bankKontoId.toString());
     formData.append('file', file);
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5103'}/api/BankBuchungen/upload-excel`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/api/BankBuchungen/upload-excel`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -474,7 +474,7 @@ export const vereinDitibZahlungService = {
     formData.append('bankKontoId', bankKontoId.toString());
     formData.append('file', file);
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5103'}/api/VereinDitibZahlungen/upload-excel`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/api/VereinDitibZahlungen/upload-excel`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,

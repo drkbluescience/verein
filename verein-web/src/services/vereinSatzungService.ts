@@ -1,7 +1,7 @@
 import api from './api';
 import { VereinSatzungDto, UpdateVereinSatzungDto } from '../types/vereinSatzung';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5103';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 export const vereinSatzungService = {
   // Get all statute versions for a Verein

@@ -1,0 +1,18 @@
+// Prisma Schema for Verein API
+// Database: Azure SQL Server
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// Geçici placeholder model - Faz 2'de prisma db pull ile gerçek modeller eklenecek
+model Placeholder {
+  id Int @id @default(autoincrement())
+}
+
