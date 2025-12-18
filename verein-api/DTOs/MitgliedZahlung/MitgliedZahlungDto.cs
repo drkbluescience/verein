@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using VereinsApi.DTOs.Bankkonto;
 
 namespace VereinsApi.DTOs.MitgliedZahlung;
 
@@ -115,5 +116,11 @@ public class MitgliedZahlungDto
     /// </summary>
     [JsonPropertyName("modifiedBy")]
     public int? ModifiedBy { get; set; }
+
+    /// <summary>
+    /// Bank account information (optional)
+    /// </summary>
+    [JsonPropertyName("bankkonto")]
+    public BankkontoDto? Bankkonto { get; set; }
 }
 

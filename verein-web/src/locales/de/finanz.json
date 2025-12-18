@@ -510,7 +510,15 @@
     "notes": "Notizen",
     "noNotes": "Keine Notizen",
     "eventName": "Veranstaltungsname",
-    "clickToViewDetails": "Klicken für Details"
+    "clickToViewDetails": "Klicken für Details",
+    "bankInformation": "Bankinformationen",
+    "bankAccount": "Bankkonto",
+    "bankName": "Bankname",
+    "iban": "IBAN",
+    "bic": "BIC",
+    "accountHolder": "Kontoinhaber",
+    "noBankInfo": "Keine Bankkonto-Informationen verfügbar",
+    "noBankAccount": "Keine Bankkonto-Informationen verfügbar"
   },
   "beitragPlan": {
     "title": "Mein Beitragsplan",

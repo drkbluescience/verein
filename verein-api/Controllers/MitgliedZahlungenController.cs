@@ -71,6 +71,30 @@ public class MitgliedZahlungenController : ControllerBase
     }
 
     /// <summary>
+    /// Get Zahlung with bank information by ID
+    /// </summary>
+    [HttpGet("{id:int}/with-bank")]
+    [ProducesResponseType(typeof(MitgliedZahlungDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MitgliedZahlungDto>> GetByIdWithBank(int id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var zahlung = await _service.GetByIdWithBankAsync(id, cancellationToken);
+            if (zahlung == null)
+            {
+                return NotFound($"Zahlung with ID {id} not found");
+            }
+            return Ok(zahlung);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting zahlung with bank info {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
     /// Get Zahlungen by Mitglied ID
     /// </summary>
     [HttpGet("mitglied/{mitgliedId:int}")]

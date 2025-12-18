@@ -601,7 +601,15 @@
     "notes": "Notlar",
     "noNotes": "Not bulunmuyor",
     "eventName": "Etkinlik Adı",
-    "clickToViewDetails": "Detaylar için tıklayın"
+    "clickToViewDetails": "Detaylar için tıklayın",
+    "bankInformation": "Banka Bilgileri",
+    "bankAccount": "Banka Hesabı",
+    "bankName": "Banka Adı",
+    "iban": "IBAN",
+    "bic": "BIC",
+    "accountHolder": "Hesap Sahibi",
+    "noBankInfo": "Banka hesap bilgileri mevcut değil",
+    "noBankAccount": "Banka hesap bilgileri mevcut değil"
   },
   "beitragPlan": {
     "title": "Aidat Planım",

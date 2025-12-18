@@ -59,6 +59,14 @@ public class MitgliedZahlungService : IMitgliedZahlungService
         return zahlung != null ? _mapper.Map<MitgliedZahlungDto>(zahlung) : null;
     }
 
+    public async Task<MitgliedZahlungDto?> GetByIdWithBankAsync(int id, CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Getting zahlung with bank info by ID {ZahlungId}", id);
+
+        var zahlung = await _repository.GetWithRelatedDataAsync(id, cancellationToken);
+        return zahlung != null ? _mapper.Map<MitgliedZahlungDto>(zahlung) : null;
+    }
+
     public async Task<IEnumerable<MitgliedZahlungDto>> GetAllAsync(bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all zahlungen, includeDeleted: {IncludeDeleted}", includeDeleted);

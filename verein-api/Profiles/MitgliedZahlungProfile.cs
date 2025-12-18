@@ -12,7 +12,8 @@ public class MitgliedZahlungProfile : Profile
     public MitgliedZahlungProfile()
     {
         // Entity -> DTO
-        CreateMap<MitgliedZahlung, MitgliedZahlungDto>();
+        CreateMap<MitgliedZahlung, MitgliedZahlungDto>()
+            .ForMember(dest => dest.Bankkonto, opt => opt.MapFrom(src => src.Bankkonto));
         
         // CreateDTO -> Entity
         CreateMap<CreateMitgliedZahlungDto, MitgliedZahlung>()

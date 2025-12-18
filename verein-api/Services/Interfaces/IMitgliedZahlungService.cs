@@ -20,6 +20,11 @@ public interface IMitgliedZahlungService
     Task<MitgliedZahlungDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets zahlung with bank information by ID
+    /// </summary>
+    Task<MitgliedZahlungDto?> GetByIdWithBankAsync(int id, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets all zahlungen
     /// </summary>
     Task<IEnumerable<MitgliedZahlungDto>> GetAllAsync(bool includeDeleted = false, CancellationToken cancellationToken = default);

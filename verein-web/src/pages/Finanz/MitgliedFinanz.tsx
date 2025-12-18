@@ -167,6 +167,7 @@ const MitgliedFinanz: React.FC = () => {
   // Payment detail modal state
   const [selectedPayment, setSelectedPayment] = useState<UnifiedPayment | null>(null);
   const [showPaymentDetailModal, setShowPaymentDetailModal] = useState(false);
+  const [selectedPaymentWithBank, setSelectedPaymentWithBank] = useState<any>(null);
 
   // Copy to clipboard function
   const copyToClipboard = (text: string, forderungId: number) => {
@@ -1066,9 +1067,22 @@ const MitgliedFinanz: React.FC = () => {
                       filteredZahlungen.map(zahlung => (
                         <tr
                           key={`${zahlung.type}-${zahlung.id}`}
-                          onClick={() => {
+                          onClick={async () => {
                             setSelectedPayment(zahlung);
                             setShowPaymentDetailModal(true);
+                            
+                            // If this is a member payment with UEBERWEISUNG method, fetch bank details
+                            if (zahlung.type === 'mitglied' && zahlung.zahlungsweg === 'UEBERWEISUNG') {
+                              try {
+                                const paymentWithBank = await mitgliedZahlungService.getByIdWithBank(zahlung.id);
+                                setSelectedPaymentWithBank(paymentWithBank);
+                              } catch (error) {
+                                console.error('Error fetching payment with bank info:', error);
+                                setSelectedPaymentWithBank(null);
+                              }
+                            } else {
+                              setSelectedPaymentWithBank(null);
+                            }
                           }}
                           style={{ cursor: 'pointer' }}
                           title={t('finanz:paymentHistory.clickToViewDetails')}
@@ -1118,6 +1132,14 @@ const MitgliedFinanz: React.FC = () => {
                 </h3>
               </div>
 
+              {/* Created Date - Most Important Timestamp */}
+              {selectedPayment.created && (
+                <div className="detail-section created-date-section">
+                  <label>{t('finanz:paymentHistory.createdDate')}</label>
+                  <span className="created-date-value">{formatPaymentDate(selectedPayment.created)}</span>
+                </div>
+              )}
+
               {/* Main Details Grid */}
               <div className="detail-grid">
                 <div className="detail-item">
@@ -1154,6 +1176,37 @@ const MitgliedFinanz: React.FC = () => {
                 <p>{selectedPayment.description}</p>
               </div>
 
+              {/* Bank Information for UEBERWEISUNG payments */}
+              {selectedPayment.zahlungsweg === 'UEBERWEISUNG' && (
+                <div className="detail-section">
+                  <label>{t('finanz:paymentHistory.bankInformation')}</label>
+                  {/* Use payment-specific bank account if available, otherwise use verein's main bank account */}
+                  {selectedPaymentWithBank?.bankkonto ? (
+                    <PaymentInstructionCard
+                      iban={selectedPaymentWithBank.bankkonto.iban}
+                      bic={selectedPaymentWithBank.bankkonto.bic}
+                      recipient={selectedPaymentWithBank.bankkonto.kontoinhaber || verein?.name || ''}
+                      amount={selectedPayment.betrag}
+                      currency="EUR"
+                      reference={selectedPayment.referenz || ''}
+                    />
+                  ) : verein?.hauptBankkonto?.iban ? (
+                    <PaymentInstructionCard
+                      iban={verein.hauptBankkonto.iban}
+                      bic={verein.hauptBankkonto.bic}
+                      recipient={verein.name}
+                      amount={selectedPayment.betrag}
+                      currency="EUR"
+                      reference={selectedPayment.referenz || ''}
+                    />
+                  ) : (
+                    <div className="no-bank-info">
+                      <p>{t('finanz:paymentHistory.noBankInfo')}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Notes (only for member payments) */}
               {selectedPayment.type === 'mitglied' && (
                 <div className="detail-section">
@@ -1162,21 +1215,13 @@ const MitgliedFinanz: React.FC = () => {
                 </div>
               )}
 
-              {/* Timestamps */}
-              <div className="detail-timestamps">
-                {selectedPayment.created && (
-                  <div className="timestamp-item">
-                    <label>{t('finanz:paymentHistory.createdDate')}</label>
-                    <span>{formatPaymentDate(selectedPayment.created)}</span>
-                  </div>
-                )}
-                {selectedPayment.modified && (
-                  <div className="timestamp-item">
-                    <label>{t('finanz:paymentHistory.modifiedDate')}</label>
-                    <span>{formatPaymentDate(selectedPayment.modified)}</span>
-                  </div>
-                )}
-              </div>
+              {/* Modified Date - Only if different from created */}
+              {selectedPayment.modified && selectedPayment.modified !== selectedPayment.created && (
+                <div className="detail-section modified-date-section">
+                  <label>{t('finanz:paymentHistory.modifiedDate')}</label>
+                  <span className="modified-date-value">{formatPaymentDate(selectedPayment.modified)}</span>
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setShowPaymentDetailModal(false)}>

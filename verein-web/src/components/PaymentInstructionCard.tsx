@@ -11,7 +11,7 @@ interface PaymentInstructionCardProps {
   amount: number;
   currency: string;
   reference: string;
-  dueDate: string;
+  dueDate?: string;
 }
 
 const PaymentInstructionCard: React.FC<PaymentInstructionCardProps> = ({
@@ -129,10 +129,12 @@ const PaymentInstructionCard: React.FC<PaymentInstructionCardProps> = ({
         </div>
 
         {/* Due Date */}
-        <div className="payment-field">
-          <label>{t('paymentInstruction.dueDate')}</label>
-          <div className="payment-value">{formatDate(dueDate)}</div>
-        </div>
+        {dueDate && (
+          <div className="payment-field">
+            <label>{t('paymentInstruction.dueDate')}</label>
+            <div className="payment-value">{formatDate(dueDate)}</div>
+          </div>
+        )}
       </div>
 
       {/* Instructions */}

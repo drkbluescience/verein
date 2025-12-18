@@ -227,6 +227,11 @@ export const mitgliedZahlungService = {
     return api.get<MitgliedZahlungDto>(`/api/MitgliedZahlungen/${id}`);
   },
 
+  // Get payment with bank information by ID
+  getByIdWithBank: async (id: number): Promise<MitgliedZahlungDto> => {
+    return api.get<MitgliedZahlungDto>(`/api/MitgliedZahlungen/${id}/with-bank`);
+  },
+
   // Get payments by Mitglied ID
   getByMitgliedId: async (mitgliedId: number): Promise<MitgliedZahlungDto[]> => {
     return api.get<MitgliedZahlungDto[]>(`/api/MitgliedZahlungen/mitglied/${mitgliedId}`);
