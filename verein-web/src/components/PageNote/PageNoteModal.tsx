@@ -30,7 +30,7 @@ const PageNoteModal: React.FC<PageNoteModalProps> = ({
   pageTitle
 }) => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['pageNotesAdmin', 'common']);
+  const { t, i18n } = useTranslation(['pageNotesAdmin', 'common']);
   const { user } = useAuth();
   const { showToast } = useToast();
 

@@ -123,7 +123,7 @@ export const bankBuchungService = {
     formData.append('bankKontoId', bankKontoId.toString());
     formData.append('file', file);
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/api/BankBuchungen/upload-excel`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5103'}/api/BankBuchungen/upload-excel`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -228,12 +228,7 @@ export const mitgliedZahlungService = {
   },
 
   // Get payments by Mitglied ID
-  getByMitgliedId: async (mitgliedId: number, page?: number, pageSize?: number): Promise<MitgliedZahlungDto[] | { data: MitgliedZahlungDto[], hasMore: boolean }> => {
-    if (page && pageSize) {
-      return api.get<{ data: MitgliedZahlungDto[], hasMore: boolean }>(
-        `/api/MitgliedZahlungen/mitglied/${mitgliedId}?page=${page}&pageSize=${pageSize}`
-      );
-    }
+  getByMitgliedId: async (mitgliedId: number): Promise<MitgliedZahlungDto[]> => {
     return api.get<MitgliedZahlungDto[]>(`/api/MitgliedZahlungen/mitglied/${mitgliedId}`);
   },
 
@@ -354,12 +349,7 @@ export const veranstaltungZahlungService = {
   },
 
   // Get event payments by Mitglied ID
-  getByMitgliedId: async (mitgliedId: number, page?: number, pageSize?: number): Promise<VeranstaltungZahlungDto[] | { data: VeranstaltungZahlungDto[], hasMore: boolean }> => {
-    if (page && pageSize) {
-      return api.get<{ data: VeranstaltungZahlungDto[], hasMore: boolean }>(
-        `/api/VeranstaltungZahlungen/mitglied/${mitgliedId}?page=${page}&pageSize=${pageSize}`
-      );
-    }
+  getByMitgliedId: async (mitgliedId: number): Promise<VeranstaltungZahlungDto[]> => {
     return api.get<VeranstaltungZahlungDto[]>(`/api/VeranstaltungZahlungen/mitglied/${mitgliedId}`);
   },
 
@@ -474,7 +464,7 @@ export const vereinDitibZahlungService = {
     formData.append('bankKontoId', bankKontoId.toString());
     formData.append('file', file);
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/api/VereinDitibZahlungen/upload-excel`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5103'}/api/VereinDitibZahlungen/upload-excel`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,

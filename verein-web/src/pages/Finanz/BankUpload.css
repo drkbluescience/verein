@@ -34,7 +34,7 @@
 }
 
 .bank-upload-container .page-header {
-  margin-bottom: 2rem;
+  /* Inherits from global .page-header */
 }
 
 .bank-upload-container .page-header h1 {

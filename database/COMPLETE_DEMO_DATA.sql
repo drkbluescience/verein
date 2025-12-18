@@ -1788,9 +1788,20 @@ PRINT '  ✓ 9 Banka hareketi eklendi';
 
 -- Üye alacakları ekle (MitgliedForderung)
 -- NOT: Ahmet Yılmaz ve Mehmet Demir üye değil, bu yüzden alacakları yok
+
+-- München Üyeleri
 DECLARE @FatmaId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'fatma.ozkan@email.com');
 DECLARE @CanId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'can.schmidt@email.com');
+DECLARE @ZeynepId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'zeynep.yilmaz@email.com');
+DECLARE @EmreId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'emre.koc@email.com');
+DECLARE @SelinId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'selin.arslan@email.com');
+DECLARE @BurakId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'burak.celik@email.com');
+
+-- Berlin Üyeleri
 DECLARE @AyseId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ayse.kaya@email.com');
+DECLARE @DenizId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'deniz.sahin@email.com');
+DECLARE @EceId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'ece.yildiz@email.com');
+DECLARE @KeremId INT = (SELECT TOP 1 Id FROM [Mitglied].[Mitglied] WHERE Email = 'kerem.ozturk@email.com');
 
 -- ZahlungTypId: 1 = Mitgliedsbeitrag (Keytable.ZahlungTyp)
 -- WaehrungId: 1 = EUR (Keytable.Waehrung)
@@ -1815,19 +1826,78 @@ DECLARE @Forderung101Id INT = (SELECT TOP 1 Id FROM [Finanz].[MitgliedForderung]
 PRINT '  ✓ 3 Üye alacağı eklendi (Dernek yöneticileri üye değil)';
 
 -- Üye ödemeleri ekle (MitgliedZahlung)
--- ZahlungTypId: 1 = Mitgliedsbeitrag (Keytable.ZahlungTyp)
+-- ZahlungTypId: 1 = MITGLIEDSBEITRAG, 2 = SPENDE, 3 = VERANSTALTUNG (Keytable.ZahlungTyp)
 -- WaehrungId: 1 = EUR (Keytable.Waehrung)
 -- StatusId: 1 = BEZAHLT, 2 = OFFEN (Keytable.ZahlungStatus)
+-- Zahlungsweg: BAR (Nakit), UEBERWEISUNG (Havale), LASTSCHRIFT (Otomatik Ödeme)
+
+-- ZahlungTyp ID'lerini al
+DECLARE @ZTypMitgliedsbeitrag INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'MITGLIEDSBEITRAG');
+DECLARE @ZTypSpende INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'SPENDE');
+DECLARE @ZTypVeranstaltung INT = (SELECT TOP 1 Id FROM [Keytable].[ZahlungTyp] WHERE Code = 'VERANSTALTUNG');
+
 INSERT INTO [Finanz].[MitgliedZahlung] (
     VereinId, MitgliedId, ZahlungTypId, Betrag, WaehrungId, Zahlungsdatum, Zahlungsweg,
     BankkontoId, Bemerkung, StatusId,
     DeletedFlag, Created, CreatedBy
 ) VALUES
--- München ödemeleri (Ahmet Yılmaz üye değil, ödemesi yok)
-(@MuenchenVereinId, @FatmaId, 1, 50.00, 1, DATEADD(DAY, -10, GETDATE()), 'BAR', NULL, N'Teilzahlung', 2, 0, GETDATE(), 1);
--- Berlin ödemeleri yok (Mehmet Demir üye değil)
+-- ============================================================================
+-- MÜNCHEN ÜYE ÖDEMELERİ
+-- ============================================================================
+-- Fatma Özkan - Üyelik Aidatı (Kısmi, Nakit) - Banka bilgisi gereksiz
+(@MuenchenVereinId, @FatmaId, @ZTypMitgliedsbeitrag, 50.00, 1, DATEADD(DAY, -10, GETDATE()), 'BAR', NULL, N'Teilzahlung - Üyelik aidatı kısmi ödeme', 2, 0, GETDATE(), 1),
+-- Fatma Özkan - Bağış (Havale) - Banka bilgisi gerekli
+(@MuenchenVereinId, @FatmaId, @ZTypSpende, 100.00, 1, DATEADD(DAY, -25, GETDATE()), 'UEBERWEISUNG', @MuenchenBankkontoId, N'Ramazan Bağışı', 1, 0, GETDATE(), 1),
 
-PRINT '  ✓ 1 Üye ödemesi eklendi (Dernek yöneticileri üye değil)';
+-- Can Schmidt - Üyelik Aidatı (Tam, Otomatik Ödeme) - Banka bilgisi gerekli
+(@MuenchenVereinId, @CanId, @ZTypMitgliedsbeitrag, 60.00, 1, DATEADD(DAY, -5, GETDATE()), 'LASTSCHRIFT', @MuenchenBankkontoId, N'Monatlicher Beitrag - Aylık aidat', 1, 0, GETDATE(), 1),
+-- Can Schmidt - Etkinlik Ödemesi (Nakit) - Banka bilgisi gereksiz
+(@MuenchenVereinId, @CanId, @ZTypVeranstaltung, 25.00, 1, DATEADD(DAY, -15, GETDATE()), 'BAR', NULL, N'Kültür Gecesi Bilet', 1, 0, GETDATE(), 1),
+
+-- Zeynep Yılmaz - Üyelik Aidatı (Havale) - Banka bilgisi gerekli
+(@MuenchenVereinId, @ZeynepId, @ZTypMitgliedsbeitrag, 30.00, 1, DATEADD(DAY, -3, GETDATE()), 'UEBERWEISUNG', @MuenchenBankkontoId, N'Genç üye aidatı', 1, 0, GETDATE(), 1),
+
+-- Emre Koç - Üyelik Aidatı (Otomatik Ödeme) - Banka bilgisi gerekli
+(@MuenchenVereinId, @EmreId, @ZTypMitgliedsbeitrag, 60.00, 1, DATEADD(DAY, -8, GETDATE()), 'LASTSCHRIFT', @MuenchenBankkontoId, N'Monatlicher Beitrag', 1, 0, GETDATE(), 1),
+-- Emre Koç - Bağış (Nakit) - Banka bilgisi gereksiz
+(@MuenchenVereinId, @EmreId, @ZTypSpende, 50.00, 1, DATEADD(DAY, -20, GETDATE()), 'BAR', NULL, N'Kurban Bağışı', 1, 0, GETDATE(), 1),
+
+-- Selin Arslan - Üyelik Aidatı (Yıllık, Havale) - Banka bilgisi gerekli
+(@MuenchenVereinId, @SelinId, @ZTypMitgliedsbeitrag, 240.00, 1, DATEADD(DAY, -45, GETDATE()), 'UEBERWEISUNG', @MuenchenBankkontoId, N'Yıllık üyelik aidatı', 1, 0, GETDATE(), 1),
+
+-- Burak Çelik - Üyelik Aidatı (Emekli indirimi, Nakit) - Banka bilgisi gereksiz
+(@MuenchenVereinId, @BurakId, @ZTypMitgliedsbeitrag, 50.00, 1, DATEADD(DAY, -12, GETDATE()), 'BAR', NULL, N'Emekli üye aidatı', 1, 0, GETDATE(), 1),
+
+-- ============================================================================
+-- BERLİN ÜYE ÖDEMELERİ
+-- ============================================================================
+-- Ayşe Kaya - Üyelik Aidatı (Üç aylık, Havale) - Banka bilgisi gerekli
+(@BerlinVereinId, @AyseId, @ZTypMitgliedsbeitrag, 100.00, 1, DATEADD(DAY, -7, GETDATE()), 'UEBERWEISUNG', @BerlinBankkontoId, N'Quartalsbeitrag - Üç aylık aidat', 1, 0, GETDATE(), 1),
+-- Ayşe Kaya - Bağış (Nakit) - Banka bilgisi gereksiz
+(@BerlinVereinId, @AyseId, @ZTypSpende, 200.00, 1, DATEADD(DAY, -30, GETDATE()), 'BAR', NULL, N'Cami yapımına bağış', 1, 0, GETDATE(), 1),
+
+-- Deniz Şahin - Üyelik Aidatı (Genç üye, Otomatik Ödeme) - Banka bilgisi gerekli
+(@BerlinVereinId, @DenizId, @ZTypMitgliedsbeitrag, 25.00, 1, DATEADD(DAY, -4, GETDATE()), 'LASTSCHRIFT', @BerlinBankkontoId, N'Genç üye aidatı', 1, 0, GETDATE(), 1),
+
+-- Ece Yıldız - Üyelik Aidatı (Üç aylık, Havale) - Banka bilgisi gerekli
+(@BerlinVereinId, @EceId, @ZTypMitgliedsbeitrag, 100.00, 1, DATEADD(DAY, -14, GETDATE()), 'UEBERWEISUNG', @BerlinBankkontoId, N'Quartalsbeitrag', 1, 0, GETDATE(), 1),
+-- Ece Yıldız - Etkinlik Ödemesi (Havale) - Banka bilgisi gerekli
+(@BerlinVereinId, @EceId, @ZTypVeranstaltung, 30.00, 1, DATEADD(DAY, -21, GETDATE()), 'UEBERWEISUNG', @BerlinBankkontoId, N'Konser Bilet', 1, 0, GETDATE(), 1),
+-- Ece Yıldız - Bağış (Nakit) - Banka bilgisi gereksiz
+(@BerlinVereinId, @EceId, @ZTypSpende, 75.00, 1, DATEADD(DAY, -35, GETDATE()), 'BAR', NULL, N'Genel bağış', 1, 0, GETDATE(), 1),
+
+-- Kerem Öztürk - Üyelik Aidatı (Aylık, Nakit) - Banka bilgisi gereksiz
+(@BerlinVereinId, @KeremId, @ZTypMitgliedsbeitrag, 50.00, 1, DATEADD(DAY, -6, GETDATE()), 'BAR', NULL, N'Monatlicher Beitrag', 1, 0, GETDATE(), 1),
+-- Kerem Öztürk - Etkinlik Ödemesi (Otomatik Ödeme) - Banka bilgisi gerekli
+(@BerlinVereinId, @KeremId, @ZTypVeranstaltung, 15.00, 1, DATEADD(DAY, -18, GETDATE()), 'LASTSCHRIFT', @BerlinBankkontoId, N'Workshop Katılım', 1, 0, GETDATE(), 1);
+
+PRINT '  ✓ 17 Üye ödemesi eklendi (Farklı ödeme tipleri ve yöntemleri ile)';
+PRINT '    - MITGLIEDSBEITRAG (Üyelik Aidatı): 9 ödeme';
+PRINT '    - SPENDE (Bağış): 5 ödeme';
+PRINT '    - VERANSTALTUNG (Etkinlik): 3 ödeme';
+PRINT '    - BAR (Nakit): 7 ödeme';
+PRINT '    - UEBERWEISUNG (Havale): 6 ödeme';
+PRINT '    - LASTSCHRIFT (Otomatik): 4 ödeme';
 
 -- Ödeme-Alacak eşleştirmeleri (MitgliedForderungZahlung)
 -- Fatma'nın ödemesi ile alacağını eşleştir (kısmi ödeme)

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.DTOs.MitgliedZahlung;
-using VereinsApi.DTOs.Common;
 using VereinsApi.Services.Interfaces;
 
 namespace VereinsApi.Controllers;
@@ -89,35 +88,6 @@ public class MitgliedZahlungenController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting zahlungen for mitglied {MitgliedId}", mitgliedId);
-            return StatusCode(500, "Internal server error");
-        }
-    }
-
-    /// <summary>
-    /// Get Zahlungen by Mitglied ID with pagination
-    /// </summary>
-    [HttpGet("mitglied/{mitgliedId:int}/paginated")]
-    [ProducesResponseType(typeof(PaginatedResponseDto<MitgliedZahlungDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PaginatedResponseDto<MitgliedZahlungDto>>> GetByMitgliedPaginated(
-        int mitgliedId,
-        [FromQuery] PaginationRequestDto pagination,
-        [FromQuery] bool includeDeleted = false,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var result = await _service.GetByMitgliedIdPaginatedAsync(
-                mitgliedId,
-                pagination.Page,
-                pagination.PageSize,
-                includeDeleted,
-                cancellationToken);
-            
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting paginated zahlungen for mitglied {MitgliedId}", mitgliedId);
             return StatusCode(500, "Internal server error");
         }
     }

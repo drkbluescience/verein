@@ -65,6 +65,7 @@
     "overdueExists": ", {count} überfällige Zahlung(en) vorhanden.",
     "allPaymentsCurrent": ", alle Zahlungen sind aktuell!",
     "paymentMethods": "Zahlungsmethoden",
+    "paymentMethodsDistribution": "Verteilung der Zahlungsmethoden",
     "incomeChartLabel": "Einnahmen (Mitgliederzahlungen)",
     "expenseChartLabel": "Ausgaben (DITIB-Zahlungen)",
     "vereinComparison": "Vereinsvergleich",
@@ -121,10 +122,48 @@
     "unallocatedWarning": "Von dieser Zahlung sind € {{amount}} noch nicht zugeordnet."
   },
   "bankAccount": {
-    "information": "Bankkontoinformationen",
-    "holder": "Kontoinhaber",
+    "title": "Bankkontoinformationen",
     "iban": "IBAN",
-    "bank": "Bank"
+    "bankName": "Bankname",
+    "accountHolder": "Kontoinhaber",
+    "bic": "BIC",
+    "description": "Beschreibung",
+    "type": "Kontotyp"
+  },
+  "bankTransaction": {
+    "title": "Banktransaktionsdetails",
+    "date": "Buchungsdatum",
+    "amount": "Betrag",
+    "recipient": "Empfänger",
+    "reference": "Referenz",
+    "purpose": "Verwendungszweck",
+    "bookingDate": "Buchungsdatum"
+  },
+  "event": {
+    "title": "Veranstaltungsinformationen",
+    "name": "Veranstaltungsname",
+    "date": "Veranstaltungsdatum",
+    "location": "Veranstaltungsort",
+    "participantName": "Teilnehmername",
+    "participantEmail": "Teilnehmer-E-Mail"
+  },
+  "paymentTimeline": {
+    "title": "Zahlungs-Zeitstrahl",
+    "status": {
+      "created": "Zahlung erstellt",
+      "allocated": "Zugeordnet",
+      "pending": "Ausstehend"
+    },
+    "allocations": "Zuweisungen",
+    "unallocated": "Nicht zugeordnet"
+  },
+  "organization": {
+    "title": "Vereinsinformationen",
+    "name": "Vereinsname",
+    "vereinNumber": "Vereinsnummer",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "mainBankAccount": "Hauptbankkonto"
   },
   "relatedPayments": {
     "title": "Zugehörige Mitgliederzahlungen",
@@ -152,6 +191,21 @@
     "total": "Gesamtzahlungen",
     "totalAmount": "Gesamtbetrag",
     "deleteConfirm": "Sind Sie sicher, dass Sie diesen Zahlungseintrag löschen möchten?"
+  },
+  "paymentStatus": {
+    "completed": "Abgeschlossen",
+    "partial": "Teilweise",
+    "pending": "Ausstehend"
+  },
+  "summary": {
+    "totalPayment": "Gesamtzahlung",
+    "allocated": "Zugeordnet",
+    "unallocated": "Nicht zugeordnet"
+  },
+  "progress": {
+    "allocationStatus": "Zuordnungsstatus",
+    "allocated": "Zugeordnet",
+    "remaining": "Verbleibend"
   },
   "bankTransactions": {
     "title": "Banktransaktionen",
@@ -456,16 +510,7 @@
     "notes": "Notizen",
     "noNotes": "Keine Notizen",
     "eventName": "Veranstaltungsname",
-    "clickToViewDetails": "Klicken für Details",
-    "copiedToClipboard": "Kopiert!",
-    "copyPaymentId": "Zahlungs-ID kopieren",
-    "copyPaymentDate": "Zahlungsdatum kopieren",
-    "copyPaymentAmount": "Zahlungsbetrag kopieren",
-    "copyPaymentMethod": "Zahlungsmethode kopieren",
-    "copyPaymentReference": "Referenznummer kopieren",
-    "print": "Drucken",
-    "share": "Teilen",
-    "sharePayment": "Zahlungsinformationen teilen"
+    "clickToViewDetails": "Klicken für Details"
   },
   "beitragPlan": {
     "title": "Mein Beitragsplan",

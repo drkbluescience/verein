@@ -22,10 +22,7 @@
 }
 
 .brief-detail-page .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  /* Inherits from global .page-header */
 }
 
 .btn-icon-back {

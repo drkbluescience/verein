@@ -10,7 +10,6 @@ using VereinsApi.Data;
 // using VereinsApi.Data.Repositories;
 using VereinsApi.Domain.Interfaces;
 using VereinsApi.Services;
-using VereinsApi.Services.Caching;
 using VereinsApi.Middleware;
 // using VereinsApi.Services.Interfaces;
 // using VereinsApi.Mapping;
@@ -237,9 +236,6 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.INachrichtService, Ver
 // JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();
 
-// Cache Service
-builder.Services.AddScoped<ICacheService, MemoryCacheService>();
-
 // JWT Authentication Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
@@ -353,14 +349,6 @@ builder.Services.AddCors(options =>
                   .AllowCredentials();
         }
     });
-    
-    // Add a more permissive policy for production debugging
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
 });
 
 // Health Checks
@@ -396,8 +384,8 @@ app.UseStaticFiles();
 // Global Exception Handling
 app.UseGlobalExceptionHandling();
 
-// CORS - Use more permissive policy for production debugging
-app.UseCors("AllowAll");
+// CORS
+app.UseCors("AllowSpecificOrigins");
 
 // Authentication & Authorization
 app.UseAuthentication();

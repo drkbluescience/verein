@@ -8,7 +8,7 @@ import ImageUploadModal from './ImageUploadModal';
 import './ImageGallery.css';
 
 // API Base URL for images
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5103';
 
 interface ImageGalleryProps {
   veranstaltungId: number;

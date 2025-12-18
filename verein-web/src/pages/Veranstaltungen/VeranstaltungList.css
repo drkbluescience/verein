@@ -21,8 +21,8 @@
 
 .search-box {
   flex: 1;
-  min-width: 400px;
-  max-width: 600px;
+  min-width: 300px;
+  max-height: 44px;
   position: relative;
   display: flex;
   align-items: center;
@@ -30,7 +30,7 @@
   background: var(--color-surface);
   border: 2px solid var(--color-border);
   border-radius: 12px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   transition: all 0.2s ease;
 }
 
@@ -230,52 +230,6 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.filter-tab.active .tab-count {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* View Toggle */
-.view-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  padding: 4px;
-}
-
-.view-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.view-toggle-btn:hover {
-  background: var(--color-surface-secondary);
-  color: var(--color-text-primary);
-}
-
-.view-toggle-btn.active {
-  background: #3b82f6;
-  color: #ffffff;
-}
-
-.view-toggle-btn.active svg {
-  stroke: white;
-}
-
-.view-toggle-btn svg {
-  width: 20px;
-  height: 20px;
-}
 
 /* Event Grid */
 .veranstaltung-grid {
@@ -667,7 +621,7 @@
 
 @media (max-width: 480px) {
   .page-header {
-    padding: 32px 16px 24px;
+    padding: 24px 16px 20px;
   }
 
   .page-title {
@@ -677,12 +631,14 @@
   .actions-bar {
     padding-left: 16px;
     padding-right: 16px;
+    flex-direction: column;
   }
 
   .filter-tabs {
-    width: calc(100% - 32px);
-    margin-left: 16px;
-    margin-right: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+    margin: 0 16px 16px;
   }
 
   .tab-count {

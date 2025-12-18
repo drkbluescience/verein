@@ -5,7 +5,6 @@ using VereinsApi.Domain.Entities;
 using VereinsApi.Domain.Interfaces;
 using VereinsApi.DTOs.MitgliedForderung;
 using VereinsApi.Services.Interfaces;
-using VereinsApi.Services.Caching;
 using Microsoft.EntityFrameworkCore;
 
 namespace VereinsApi.Services;
@@ -21,7 +20,6 @@ public class MitgliedForderungService : IMitgliedForderungService
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<MitgliedForderungService> _logger;
-    private readonly ICacheService _cacheService;
 
     public MitgliedForderungService(
         IMitgliedForderungRepository repository,
@@ -29,8 +27,7 @@ public class MitgliedForderungService : IMitgliedForderungService
         IMitgliedRepository mitgliedRepository,
         ApplicationDbContext context,
         IMapper mapper,
-        ILogger<MitgliedForderungService> logger,
-        ICacheService cacheService)
+        ILogger<MitgliedForderungService> logger)
     {
         _repository = repository;
         _zahlungRepository = zahlungRepository;
@@ -38,7 +35,6 @@ public class MitgliedForderungService : IMitgliedForderungService
         _context = context;
         _mapper = mapper;
         _logger = logger;
-        _cacheService = cacheService;
     }
 
     #region CRUD Operations
@@ -214,28 +210,17 @@ public class MitgliedForderungService : IMitgliedForderungService
     {
         _logger.LogInformation("Getting financial summary for mitglied {MitgliedId}", mitgliedId);
 
-        // Check cache first
-        var cacheKey = $"mitglied_finanz_summary_{mitgliedId}";
-        var cachedResult = await _cacheService.GetAsync<MitgliedFinanzSummaryDto>(cacheKey);
-        if (cachedResult != null)
-        {
-            _logger.LogDebug("Returning cached financial summary for mitglied {MitgliedId}", mitgliedId);
-            return cachedResult;
-        }
-
         try
         {
-            var today = DateTime.UtcNow.Date;
-            
-            // Get all forderungen for member
+            // Get all forderungen for the member
             var forderungen = await _repository.GetByMitgliedIdAsync(mitgliedId, false, cancellationToken);
             var forderungenList = forderungen.ToList();
 
-            // Get all zahlungen for member (membership payments)
+            // Get all zahlungen for the member (membership payments)
             var zahlungen = await _zahlungRepository.GetByMitgliedIdAsync(mitgliedId, false, cancellationToken);
             var zahlungenList = zahlungen.ToList();
 
-            // Get all event payments for member (VeranstaltungZahlung)
+            // Get all event payments for the member (VeranstaltungZahlung)
             var eventZahlungen = await _context.VeranstaltungZahlungen
                 .Include(z => z.Anmeldung)
                 .Where(z => z.Anmeldung != null && z.Anmeldung.MitgliedId == mitgliedId && z.DeletedFlag != true)
@@ -244,6 +229,9 @@ public class MitgliedForderungService : IMitgliedForderungService
             // Separate paid and unpaid claims
             var unpaidForderungen = forderungenList.Where(f => f.StatusId == 2).ToList();
             var paidForderungen = forderungenList.Where(f => f.StatusId == 1).ToList();
+
+            // Calculate overdue claims
+            var today = DateTime.UtcNow.Date;
             var overdueForderungen = unpaidForderungen.Where(f => f.Faelligkeit.Date < today).ToList();
 
             // Find next payment
@@ -381,10 +369,7 @@ public class MitgliedForderungService : IMitgliedForderungService
                 UnpaidEventClaims = unpaidEventClaims
             };
 
-            // Cache the result for 5 minutes
-            await _cacheService.SetAsync(cacheKey, summary, TimeSpan.FromMinutes(5));
-            
-            _logger.LogInformation("Successfully retrieved and cached financial summary for mitglied {MitgliedId}", mitgliedId);
+            _logger.LogInformation("Successfully retrieved financial summary for mitglied {MitgliedId}", mitgliedId);
             return summary;
         }
         catch (Exception ex)
@@ -452,7 +437,7 @@ public class MitgliedForderungService : IMitgliedForderungService
 
         if (paymentMethodGroups != null && allPaymentMethods.Any())
         {
-            // Return payment method code (e.g., UEBERWEISUNG, BAR)
+            // Return the payment method code (e.g., UEBERWEISUNG, BAR)
             // Frontend will handle translation
             preferredMethod = paymentMethodGroups.Key;
             preferredMethodPercentage = (double)paymentMethodGroups.Count() / allPaymentMethods.Count * 100;
@@ -549,7 +534,7 @@ public class MitgliedForderungService : IMitgliedForderungService
             paymentDay = -1; // Will be calculated for each month
         }
 
-        // Find earliest and latest forderung dates
+        // Find the earliest and latest forderung dates
         var earliestForderung = beitragForderungen.FirstOrDefault();
         var latestForderung = beitragForderungen.LastOrDefault();
 
@@ -692,3 +677,4 @@ public class MitgliedForderungService : IMitgliedForderungService
 
     #endregion
 }
+

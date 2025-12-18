@@ -72,7 +72,7 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
   });
 
   // Set active mutation
-  useMutation({
+  const setActiveMutation = useMutation({
     mutationFn: (id: number) => vereinSatzungService.setActive(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vereinSatzungen', vereinId] });
@@ -84,7 +84,7 @@ const VereinSatzungTab: React.FC<VereinSatzungTabProps> = ({ vereinId }) => {
   });
 
   // Delete mutation
-  useMutation({
+  const deleteMutation = useMutation({
     mutationFn: (id: number) => vereinSatzungService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vereinSatzungen', vereinId] });

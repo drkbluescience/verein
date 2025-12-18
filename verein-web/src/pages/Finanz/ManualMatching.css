@@ -7,7 +7,7 @@
 }
 
 .manual-matching-container .page-header {
-  margin-bottom: 2rem;
+  /* Inherits from global .page-header */
 }
 
 .manual-matching-container .page-header h1 {

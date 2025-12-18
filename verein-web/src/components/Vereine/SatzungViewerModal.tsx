@@ -32,7 +32,7 @@ const SatzungViewerModal: React.FC<SatzungViewerModalProps> = ({
     setError(null);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5103';
       const response = await fetch(`${API_URL}/api/VereinSatzung/${satzung.id}/download`, {
         method: 'GET',
         headers: {
@@ -58,7 +58,7 @@ const SatzungViewerModal: React.FC<SatzungViewerModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [satzung, t]);
+  }, [satzung]);
 
   useEffect(() => {
     if (isOpen && satzung) {

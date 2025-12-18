@@ -1,8 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 // API Base Configuration
-// Node.js API runs on port 3000 by default
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5103';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({

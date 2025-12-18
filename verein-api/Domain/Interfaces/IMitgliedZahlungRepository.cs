@@ -17,31 +17,6 @@ public interface IMitgliedZahlungRepository : IRepository<MitgliedZahlung>
     Task<IEnumerable<MitgliedZahlung>> GetByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets paginated zahlungen by mitglied ID
-    /// </summary>
-    /// <param name="mitgliedId">Mitglied ID</param>
-    /// <param name="page">Page number (1-based)</param>
-    /// <param name="pageSize">Number of items per page</param>
-    /// <param name="includeDeleted">Whether to include soft-deleted zahlungen</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated collection of zahlungen</returns>
-    Task<IEnumerable<MitgliedZahlung>> GetByMitgliedIdPaginatedAsync(
-        int mitgliedId,
-        int page,
-        int pageSize,
-        bool includeDeleted = false,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Counts total zahlungen by mitglied ID
-    /// </summary>
-    /// <param name="mitgliedId">Mitglied ID</param>
-    /// <param name="includeDeleted">Whether to include soft-deleted zahlungen</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Total count of zahlungen</returns>
-    Task<int> CountByMitgliedIdAsync(int mitgliedId, bool includeDeleted = false, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Gets zahlungen by verein ID
     /// </summary>
     /// <param name="vereinId">Verein ID</param>
