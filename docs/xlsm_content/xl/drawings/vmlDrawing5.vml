@@ -1,0 +1,89 @@
+<xml xmlns:v="urn:schemas-microsoft-com:vml"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel">
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="8"/>
+ </o:shapelayout><v:shapetype id="_x0000_t201" coordsize="21600,21600" o:spt="201"
+  path="m,l,21600r21600,l21600,xe">
+  <v:stroke joinstyle="miter"/>
+  <v:path shadowok="f" o:extrusionok="f" strokeok="f" fillok="f" o:connecttype="rect"/>
+  <o:lock v:ext="edit" shapetype="t"/>
+ </v:shapetype><v:shape id="_x0020_3" o:spid="_x0000_s8195" type="#_x0000_t201"
+  style='position:absolute;margin-left:556.5pt;margin-top:75.75pt;width:131.25pt;
+  height:111pt;z-index:1;mso-wrap-style:tight' strokecolor="windowText [64]"
+  o:insetmode="auto">
+  <o:lock v:ext="edit" rotation="t" text="t"/>
+  <x:ClientData ObjectType="Spin">
+   <x:Anchor>
+    8, 15, 3, 11, 10, 29, 6, 28</x:Anchor>
+   <x:FmlaLink>$G$5</x:FmlaLink>
+   <x:Val>1</x:Val>
+   <x:Min>1</x:Min>
+   <x:Max>3650</x:Max>
+   <x:Inc>1</x:Inc>
+   <x:Page>10</x:Page>
+   <x:Dx>22</x:Dx>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_4" o:spid="_x0000_s8196" type="#_x0000_t201"
+  style='position:absolute;margin-left:545.25pt;margin-top:211.5pt;width:152.25pt;
+  height:39pt;z-index:2;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="400" color="#000000"><b>DRUCKEN</b></font><font
+   face="Arial" size="400" color="#000000"> </font><font face="Arial" size="280"
+   color="#000000"><b><br />
+      </b></font><font face="Arial" size="140" color="#000000">sponsored by
+   MC&amp;ŞÖ<span style='mso-spacerun:yes'>   </span>© 2019</font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    7, 45, 7, 15, 11, 0, 8, 32</x:Anchor>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Drucken</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_5" o:spid="_x0000_s8197" type="#_x0000_t201"
+  style='position:absolute;margin-left:545.25pt;margin-top:375pt;width:152.25pt;
+  height:47.25pt;z-index:3;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="400" color="#000000"><b>HAUPTMENÜ</b></font><font
+   face="Arial" size="400" color="#000000"> </font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    8, 0, 12, 32, 11, 0, 13, 16</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Hauptmenü</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_6" o:spid="_x0000_s8198" type="#_x0000_t201"
+  style='position:absolute;margin-left:545.25pt;margin-top:253.5pt;width:152.25pt;
+  height:88.5pt;z-index:4;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="320" color="#000000"><b>Kassenbuch</b></font><font
+   face="Arial" size="320" color="#000000"> </font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    8, 0, 8, 36, 11, 0, 11, 16</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Kassenbuch</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape></xml>

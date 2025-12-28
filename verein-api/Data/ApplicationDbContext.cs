@@ -99,6 +99,36 @@ public class ApplicationDbContext : DbContext
     public DbSet<VereinDitibZahlung> VereinDitibZahlungen { get; set; }
 
     /// <summary>
+    /// FiBuKonto table (Finanz schema) - Chart of Accounts (Kontenplan)
+    /// </summary>
+    public DbSet<FiBuKonto> FiBuKonten { get; set; }
+
+    /// <summary>
+    /// Kassenbuch table (Finanz schema) - Cash Book
+    /// </summary>
+    public DbSet<Kassenbuch> Kassenbuecher { get; set; }
+
+    /// <summary>
+    /// KassenbuchJahresabschluss table (Finanz schema) - Year-End Closing
+    /// </summary>
+    public DbSet<KassenbuchJahresabschluss> KassenbuchJahresabschluesse { get; set; }
+
+    /// <summary>
+    /// SpendenProtokoll table (Finanz schema) - Donation Protocols
+    /// </summary>
+    public DbSet<SpendenProtokoll> SpendenProtokolle { get; set; }
+
+    /// <summary>
+    /// SpendenProtokollDetail table (Finanz schema) - Donation counting details
+    /// </summary>
+    public DbSet<SpendenProtokollDetail> SpendenProtokollDetails { get; set; }
+
+    /// <summary>
+    /// DurchlaufendePosten table (Finanz schema) - Transit items
+    /// </summary>
+    public DbSet<DurchlaufendePosten> DurchlaufendePosten { get; set; }
+
+    /// <summary>
     /// RechtlicheDaten table (Verein schema)
     /// </summary>
     public DbSet<RechtlicheDaten> RechtlicheDaten { get; set; }
@@ -332,6 +362,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MitgliedVorauszahlungConfiguration());
         modelBuilder.ApplyConfiguration(new VeranstaltungZahlungConfiguration());
         modelBuilder.ApplyConfiguration(new VereinDitibZahlungConfiguration());
+        modelBuilder.ApplyConfiguration(new FiBuKontoConfiguration());
+        modelBuilder.ApplyConfiguration(new KassenbuchConfiguration());
+        modelBuilder.ApplyConfiguration(new KassenbuchJahresabschlussConfiguration());
+        modelBuilder.ApplyConfiguration(new SpendenProtokollConfiguration());
+        modelBuilder.ApplyConfiguration(new SpendenProtokollDetailConfiguration());
+        modelBuilder.ApplyConfiguration(new DurchlaufendePostenConfiguration());
         modelBuilder.ApplyConfiguration(new VereinSatzungConfiguration());
 
         // Apply Keytable entity configurations
@@ -430,6 +466,7 @@ public class ApplicationDbContext : DbContext
                     // Finanz tables don't use Aktiv column - they use DeletedFlag for soft delete
                     // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild also don't have Aktiv column
                     // Brief entities don't have Aktiv column
+                    // FiBuKonto uses IsAktiv instead of Aktiv
                     if (entry.Entity is not BankBuchung
                         && entry.Entity is not MitgliedForderung
                         && entry.Entity is not MitgliedForderungZahlung
@@ -440,7 +477,12 @@ public class ApplicationDbContext : DbContext
                         && entry.Entity is not VeranstaltungAnmeldung
                         && entry.Entity is not VeranstaltungBild
                         && entry.Entity is not Brief
-                        && entry.Entity is not BriefVorlage)
+                        && entry.Entity is not BriefVorlage
+                        && entry.Entity is not FiBuKonto
+                        && entry.Entity is not Kassenbuch
+                        && entry.Entity is not KassenbuchJahresabschluss
+                        && entry.Entity is not SpendenProtokoll
+                        && entry.Entity is not DurchlaufendePosten)
                     {
                         entry.Entity.Aktiv = true;
                     }

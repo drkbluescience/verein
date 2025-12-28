@@ -35,6 +35,7 @@ import DitibUpload from './pages/Finanz/DitibUpload';
 import VereinDitibZahlungList from './pages/Finanz/VereinDitibZahlungList';
 import VereinDitibZahlungDetail from './pages/Finanz/VereinDitibZahlungDetail';
 import VereinDitibZahlungForm from './pages/Finanz/VereinDitibZahlungForm';
+import { EasyFiBuDashboard } from './pages/Finanz/easyFiBu';
 import PageNotesAdmin from './pages/Admin/PageNotesAdmin';
 import BriefeList from './pages/Briefe/BriefeList';
 import BriefForm from './pages/Briefe/BriefForm';
@@ -245,6 +246,11 @@ const AppContent: React.FC = () => {
           <Route path="/finanzen/ditib-zahlungen/:id/edit" element={
             <Layout>
               <VereinDitibZahlungForm />
+            </Layout>
+          } />
+          <Route path="/finanzen/kassenbuch" element={
+            <Layout>
+              <EasyFiBuDashboard />
             </Layout>
           } />
 

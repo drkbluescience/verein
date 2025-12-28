@@ -84,12 +84,19 @@ const InboxIcon = () => (
   </svg>
 );
 
+const BookIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </svg>
+);
+
 const adminMenuItems: MenuItem[] = [
   { path: '/startseite', labelKey: 'navigation.dashboard', icon: <HomeIcon /> },
   { path: '/vereine', labelKey: 'navigation.vereine', icon: <BuildingIcon /> },
   { path: '/mitglieder', labelKey: 'navigation.mitglieder', icon: <UsersIcon /> },
   { path: '/veranstaltungen', labelKey: 'navigation.veranstaltungen', icon: <CalendarIcon /> },
   { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
+  { path: '/finanzen/kassenbuch', labelKey: 'navigation.kassenbuch', icon: <BookIcon /> },
   { path: '/admin/page-notes', labelKey: 'navigation.pageNotes', icon: <FileTextIcon /> },
   { path: '/berichte', labelKey: 'navigation.reports', icon: <BarChartIcon /> },
   { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
@@ -102,6 +109,7 @@ const dernekMenuItems: MenuItem[] = [
   { path: '/veranstaltungen', labelKey: 'navigation.etkinliklerimiz', icon: <CalendarIcon /> },
   { path: '/briefe', labelKey: 'navigation.briefe', icon: <MailIcon /> },
   { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
+  { path: '/finanzen/kassenbuch', labelKey: 'navigation.kassenbuch', icon: <BookIcon /> },
   { path: '/berichte', labelKey: 'navigation.raporlarimiz', icon: <BarChartIcon /> },
   { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];

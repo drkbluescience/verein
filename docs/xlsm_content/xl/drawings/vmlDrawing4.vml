@@ -1,0 +1,218 @@
+<xml xmlns:v="urn:schemas-microsoft-com:vml"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel">
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="9,75"/>
+ </o:shapelayout><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202"
+  path="m,l,21600r21600,l21600,xe">
+  <v:stroke joinstyle="miter"/>
+  <v:path gradientshapeok="t" o:connecttype="rect"/>
+ </v:shapetype><v:shape id="_x0000_s9221" type="#_x0000_t202" style='position:absolute;
+  margin-left:1026pt;margin-top:138.75pt;width:271.5pt;height:42.75pt;
+  z-index:1;visibility:hidden;mso-wrap-style:tight' fillcolor="infoBackground [80]"
+  strokecolor="none [81]" o:insetmode="auto">
+  <v:fill color2="infoBackground [80]"/>
+  <v:shadow color="none [81]" obscured="t"/>
+  <v:path o:connecttype="none"/>
+  <v:textbox style='mso-direction-alt:auto'>
+   <div style='text-align:left'></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Note">
+   <x:MoveWithCells/>
+   <x:SizeWithCells/>
+   <x:Anchor>
+    9, 100, 7, 1, 16, 54, 8, 23</x:Anchor>
+   <x:AutoFill>False</x:AutoFill>
+   <x:Row>7</x:Row>
+   <x:Column>9</x:Column>
+  </x:ClientData>
+ </v:shape><v:shapetype id="_x0000_t201" coordsize="21600,21600" o:spt="201"
+  path="m,l,21600r21600,l21600,xe">
+  <v:stroke joinstyle="miter"/>
+  <v:path shadowok="f" o:extrusionok="f" strokeok="f" fillok="f" o:connecttype="rect"/>
+  <o:lock v:ext="edit" shapetype="t"/>
+ </v:shapetype><v:shape id="_x0020_4" o:spid="_x0000_s9220" type="#_x0000_t201"
+  style='position:absolute;margin-left:603.75pt;margin-top:60pt;width:224.25pt;
+  height:25.5pt;z-index:2;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="280" color="#000000"><b>BELEGE</b></font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    5, 420, 3, 3, 6, 84, 4, 15</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Beleg</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_6" o:spid="_x0000_s9222" type="#_x0000_t201"
+  style='position:absolute;margin-left:478.5pt;margin-top:60pt;width:125.25pt;
+  height:25.5pt;z-index:3;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="280" color="#000000"><b>EÜR</b></font><font
+   face="Arial" size="280" color="#000000"> </font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    5, 253, 3, 3, 5, 420, 4, 15</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!EÜR</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_5" o:spid="_x0000_s9234" type="#_x0000_t201"
+  style='position:absolute;margin-left:354.75pt;margin-top:60pt;width:123.75pt;
+  height:25.5pt;z-index:4;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="280" color="#000000"><b>HAUPTMENÜ</b></font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    5, 88, 3, 3, 5, 253, 4, 15</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Hauptmenü</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0000_s9272" type="#_x0000_t202" style='position:absolute;
+  margin-left:654.75pt;margin-top:106.5pt;width:360.75pt;height:91.5pt;
+  z-index:5;visibility:hidden;mso-wrap-style:tight' fillcolor="infoBackground [80]"
+  strokecolor="none [81]" o:insetmode="auto">
+  <v:fill color2="infoBackground [80]"/>
+  <v:shadow color="none [81]" obscured="t"/>
+  <v:path o:connecttype="none"/>
+  <v:textbox style='mso-direction-alt:auto'>
+   <div style='text-align:left'></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Note">
+   <x:MoveWithCells/>
+   <x:SizeWithCells/>
+   <x:Anchor>
+    5, 488, 5, 21, 9, 86, 9, 0</x:Anchor>
+   <x:AutoFill>False</x:AutoFill>
+   <x:Row>6</x:Row>
+   <x:Column>5</x:Column>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0000_s9273" type="#_x0000_t202" style='position:absolute;
+  margin-left:1026.75pt;margin-top:107.25pt;width:168.75pt;height:64.5pt;
+  z-index:6;visibility:hidden;mso-wrap-style:tight' fillcolor="infoBackground [80]"
+  strokecolor="none [81]" o:insetmode="auto">
+  <v:fill color2="infoBackground [80]"/>
+  <v:shadow color="none [81]" obscured="t"/>
+  <v:path o:connecttype="none"/>
+  <v:textbox style='mso-direction-alt:auto'>
+   <div style='text-align:left'></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Note">
+   <x:MoveWithCells/>
+   <x:SizeWithCells/>
+   <x:Anchor>
+    9, 101, 5, 22, 14, 78, 8, 10</x:Anchor>
+   <x:AutoFill>False</x:AutoFill>
+   <x:Row>6</x:Row>
+   <x:Column>9</x:Column>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0000_s9274" type="#_x0000_t202" style='position:absolute;
+  margin-left:840.75pt;margin-top:131.25pt;width:174.75pt;height:33.75pt;
+  z-index:7;visibility:hidden;mso-wrap-style:tight' fillcolor="infoBackground [80]"
+  strokecolor="none [81]" o:insetmode="auto">
+  <v:fill color2="infoBackground [80]"/>
+  <v:shadow color="none [81]" obscured="t"/>
+  <v:path o:connecttype="none"/>
+  <v:textbox style='mso-direction-alt:auto'>
+   <div style='text-align:left'></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Note">
+   <x:MoveWithCells/>
+   <x:SizeWithCells/>
+   <x:Anchor>
+    6, 101, 6, 23, 9, 86, 8, 1</x:Anchor>
+   <x:AutoFill>False</x:AutoFill>
+   <x:Row>7</x:Row>
+   <x:Column>6</x:Column>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0000_s9275" type="#_x0000_t202" style='position:absolute;
+  margin-left:840.75pt;margin-top:107.25pt;width:96.75pt;height:64.5pt;
+  z-index:8;visibility:hidden' fillcolor="infoBackground [80]" strokecolor="none [81]"
+  o:insetmode="auto">
+  <v:fill color2="infoBackground [80]"/>
+  <v:shadow color="none [81]" obscured="t"/>
+  <v:path o:connecttype="none"/>
+  <v:textbox style='mso-direction-alt:auto'>
+   <div style='text-align:left'></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Note">
+   <x:MoveWithCells/>
+   <x:SizeWithCells/>
+   <x:Anchor>
+    6, 101, 5, 22, 7, 106, 8, 10</x:Anchor>
+   <x:AutoFill>False</x:AutoFill>
+   <x:Row>6</x:Row>
+   <x:Column>6</x:Column>
+  </x:ClientData>
+ </v:shape><v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75"
+  o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+  <v:stroke joinstyle="miter"/>
+  <v:formulas>
+   <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+   <v:f eqn="sum @0 1 0"/>
+   <v:f eqn="sum 0 0 @1"/>
+   <v:f eqn="prod @2 1 2"/>
+   <v:f eqn="prod @3 21600 pixelWidth"/>
+   <v:f eqn="prod @3 21600 pixelHeight"/>
+   <v:f eqn="sum @0 0 1"/>
+   <v:f eqn="prod @6 1 2"/>
+   <v:f eqn="prod @7 21600 pixelWidth"/>
+   <v:f eqn="sum @8 21600 0"/>
+   <v:f eqn="prod @7 21600 pixelHeight"/>
+   <v:f eqn="sum @10 21600 0"/>
+  </v:formulas>
+  <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+  <o:lock v:ext="edit" aspectratio="t"/>
+ </v:shapetype><v:shape id="Grafik_x0020_4" o:spid="_x0000_s76846" type="#_x0000_t75"
+  style='position:absolute;margin-left:0;margin-top:93.75pt;width:330.75pt;
+  height:69pt;z-index:9;visibility:visible;mso-wrap-style:square' o:button="t"
+  filled="t" fillcolor="white [9]" stroked="t" strokecolor="windowText [64]">
+  <v:fill o:detectmouseclick="t"/>
+  <v:imagedata o:relid="rId1" o:title=""/>
+  <x:ClientData ObjectType="Pict">
+   <x:MoveWithCells/>
+   <x:SizeWithCells/>
+   <x:Anchor>
+    0, 0, 5, 4, 5, 56, 7, 33</x:Anchor>
+   <x:FmlaMacro>[0]!Objektschutz</x:FmlaMacro>
+   <x:FmlaPict>$AG$1:$AJ$5</x:FmlaPict>
+   <x:CF>Pict</x:CF>
+   <x:Camera/>
+  </x:ClientData>
+ </v:shape><v:shape id="Grafik_x0020_8" o:spid="_x0000_s76847" type="#_x0000_t75"
+  style='position:absolute;margin-left:362.25pt;margin-top:93.75pt;width:2in;
+  height:69pt;z-index:10;visibility:visible;mso-wrap-style:square' o:button="t"
+  filled="t" fillcolor="white [9]" stroked="t" strokecolor="windowText [64]">
+  <v:fill o:detectmouseclick="t"/>
+  <v:imagedata o:relid="rId2" o:title=""/>
+  <x:ClientData ObjectType="Pict">
+   <x:SizeWithCells/>
+   <x:Anchor>
+    5, 98, 5, 4, 5, 290, 7, 33</x:Anchor>
+   <x:FmlaMacro>[0]!Objektschutz</x:FmlaMacro>
+   <x:FmlaPict>$AL$1:$AL$5</x:FmlaPict>
+   <x:CF>Pict</x:CF>
+   <x:Camera/>
+  </x:ClientData>
+ </v:shape></xml>

@@ -1,0 +1,70 @@
+<xml xmlns:v="urn:schemas-microsoft-com:vml"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel">
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="20,43"/>
+ </o:shapelayout><v:shapetype id="_x0000_t201" coordsize="21600,21600" o:spt="201"
+  path="m,l,21600r21600,l21600,xe">
+  <v:stroke joinstyle="miter"/>
+  <v:path shadowok="f" o:extrusionok="f" strokeok="f" fillok="f" o:connecttype="rect"/>
+  <o:lock v:ext="edit" shapetype="t"/>
+ </v:shapetype><v:shape id="_x0020_5" o:spid="_x0000_s44036" type="#_x0000_t201"
+  style='position:absolute;margin-left:1024.5pt;margin-top:30.75pt;width:183.75pt;
+  height:44.25pt;z-index:1;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="400" color="#000000"><b>Hauptmenü</b></font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    12, 74, 0, 41, 15, 79, 2, 11</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Hauptmenü</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_1026" o:spid="_x0000_s44034" type="#_x0000_t201"
+  style='position:absolute;margin-left:1024.5pt;margin-top:75pt;width:183.75pt;
+  height:46.5pt;z-index:2;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="400" color="#000000"><b>Kassenbuch</b></font><font
+   face="Arial" size="400" color="#000000"> </font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    12, 74, 2, 11, 15, 79, 3, 27</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Kassenbuch</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape><v:shape id="_x0020_1027" o:spid="_x0000_s44035" type="#_x0000_t201"
+  style='position:absolute;margin-left:1024.5pt;margin-top:121.5pt;width:183.75pt;
+  height:43.5pt;z-index:3;mso-wrap-style:tight' o:button="t" fillcolor="buttonFace [67]"
+  strokecolor="windowText [64]" o:insetmode="auto">
+  <v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>
+  <o:lock v:ext="edit" rotation="t"/>
+  <v:textbox style='mso-direction-alt:auto' o:singleclick="f">
+   <div style='text-align:center'><font face="Arial" size="400" color="#000000"><b>Belege</b></font><font
+   face="Arial" size="400" color="#000000"> </font></div>
+  </v:textbox>
+  <x:ClientData ObjectType="Button">
+   <x:Anchor>
+    12, 74, 3, 27, 15, 79, 5, 8</x:Anchor>
+   <x:Locked>False</x:Locked>
+   <x:PrintObject>False</x:PrintObject>
+   <x:AutoFill>False</x:AutoFill>
+   <x:FmlaMacro>[0]!Beleg</x:FmlaMacro>
+   <x:TextHAlign>Center</x:TextHAlign>
+   <x:TextVAlign>Center</x:TextVAlign>
+  </x:ClientData>
+ </v:shape></xml>

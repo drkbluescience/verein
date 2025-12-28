@@ -157,6 +157,12 @@ builder.Services.AddAutoMapper(
     typeof(VereinsApi.Profiles.MitgliedVorauszahlungProfile),
     typeof(VereinsApi.Profiles.VeranstaltungZahlungProfile),
     typeof(VereinsApi.Profiles.VereinDitibZahlungProfile),
+    // easyFiBu Finanz Profiles
+    typeof(VereinsApi.Profiles.FiBuKontoProfile),
+    typeof(VereinsApi.Profiles.KassenbuchProfile),
+    typeof(VereinsApi.Profiles.KassenbuchJahresabschlussProfile),
+    typeof(VereinsApi.Profiles.SpendenProtokollProfile),
+    typeof(VereinsApi.Profiles.DurchlaufendePostenProfile),
     // Keytable Profile
     typeof(VereinsApi.Profiles.KeytableProfile));
 
@@ -211,6 +217,13 @@ builder.Services.AddScoped<VereinsApi.Services.Interfaces.IMitgliedZahlungServic
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVeranstaltungZahlungService, VereinsApi.Services.VeranstaltungZahlungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IVereinDitibZahlungService, VereinsApi.Services.VereinDitibZahlungService>();
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IFinanzDashboardService, VereinsApi.Services.FinanzDashboardService>();
+
+// easyFiBu Finanz Services
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IFiBuKontoService, VereinsApi.Services.FiBuKontoService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IKassenbuchService, VereinsApi.Services.KassenbuchService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IKassenbuchJahresabschlussService, VereinsApi.Services.KassenbuchJahresabschlussService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.ISpendenProtokollService, VereinsApi.Services.SpendenProtokollService>();
+builder.Services.AddScoped<VereinsApi.Services.Interfaces.IDurchlaufendePostenService, VereinsApi.Services.DurchlaufendePostenService>();
 
 // Excel Upload Services
 builder.Services.AddScoped<VereinsApi.Services.Interfaces.IExcelParserService, VereinsApi.Services.ExcelParserService>();

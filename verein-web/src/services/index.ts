@@ -46,6 +46,15 @@ export {
   veranstaltungZahlungService
 } from './finanzService';
 
+// easyFiBu Services
+export {
+  fiBuKontoService,
+  kassenbuchService,
+  kassenbuchJahresabschlussService,
+  spendenProtokollService,
+  durchlaufendePostenService
+} from './easyFiBuService';
+
 // Keytable Services
 export { default as keytableService } from './keytableService';
 
@@ -126,6 +135,31 @@ export type {
   ZahlungStatus,
   ZahlungTyp
 } from '../types/finanz.types';
+
+export type {
+  // easyFiBu Types
+  FiBuKontoDto,
+  CreateFiBuKontoDto,
+  UpdateFiBuKontoDto,
+  KassenbuchDto,
+  CreateKassenbuchDto,
+  UpdateKassenbuchDto,
+  KassenbuchKontoSummaryDto,
+  KassenbuchSummaryDto,
+  KassenbuchJahresabschlussDto,
+  CreateKassenbuchJahresabschlussDto,
+  UpdateKassenbuchJahresabschlussDto,
+  SpendenProtokollDto,
+  CreateSpendenProtokollDto,
+  UpdateSpendenProtokollDto,
+  SpendenProtokollDetailDto,
+  CreateSpendenProtokollDetailDto,
+  SpendenKategorieSummaryDto,
+  DurchlaufendePostenDto,
+  CreateDurchlaufendePostenDto,
+  UpdateDurchlaufendePostenDto,
+  DurchlaufendePostenSummaryDto
+} from '../types/easyFiBu.types';
 
 export type {
   // PageNote Types
