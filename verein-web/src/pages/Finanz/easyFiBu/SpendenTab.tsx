@@ -42,7 +42,7 @@ interface SpendenTabProps {
 }
 
 const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const [selectedJahr, setSelectedJahr] = useState(currentYear);

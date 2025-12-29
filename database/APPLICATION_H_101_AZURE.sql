@@ -2289,3 +2289,292 @@ GO
 
 PRINT '✓ Brief schema and tables created successfully!';
 GO
+
+-- =============================================
+-- EASYFIBU FINANZ SCHEMA - YENİ TABLOLAR
+-- =============================================
+
+/****** Object:  Table [Finanz].[FiBuKonto] - Muhasebe Hesap Planı ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[FiBuKonto](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [Created] [datetime] NULL,
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [Nummer] [nvarchar](10) NOT NULL,
+    [Bezeichnung] [nvarchar](200) NOT NULL,
+    [BezeichnungTR] [nvarchar](200) NULL,
+    [Bereich] [nvarchar](20) NOT NULL,
+    [Typ] [nvarchar](20) NOT NULL,
+    [Hauptbereich] [char](1) NULL,
+    [HauptbereichName] [nvarchar](50) NULL,
+    [ZahlungTypId] [int] NULL,
+    [Reihenfolge] [int] NOT NULL DEFAULT 0,
+    [IsAktiv] [bit] NOT NULL DEFAULT 1,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Finanz].[Kassenbuch] - Kasa Defteri ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[Kassenbuch](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [Created] [datetime] NULL,
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [VereinId] [int] NOT NULL,
+    [BelegNr] [int] NOT NULL,
+    [BelegDatum] [date] NOT NULL,
+    [FiBuNummer] [nvarchar](10) NOT NULL,
+    [Verwendungszweck] [nvarchar](500) NULL,
+    [EinnahmeKasse] [decimal](18,2) NULL,
+    [AusgabeKasse] [decimal](18,2) NULL,
+    [EinnahmeBank] [decimal](18,2) NULL,
+    [AusgabeBank] [decimal](18,2) NULL,
+    [Jahr] [int] NOT NULL,
+    [MitgliedId] [int] NULL,
+    [MitgliedZahlungId] [int] NULL,
+    [BankBuchungId] [int] NULL,
+    [Zahlungsweg] [nvarchar](30) NULL,
+    [Bemerkung] [nvarchar](500) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Finanz].[KassenbuchJahresabschluss] - Yıl Sonu Kapanış ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[KassenbuchJahresabschluss](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [Created] [datetime] NULL,
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [VereinId] [int] NOT NULL,
+    [Jahr] [int] NOT NULL,
+    [KasseAnfangsbestand] [decimal](18,2) NOT NULL,
+    [KasseEndbestand] [decimal](18,2) NOT NULL,
+    [BankAnfangsbestand] [decimal](18,2) NOT NULL,
+    [BankEndbestand] [decimal](18,2) NOT NULL,
+    [SparbuchEndbestand] [decimal](18,2) NULL,
+    [AbschlussDatum] [date] NOT NULL,
+    [Geprueft] [bit] NOT NULL DEFAULT 0,
+    [GeprueftVon] [nvarchar](100) NULL,
+    [GeprueftAm] [date] NULL,
+    [Bemerkung] [nvarchar](500) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Finanz].[SpendenProtokoll] - Bağış Protokolü ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[SpendenProtokoll](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [Created] [datetime] NULL,
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [VereinId] [int] NOT NULL,
+    [Datum] [date] NOT NULL,
+    [Zweck] [nvarchar](200) NOT NULL,
+    [ZweckKategorie] [nvarchar](30) NULL,
+    [Betrag] [decimal](18,2) NOT NULL,
+    [Protokollant] [nvarchar](100) NOT NULL,
+    [Zeuge1Name] [nvarchar](100) NULL,
+    [Zeuge1Unterschrift] [bit] NOT NULL DEFAULT 0,
+    [Zeuge2Name] [nvarchar](100) NULL,
+    [Zeuge2Unterschrift] [bit] NOT NULL DEFAULT 0,
+    [Zeuge3Name] [nvarchar](100) NULL,
+    [Zeuge3Unterschrift] [bit] NOT NULL DEFAULT 0,
+    [KassenbuchId] [int] NULL,
+    [Bemerkung] [nvarchar](500) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Finanz].[SpendenProtokollDetail] - Bağış Detayları ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[SpendenProtokollDetail](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [SpendenProtokollId] [int] NOT NULL,
+    [Wert] [decimal](18,2) NOT NULL,
+    [Anzahl] [int] NOT NULL,
+    [Summe] [decimal](18,2) NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [Finanz].[DurchlaufendePosten] - Transit Hesaplar ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Finanz].[DurchlaufendePosten](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [Created] [datetime] NULL,
+    [CreatedBy] [int] NULL,
+    [Modified] [datetime] NULL,
+    [ModifiedBy] [int] NULL,
+    [DeletedFlag] [bit] NULL DEFAULT 0,
+    [VereinId] [int] NOT NULL,
+    [FiBuNummer] [nvarchar](10) NOT NULL,
+    [Bezeichnung] [nvarchar](200) NOT NULL,
+    [EinnahmenDatum] [date] NOT NULL,
+    [EinnahmenBetrag] [decimal](18,2) NOT NULL,
+    [AusgabenDatum] [date] NULL,
+    [AusgabenBetrag] [decimal](18,2) NULL,
+    [Empfaenger] [nvarchar](200) NULL,
+    [Referenz] [nvarchar](100) NULL,
+    [Status] [nvarchar](20) NOT NULL DEFAULT 'OFFEN',
+    [KassenbuchEinnahmeId] [int] NULL,
+    [KassenbuchAusgabeId] [int] NULL,
+    [Bemerkung] [nvarchar](500) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+) ON [PRIMARY]
+GO
+
+-- =============================================
+-- EASYFIBU FOREIGN KEY CONSTRAINTS
+-- =============================================
+
+-- FiBuKonto FKs
+ALTER TABLE [Finanz].[FiBuKonto] WITH CHECK ADD CONSTRAINT [FK_FiBuKonto_ZahlungTyp]
+FOREIGN KEY([ZahlungTypId]) REFERENCES [Keytable].[ZahlungTyp] ([Id])
+GO
+
+-- Kassenbuch FKs
+ALTER TABLE [Finanz].[Kassenbuch] WITH CHECK ADD CONSTRAINT [FK_Kassenbuch_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id])
+GO
+
+ALTER TABLE [Finanz].[Kassenbuch] WITH CHECK ADD CONSTRAINT [FK_Kassenbuch_FiBuKonto]
+FOREIGN KEY([FiBuNummer]) REFERENCES [Finanz].[FiBuKonto] ([Nummer])
+GO
+
+ALTER TABLE [Finanz].[Kassenbuch] WITH CHECK ADD CONSTRAINT [FK_Kassenbuch_Mitglied]
+FOREIGN KEY([MitgliedId]) REFERENCES [Mitglied].[Mitglied] ([Id])
+GO
+
+ALTER TABLE [Finanz].[Kassenbuch] WITH CHECK ADD CONSTRAINT [FK_Kassenbuch_MitgliedZahlung]
+FOREIGN KEY([MitgliedZahlungId]) REFERENCES [Finanz].[MitgliedZahlung] ([Id])
+GO
+
+ALTER TABLE [Finanz].[Kassenbuch] WITH CHECK ADD CONSTRAINT [FK_Kassenbuch_BankBuchung]
+FOREIGN KEY([BankBuchungId]) REFERENCES [Finanz].[BankBuchung] ([Id])
+GO
+
+-- KassenbuchJahresabschluss FK
+ALTER TABLE [Finanz].[KassenbuchJahresabschluss] WITH CHECK ADD CONSTRAINT [FK_KassenbuchJahresabschluss_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id])
+GO
+
+-- SpendenProtokoll FKs
+ALTER TABLE [Finanz].[SpendenProtokoll] WITH CHECK ADD CONSTRAINT [FK_SpendenProtokoll_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id])
+GO
+
+ALTER TABLE [Finanz].[SpendenProtokoll] WITH CHECK ADD CONSTRAINT [FK_SpendenProtokoll_Kassenbuch]
+FOREIGN KEY([KassenbuchId]) REFERENCES [Finanz].[Kassenbuch] ([Id])
+GO
+
+-- SpendenProtokollDetail FK
+ALTER TABLE [Finanz].[SpendenProtokollDetail] WITH CHECK ADD CONSTRAINT [FK_SpendenProtokollDetail_SpendenProtokoll]
+FOREIGN KEY([SpendenProtokollId]) REFERENCES [Finanz].[SpendenProtokoll] ([Id]) ON DELETE CASCADE
+GO
+
+-- DurchlaufendePosten FKs
+ALTER TABLE [Finanz].[DurchlaufendePosten] WITH CHECK ADD CONSTRAINT [FK_DurchlaufendePosten_Verein]
+FOREIGN KEY([VereinId]) REFERENCES [Verein].[Verein] ([Id])
+GO
+
+ALTER TABLE [Finanz].[DurchlaufendePosten] WITH CHECK ADD CONSTRAINT [FK_DurchlaufendePosten_FiBuKonto]
+FOREIGN KEY([FiBuNummer]) REFERENCES [Finanz].[FiBuKonto] ([Nummer])
+GO
+
+ALTER TABLE [Finanz].[DurchlaufendePosten] WITH CHECK ADD CONSTRAINT [FK_DurchlaufendePosten_KassenbuchEinnahme]
+FOREIGN KEY([KassenbuchEinnahmeId]) REFERENCES [Finanz].[Kassenbuch] ([Id])
+GO
+
+ALTER TABLE [Finanz].[DurchlaufendePosten] WITH CHECK ADD CONSTRAINT [FK_DurchlaufendePosten_KassenbuchAusgabe]
+FOREIGN KEY([KassenbuchAusgabeId]) REFERENCES [Finanz].[Kassenbuch] ([Id])
+GO
+
+-- =============================================
+-- EASYFIBU INDEXES
+-- =============================================
+
+-- FiBuKonto Indexes
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_FiBuKonto_Nummer] ON [Finanz].[FiBuKonto]([Nummer]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_FiBuKonto_Hauptbereich] ON [Finanz].[FiBuKonto]([Hauptbereich]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_FiBuKonto_Bereich] ON [Finanz].[FiBuKonto]([Bereich]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_FiBuKonto_Typ] ON [Finanz].[FiBuKonto]([Typ]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_FiBuKonto_IsAktiv] ON [Finanz].[FiBuKonto]([IsAktiv]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_FiBuKonto_ZahlungTypId] ON [Finanz].[FiBuKonto]([ZahlungTypId]) WHERE [DeletedFlag] = 0
+GO
+
+-- Kassenbuch Indexes
+CREATE NONCLUSTERED INDEX [IX_Kassenbuch_VereinJahr] ON [Finanz].[Kassenbuch]([VereinId], [Jahr]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Kassenbuch_FiBuNummer] ON [Finanz].[Kassenbuch]([FiBuNummer]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Kassenbuch_BelegNr] ON [Finanz].[Kassenbuch]([VereinId], [Jahr], [BelegNr]) WHERE [DeletedFlag] = 0
+GO
+
+-- KassenbuchJahresabschluss Index
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_KassenbuchJahresabschluss_VereinJahr] ON [Finanz].[KassenbuchJahresabschluss]([VereinId], [Jahr]) WHERE [DeletedFlag] = 0
+GO
+
+-- SpendenProtokoll Indexes
+CREATE NONCLUSTERED INDEX [IX_SpendenProtokoll_VereinId] ON [Finanz].[SpendenProtokoll]([VereinId]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SpendenProtokoll_Datum] ON [Finanz].[SpendenProtokoll]([Datum] DESC) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_SpendenProtokoll_ZweckKategorie] ON [Finanz].[SpendenProtokoll]([ZweckKategorie]) WHERE [DeletedFlag] = 0
+GO
+
+-- DurchlaufendePosten Indexes
+CREATE NONCLUSTERED INDEX [IX_DurchlaufendePosten_VereinId] ON [Finanz].[DurchlaufendePosten]([VereinId]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_DurchlaufendePosten_Status] ON [Finanz].[DurchlaufendePosten]([Status]) WHERE [DeletedFlag] = 0
+GO
+
+CREATE NONCLUSTERED INDEX [IX_DurchlaufendePosten_FiBuNummer] ON [Finanz].[DurchlaufendePosten]([FiBuNummer]) WHERE [DeletedFlag] = 0
+GO
+
+PRINT '✓ EasyFiBu Finanz schema and tables created successfully!';
+GO

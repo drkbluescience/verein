@@ -35,7 +35,7 @@ interface TransitTabProps {
 }
 
 const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -35,7 +35,7 @@ interface KassenbuchTabProps {
 }
 
 const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const [selectedJahr, setSelectedJahr] = useState(currentYear);
@@ -122,9 +122,11 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
           <h2>{t('finanz:easyFiBu.kassenbuch.title')}</h2>
           <p>{t('finanz:easyFiBu.kassenbuch.subtitle')}</p>
         </div>
-        <button className="btn btn-primary" onClick={handleAdd}>
-          <PlusIcon /> {t('finanz:easyFiBu.kassenbuch.newEntry')}
-        </button>
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={handleAdd}>
+            <PlusIcon /> {t('finanz:easyFiBu.kassenbuch.newEntry')}
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}

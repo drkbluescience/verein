@@ -45,7 +45,7 @@ interface JahresabschlussTabProps {
 }
 
 const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const [isModalOpen, setIsModalOpen] = useState(false);

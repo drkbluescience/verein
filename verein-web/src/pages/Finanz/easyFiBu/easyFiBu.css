@@ -3,6 +3,29 @@
  * Common styles for all easyFiBu tabs
  */
 
+/* Dashboard Container */
+.easyfibu-dashboard .page-header {
+  display: flex;
+  justify-content: space-between; /* Dropdown'ı sağda tut */
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Başlık kısmını ortala */
+.easyfibu-dashboard .page-header > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Metni ortala */
+  text-align: center;
+  flex: 1;
+}
+
+/* Admin dropdown'ı sağda tut */
+.easyfibu-dashboard .page-header > select {
+  flex-shrink: 0;
+}
+
 /* Tab Container */
 .easyfibu-tab {
   padding: 1.5rem;
@@ -14,11 +37,12 @@
 .tab-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center; /* Diğer sayfalarla aynı hizalama için */
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
+
 
 .tab-title h2 {
   margin: 0 0 0.25rem 0;

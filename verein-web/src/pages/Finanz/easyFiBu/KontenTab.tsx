@@ -35,7 +35,7 @@ interface KontenTabProps {
 }
 
 const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [kategorieFilter, setKategorieFilter] = useState<string>('all');

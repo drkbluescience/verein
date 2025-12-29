@@ -1,123 +1,177 @@
 -- =============================================
--- FiBuKonto (Kontenplan) Seed Data
--- Based on easyFiBu Excel (SKR-49 Standard)
+-- EASYFIBU FIBU KONTO SEED DATA
+-- =============================================
+-- SKR-49 standardına uygun hesap planı
+-- 75+ hesap kodu ile tam muhasebe sistemi
 -- =============================================
 
--- Clear existing data
-DELETE FROM [Finanz].[FiBuKonto];
-DBCC CHECKIDENT ('[Finanz].[FiBuKonto]', RESEED, 0);
+PRINT '========================================';
+PRINT 'Adding FiBuKonto Seed Data...';
+PRINT '========================================';
+GO
 
--- =============================================
--- A - IDEELLER BEREICH (Ana Faaliyet Alanı)
--- =============================================
+-- Ana Faaliyet Alanı (A) - Ideeller Bereich
+INSERT INTO [Finanz].[FiBuKonto] ([Nummer], [Bezeichnung], [BezeichnungTR], [Bereich], [Typ], [Hauptbereich], [HauptbereichName], [ZahlungTypId], [Reihenfolge], [IsAktiv]) VALUES
+('1000', 'Aktive Rechnungsabgrenzung', 'Aktif Karşılaştırma Hesapları', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1000, 1),
+('1100', 'Kasse', 'Kasa', 'Kasse', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1100, 1),
+('1200', 'Bank Girokonto', 'Banka Hesabı', 'Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1200, 1),
+('1300', 'Forderungen aus Lieferungen und Leistungen', 'Alacaklar', 'Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1300, 1),
+('1400', 'Sonstige Vermögensgegenstände', 'Diğer Varlıklar', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1400, 1),
+('1500', 'Aktive latente Steuern', 'Aktif Gecikmiş Vergiler', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1500, 0),
+('1600', 'Aktive Rechnungsabgrenzung', 'Aktif Karşılaştırma', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 1600, 1),
+('2000', 'Eigenkapital', 'Öz Sermaye', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 2000, 1),
+('2100', 'Gewinnrücklagen', 'Kâr Yedekleri', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 2100, 1),
+('2110', 'Mitgliedsbeiträge', 'Üyelik Aidatları', 'Bank', 'Einnahmen', 'A', 'Ideeller Bereich', 1, 2110, 1),
+('2200', 'Spenden', 'Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', 2, 2200, 1),
+('2300', 'Zuschüsse', 'Subvansiyonlar', 'Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 2300, 1),
+('2400', 'Sonstige betriebliche Erträge', 'Diğer İşletme Gelirleri', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 2400, 1),
+('2500', 'Personalaufwand', 'Personel Giderleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2500, 1),
+('2550', 'Sozialversicherungsbeiträge', 'Sosyal Güv. Primleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2550, 1),
+('2551', 'Löhne & Gehälter-Minijob', 'Mini İş Maaşları', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2551, 1),
+('2600', 'Raumkosten', 'Mekan Giderleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2600, 1),
+('2610', 'Miete', 'Kira', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2610, 1),
+('2620', 'Heizung', 'Isınma', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2620, 1),
+('2630', 'Strom, Gas, Wasser', 'Elektrik, Gaz, Su', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2630, 1),
+('2640', 'Reinigung', 'Temizlik', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2640, 1),
+('2650', 'Instandhaltung', 'Bakım Onarım', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2650, 1),
+('2660', 'Büromaterial', 'Ofis Malzemeleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2660, 1),
+('2663', 'Strom-Gas-Wasser', 'Elektrik-Gaz-Su', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2663, 1),
+('2670', 'Telefon, Internet', 'Telefon, İnternet', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2670, 1),
+('2680', 'Versicherungen', 'Sigortalar', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2680, 1),
+('2690', 'Sonstige Verwaltungskosten', 'Diğer Yönetim Giderleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2690, 1),
+('2700', 'Abschreibungen auf Sachanlagen', 'Sabit Varlık Amortismanları', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2700, 1),
+('2710', 'Abschreibungen auf immaterielle Vermögensgegenstände', 'Maddi Olmayan Varlık Amortismanları', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2710, 1),
+('2720', 'Zinsaufwendungen', 'Faiz Giderleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2720, 1),
+('2730', 'Sonstige betriebliche Aufwendungen', 'Diğer İşletme Giderleri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2730, 1),
+('2740', 'Steuern', 'Vergiler', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2740, 1),
+('2750', 'Beiträge an Verbände', 'Birlik Aidatları', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2750, 1),
+('2752', 'Beiträge an DITIB-Bundesverband', 'DITIB Merkez Aidatları', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2752, 1),
+('2800', 'Forschung und Entwicklung', 'Ar-Ge', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2800, 0),
+('2900', 'Sonstige periodenfremde Aufwendungen', 'Diğer Dönem Dışı Giderler', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 2900, 0),
+('3000', 'Umsatzerlöse', 'Satış Gelirleri', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3000, 1),
+('3100', 'Bestandsveränderungen', 'Stok Değişimleri', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 3100, 0),
+('3200', 'Sonstige betriebliche Erträge', 'Diğer İşletme Gelirleri', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3200, 1),
+('3220', 'Erhaltene Spenden', 'Alınan Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', 2, 3220, 1),
+('3226', 'Spendenbox/Spendensammlungen', 'Bağış Kutusu', 'Kasse', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3226, 1),
+('3230', 'Spenden von Mitgliedern', 'Üyelerden Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3230, 1),
+('3240', 'Spenden von Nichtmitgliedern', 'Üye Olmayanlardan Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3240, 1),
+('3250', 'Spenden von Unternehmen', 'Şirketlerden Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3250, 1),
+('3260', 'Spenden von Stiftungen', 'Vakıflardan Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3260, 1),
+('3270', 'Spenden von öffentlichen Stellen', 'Kamu Kurumlarından Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3270, 1),
+('3280', 'Spenden von Kirchen', 'Kiliselerden Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3280, 0),
+('3290', 'Spenden von sonstigen Organisationen', 'Diğer Kuruluşlardan Bağışlar', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3290, 1),
+('3300', 'Zinserträge', 'Faiz Gelirleri', 'Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3300, 1),
+('3400', 'Erträge aus dem Abgang von Vermögensgegenständen', 'Varlık Satış Gelirleri', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3400, 1),
+('3500', 'Periodenfremde Erträge', 'Dönem Dışı Gelirler', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3500, 0),
+('3600', 'Außerordentliche Erträge', 'Olağanüstü Gelirler', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3600, 0),
+('3700', 'Steuern auf Erträge', 'Gelir Vergileri', 'Bank', 'Ausgaben', 'A', 'Ideeller Bereich', NULL, 3700, 0),
+('3800', 'Sonstige Erträge', 'Diğer Gelirler', 'Kasse/Bank', 'Einnahmen', 'A', 'Ideeller Bereich', NULL, 3800, 1),
+('3900', 'Jahresüberschuss', 'Yıllık Kâr', 'Kasse/Bank', 'Ein.-Ausg.', 'A', 'Ideeller Bereich', NULL, 3900, 1),
 
--- A: EINNAHMEN (Gelirler)
-INSERT INTO [Finanz].[FiBuKonto] (Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName, Reihenfolge, IsAktiv, Created)
-VALUES
-('2110', 'Beiträge', 'Aidatlar', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 10, 1, GETUTCDATE()),
-('2115', 'Aufnahmegebühren', 'Üyelik Kabul Ücretleri', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 20, 1, GETUTCDATE()),
-('2120', 'Spenden ohne Zuwendungsbescheid', 'Belgesiz Bağışlar', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 30, 1, GETUTCDATE()),
-('2125', 'Spenden mit Zuwendungsbescheid', 'Belgeli Bağışlar', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 40, 1, GETUTCDATE()),
-('2130', 'Geldbußen', 'Para Cezaları', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 50, 1, GETUTCDATE()),
-('2135', 'Zuschüsse', 'Destekler/Hibeler', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 60, 1, GETUTCDATE()),
-('2170', 'Sonstige Einnahmen (ideal)', 'Diğer Gelirler (ideal)', 'KASSE_BANK', 'EINNAHMEN', 'A', 'Ideeller Bereich', 70, 1, GETUTCDATE()),
+-- Varlık Yönetimi (B) - Vermögensverwaltung
+('4000', 'Grundstücke und Gebäude', 'Arsa ve Binalar', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4000, 0),
+('4100', 'Maschinen und technische Anlagen', 'Makine ve Teknik Ekipmanlar', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4100, 0),
+('4110', 'Miet- und Pachterträge', 'Kira Gelirleri', 'Bank', 'Einnahmen', 'B', 'Vermögensverwaltung', NULL, 4110, 1),
+('4200', 'Fahrzeuge', 'Taşıtlar', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4200, 0),
+('4300', 'Betriebs- und Geschäftsausstattung', 'İşletme ve İşletme Donanımı', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4300, 0),
+('4400', 'Geleistete Anzahlungen', 'Yapılan Avans Ödemeler', 'Kasse/Bank', 'Ausgaben', 'B', 'Vermögensverwaltung', NULL, 4400, 0),
+('4500', 'Wertpapiere', 'Değerli Kağıtlar', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4500, 0),
+('4600', 'Beteiligungen', 'İştirakler', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4600, 0),
+('4700', 'Darlehen', 'Krediler', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4700, 0),
+('4800', 'Sonstige Finanzanlagen', 'Diğer Finansal Yatırımlar', 'Kasse/Bank', 'Ein.-Ausg.', 'B', 'Vermögensverwaltung', NULL, 4800, 0),
+('4900', 'Abschreibungen auf Finanzanlagen', 'Finansal Yatırım Amortismanları', 'Bank', 'Ausgaben', 'B', 'Vermögensverwaltung', NULL, 4900, 0),
 
--- A: AUSGABEN (Giderler)
-('3110', 'Personalkosten', 'Personel Giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 110, 1, GETUTCDATE()),
-('3115', 'Aufwandsentschädigung', 'Harcırah/Tazminatlar', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 120, 1, GETUTCDATE()),
-('3120', 'Miete/Pacht', 'Kira', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 130, 1, GETUTCDATE()),
-('3125', 'Nebenkosten', 'Yan Giderler', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 140, 1, GETUTCDATE()),
-('3130', 'Versicherungen', 'Sigortalar', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 150, 1, GETUTCDATE()),
-('3135', 'Telefon / Internet', 'Telefon / İnternet', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 160, 1, GETUTCDATE()),
-('3140', 'Bürokosten', 'Büro Giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 170, 1, GETUTCDATE()),
-('3145', 'Beiträge an DİTİB', 'DİTİB Aidatları', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 180, 1, GETUTCDATE()),
-('3150', 'Zinsen (ideal)', 'Faizler (ideal)', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 190, 1, GETUTCDATE()),
-('3155', 'Abschreibungen (ideal)', 'Amortismanlar (ideal)', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 200, 1, GETUTCDATE()),
-('3160', 'Instandhaltung / Reparaturen', 'Bakım / Onarım', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 210, 1, GETUTCDATE()),
-('3165', 'Sonstige Kosten (ideal)', 'Diğer Giderler (ideal)', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 220, 1, GETUTCDATE()),
-('3170', 'Investitionen', 'Yatırımlar', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 230, 1, GETUTCDATE()),
-('3175', 'Darlehenstilgung', 'Kredi Geri Ödemeleri', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 240, 1, GETUTCDATE()),
-('3180', 'Veranstaltungskosten', 'Etkinlik Giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 250, 1, GETUTCDATE()),
-('3185', 'Reisekosten', 'Seyahat Giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 260, 1, GETUTCDATE()),
-('3190', 'Bewirtungskosten', 'İkram Giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 270, 1, GETUTCDATE()),
-('3195', 'Durchlaufende Gelder (Spenden)', 'Transit Paralar (Bağışlar)', 'KASSE_BANK', 'AUSGABEN', 'A', 'Ideeller Bereich', 280, 1, GETUTCDATE());
+-- Amaca Uygun İşletme (C) - Zweckbetrieb
+('5000', 'Umsatzerlöse', 'Satış Gelirleri', 'Kasse/Bank', 'Einnahmen', 'C', 'Zweckbetrieb', NULL, 5000, 1),
+('5100', 'Bestandsveränderungen', 'Stok Değişimleri', 'Kasse/Bank', 'Ein.-Ausg.', 'C', 'Zweckbetrieb', NULL, 5100, 0),
+('5200', 'Sonstige betriebliche Erträge', 'Diğer İşletme Gelirleri', 'Kasse/Bank', 'Einnahmen', 'C', 'Zweckbetrieb', NULL, 5200, 1),
+('5300', 'Materialaufwand', 'Malzeme Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 5300, 1),
+('5400', 'Personalaufwand', 'Personel Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 5400, 1),
+('5500', 'Abschreibungen auf Sachanlagen', 'Sabit Varlık Amortismanları', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 5500, 1),
+('5600', 'Sonstige betriebliche Aufwendungen', 'Diğer İşletme Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 5600, 1),
+('5700', 'Zinsaufwendungen', 'Faiz Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 5700, 0),
+('5800', 'Steuern auf Erträge', 'Gelir Vergileri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 5800, 0),
+('5900', 'Jahresüberschuss', 'Yıllık Kâr', 'Kasse/Bank', 'Ein.-Ausg.', 'C', 'Zweckbetrieb', NULL, 5900, 1),
+('6000', 'Verwaltungsaufwand', 'Yönetim Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6000, 1),
+('6100', 'Vertriebsaufwand', 'Satış Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6100, 1),
+('6200', 'Forschung und Entwicklung', 'Ar-Ge', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6200, 0),
+('6300', 'Sonstige betriebliche Aufwendungen', 'Diğer İşletme Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6300, 1),
+('6400', 'Zinsaufwendungen', 'Faiz Giderleri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6400, 0),
+('6500', 'Steuern auf Erträge', 'Gelir Vergileri', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6500, 0),
+('6505', 'Einnahmen aus Kursen', 'Kurs Gelirleri', 'Bank', 'Einnahmen', 'C', 'Zweckbetrieb', NULL, 6505, 1),
+('6510', 'Eintrittsgelder', 'Giriş Ücretleri', 'Kasse/Bank', 'Einnahmen', 'C', 'Zweckbetrieb', 3, 6510, 1),
+('6600', 'Periodenfremde Aufwendungen', 'Dönem Dışı Giderler', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6600, 0),
+('6700', 'Außerordentliche Aufwendungen', 'Olağanüstü Giderler', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6700, 0),
+('6800', 'Sonstige Aufwendungen', 'Diğer Giderler', 'Bank', 'Ausgaben', 'C', 'Zweckbetrieb', NULL, 6800, 1),
+('6900', 'Jahresfehlbetrag', 'Yıllık Zarar', 'Kasse/Bank', 'Ein.-Ausg.', 'C', 'Zweckbetrieb', NULL, 6900, 1),
 
--- =============================================
--- B - VERMÖGENSVERWALTUNG (Varlık Yönetimi)
--- =============================================
+-- Ticari İşletme (D) - Geschäftsbetrieb
+('7000', 'Umsatzerlöse', 'Satış Gelirleri', 'Kasse/Bank', 'Einnahmen', 'D', 'Geschäftsbetrieb', NULL, 7000, 1),
+('7100', 'Bestandsveränderungen', 'Stok Değişimleri', 'Kasse/Bank', 'Ein.-Ausg.', 'D', 'Geschäftsbetrieb', NULL, 7100, 0),
+('7200', 'Sonstige betriebliche Erträge', 'Diğer İşletme Gelirleri', 'Kasse/Bank', 'Einnahmen', 'D', 'Geschäftsbetrieb', NULL, 7200, 1),
+('7300', 'Materialaufwand', 'Malzeme Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 7300, 1),
+('7400', 'Personalaufwand', 'Personel Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 7400, 1),
+('7500', 'Abschreibungen auf Sachanlagen', 'Sabit Varlık Amortismanları', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 7500, 1),
+('7600', 'Sonstige betriebliche Aufwendungen', 'Diğer İşletme Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 7600, 1),
+('7700', 'Zinsaufwendungen', 'Faiz Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 7700, 0),
+('7800', 'Steuern auf Erträge', 'Gelir Vergileri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 7800, 0),
+('7900', 'Jahresüberschuss', 'Yıllık Kâr', 'Kasse/Bank', 'Ein.-Ausg.', 'D', 'Geschäftsbetrieb', NULL, 7900, 1),
+('8000', 'Verwaltungsaufwand', 'Yönetim Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8000, 1),
+('8100', 'Vertriebsaufwand', 'Satış Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8100, 1),
+('8200', 'Forschung und Entwicklung', 'Ar-Ge', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8200, 0),
+('8300', 'Sonstige betriebliche Aufwendungen', 'Diğer İşletme Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8300, 1),
+('8400', 'Zinsaufwendungen', 'Faiz Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8400, 0),
+('8500', 'Steuern auf Erträge', 'Gelir Vergileri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8500, 0),
+('8600', 'Periodenfremde Aufwendungen', 'Dönem Dışı Giderler', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8600, 0),
+('8700', 'Außerordentliche Aufwendungen', 'Olağanüstü Giderler', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8700, 0),
+('8800', 'Sonstige Aufwendungen', 'Diğer Giderler', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8800, 1),
+('8900', 'Jahresfehlbetrag', 'Yıllık Zarar', 'Kasse/Bank', 'Ein.-Ausg.', 'D', 'Geschäftsbetrieb', NULL, 8900, 1),
+('8000', 'Verwaltungsaufwand', 'Yönetim Giderleri', 'Bank', 'Ausgaben', 'D', 'Geschäftsbetrieb', NULL, 8000, 1),
+('8032', 'Verkaufserlöse Gemeinde und Kinderfest', 'Kermes Satışları', 'Kasse', 'Einnahmen', 'D', 'Geschäftsbetrieb', NULL, 8032, 1),
 
-INSERT INTO [Finanz].[FiBuKonto] (Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName, Reihenfolge, IsAktiv, Created)
-VALUES
--- B: EINNAHMEN
-('2210', 'Mieteinnahmen', 'Kira Gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'B', 'Vermögensverwaltung', 310, 1, GETUTCDATE()),
-('2215', 'Pachteinnahmen', 'Kiralama Gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'B', 'Vermögensverwaltung', 320, 1, GETUTCDATE()),
-('2220', 'Zinseinnahmen', 'Faiz Gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'B', 'Vermögensverwaltung', 330, 1, GETUTCDATE()),
-('2270', 'Sonstige Einnahmen (Vermögen)', 'Diğer Gelirler (Varlık)', 'KASSE_BANK', 'EINNAHMEN', 'B', 'Vermögensverwaltung', 340, 1, GETUTCDATE()),
+-- Transit Hesaplar (9xxx Serisi)
+('9000', 'Durchlaufende Posten', 'Transit Hesaplar', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9000, 1),
+('9010', 'Spenden an DITIB Landesverband=Durchlaufend', 'DITIB Eyalet Birliği Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9010, 1),
+('9020', 'Spenden an DITIB Regionalverband=Durchlaufend', 'DITIB Bölge Birliği Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9020, 1),
+('9030', 'Spenden an DITIB Gemeinden=Durchlaufend', 'DITIB Camileri Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9030, 1),
+('9040', 'Spenden an DITIB Gemeinde=vom eigene Bestand', 'Kendi Bütçesinden Camiye', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9040, 1),
+('9050', 'Spenden an andere Organisationen=Durchlaufend', 'Diğer Kuruluşlar Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9050, 1),
+('9060', 'Spenden an andere Organisationen=vom eigene Bestand', 'Kendi Bütçesinden Diğerleri', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9060, 1),
+('9070', 'Spenden an DITIB Ausland=Durchlaufend', 'DITIB Yurtdışı Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9070, 1),
+('9080', 'Spenden an DITIB Ausland=vom eigene Bestand', 'Kendi Bütçesinden Yurtdışı', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9080, 1),
+('9090', 'Spenden an DITIB International=Durchlaufend', 'DITIB Uluslararası Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9090, 1),
+('9091', 'Kurban=Durchlaufend', 'Kurban Bağışları', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9091, 1),
+('9092', 'Zekat-Fitre=Durchlaufend', 'Zekat ve Fitre', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9092, 1),
+('9093', 'Spenden an DITIB Gemeinden=Durchlaufend', 'Diğer Camilere', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9093, 1),
+('9094', 'Spenden an DITIB Gemeinde=vom eigene Bestand', 'Kendi Bütçesinden', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9094, 1),
+('9095', 'Spenden an DITIB Regional=Durchlaufend', 'DITIB Bölge', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9095, 1),
+('9096', 'Spenden an DITIB Köln=Durchlaufend', 'DITIB Köln Transit', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9096, 1),
+('9097', 'Spenden an DITIB Landes-/Regionalverband', 'DITIB Eyalet/Bölge', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9097, 1),
+('9098', 'Spenden an DITIB Bundesverband=Durchlaufend', 'DITIB Merkez', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9098, 1),
+('9099', 'Spenden an DITIB International=Durchlaufend', 'DITIB Uluslararası', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transit', NULL, 9099, 1),
 
--- B: AUSGABEN
-('3210', 'Nebenkosten (Vermietung)', 'Yan Giderler (Kiralama)', 'KASSE_BANK', 'AUSGABEN', 'B', 'Vermögensverwaltung', 410, 1, GETUTCDATE()),
-('3215', 'Instandhaltung (Vermögen)', 'Bakım (Varlık)', 'KASSE_BANK', 'AUSGABEN', 'B', 'Vermögensverwaltung', 420, 1, GETUTCDATE()),
-('3220', 'Abschreibungen (Vermögen)', 'Amortismanlar (Varlık)', 'KASSE_BANK', 'AUSGABEN', 'B', 'Vermögensverwaltung', 430, 1, GETUTCDATE()),
-('3265', 'Sonstige Kosten (Vermögen)', 'Diğer Giderler (Varlık)', 'KASSE_BANK', 'AUSGABEN', 'B', 'Vermögensverwaltung', 440, 1, GETUTCDATE());
+-- Özel Transfer Kodları
+('GTU', 'Geldübertrag/Umbuchung', 'Para Transferi', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transfer', NULL, 9999, 1),
+('GTX', 'Geldtransfer extern', 'Dış Para Transferi', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transfer', NULL, 9998, 1),
+('KTB', 'Kassatransfer Bank', 'Kasadan Bankaya', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transfer', NULL, 9997, 1),
+('BTK', 'Banktransfer Kasse', 'Bankadan Kasaya', 'Kasse/Bank', 'Ein.-Ausg.', '-', 'Transfer', NULL, 9996, 1);
 
--- =============================================
--- C - ZWECKBETRIEB (Amaca Uygun İşletme)
--- =============================================
+PRINT '✓ FiBuKonto seed data added successfully!';
+PRINT 'Total records added: ' + CAST(@@ROWCOUNT AS NVARCHAR(10));
+GO
 
-INSERT INTO [Finanz].[FiBuKonto] (Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName, Reihenfolge, IsAktiv, Created)
-VALUES
--- C: EINNAHMEN
-('2310', 'Kursgebühren', 'Kurs Ücretleri', 'KASSE_BANK', 'EINNAHMEN', 'C', 'Zweckbetrieb', 510, 1, GETUTCDATE()),
-('2315', 'Teilnahmegebühren', 'Katılım Ücretleri', 'KASSE_BANK', 'EINNAHMEN', 'C', 'Zweckbetrieb', 520, 1, GETUTCDATE()),
-('2320', 'Seminar-/Konferenzeinnahmen', 'Seminer/Konferans Gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'C', 'Zweckbetrieb', 530, 1, GETUTCDATE()),
-('2370', 'Sonstige Einnahmen (Zweck)', 'Diğer Gelirler (Zweck)', 'KASSE_BANK', 'EINNAHMEN', 'C', 'Zweckbetrieb', 540, 1, GETUTCDATE()),
+-- Verify seed data
+SELECT 
+    COUNT(*) AS TotalAccounts,
+    COUNT(CASE WHEN Hauptbereich = 'A' THEN 1 END) AS IdeellerBereich,
+    COUNT(CASE WHEN Hauptbereich = 'B' THEN 1 END) AS Vermoegensverwaltung,
+    COUNT(CASE WHEN Hauptbereich = 'C' THEN 1 END) AS Zweckbetrieb,
+    COUNT(CASE WHEN Hauptbereich = 'D' THEN 1 END) AS Geschaeftsbetrieb,
+    COUNT(CASE WHEN Hauptbereich = '-' THEN 1 END) AS Transit,
+    COUNT(CASE WHEN IsAktiv = 1 THEN 1 END) AS ActiveAccounts
+FROM Finanz.FiBuKonto
+WHERE DeletedFlag = 0;
+GO
 
--- C: AUSGABEN
-('3310', 'Dozentenhonorar', 'Eğitmen Ücretleri', 'KASSE_BANK', 'AUSGABEN', 'C', 'Zweckbetrieb', 610, 1, GETUTCDATE()),
-('3315', 'Materialkosten', 'Malzeme Giderleri', 'KASSE_BANK', 'AUSGABEN', 'C', 'Zweckbetrieb', 620, 1, GETUTCDATE()),
-('3320', 'Raummiete (Zweck)', 'Mekan Kirası (Zweck)', 'KASSE_BANK', 'AUSGABEN', 'C', 'Zweckbetrieb', 630, 1, GETUTCDATE()),
-('3365', 'Sonstige Kosten (Zweck)', 'Diğer Giderler (Zweck)', 'KASSE_BANK', 'AUSGABEN', 'C', 'Zweckbetrieb', 640, 1, GETUTCDATE());
-
--- =============================================
--- D - GESCHÄFTSBETRIEB (Ticari İşletme)
--- =============================================
-
-INSERT INTO [Finanz].[FiBuKonto] (Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName, Reihenfolge, IsAktiv, Created)
-VALUES
--- D: EINNAHMEN
-('2410', 'Erlöse Speisen/Getränke', 'Yemek/İçecek Gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'D', 'Geschäftsbetrieb', 710, 1, GETUTCDATE()),
-('2415', 'Warenverkauf', 'Mal Satışı', 'KASSE_BANK', 'EINNAHMEN', 'D', 'Geschäftsbetrieb', 720, 1, GETUTCDATE()),
-('2420', 'Werbeeinnahmen', 'Reklam Gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'D', 'Geschäftsbetrieb', 730, 1, GETUTCDATE()),
-('2470', 'Sonstige Einnahmen (Geschäft)', 'Diğer Gelirler (Ticari)', 'KASSE_BANK', 'EINNAHMEN', 'D', 'Geschäftsbetrieb', 740, 1, GETUTCDATE()),
-
--- D: AUSGABEN
-('3410', 'Wareneinkauf', 'Mal Alışı', 'KASSE_BANK', 'AUSGABEN', 'D', 'Geschäftsbetrieb', 810, 1, GETUTCDATE()),
-('3415', 'Personalkosten (Geschäft)', 'Personel Giderleri (Ticari)', 'KASSE_BANK', 'AUSGABEN', 'D', 'Geschäftsbetrieb', 820, 1, GETUTCDATE()),
-('3420', 'Betriebskosten', 'İşletme Giderleri', 'KASSE_BANK', 'AUSGABEN', 'D', 'Geschäftsbetrieb', 830, 1, GETUTCDATE()),
-('3465', 'Sonstige Kosten (Geschäft)', 'Diğer Giderler (Ticari)', 'KASSE_BANK', 'AUSGABEN', 'D', 'Geschäftsbetrieb', 840, 1, GETUTCDATE());
-
--- =============================================
--- TRANSIT HESAPLAR (Durchlaufende Posten)
--- =============================================
-
-INSERT INTO [Finanz].[FiBuKonto] (Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName, Reihenfolge, IsAktiv, Created)
-VALUES
-('GTU', 'Geld-Transit-Umbuchung', 'Para Transit Aktarımı', 'KASSE_BANK', 'EIN_AUSG', NULL, NULL, 900, 1, GETUTCDATE()),
-('KTB', 'Kasse an Bank', 'Kasadan Bankaya', 'KASSE_BANK', 'EIN_AUSG', NULL, NULL, 910, 1, GETUTCDATE()),
-('BTK', 'Bank an Kasse', 'Bankadan Kasaya', 'KASSE_BANK', 'EIN_AUSG', NULL, NULL, 920, 1, GETUTCDATE()),
-('DLG', 'Durchlaufende Gelder Eingang', 'Transit Para Girişi', 'KASSE_BANK', 'EINNAHMEN', NULL, NULL, 930, 1, GETUTCDATE()),
-('DLA', 'Durchlaufende Gelder Ausgang', 'Transit Para Çıkışı', 'KASSE_BANK', 'AUSGABEN', NULL, NULL, 940, 1, GETUTCDATE());
-
--- =============================================
--- ÖZEL HESAPLAR
--- =============================================
-
-INSERT INTO [Finanz].[FiBuKonto] (Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName, Reihenfolge, IsAktiv, Created)
-VALUES
-('ANF', 'Anfangsbestand', 'Açılış Bakiyesi', 'KASSE_BANK', 'EINNAHMEN', NULL, NULL, 1, 1, GETUTCDATE()),
-('END', 'Endbestand', 'Kapanış Bakiyesi', 'KASSE_BANK', 'AUSGABEN', NULL, NULL, 999, 1, GETUTCDATE());
-
--- Verify inserted data
-SELECT COUNT(*) AS TotalAccounts FROM [Finanz].[FiBuKonto];
-SELECT Hauptbereich, COUNT(*) AS AccountCount FROM [Finanz].[FiBuKonto] GROUP BY Hauptbereich;
-
+PRINT '✓ FiBuKonto seed data verification complete!';
+GO

@@ -183,6 +183,11 @@ const AppContent: React.FC = () => {
               <FinanzDashboard />
             </Layout>
           } />
+          <Route path="/finanzen/easyfibu" element={
+            <Layout>
+              <EasyFiBuDashboard />
+            </Layout>
+          } />
           <Route path="/finanzen/forderungen" element={
             <Layout>
               <MitgliedForderungList />
@@ -248,9 +253,30 @@ const AppContent: React.FC = () => {
               <VereinDitibZahlungForm />
             </Layout>
           } />
+          {/* easyFiBu Routes */}
           <Route path="/finanzen/kassenbuch" element={
             <Layout>
-              <EasyFiBuDashboard />
+              <EasyFiBuDashboard defaultTab="kassenbuch" />
+            </Layout>
+          } />
+          <Route path="/finanzen/konten" element={
+            <Layout>
+              <EasyFiBuDashboard defaultTab="konten" />
+            </Layout>
+          } />
+          <Route path="/finanzen/spenden" element={
+            <Layout>
+              <EasyFiBuDashboard defaultTab="spenden" />
+            </Layout>
+          } />
+          <Route path="/finanzen/transit" element={
+            <Layout>
+              <EasyFiBuDashboard defaultTab="transit" />
+            </Layout>
+          } />
+          <Route path="/finanzen/jahresabschluss" element={
+            <Layout>
+              <EasyFiBuDashboard defaultTab="jahresabschluss" />
             </Layout>
           } />
 

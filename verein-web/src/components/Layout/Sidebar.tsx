@@ -226,7 +226,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               <NavLink
                 key={item.path}
                 to={itemPath}
-                end={item.path === '/startseite'}
+                end={item.path === '/startseite' || item.path === '/finanzen'}
                 className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
               >
                 <span className="nav-icon">{item.icon}</span>

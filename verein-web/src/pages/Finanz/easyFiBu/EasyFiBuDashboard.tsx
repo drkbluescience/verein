@@ -9,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../contexts/AuthContext';
 import { vereinService } from '../../../services/vereinService';
-import Loading from '../../../components/Common/Loading';
 import KontenTab from './KontenTab';
 import KassenbuchTab from './KassenbuchTab';
 import SpendenTab from './SpendenTab';
@@ -52,10 +51,14 @@ const CalendarIcon = () => (
 
 type TabType = 'kassenbuch' | 'konten' | 'spenden' | 'transit' | 'jahresabschluss';
 
-const EasyFiBuDashboard: React.FC = () => {
-  const { t } = useTranslation(['finanz', 'common']);
+interface EasyFiBuDashboardProps {
+  defaultTab?: TabType;
+}
+
+const EasyFiBuDashboard: React.FC<EasyFiBuDashboardProps> = ({ defaultTab = 'kassenbuch' }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('kassenbuch');
+  const [activeTab, setActiveTab] = useState<TabType>(defaultTab);
   const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
 
   // Get vereinId based on user type

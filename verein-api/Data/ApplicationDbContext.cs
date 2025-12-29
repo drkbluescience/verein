@@ -106,7 +106,7 @@ public class ApplicationDbContext : DbContext
     /// <summary>
     /// Kassenbuch table (Finanz schema) - Cash Book
     /// </summary>
-    public DbSet<Kassenbuch> Kassenbuecher { get; set; }
+    public DbSet<Kassenbuch> Kassenbuch { get; set; }
 
     /// <summary>
     /// KassenbuchJahresabschluss table (Finanz schema) - Year-End Closing
@@ -121,7 +121,7 @@ public class ApplicationDbContext : DbContext
     /// <summary>
     /// SpendenProtokollDetail table (Finanz schema) - Donation counting details
     /// </summary>
-    public DbSet<SpendenProtokollDetail> SpendenProtokollDetails { get; set; }
+    public DbSet<SpendenProtokollDetail> SpendenProtokollDetail { get; set; }
 
     /// <summary>
     /// DurchlaufendePosten table (Finanz schema) - Transit items
@@ -467,22 +467,30 @@ public class ApplicationDbContext : DbContext
                     // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild also don't have Aktiv column
                     // Brief entities don't have Aktiv column
                     // FiBuKonto uses IsAktiv instead of Aktiv
-                    if (entry.Entity is not BankBuchung
-                        && entry.Entity is not MitgliedForderung
-                        && entry.Entity is not MitgliedForderungZahlung
-                        && entry.Entity is not MitgliedZahlung
-                        && entry.Entity is not MitgliedVorauszahlung
-                        && entry.Entity is not VeranstaltungZahlung
-                        && entry.Entity is not MitgliedFamilie
-                        && entry.Entity is not VeranstaltungAnmeldung
-                        && entry.Entity is not VeranstaltungBild
-                        && entry.Entity is not Brief
-                        && entry.Entity is not BriefVorlage
-                        && entry.Entity is not FiBuKonto
-                        && entry.Entity is not Kassenbuch
-                        && entry.Entity is not KassenbuchJahresabschluss
-                        && entry.Entity is not SpendenProtokoll
-                        && entry.Entity is not DurchlaufendePosten)
+                    // Only set Aktiv for entities that have this column in database
+                    // Finanz tables don't use Aktiv column - they use DeletedFlag for soft delete
+                    // MitgliedFamilie, VeranstaltungAnmeldung, VeranstaltungBild also don't have Aktiv column
+                    // Brief entities don't have Aktiv column
+                    // FiBuKonto uses IsAktiv instead of Aktiv
+                    var entityType = entry.Entity.GetType();
+                    var entityTypeName = entityType.Name;
+                    
+                    if (entityTypeName != nameof(BankBuchung)
+                        && entityTypeName != nameof(MitgliedForderung)
+                        && entityTypeName != nameof(MitgliedForderungZahlung)
+                        && entityTypeName != nameof(MitgliedZahlung)
+                        && entityTypeName != nameof(MitgliedVorauszahlung)
+                        && entityTypeName != nameof(VeranstaltungZahlung)
+                        && entityTypeName != nameof(MitgliedFamilie)
+                        && entityTypeName != nameof(VeranstaltungAnmeldung)
+                        && entityTypeName != nameof(VeranstaltungBild)
+                        && entityTypeName != nameof(Brief)
+                        && entityTypeName != nameof(BriefVorlage)
+                        && entityTypeName != nameof(FiBuKonto)
+                        && entityTypeName != nameof(Kassenbuch)
+                        && entityTypeName != nameof(KassenbuchJahresabschluss)
+                        && entityTypeName != nameof(SpendenProtokoll)
+                        && entityTypeName != nameof(DurchlaufendePosten))
                     {
                         entry.Entity.Aktiv = true;
                     }
