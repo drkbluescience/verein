@@ -34,27 +34,45 @@ public class UpdateFiBuKontoDto
     /// <summary>
     /// Main business area: A=Ideeller Bereich, B=Vermögensverwaltung, C=Zweckbetrieb, D=Geschäftsbetrieb
     /// </summary>
-    [Required(ErrorMessage = "Hauptbereich ist erforderlich")]
     [MaxLength(1, ErrorMessage = "Hauptbereich muss ein einzelnes Zeichen sein")]
     [RegularExpression("^[ABCD]$", ErrorMessage = "Hauptbereich muss A, B, C oder D sein")]
     [JsonPropertyName("hauptbereich")]
-    public string Hauptbereich { get; set; } = string.Empty;
+    public string? Hauptbereich { get; set; }
+
+    [JsonPropertyName("kategorie")]
+    public string? Kategorie { get; set; }
+
+    [JsonPropertyName("unterkategorie")]
+    public string? Unterkategorie { get; set; }
 
     /// <summary>
     /// Account area: KASSE, BANK, KASSE_BANK
     /// </summary>
-    [Required(ErrorMessage = "Bereich ist erforderlich")]
     [MaxLength(20, ErrorMessage = "Bereich darf maximal 20 Zeichen lang sein")]
     [JsonPropertyName("bereich")]
-    public string Bereich { get; set; } = string.Empty;
+    public string? Bereich { get; set; }
+
+    [JsonPropertyName("kontoTyp")]
+    public string? KontoTyp { get; set; }
 
     /// <summary>
     /// Account type: EINNAHMEN, AUSGABEN, EIN_AUSG
     /// </summary>
-    [Required(ErrorMessage = "Typ ist erforderlich")]
     [MaxLength(20, ErrorMessage = "Typ darf maximal 20 Zeichen lang sein")]
     [JsonPropertyName("typ")]
-    public string Typ { get; set; } = string.Empty;
+    public string? Typ { get; set; }
+
+    [JsonPropertyName("istEinnahme")]
+    public bool? IstEinnahme { get; set; }
+
+    [JsonPropertyName("istAusgabe")]
+    public bool? IstAusgabe { get; set; }
+
+    [JsonPropertyName("istDurchlaufend")]
+    public bool? IstDurchlaufend { get; set; }
+
+    [JsonPropertyName("beschreibung")]
+    public string? Beschreibung { get; set; }
 
     /// <summary>
     /// EÜR position in tax report (optional)
@@ -79,6 +97,8 @@ public class UpdateFiBuKontoDto
     /// Is the account active
     /// </summary>
     [JsonPropertyName("isAktiv")]
-    public bool IsAktiv { get; set; }
-}
+    public bool? IsAktiv { get; set; }
 
+    [JsonPropertyName("aktiv")]
+    public bool? Aktiv { get; set; }
+}

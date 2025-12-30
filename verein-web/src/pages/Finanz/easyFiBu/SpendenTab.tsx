@@ -4,11 +4,12 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { spendenProtokollService } from '../../../services/easyFiBuService';
 import { SpendenProtokollDto, SPENDEN_KATEGORIEN } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
+import SpendenModal from './SpendenModal';
 import './easyFiBu.css';
 
 // Icons
@@ -38,47 +39,50 @@ const LinkIcon = () => (
 );
 
 interface SpendenTabProps {
-  vereinId: number;
+  vereinId?: number | null;
 }
 
 const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const [selectedJahr, setSelectedJahr] = useState(currentYear);
   const [kategorieFilter, setKategorieFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProtokoll, setSelectedProtokoll] = useState<SpendenProtokollDto | null>(null);
+  const hasVerein = !!vereinId;
 
   // Fetch protocols
   const { data: protokolle = [], isLoading } = useQuery({
-    queryKey: ['spenden-protokolle', vereinId],
-    queryFn: () => spendenProtokollService.getByVerein(vereinId),
-    enabled: !!vereinId,
+    queryKey: ['spenden-protokolle', vereinId ?? 'none'],
+    queryFn: () => spendenProtokollService.getByVerein(vereinId as number),
+    enabled: hasVerein,
   });
 
   // Fetch category summary
   const { data: summary = [] } = useQuery({
-    queryKey: ['spenden-summary', vereinId, selectedJahr],
-    queryFn: () => spendenProtokollService.getKategorieSummary(vereinId, selectedJahr),
-    enabled: !!vereinId,
+    queryKey: ['spenden-summary', vereinId ?? 'none', selectedJahr],
+    queryFn: () => spendenProtokollService.getKategorieSummary(vereinId as number, selectedJahr),
+    enabled: hasVerein,
   });
 
   // Filter protocols
   const filteredProtokolle = useMemo(() => {
+    if (!hasVerein) return [];
     return protokolle.filter(p => {
       const matchesYear = new Date(p.datum).getFullYear() === selectedJahr;
       const matchesKategorie = kategorieFilter === 'all' || p.zweckKategorie === kategorieFilter;
       return matchesYear && matchesKategorie;
     });
-  }, [protokolle, selectedJahr, kategorieFilter]);
+  }, [hasVerein, protokolle, selectedJahr, kategorieFilter]);
 
   // Calculate total
   const totalBetrag = useMemo(() => {
+    if (!hasVerein) return undefined;
     return filteredProtokolle.reduce((sum, p) => sum + p.betrag, 0);
-  }, [filteredProtokolle]);
+  }, [filteredProtokolle, hasVerein]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount?: number) => {
+    if (amount == null) return '-';
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
@@ -87,11 +91,13 @@ const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
   };
 
   const handleAdd = () => {
+    if (!hasVerein) return;
     setSelectedProtokoll(null);
     setIsModalOpen(true);
   };
 
   const handleView = (protokoll: SpendenProtokollDto) => {
+    if (!hasVerein) return;
     setSelectedProtokoll(protokoll);
     setIsModalOpen(true);
   };
@@ -114,7 +120,7 @@ const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
           <h2>{t('finanz:easyFiBu.spenden.title')}</h2>
           <p>{t('finanz:easyFiBu.spenden.subtitle')}</p>
         </div>
-        <button className="btn btn-primary" onClick={handleAdd}>
+        <button className="btn btn-primary" onClick={handleAdd} disabled={!hasVerein}>
           <PlusIcon /> {t('finanz:easyFiBu.spenden.newProtokoll')}
         </button>
       </div>
@@ -125,7 +131,7 @@ const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
           <span className="label">{t('finanz:easyFiBu.spenden.gesamtbetrag')}</span>
           <span className="value">{formatCurrency(totalBetrag)}</span>
         </div>
-        {summary.slice(0, 4).map(s => (
+        {(hasVerein ? summary.slice(0, 4) : []).map(s => (
           <div key={s.kategorie} className="summary-card kategorie">
             <span className="label">{s.kategorie}</span>
             <span className="value">{formatCurrency(s.totalBetrag)}</span>
@@ -136,12 +142,22 @@ const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
 
       {/* Filters */}
       <div className="tab-filters">
-        <select value={selectedJahr} onChange={(e) => setSelectedJahr(Number(e.target.value))} className="filter-select">
+        <select
+          value={selectedJahr}
+          onChange={(e) => setSelectedJahr(Number(e.target.value))}
+          className="filter-select"
+          disabled={!hasVerein}
+        >
           {yearOptions.map(year => (
             <option key={year} value={year}>{year}</option>
           ))}
         </select>
-        <select value={kategorieFilter} onChange={(e) => setKategorieFilter(e.target.value)} className="filter-select">
+        <select
+          value={kategorieFilter}
+          onChange={(e) => setKategorieFilter(e.target.value)}
+          className="filter-select"
+          disabled={!hasVerein}
+        >
           <option value="all">{t('finanz:easyFiBu.common.all')}</option>
           {Object.entries(SPENDEN_KATEGORIEN).map(([key, value]) => (
             <option key={key} value={value}>{t(`finanz:easyFiBu.spenden.kategorien.${key.toLowerCase()}`)}</option>
@@ -192,11 +208,20 @@ const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
                   </span>
                 </td>
                 <td>
-                  <button className="btn-icon" onClick={() => handleView(protokoll)} title={t('finanz:easyFiBu.common.edit')}>
+                  <button
+                    className="btn-icon"
+                    onClick={() => handleView(protokoll)}
+                    title={t('finanz:easyFiBu.common.edit')}
+                    disabled={!hasVerein}
+                  >
                     <EyeIcon />
                   </button>
                   {!protokoll.kassenbuchId && (
-                    <button className="btn-icon" title={t('finanz:easyFiBu.spenden.kassenbuchVerknuepft')}>
+                    <button
+                      className="btn-icon"
+                      title={t('finanz:easyFiBu.spenden.kassenbuchVerknuepft')}
+                      disabled={!hasVerein}
+                    >
                       <LinkIcon />
                     </button>
                   )}
@@ -206,9 +231,20 @@ const SpendenTab: React.FC<SpendenTabProps> = ({ vereinId }) => {
           </tbody>
         </table>
         {filteredProtokolle.length === 0 && (
-          <div className="empty-state">{t('finanz:easyFiBu.spenden.noProtokolle')}</div>
+          <div className="empty-state">
+            {hasVerein ? t('finanz:easyFiBu.spenden.noProtokolle') : t('common:filter.selectVerein')}
+          </div>
         )}
       </div>
+
+      {hasVerein && (
+        <SpendenModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          protokoll={selectedProtokoll}
+          vereinId={vereinId as number}
+        />
+      )}
     </div>
   );
 };

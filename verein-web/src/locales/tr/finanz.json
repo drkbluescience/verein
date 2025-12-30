@@ -399,15 +399,15 @@
   "bankUpload": {
     "title": "Banka Ödemeleri Yükle",
     "description": "Bankadan aldığınız ödeme Excel dosyasını yükleyerek üye ödemelerini otomatik olarak işleyin",
-    "selectBankAccount": "Banka Hesabı Seçin",
-    "chooseBankAccount": "Banka hesabı seçin...",
+    "selectBankAccount": "Banka Hesabı Secin",
+    "chooseBankAccount": "Banka hesabı Secin...",
     "dragDrop": "Excel dosyasını buraya sürükleyin",
     "orClickToSelect": "veya dosya seçmek için tıklayın",
     "downloadTemplate": "Şablon İndir",
     "templateFileName": "banka-yukleme-sablonu.csv",
     "upload": "Yükle",
     "uploading": "Yükleniyor...",
-    "selectFileAndBank": "Lütfen dosya ve banka hesabı seçin",
+    "selectFileAndBank": "Lütfen dosya ve banka hesabı Secin",
     "invalidFileType": "Geçersiz dosya türü. Sadece Excel (.xlsx, .xls) veya CSV dosyaları kabul edilir.",
     "fileTooLarge": "Dosya çok büyük. Maksimum dosya boyutu 10MB'dir.",
     "uploadFailed": "Yükleme başarısız oldu",
@@ -455,12 +455,12 @@
     "newPayment": "Yeni Ödeme",
     "paymentInfo": "Ödeme Bilgileri",
     "verein": "Dernek",
-    "selectVerein": "Dernek Seçin",
+    "selectVerein": "Dernek Secin",
     "amount": "Tutar (€)",
     "paymentDate": "Ödeme Tarihi",
     "paymentPeriod": "Ödeme Dönemi",
     "paymentMethod": "Ödeme Yolu",
-    "selectPaymentMethod": "Seçin",
+    "selectPaymentMethod": "Secin",
     "bankTransfer": "Überweisung (Havale)",
     "directDebit": "Lastschrift (Otomatik Ödeme)",
     "cash": "Bar (Nakit)",
@@ -477,7 +477,7 @@
     "updateSuccess": "DITIB ödemesi başarıyla güncellendi",
     "createError": "Ödeme oluşturulamadı",
     "updateError": "Ödeme güncellenemedi",
-    "selectVereinError": "Lütfen bir dernek seçin",
+    "selectVereinError": "Lütfen bir dernek Secin",
     "invalidAmountError": "Lütfen geçerli bir tutar girin",
     "deleteConfirm": "Bu DITIB ödemesini silmek istediğinizden emin misiniz?",
     "searchPlaceholder": "Referans, not veya dönem ara...",
@@ -491,12 +491,12 @@
     "reportTitle": "DITIB Ödemeleri Raporu",
     "excelUploadTitle": "DITIB Ödemeleri Excel Upload",
     "excelUploadDescription": "DITIB ödemelerini Excel dosyasından içe aktarın",
-    "selectBankAccount": "Banka Hesabı Seçin",
-    "chooseBankAccount": "Banka hesabı seçin...",
+    "selectBankAccount": "Banka Hesabı Secin",
+    "chooseBankAccount": "Banka hesabı Secin...",
     "dragDrop": "Dosyayı buraya sürükleyin",
     "orClickToSelect": "veya dosya seçmek için tıklayın",
     "uploadSuccess": "DITIB ödemeleri başarıyla yüklendi!",
-    "selectFileAndBankError": "Lütfen dosya ve banka hesabı seçin.",
+    "selectFileAndBankError": "Lütfen dosya ve banka hesabı Secin.",
     "uploading": "Yükleniyor...",
     "information": "Ödeme Bilgileri",
     "additionalInfo": "Ek Bilgiler",
@@ -518,12 +518,12 @@
     "unmatchedPayments": "Eşleşmemiş Ödemeler",
     "allMatched": "Tüm Ödemeler Eşleştirildi!",
     "noUnmatchedPayments": "Eşleştirilmemiş ödeme bulunmuyor.",
-    "selectMember": "Üye Seçin...",
+    "selectMember": "Üye Secin...",
     "matchButton": "Eşleştir",
     "matching": "Eşleştiriliyor...",
     "matchSuccess": "Ödeme başarıyla eşleştirildi!",
     "matchError": "Eşleştirme başarısız oldu!",
-    "selectMemberWarning": "Lütfen bir üye seçin!"
+    "selectMemberWarning": "Lütfen bir üye Secin!"
   },
   "paymentInstruction": {
     "title": "Ödeme Talimatı",
@@ -654,7 +654,7 @@
       "kassenbuch": "Kasa Defteri",
       "konten": "Hesap Planı",
       "spenden": "Bağış Protokolleri",
-      "transit": "Geçici Kalemler",
+      "transit": "Gecici Kalemler",
       "jahresabschluss": "Yıl Sonu Kapanışı"
     },
     "kassenbuch": {
@@ -674,7 +674,7 @@
       "kasseAusgabe": "Kasa Gideri",
       "bankEinnahme": "Banka Geliri",
       "bankAusgabe": "Banka Gideri",
-      "selectKonto": "Hesap seçin",
+      "selectKonto": "Hesap Secin",
       "notiz": "Not",
       "storniert": "İptal Edildi",
       "storno": "İptal",
@@ -704,10 +704,14 @@
       "bezeichnung": "Hesap Adı",
       "kategorie": "Kategori",
       "unterkategorie": "Alt Kategori",
-      "kontoTyp": "Hesap Türü",
+      "kontoTyp": "Hesap Turu",
+      "kontoArt": "Hesap Turu",
+      "einnahme": "Gelir",
+      "ausgabe": "Gider",
+      "durchlaufend": "Gecici",
       "istEinnahme": "Gelir Hesabı",
       "istAusgabe": "Gider Hesabı",
-      "istDurchlaufend": "Geçici Hesap",
+      "istDurchlaufend": "Gecici Hesap",
       "beschreibung": "Açıklama",
       "aktiv": "Aktif",
       "inaktiv": "Pasif",
@@ -717,7 +721,7 @@
         "vermoegensverwaltung": "Varlık Yönetimi",
         "zweckbetrieb": "Amaç Odaklı İşletme",
         "wirtschaftlicherBetrieb": "Ticari İşletme",
-        "durchlaufendePosten": "Geçici Kalemler"
+        "durchlaufendePosten": "Gecici Kalemler"
       },
       "noKonten": "Hesap bulunamadı"
     },
@@ -757,7 +761,7 @@
       "noProtokolle": "Protokol bulunamadı"
     },
     "transit": {
-      "title": "Geçici Kalemler",
+      "title": "Gecici Kalemler",
       "subtitle": "Üçüncü şahıslar adına tahsilatlar",
       "newPosten": "Yeni Kalem",
       "bezeichnung": "Açıklama",
@@ -780,14 +784,21 @@
         "totalOffen": "Toplam Açık",
         "nachEmpfaenger": "Alıcıya Göre"
       },
-      "noPosten": "Geçici kalem bulunamadı"
+      "noPosten": "Gecici kalem bulunamadı"
     },
     "jahresabschluss": {
       "title": "Yıl Sonu Kapanışı",
       "subtitle": "Yıllık kasa kapanışları",
       "newAbschluss": "Yeni Kapanış",
       "calculate": "Otomatik Hesapla",
+      "calculateConfirmTitle": "Otomatik hesaplama",
+      "calculateConfirmMessage": "{{year}} yili icin otomatik hesaplama yapilacak. Devam etmek istiyor musunuz?",
       "jahr": "Yıl",
+      "kasseAnfangsbestand": "Kasa acilis bakiyesi",
+      "bankAnfangsbestand": "Banka acilis bakiyesi",
+      "kasseEndbestand": "Kasa kapanis bakiyesi",
+      "bankEndbestand": "Banka kapanis bakiyesi",
+      "viewAbschluss": "Kapanis goruntule",
       "kasseAnfang": "Kasa Açılış Bakiyesi",
       "kasseEnde": "Kasa Kapanış Bakiyesi",
       "bankAnfang": "Banka Açılış Bakiyesi",
@@ -820,8 +831,14 @@
       "filter": "Filtre",
       "search": "Ara",
       "all": "Tümü",
-      "selectYear": "Yıl seçin"
+      "select": "Secin",
+      "selectYear": "Yıl Secin"
     }
   }
 }
+
+
+
+
+
 

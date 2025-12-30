@@ -43,11 +43,17 @@ public class KassenbuchDto
     [JsonPropertyName("verwendungszweck")]
     public string? Verwendungszweck { get; set; }
 
+    [JsonPropertyName("buchungstext")]
+    public string? Buchungstext => Verwendungszweck;
+
     /// <summary>
     /// Cash income
     /// </summary>
     [JsonPropertyName("einnahmeKasse")]
     public decimal? EinnahmeKasse { get; set; }
+
+    [JsonPropertyName("kasseEinnahme")]
+    public decimal? KasseEinnahme => EinnahmeKasse;
 
     /// <summary>
     /// Cash expense
@@ -55,17 +61,26 @@ public class KassenbuchDto
     [JsonPropertyName("ausgabeKasse")]
     public decimal? AusgabeKasse { get; set; }
 
+    [JsonPropertyName("kasseAusgabe")]
+    public decimal? KasseAusgabe => AusgabeKasse;
+
     /// <summary>
     /// Bank income
     /// </summary>
     [JsonPropertyName("einnahmeBank")]
     public decimal? EinnahmeBank { get; set; }
 
+    [JsonPropertyName("bankEinnahme")]
+    public decimal? BankEinnahme => EinnahmeBank;
+
     /// <summary>
     /// Bank expense
     /// </summary>
     [JsonPropertyName("ausgabeBank")]
     public decimal? AusgabeBank { get; set; }
+
+    [JsonPropertyName("bankAusgabe")]
+    public decimal? BankAusgabe => AusgabeBank;
 
     /// <summary>
     /// Fiscal year
@@ -103,6 +118,9 @@ public class KassenbuchDto
     [JsonPropertyName("bemerkung")]
     public string? Bemerkung { get; set; }
 
+    [JsonPropertyName("notiz")]
+    public string? Notiz => Bemerkung;
+
     /// <summary>
     /// Creation date
     /// </summary>
@@ -127,4 +145,3 @@ public class KassenbuchDto
     [JsonPropertyName("mitgliedName")]
     public string? MitgliedName { get; set; }
 }
-

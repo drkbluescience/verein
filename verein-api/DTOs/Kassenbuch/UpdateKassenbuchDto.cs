@@ -18,9 +18,8 @@ public class UpdateKassenbuchDto
     /// <summary>
     /// Association identifier
     /// </summary>
-    [Required(ErrorMessage = "VereinId ist erforderlich")]
     [JsonPropertyName("vereinId")]
-    public int VereinId { get; set; }
+    public int? VereinId { get; set; }
 
     /// <summary>
     /// Receipt date
@@ -44,12 +43,26 @@ public class UpdateKassenbuchDto
     [JsonPropertyName("verwendungszweck")]
     public string? Verwendungszweck { get; set; }
 
+    [JsonPropertyName("buchungstext")]
+    public string? Buchungstext
+    {
+        get => Verwendungszweck;
+        set => Verwendungszweck = value;
+    }
+
     /// <summary>
     /// Cash income
     /// </summary>
     [Range(0, double.MaxValue, ErrorMessage = "EinnahmeKasse muss positiv sein")]
     [JsonPropertyName("einnahmeKasse")]
     public decimal? EinnahmeKasse { get; set; }
+
+    [JsonPropertyName("kasseEinnahme")]
+    public decimal? KasseEinnahme
+    {
+        get => EinnahmeKasse;
+        set => EinnahmeKasse = value;
+    }
 
     /// <summary>
     /// Cash expense
@@ -58,6 +71,13 @@ public class UpdateKassenbuchDto
     [JsonPropertyName("ausgabeKasse")]
     public decimal? AusgabeKasse { get; set; }
 
+    [JsonPropertyName("kasseAusgabe")]
+    public decimal? KasseAusgabe
+    {
+        get => AusgabeKasse;
+        set => AusgabeKasse = value;
+    }
+
     /// <summary>
     /// Bank income
     /// </summary>
@@ -65,12 +85,26 @@ public class UpdateKassenbuchDto
     [JsonPropertyName("einnahmeBank")]
     public decimal? EinnahmeBank { get; set; }
 
+    [JsonPropertyName("bankEinnahme")]
+    public decimal? BankEinnahme
+    {
+        get => EinnahmeBank;
+        set => EinnahmeBank = value;
+    }
+
     /// <summary>
     /// Bank expense
     /// </summary>
     [Range(0, double.MaxValue, ErrorMessage = "AusgabeBank muss positiv sein")]
     [JsonPropertyName("ausgabeBank")]
     public decimal? AusgabeBank { get; set; }
+
+    [JsonPropertyName("bankAusgabe")]
+    public decimal? BankAusgabe
+    {
+        get => AusgabeBank;
+        set => AusgabeBank = value;
+    }
 
     /// <summary>
     /// Related member (optional)
@@ -103,5 +137,11 @@ public class UpdateKassenbuchDto
     [MaxLength(500, ErrorMessage = "Bemerkung darf maximal 500 Zeichen lang sein")]
     [JsonPropertyName("bemerkung")]
     public string? Bemerkung { get; set; }
-}
 
+    [JsonPropertyName("notiz")]
+    public string? Notiz
+    {
+        get => Bemerkung;
+        set => Bemerkung = value;
+    }
+}

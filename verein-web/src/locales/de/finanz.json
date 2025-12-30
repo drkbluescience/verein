@@ -613,6 +613,10 @@
       "kategorie": "Kategorie",
       "unterkategorie": "Unterkategorie",
       "kontoTyp": "Kontotyp",
+      "kontoArt": "Kontenart",
+      "einnahme": "Einnahme",
+      "ausgabe": "Ausgabe",
+      "durchlaufend": "Durchlaufend",
       "istEinnahme": "Einnahmenkonto",
       "istAusgabe": "Ausgabenkonto",
       "istDurchlaufend": "Durchlaufendes Konto",
@@ -695,7 +699,14 @@
       "subtitle": "Jährliche Kassenabschlüsse",
       "newAbschluss": "Neuer Abschluss",
       "calculate": "Automatisch berechnen",
+      "calculateConfirmTitle": "Automatische Berechnung",
+      "calculateConfirmMessage": "Automatische Berechnung fuer {{year}} wird gestartet. Fortfahren?",
       "jahr": "Jahr",
+      "kasseAnfangsbestand": "Kasse Anfangsbestand",
+      "bankAnfangsbestand": "Bank Anfangsbestand",
+      "kasseEndbestand": "Kasse Endbestand",
+      "bankEndbestand": "Bank Endbestand",
+      "viewAbschluss": "Abschluss anzeigen",
       "kasseAnfang": "Kasse Anfangsbestand",
       "kasseEnde": "Kasse Endbestand",
       "bankAnfang": "Bank Anfangsbestand",
@@ -728,8 +739,12 @@
       "filter": "Filter",
       "search": "Suchen",
       "all": "Alle",
+      "select": "Auswaehlen",
       "selectYear": "Jahr wählen"
     }
   }
 }
+
+
+
 

@@ -37,12 +37,26 @@ public class CreateKassenbuchDto
     [JsonPropertyName("verwendungszweck")]
     public string? Verwendungszweck { get; set; }
 
+    [JsonPropertyName("buchungstext")]
+    public string? Buchungstext
+    {
+        get => Verwendungszweck;
+        set => Verwendungszweck = value;
+    }
+
     /// <summary>
     /// Cash income
     /// </summary>
     [Range(0, double.MaxValue, ErrorMessage = "EinnahmeKasse muss positiv sein")]
     [JsonPropertyName("einnahmeKasse")]
     public decimal? EinnahmeKasse { get; set; }
+
+    [JsonPropertyName("kasseEinnahme")]
+    public decimal? KasseEinnahme
+    {
+        get => EinnahmeKasse;
+        set => EinnahmeKasse = value;
+    }
 
     /// <summary>
     /// Cash expense
@@ -51,6 +65,13 @@ public class CreateKassenbuchDto
     [JsonPropertyName("ausgabeKasse")]
     public decimal? AusgabeKasse { get; set; }
 
+    [JsonPropertyName("kasseAusgabe")]
+    public decimal? KasseAusgabe
+    {
+        get => AusgabeKasse;
+        set => AusgabeKasse = value;
+    }
+
     /// <summary>
     /// Bank income
     /// </summary>
@@ -58,12 +79,26 @@ public class CreateKassenbuchDto
     [JsonPropertyName("einnahmeBank")]
     public decimal? EinnahmeBank { get; set; }
 
+    [JsonPropertyName("bankEinnahme")]
+    public decimal? BankEinnahme
+    {
+        get => EinnahmeBank;
+        set => EinnahmeBank = value;
+    }
+
     /// <summary>
     /// Bank expense
     /// </summary>
     [Range(0, double.MaxValue, ErrorMessage = "AusgabeBank muss positiv sein")]
     [JsonPropertyName("ausgabeBank")]
     public decimal? AusgabeBank { get; set; }
+
+    [JsonPropertyName("bankAusgabe")]
+    public decimal? BankAusgabe
+    {
+        get => AusgabeBank;
+        set => AusgabeBank = value;
+    }
 
     /// <summary>
     /// Fiscal year (auto-calculated from BelegDatum if not provided)
@@ -102,5 +137,11 @@ public class CreateKassenbuchDto
     [MaxLength(500, ErrorMessage = "Bemerkung darf maximal 500 Zeichen lang sein")]
     [JsonPropertyName("bemerkung")]
     public string? Bemerkung { get; set; }
-}
 
+    [JsonPropertyName("notiz")]
+    public string? Notiz
+    {
+        get => Bemerkung;
+        set => Bemerkung = value;
+    }
+}

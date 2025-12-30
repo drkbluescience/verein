@@ -89,24 +89,15 @@ const EasyFiBuDashboard: React.FC<EasyFiBuDashboardProps> = ({ defaultTab = 'kas
       return <KontenTab vereinId={vereinId || undefined} />;
     }
 
-    // Other tabs require vereinId
-    if (!vereinId) {
-      return (
-        <div className="empty-state">
-          <p>{t('common:filter.selectVerein')}</p>
-        </div>
-      );
-    }
-
     switch (activeTab) {
       case 'kassenbuch':
-        return <KassenbuchTab vereinId={vereinId} />;
+        return <KassenbuchTab vereinId={vereinId || undefined} />;
       case 'spenden':
-        return <SpendenTab vereinId={vereinId} />;
+        return <SpendenTab vereinId={vereinId || undefined} />;
       case 'transit':
-        return <TransitTab vereinId={vereinId} />;
+        return <TransitTab vereinId={vereinId || undefined} />;
       case 'jahresabschluss':
-        return <JahresabschlussTab vereinId={vereinId} />;
+        return <JahresabschlussTab vereinId={vereinId || undefined} />;
       default:
         return null;
     }

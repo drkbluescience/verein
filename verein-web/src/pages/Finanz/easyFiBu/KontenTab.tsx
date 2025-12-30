@@ -4,11 +4,12 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { fiBuKontoService } from '../../../services/easyFiBuService';
 import { FiBuKontoDto, CreateFiBuKontoDto, UpdateFiBuKontoDto, FIBU_KATEGORIEN } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
+import KontenModal from './KontenModal';
 import './easyFiBu.css';
 
 // Icons
@@ -36,7 +37,6 @@ interface KontenTabProps {
 
 const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [kategorieFilter, setKategorieFilter] = useState<string>('all');
   const [showInactive, setShowInactive] = useState(false);
@@ -170,6 +170,12 @@ const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
           <div className="empty-state">{t('finanz:easyFiBu.konten.noKonten')}</div>
         )}
       </div>
+
+      <KontenModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        konto={selectedKonto}
+      />
     </div>
   );
 };

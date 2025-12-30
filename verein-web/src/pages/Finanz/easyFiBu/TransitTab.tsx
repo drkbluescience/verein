@@ -4,11 +4,12 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { durchlaufendePostenService } from '../../../services/easyFiBuService';
 import { DurchlaufendePostenDto, DURCHLAUFENDE_POSTEN_STATUS } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
+import TransitModal from './TransitModal';
 import './easyFiBu.css';
 
 // Icons
@@ -31,45 +32,46 @@ const CheckCircleIcon = () => (
 );
 
 interface TransitTabProps {
-  vereinId: number;
+  vereinId?: number | null;
 }
 
 const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
+  const hasVerein = !!vereinId;
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosten, setSelectedPosten] = useState<DurchlaufendePostenDto | null>(null);
 
   // Fetch transit items
   const { data: posten = [], isLoading } = useQuery({
-    queryKey: ['durchlaufende-posten', vereinId],
-    queryFn: () => durchlaufendePostenService.getByVerein(vereinId),
-    enabled: !!vereinId,
+    queryKey: ['durchlaufende-posten', vereinId ?? 'none'],
+    queryFn: () => durchlaufendePostenService.getByVerein(vereinId as number),
+    enabled: hasVerein,
   });
 
   // Fetch total open amount
   const { data: totalOpen = 0 } = useQuery({
-    queryKey: ['durchlaufende-posten-total', vereinId],
-    queryFn: () => durchlaufendePostenService.getTotalOpenAmount(vereinId),
-    enabled: !!vereinId,
+    queryKey: ['durchlaufende-posten-total', vereinId ?? 'none'],
+    queryFn: () => durchlaufendePostenService.getTotalOpenAmount(vereinId as number),
+    enabled: hasVerein,
   });
 
   // Fetch summary by recipient
   const { data: empfaengerSummary = [] } = useQuery({
-    queryKey: ['durchlaufende-posten-summary', vereinId],
-    queryFn: () => durchlaufendePostenService.getEmpfaengerSummary(vereinId),
-    enabled: !!vereinId,
+    queryKey: ['durchlaufende-posten-summary', vereinId ?? 'none'],
+    queryFn: () => durchlaufendePostenService.getEmpfaengerSummary(vereinId as number),
+    enabled: hasVerein,
   });
 
   // Filter items
   const filteredPosten = useMemo(() => {
+    if (!hasVerein) return [];
     if (statusFilter === 'all') return posten;
     return posten.filter(p => p.status === statusFilter);
-  }, [posten, statusFilter]);
+  }, [hasVerein, posten, statusFilter]);
 
   const formatCurrency = (amount?: number) => {
-    if (!amount) return '-';
+    if (amount == null) return '-';
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
@@ -88,11 +90,13 @@ const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
   };
 
   const handleAdd = () => {
+    if (!hasVerein) return;
     setSelectedPosten(null);
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: DurchlaufendePostenDto) => {
+    if (!hasVerein) return;
     setSelectedPosten(item);
     setIsModalOpen(true);
   };
@@ -106,7 +110,7 @@ const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
           <h2>{t('finanz:easyFiBu.transit.title')}</h2>
           <p>{t('finanz:easyFiBu.transit.subtitle')}</p>
         </div>
-        <button className="btn btn-primary" onClick={handleAdd}>
+        <button className="btn btn-primary" onClick={handleAdd} disabled={!hasVerein}>
           <PlusIcon /> {t('finanz:easyFiBu.transit.newPosten')}
         </button>
       </div>
@@ -115,9 +119,9 @@ const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
       <div className="summary-cards transit-summary">
         <div className="summary-card total-open">
           <span className="label">{t('finanz:easyFiBu.transit.summary.totalOffen')}</span>
-          <span className="value">{formatCurrency(totalOpen)}</span>
+          <span className="value">{formatCurrency(hasVerein ? totalOpen : undefined)}</span>
         </div>
-        {empfaengerSummary.slice(0, 4).map(s => (
+        {(hasVerein ? empfaengerSummary.slice(0, 4) : []).map(s => (
           <div key={s.empfaenger} className="summary-card empfaenger">
             <span className="label">{s.empfaenger}</span>
             <span className="value">{formatCurrency(s.offenerBetrag)}</span>
@@ -128,7 +132,12 @@ const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
 
       {/* Filters */}
       <div className="tab-filters">
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="filter-select"
+          disabled={!hasVerein}
+        >
           <option value="all">{t('finanz:easyFiBu.common.all')}</option>
           <option value={DURCHLAUFENDE_POSTEN_STATUS.OFFEN}>{t('finanz:easyFiBu.transit.statusValues.offen')}</option>
           <option value={DURCHLAUFENDE_POSTEN_STATUS.TEILWEISE}>{t('finanz:easyFiBu.transit.statusValues.teilweise')}</option>
@@ -174,7 +183,11 @@ const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
                       <EditIcon />
                     </button>
                     {item.status !== DURCHLAUFENDE_POSTEN_STATUS.ABGESCHLOSSEN && (
-                      <button className="btn-icon btn-close" title={t('finanz:easyFiBu.transit.close')}>
+                      <button
+                        className="btn-icon btn-close"
+                        title={t('finanz:easyFiBu.transit.close')}
+                        disabled={!hasVerein}
+                      >
                         <CheckCircleIcon />
                       </button>
                     )}
@@ -185,9 +198,20 @@ const TransitTab: React.FC<TransitTabProps> = ({ vereinId }) => {
           </tbody>
         </table>
         {filteredPosten.length === 0 && (
-          <div className="empty-state">{t('finanz:easyFiBu.transit.noPosten')}</div>
+          <div className="empty-state">
+            {hasVerein ? t('finanz:easyFiBu.transit.noPosten') : t('common:filter.selectVerein')}
+          </div>
         )}
       </div>
+
+      {hasVerein && (
+        <TransitModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          posten={selectedPosten}
+          vereinId={vereinId as number}
+        />
+      )}
     </div>
   );
 };

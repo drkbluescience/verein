@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { kassenbuchService, fiBuKontoService } from '../../../services/easyFiBuService';
 import { KassenbuchDto, CreateKassenbuchDto, FiBuKontoDto } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
+import KassenbuchModal from './KassenbuchModal';
 import './easyFiBu.css';
 
 // Icons
@@ -31,7 +32,7 @@ const XIcon = () => (
 );
 
 interface KassenbuchTabProps {
-  vereinId: number;
+  vereinId?: number | null;
 }
 
 const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
@@ -42,12 +43,13 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
   const [selectedKonto, setSelectedKonto] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<KassenbuchDto | null>(null);
+  const hasVerein = !!vereinId;
 
   // Fetch Kassenbuch entries
   const { data: entries = [], isLoading } = useQuery({
-    queryKey: ['kassenbuch', vereinId, selectedJahr],
-    queryFn: () => kassenbuchService.getByVereinAndJahr(vereinId, selectedJahr),
-    enabled: !!vereinId,
+    queryKey: ['kassenbuch', vereinId ?? 'none', selectedJahr],
+    queryFn: () => kassenbuchService.getByVereinAndJahr(vereinId as number, selectedJahr),
+    enabled: hasVerein,
   });
 
   // Fetch FiBu accounts for filter
@@ -58,9 +60,9 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
 
   // Fetch summary
   const { data: summary } = useQuery({
-    queryKey: ['kassenbuch-summary', vereinId, selectedJahr],
-    queryFn: () => kassenbuchService.getSummary(vereinId, selectedJahr),
-    enabled: !!vereinId,
+    queryKey: ['kassenbuch-summary', vereinId ?? 'none', selectedJahr],
+    queryFn: () => kassenbuchService.getSummary(vereinId as number, selectedJahr),
+    enabled: hasVerein,
   });
 
   // Filter entries
@@ -95,6 +97,7 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
   };
 
   const handleAdd = () => {
+    if (!hasVerein) return;
     setSelectedEntry(null);
     setIsModalOpen(true);
   };
@@ -115,6 +118,14 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
 
   if (isLoading) return <Loading />;
 
+  const summaryData = summary || {
+    totalEinnahmen: null,
+    totalAusgaben: null,
+    kasseSaldo: null,
+    bankSaldo: null,
+    saldo: null,
+  };
+
   return (
     <div className="easyfibu-tab kassenbuch-tab">
       <div className="tab-header">
@@ -123,46 +134,54 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
           <p>{t('finanz:easyFiBu.kassenbuch.subtitle')}</p>
         </div>
         <div className="header-actions">
-          <button className="btn btn-primary" onClick={handleAdd}>
+          <button className="btn btn-primary" onClick={handleAdd} disabled={!hasVerein}>
             <PlusIcon /> {t('finanz:easyFiBu.kassenbuch.newEntry')}
           </button>
         </div>
       </div>
 
       {/* Summary Cards */}
-      {summary && (
-        <div className="summary-cards">
-          <div className="summary-card einnahmen">
-            <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.totalEinnahmen')}</span>
-            <span className="value">{formatCurrency(summary.totalEinnahmen)}</span>
-          </div>
-          <div className="summary-card ausgaben">
-            <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.totalAusgaben')}</span>
-            <span className="value">{formatCurrency(summary.totalAusgaben)}</span>
-          </div>
-          <div className="summary-card kasse">
-            <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.kasseSaldo')}</span>
-            <span className="value">{formatCurrency(summary.kasseSaldo)}</span>
-          </div>
-          <div className="summary-card bank">
-            <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.bankSaldo')}</span>
-            <span className="value">{formatCurrency(summary.bankSaldo)}</span>
-          </div>
-          <div className="summary-card gesamt">
-            <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.gesamtSaldo')}</span>
-            <span className="value">{formatCurrency(summary.saldo)}</span>
-          </div>
+      <div className="summary-cards">
+        <div className="summary-card einnahmen">
+          <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.totalEinnahmen')}</span>
+          <span className="value">{formatCurrency(summaryData.totalEinnahmen || undefined)}</span>
         </div>
-      )}
+        <div className="summary-card ausgaben">
+          <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.totalAusgaben')}</span>
+          <span className="value">{formatCurrency(summaryData.totalAusgaben || undefined)}</span>
+        </div>
+        <div className="summary-card kasse">
+          <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.kasseSaldo')}</span>
+          <span className="value">{formatCurrency(summaryData.kasseSaldo || undefined)}</span>
+        </div>
+        <div className="summary-card bank">
+          <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.bankSaldo')}</span>
+          <span className="value">{formatCurrency(summaryData.bankSaldo || undefined)}</span>
+        </div>
+        <div className="summary-card gesamt">
+          <span className="label">{t('finanz:easyFiBu.kassenbuch.summary.gesamtSaldo')}</span>
+          <span className="value">{formatCurrency(summaryData.saldo || undefined)}</span>
+        </div>
+      </div>
 
       {/* Filters */}
       <div className="tab-filters">
-        <select value={selectedJahr} onChange={(e) => setSelectedJahr(Number(e.target.value))} className="filter-select">
+        <select
+          value={selectedJahr}
+          onChange={(e) => setSelectedJahr(Number(e.target.value))}
+          className="filter-select"
+          disabled={!hasVerein}
+        >
           {yearOptions.map(year => (
             <option key={year} value={year}>{year}</option>
           ))}
         </select>
-        <select value={selectedKonto} onChange={(e) => setSelectedKonto(e.target.value)} className="filter-select">
+        <select
+          value={selectedKonto}
+          onChange={(e) => setSelectedKonto(e.target.value)}
+          className="filter-select"
+          disabled={!hasVerein}
+        >
           <option value="all">{t('finanz:easyFiBu.common.all')}</option>
           {konten.map(konto => (
             <option key={konto.id} value={konto.nummer}>{konto.nummer} - {konto.bezeichnung}</option>
@@ -217,9 +236,21 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
           </tbody>
         </table>
         {filteredEntries.length === 0 && (
-          <div className="empty-state">{t('finanz:easyFiBu.kassenbuch.noEntries')}</div>
+          <div className="empty-state">
+            {hasVerein ? t('finanz:easyFiBu.kassenbuch.noEntries') : t('common:filter.selectVerein')}
+          </div>
         )}
       </div>
+
+      {hasVerein && (
+        <KassenbuchModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          entry={selectedEntry}
+          vereinId={vereinId as number}
+          jahr={selectedJahr}
+        />
+      )}
     </div>
   );
 };

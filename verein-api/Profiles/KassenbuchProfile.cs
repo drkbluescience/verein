@@ -39,6 +39,7 @@ public class KassenbuchProfile : Profile
 
         // UpdateDTO -> Entity
         CreateMap<UpdateKassenbuchDto, Kassenbuch>()
+            .ForMember(dest => dest.VereinId, opt => opt.Ignore())
             .ForMember(dest => dest.BelegNr, opt => opt.Ignore())
             .ForMember(dest => dest.Jahr, opt => opt.Ignore())
             .ForMember(dest => dest.Created, opt => opt.Ignore())
@@ -58,4 +59,3 @@ public class KassenbuchProfile : Profile
             .ForMember(dest => dest.DurchlaufendePostenAusgaben, opt => opt.Ignore());
     }
 }
-

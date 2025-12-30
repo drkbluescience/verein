@@ -3,12 +3,14 @@
  * Manage annual cash book closings
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { kassenbuchJahresabschlussService } from '../../../services/easyFiBuService';
 import { KassenbuchJahresabschlussDto } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
+import Modal from '../../../components/Common/Modal';
+import JahresabschlussModal from './JahresabschlussModal';
 import './easyFiBu.css';
 
 // Icons
@@ -41,29 +43,32 @@ const EyeIcon = () => (
 );
 
 interface JahresabschlussTabProps {
-  vereinId: number;
+  vereinId?: number | null;
 }
 
 const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const hasVerein = !!vereinId;
   const currentYear = new Date().getFullYear();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAbschluss, setSelectedAbschluss] = useState<KassenbuchJahresabschlussDto | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmYear, setConfirmYear] = useState<number | null>(null);
 
   // Fetch year-end closings
   const { data: abschluesse = [], isLoading } = useQuery({
-    queryKey: ['jahresabschluesse', vereinId],
-    queryFn: () => kassenbuchJahresabschlussService.getByVerein(vereinId),
-    enabled: !!vereinId,
+    queryKey: ['jahresabschluesse', vereinId ?? 'none'],
+    queryFn: () => kassenbuchJahresabschlussService.getByVerein(vereinId as number),
+    enabled: hasVerein,
   });
 
   // Calculate mutation
   const calculateMutation = useMutation({
-    mutationFn: (jahr: number) => kassenbuchJahresabschlussService.calculateAndCreate(vereinId, jahr),
+    mutationFn: (jahr: number) => kassenbuchJahresabschlussService.calculateAndCreate(vereinId as number, jahr),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jahresabschluesse', vereinId] });
+      queryClient.invalidateQueries({ queryKey: ['jahresabschluesse', vereinId ?? 'none'] });
       setIsCalculating(false);
     },
     onError: () => {
@@ -71,7 +76,8 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
     }
   });
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount?: number) => {
+    if (amount == null) return '-';
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
@@ -81,19 +87,33 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
   };
 
   const handleCalculate = () => {
+    if (!hasVerein) return;
     const year = currentYear - 1; // Calculate for previous year
-    if (window.confirm(`${year} yılı için otomatik hesaplama yapılacak. Devam etmek istiyor musunuz?`)) {
-      setIsCalculating(true);
-      calculateMutation.mutate(year);
-    }
+    setConfirmYear(year);
+    setIsConfirmOpen(true);
+  };
+
+  const handleCloseConfirm = () => {
+    setIsConfirmOpen(false);
+    setConfirmYear(null);
+  };
+
+  const handleConfirmCalculate = () => {
+    if (!hasVerein) return;
+    const year = confirmYear ?? currentYear - 1;
+    setIsConfirmOpen(false);
+    setIsCalculating(true);
+    calculateMutation.mutate(year);
   };
 
   const handleView = (abschluss: KassenbuchJahresabschlussDto) => {
+    if (!hasVerein) return;
     setSelectedAbschluss(abschluss);
     setIsModalOpen(true);
   };
 
   const handleAdd = () => {
+    if (!hasVerein) return;
     setSelectedAbschluss(null);
     setIsModalOpen(true);
   };
@@ -108,10 +128,10 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
           <p>{t('finanz:easyFiBu.jahresabschluss.subtitle')}</p>
         </div>
         <div className="header-actions">
-          <button className="btn btn-secondary" onClick={handleCalculate} disabled={isCalculating}>
+          <button className="btn btn-secondary" onClick={handleCalculate} disabled={!hasVerein || isCalculating}>
             <CalculatorIcon /> {t('finanz:easyFiBu.jahresabschluss.calculate')}
           </button>
-          <button className="btn btn-primary" onClick={handleAdd}>
+          <button className="btn btn-primary" onClick={handleAdd} disabled={!hasVerein}>
             <PlusIcon /> {t('finanz:easyFiBu.jahresabschluss.newAbschluss')}
           </button>
         </div>
@@ -167,11 +187,11 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
                   <span>{t('finanz:easyFiBu.jahresabschluss.geprueftAm')}: {formatDate(abschluss.geprueftAm)}</span>
                 </div>
               ) : (
-                <button className="btn btn-sm btn-outline">
+                <button className="btn btn-sm btn-outline" disabled>
                   <CheckIcon /> {t('finanz:easyFiBu.jahresabschluss.pruefen')}
                 </button>
               )}
-              <button className="btn-icon" onClick={() => handleView(abschluss)}>
+              <button className="btn-icon" onClick={() => handleView(abschluss)} disabled={!hasVerein}>
                 <EyeIcon />
               </button>
             </div>
@@ -180,11 +200,56 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
       </div>
 
       {abschluesse.length === 0 && (
-        <div className="empty-state">{t('finanz:easyFiBu.jahresabschluss.noAbschluesse')}</div>
+        <div className="empty-state">
+          {hasVerein ? t('finanz:easyFiBu.jahresabschluss.noAbschluesse') : t('common:filter.selectVerein')}
+        </div>
       )}
+
+      {hasVerein && (
+        <JahresabschlussModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          abschluss={selectedAbschluss}
+          vereinId={vereinId as number}
+        />
+      )}
+
+      <Modal
+        isOpen={isConfirmOpen}
+        onClose={handleCloseConfirm}
+        title={t('finanz:easyFiBu.jahresabschluss.calculateConfirmTitle')}
+        size="sm"
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleCloseConfirm}
+              disabled={isCalculating}
+            >
+              {t('finanz:easyFiBu.common.cancel')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleConfirmCalculate}
+              disabled={isCalculating}
+            >
+              {t('finanz:easyFiBu.jahresabschluss.calculate')}
+            </button>
+          </>
+        }
+      >
+        <p>
+          {t('finanz:easyFiBu.jahresabschluss.calculateConfirmMessage', {
+            year: confirmYear ?? currentYear - 1,
+          })}
+        </p>
+      </Modal>
     </div>
   );
 };
 
 export default JahresabschlussTab;
+
 
