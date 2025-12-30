@@ -55,7 +55,7 @@ const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(({
     ],
     content: initialContentRef.current,
     editable,
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor }: { editor: Editor }) => {
       onChange(editor.getHTML());
     },
   });
@@ -295,4 +295,3 @@ const MenuBar: React.FC<MenuBarProps> = ({
 };
 
 export default TiptapEditor;
-

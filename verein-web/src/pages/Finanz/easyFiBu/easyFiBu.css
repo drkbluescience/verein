@@ -5,25 +5,34 @@
 
 /* Dashboard Container */
 .easyfibu-dashboard .page-header {
-  display: flex;
-  justify-content: space-between; /* Dropdown'ı sağda tut */
-  align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+  text-align: center;
 }
 
-/* Başlık kısmını ortala */
-.easyfibu-dashboard .page-header > div:first-child {
+.easyfibu-header {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Metni ortala */
-  text-align: center;
-  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Admin dropdown'ı sağda tut */
-.easyfibu-dashboard .page-header > select {
-  flex-shrink: 0;
+.easyfibu-header .page-header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.easyfibu-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.easyfibu-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
 /* Tab Container */
@@ -96,6 +105,46 @@
   background: var(--surface-color, #fff);
   font-size: 0.875rem;
   min-width: 150px;
+}
+
+.tab-navigation {
+  background: var(--bg-secondary);
+}
+
+.tab-controls {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.verein-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 240px;
+}
+
+.verein-filter label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.verein-filter .filter-select {
+  min-width: 220px;
 }
 
 .checkbox-label {
@@ -418,4 +467,3 @@
     width: 100%;
   }
 }
-

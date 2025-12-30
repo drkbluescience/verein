@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
-COPY ["verein-api/VereinsApi.csproj", "./"]
+COPY ["VereinsApi.csproj", "./"]
 RUN dotnet restore "VereinsApi.csproj"
 
 # Copy everything else and build
-COPY verein-api/ .
+COPY . .
 RUN dotnet build "VereinsApi.csproj" -c Release -o /app/build
 
 # Publish stage
@@ -26,8 +26,7 @@ COPY --from=publish /app/publish .
 # Create logs directory
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 
-# Expose port
 EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 
 ENTRYPOINT ["dotnet", "VereinsApi.dll"]
-

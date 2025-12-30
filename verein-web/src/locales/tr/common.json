@@ -91,7 +91,8 @@
   "verein": "Dernek",
   "actionsColumn": "İşlemler",
   "filter": {
-    "allVereine": "Tüm Dernekler"
+    "allVereine": "Tüm Dernekler",
+    "selectVerein": "Dernek Seçin"
   },
   "status": {
     "active": "Aktif",
@@ -194,4 +195,3 @@
     "copyFailed": "Panoya kopyalama başarısız oldu"
   }
 }
-

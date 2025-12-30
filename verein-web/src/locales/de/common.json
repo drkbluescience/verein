@@ -92,7 +92,8 @@
   "verein": "Verein",
   "actionsColumn": "Aktionen",
   "filter": {
-    "allVereine": "Alle Vereine"
+    "allVereine": "Alle Vereine",
+    "selectVerein": "Verein auswählen"
   },
   "status": {
     "active": "Aktiv",
@@ -195,4 +196,3 @@
     "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
   }
 }
-

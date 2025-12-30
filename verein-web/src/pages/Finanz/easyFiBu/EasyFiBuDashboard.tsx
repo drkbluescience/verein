@@ -115,64 +115,60 @@ const EasyFiBuDashboard: React.FC<EasyFiBuDashboardProps> = ({ defaultTab = 'kas
   return (
     <div className="easyfibu-dashboard">
       {/* Header */}
-      <div className="page-header" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700' }}>easyFiBu</h1>
-            <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)' }}>
-              {t('finanz:easyFiBu.tabs.uebersicht')}
-            </p>
-          </div>
-          
-          {/* Admin: Verein Filter */}
-          {user?.type === 'admin' && (
-            <select
-              value={selectedVereinId || ''}
-              onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
-              className="filter-select"
-              style={{ minWidth: '250px' }}
-            >
-              <option value="">{t('common:filter.selectVerein')}</option>
-              {vereine.map((v) => (
-                <option key={v.id} value={v.id}>{v.name}</option>
-              ))}
-            </select>
-          )}
+      <div className="page-header easyfibu-header">
+        <div className="page-header-title">
+          <h1>easyFiBu</h1>
+          <p>{t('finanz:easyFiBu.tabs.uebersicht')}</p>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="tab-navigation" style={{ 
-        padding: '0 1.5rem',
-        background: 'var(--bg-secondary)',
-        borderBottom: '1px solid var(--border-color)'
-      }}>
-        <div style={{ display: 'flex', gap: '0.25rem', overflowX: 'auto' }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '1rem 1.25rem',
-                border: 'none',
-                background: activeTab === tab.key ? 'var(--surface-color)' : 'transparent',
-                color: activeTab === tab.key ? 'var(--primary-color)' : 'var(--text-secondary)',
-                fontWeight: activeTab === tab.key ? '600' : '500',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                borderBottom: activeTab === tab.key ? '2px solid var(--primary-color)' : '2px solid transparent',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+      <div className="tab-navigation">
+        <div className="tab-controls">
+          <div className="tab-buttons">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '1rem 1.25rem',
+                  border: 'none',
+                  background: activeTab === tab.key ? 'var(--surface-color)' : 'transparent',
+                  color: activeTab === tab.key ? 'var(--primary-color)' : 'var(--text-secondary)',
+                  fontWeight: activeTab === tab.key ? '600' : '500',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  borderBottom: activeTab === tab.key ? '2px solid var(--primary-color)' : '2px solid transparent',
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {user?.type === 'admin' && (
+            <div className="verein-filter">
+              <label htmlFor="verein-select">{t('common:filter.selectVerein')}</label>
+              <select
+                id="verein-select"
+                value={selectedVereinId || ''}
+                onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+                className="filter-select"
+              >
+                <option value="">{t('common:filter.selectVerein')}</option>
+                {vereine.map((v) => (
+                  <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -185,4 +181,3 @@ const EasyFiBuDashboard: React.FC<EasyFiBuDashboardProps> = ({ defaultTab = 'kas
 };
 
 export default EasyFiBuDashboard;
-
