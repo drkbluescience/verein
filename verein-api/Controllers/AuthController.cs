@@ -4,6 +4,7 @@ using VereinsApi.Services.Interfaces;
 using VereinsApi.DTOs.Auth;
 using VereinsApi.DTOs.Mitglied;
 using VereinsApi.DTOs.Verein;
+using VereinsApi.DTOs.Organization;
 
 namespace VereinsApi.Controllers;
 
@@ -15,6 +16,7 @@ public class AuthController : ControllerBase
     private readonly IUserRoleService _userRoleService;
     private readonly IMitgliedService _mitgliedService;
     private readonly IVereinService _vereinService;
+    private readonly IOrganizationService _organizationService;
     private readonly IJwtService _jwtService;
     private readonly ILogger<AuthController> _logger;
 
@@ -23,6 +25,7 @@ public class AuthController : ControllerBase
         IUserRoleService userRoleService,
         IMitgliedService mitgliedService,
         IVereinService vereinService,
+        IOrganizationService organizationService,
         IJwtService jwtService,
         ILogger<AuthController> logger)
     {
@@ -30,6 +33,7 @@ public class AuthController : ControllerBase
         _userRoleService = userRoleService;
         _mitgliedService = mitgliedService;
         _vereinService = vereinService;
+        _organizationService = organizationService;
         _jwtService = jwtService;
         _logger = logger;
     }
@@ -364,6 +368,15 @@ public class AuthController : ControllerBase
                 Gruendungsdatum = request.Gruendungsdatum,
                 Zweck = request.Zweck
             };
+
+            var organization = await _organizationService.CreateAsync(new OrganizationCreateDto
+            {
+                Name = request.Name,
+                OrgType = "Verein",
+                Aktiv = true
+            });
+
+            createVereinDto.OrganizationId = organization.Id;
 
             var verein = await _vereinService.CreateAsync(createVereinDto);
 

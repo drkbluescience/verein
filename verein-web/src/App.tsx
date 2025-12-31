@@ -37,6 +37,7 @@ import VereinDitibZahlungDetail from './pages/Finanz/VereinDitibZahlungDetail';
 import VereinDitibZahlungForm from './pages/Finanz/VereinDitibZahlungForm';
 import { EasyFiBuDashboard } from './pages/Finanz/easyFiBu';
 import PageNotesAdmin from './pages/Admin/PageNotesAdmin';
+import OrganizationAdmin from './pages/Admin/OrganizationAdmin';
 import BriefeList from './pages/Briefe/BriefeList';
 import BriefForm from './pages/Briefe/BriefForm';
 import BriefDetail from './pages/Briefe/BriefDetail';
@@ -326,6 +327,15 @@ const AppContent: React.FC = () => {
             <Route path="/admin/page-notes" element={
               <Layout>
                 <PageNotesAdmin />
+              </Layout>
+            } />
+          )}
+
+          {/* Admin Organization Management - Only for admin users */}
+          {user?.type === 'admin' && (
+            <Route path="/admin/organizations" element={
+              <Layout>
+                <OrganizationAdmin />
               </Layout>
             } />
           )}

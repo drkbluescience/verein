@@ -127,6 +127,10 @@
   },
   "fields": {
     "name": "Vereinsname",
+    "organization": "Organisation",
+    "organizationSelect": "Bestehende Organisation ausw\u00e4hlen",
+    "organizationCreate": "Neue Organisation erstellen",
+    "organizationAuto": "Die Organisation wird automatisch mit dem Vereinsnamen erstellt.",
     "kurzname": "Kurzname",
     "email": "E-Mail",
     "telefon": "Telefon",
@@ -152,6 +156,7 @@
   "createVerein": "Neuen Verein hinzufügen",
   "validation": {
     "nameRequired": "Vereinsname ist erforderlich",
+    "organizationRequired": "Organisation ist erforderlich",
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
     "invalidUrl": "Bitte geben Sie eine gültige URL ein (muss mit https://... beginnen)"
   },
@@ -209,4 +214,3 @@
     "donationCertificate": "Gemeinnützigkeitsbescheid"
   }
 }
-

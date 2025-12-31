@@ -88,6 +88,37 @@
   min-height: 80px;
 }
 
+.toggleGroup {
+  display: flex;
+  gap: var(--spacing-md, 16px);
+  padding: 8px 10px;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface-secondary, #f3f4f6);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.toggleOption {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  font-size: var(--font-size-sm, 14px);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+}
+
+.toggleOption input {
+  accent-color: var(--color-primary, #3b82f6);
+}
+
+.helperText {
+  padding: 12px 16px;
+  border-radius: var(--radius-md, 8px);
+  background: #f9fafb;
+  border: 1px dashed var(--color-border, #e5e7eb);
+  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--font-size-sm, 14px);
+}
+
 .errorMessage {
   font-size: var(--font-size-sm, 14px);
   color: var(--color-error, #dc2626);
@@ -351,4 +382,3 @@
 [data-theme="dark"] :global(.react-datepicker__month-option:hover) {
   background-color: rgba(59, 130, 246, 0.2) !important;
 }
-

@@ -44,6 +44,12 @@ public class UpdateVereinDto
     public int? RechtsformId { get; set; }
 
     /// <summary>
+    /// Organization identifier
+    /// </summary>
+    [JsonPropertyName("organizationId")]
+    public int? OrganizationId { get; set; }
+
+    /// <summary>
     /// Date when the verein was founded
     /// </summary>
     [DataType(DataType.Date)]

@@ -54,6 +54,7 @@ public class VereinProfile : Profile
             .ForMember(dest => dest.Vereinsnummer, opt => opt.Condition(src => src.Vereinsnummer != null))
             .ForMember(dest => dest.Steuernummer, opt => opt.Condition(src => src.Steuernummer != null))
             .ForMember(dest => dest.RechtsformId, opt => opt.Condition(src => src.RechtsformId != null))
+            .ForMember(dest => dest.OrganizationId, opt => opt.Condition(src => src.OrganizationId != null))
             .ForMember(dest => dest.Gruendungsdatum, opt => opt.Condition(src => src.Gruendungsdatum != null))
             .ForMember(dest => dest.Zweck, opt => opt.Condition(src => src.Zweck != null))
             .ForMember(dest => dest.AdresseId, opt => opt.Condition(src => src.AdresseId != null))

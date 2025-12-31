@@ -127,6 +127,10 @@
   },
   "fields": {
     "name": "Dernek Adı",
+    "organization": "Organization",
+    "organizationSelect": "Var olan Organization seç",
+    "organizationCreate": "Yeni Organization oluştur",
+    "organizationAuto": "Dernek adıyla otomatik Organization oluşturulacak.",
     "kurzname": "Kısa Ad",
     "email": "E-posta",
     "telefon": "Telefon",
@@ -152,6 +156,7 @@
   "createVerein": "Yeni Dernek Ekle",
   "validation": {
     "nameRequired": "Dernek adı zorunludur",
+    "organizationRequired": "Organization seçimi zorunludur",
     "invalidEmail": "Geçerli bir e-posta adresi giriniz",
     "invalidUrl": "Geçerli bir URL giriniz (https://... ile başlamalı)"
   },
@@ -209,4 +214,3 @@
     "donationCertificate": "Bağış İzni Belgesi"
   }
 }
-

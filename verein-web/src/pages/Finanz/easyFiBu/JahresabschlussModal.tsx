@@ -50,8 +50,8 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
     [yearOptions, currentYear]
   );
   const isAudited = !!abschluss?.geprueft;
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value || 0);
+  const formatCurrency = (value?: number | null) =>
+    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value ?? 0);
 
   // Form state
   const [formData, setFormData] = useState<CreateKassenbuchJahresabschlussDto>({
@@ -520,7 +520,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group remarks-group">
                   <label htmlFor="bemerkungen">{t('finanz:easyFiBu.jahresabschluss.bemerkungen')}</label>
                   <textarea
                     id="bemerkungen"
@@ -645,7 +645,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                       <label>{t('finanz:easyFiBu.jahresabschluss.kasseAnfangsbestand')}</label>
                       <input
                         type="text"
-                        value={`${abschluss.kasseAnfangsbestand.toFixed(2)} €`}
+                        value={formatCurrency(abschluss.kasseAnfangsbestand)}
                         readOnly
                         className="readonly"
                       />
@@ -655,7 +655,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                       <label>{t('finanz:easyFiBu.jahresabschluss.bankAnfangsbestand')}</label>
                       <input
                         type="text"
-                        value={`${abschluss.bankAnfangsbestand.toFixed(2)} €`}
+                        value={formatCurrency(abschluss.bankAnfangsbestand)}
                         readOnly
                         className="readonly"
                       />
@@ -668,7 +668,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                       <label>{t('finanz:easyFiBu.jahresabschluss.totalEinnahmen')}</label>
                       <input
                         type="text"
-                        value={`${abschluss.totalEinnahmen.toFixed(2)} €`}
+                        value={formatCurrency(abschluss.totalEinnahmen)}
                         readOnly
                         className="readonly"
                       />
@@ -678,7 +678,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                       <label>{t('finanz:easyFiBu.jahresabschluss.totalAusgaben')}</label>
                       <input
                         type="text"
-                        value={`${abschluss.totalAusgaben.toFixed(2)} €`}
+                        value={formatCurrency(abschluss.totalAusgaben)}
                         readOnly
                         className="readonly"
                       />
@@ -691,7 +691,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                       <label>{t('finanz:easyFiBu.jahresabschluss.kasseEndbestand')}</label>
                       <input
                         type="text"
-                        value={`${abschluss.kasseEndbestand.toFixed(2)} €`}
+                        value={formatCurrency(abschluss.kasseEndbestand)}
                         readOnly
                         className="readonly"
                       />
@@ -701,7 +701,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                     <label>{t('finanz:easyFiBu.jahresabschluss.bankEndbestand')}</label>
                     <input
                       type="text"
-                      value={`${abschluss.bankEndbestand.toFixed(2)} €`}
+                      value={formatCurrency(abschluss.bankEndbestand)}
                       readOnly
                       className="readonly"
                     />
@@ -719,7 +719,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                 </div>
 
                 {canEdit && (
-                  <div className="form-group">
+                  <div className="form-group remarks-group">
                     <label htmlFor="bemerkungen">{t('finanz:easyFiBu.jahresabschluss.bemerkungen')}</label>
                       <textarea
                         id="bemerkungen"

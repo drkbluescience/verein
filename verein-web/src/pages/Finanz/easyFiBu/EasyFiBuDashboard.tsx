@@ -108,8 +108,7 @@ const EasyFiBuDashboard: React.FC<EasyFiBuDashboardProps> = ({ defaultTab = 'kas
       {/* Header */}
       <div className="page-header easyfibu-header">
         <div className="page-header-title">
-          <h1>easyFiBu</h1>
-          <p>{t('finanz:easyFiBu.tabs.uebersicht')}</p>
+          <h1>Kasa Defteri</h1>
         </div>
       </div>
 

@@ -4,6 +4,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { spendenProtokollService } from '../../../services/easyFiBuService';
 import { 
@@ -13,6 +16,9 @@ import {
   CreateSpendenProtokollDetailDto,
   SPENDEN_KATEGORIEN 
 } from '../../../types/easyFiBu.types';
+
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 interface SpendenModalProps {
   isOpen: boolean;
@@ -27,8 +33,16 @@ const SpendenModal: React.FC<SpendenModalProps> = ({
   protokoll, 
   vereinId 
 }) => {
-  const { t } = useTranslation();
+  // @ts-ignore - i18next type definitions
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
+  const [datumDate, setDatumDate] = useState<Date | null>(new Date());
+
+  const formatCurrency = (value: number, currency = 'EUR') =>
+    new Intl.NumberFormat(i18n.language === 'tr' ? 'tr-TR' : 'de-DE', {
+      style: 'currency',
+      currency,
+    }).format(value || 0);
 
   // Form state
   const [formData, setFormData] = useState<CreateSpendenProtokollDto>({
@@ -81,10 +95,12 @@ const SpendenModal: React.FC<SpendenModalProps> = ({
         bemerkungen: protokoll.bemerkungen || '',
         details: protokoll.details.length > 0 ? protokoll.details : [{ waehrung: 'EUR', wert: 0, anzahl: 0 }],
       });
+      setDatumDate(protokoll.datum ? new Date(protokoll.datum) : null);
     } else {
+      const today = new Date();
       setFormData({
         vereinId,
-        datum: new Date().toISOString().split('T')[0],
+        datum: today.toISOString().split('T')[0],
         zweck: '',
         zweckKategorie: '',
         protokollant: '',
@@ -94,6 +110,7 @@ const SpendenModal: React.FC<SpendenModalProps> = ({
         bemerkungen: '',
         details: [{ waehrung: 'EUR', wert: 0, anzahl: 0 }],
       });
+      setDatumDate(today);
     }
   }, [protokoll, vereinId]);
 
@@ -170,12 +187,19 @@ const SpendenModal: React.FC<SpendenModalProps> = ({
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="datum">{t('finanz:easyFiBu.spenden.datum')}</label>
-              <input
-                type="date"
-                id="datum"
-                name="datum"
-                value={formData.datum}
-                onChange={handleChange}
+              <DatePicker
+                selected={datumDate}
+                onChange={(date) => {
+                  setDatumDate(date);
+                  setFormData(prev => ({
+                    ...prev,
+                    datum: date ? date.toISOString().split('T')[0] : '',
+                  }));
+                }}
+                locale={i18n.language}
+                dateFormat="dd.MM.yyyy"
+                placeholderText={t('finanz:easyFiBu.spenden.datum')}
+                className="date-picker-input"
                 required
                 disabled={isSubmitting || isViewOnly}
               />
@@ -310,7 +334,7 @@ const SpendenModal: React.FC<SpendenModalProps> = ({
                   <label>{t('finanz:easyFiBu.spenden.summe')}</label>
                   <input
                     type="text"
-                    value={`${(detail.wert * detail.anzahl).toFixed(2)} €`}
+                    value={formatCurrency(detail.wert * detail.anzahl, detail.waehrung || 'EUR')}
                     readOnly
                     className="readonly"
                   />
@@ -344,8 +368,8 @@ const SpendenModal: React.FC<SpendenModalProps> = ({
           {/* Total */}
           <div className="total-section">
             <div className="total-amount">
-              <label>{t('finanz:easyFiBu.spenden.gesamtbetrag')}</label>
-              <span className="total-value">{calculateTotal().toFixed(2)} €</span>
+              <span className="total-label">{t('finanz:easyFiBu.spenden.gesamtbetrag')}</span>
+              <span className="total-value">{formatCurrency(calculateTotal())}</span>
             </div>
           </div>
 

@@ -5,7 +5,9 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { de, tr } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 import { VereinDto, UpdateVereinDto, CreateVereinDto } from '../../types/verein';
+import { OrganizationDto } from '../../types/organization';
 import keytableService from '../../services/keytableService';
+import { organizationService } from '../../services/organizationService';
 import Modal from '../Common/Modal';
 import SocialMediaEditor from './SocialMediaEditor';
 import styles from './VereinFormModal.module.css';
@@ -39,6 +41,13 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
   });
 
+  const { data: organizationOptions = [] } = useQuery<OrganizationDto[]>({
+    queryKey: ['organizations', 'verein'],
+    queryFn: () => organizationService.getAll({ orgType: 'Verein', includeDeleted: false }),
+    enabled: isOpen,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const [formData, setFormData] = useState<UpdateVereinDto>({
     name: '',
     kurzname: '',
@@ -54,9 +63,11 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
     zweck: '',
     socialMediaLinks: '',
     rechtsformId: undefined,
+    organizationId: undefined,
     aktiv: true,
   });
 
+  const [organizationMode, setOrganizationMode] = useState<'existing' | 'new'>('existing');
   const [gruendungsdatumDate, setGruendungsdatumDate] = useState<Date | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -78,9 +89,11 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
           zweck: verein.zweck || '',
           socialMediaLinks: verein.socialMediaLinks || '',
           rechtsformId: verein.rechtsformId,
+          organizationId: verein.organizationId,
           aktiv: verein.aktiv,
         });
         setGruendungsdatumDate(verein.gruendungsdatum ? new Date(verein.gruendungsdatum) : null);
+        setOrganizationMode('existing');
       } else {
         // Reset form for create mode
         setFormData({
@@ -98,13 +111,21 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
           zweck: '',
           socialMediaLinks: '',
           rechtsformId: undefined,
+          organizationId: undefined,
           aktiv: true,
         });
         setGruendungsdatumDate(null);
+        setOrganizationMode('existing');
       }
       setErrors({});
     }
   }, [isOpen, verein, mode]);
+
+  useEffect(() => {
+    if (isOpen && mode === 'create' && organizationOptions.length === 0) {
+      setOrganizationMode('new');
+    }
+  }, [isOpen, mode, organizationOptions.length]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -121,6 +142,31 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
       setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleOrganizationModeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextMode = e.target.value as 'existing' | 'new';
+    setOrganizationMode(nextMode);
+
+    if (nextMode === 'new') {
+      setFormData((prev) => ({ ...prev, organizationId: undefined }));
+    }
+  };
+
+  const handleOrganizationSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      organizationId: value ? Number(value) : undefined,
+    }));
+
+    if (errors.organizationId) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.organizationId;
         return newErrors;
       });
     }
@@ -145,15 +191,38 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
       newErrors.webseite = t('vereine:validation.invalidUrl');
     }
 
+    if (organizationMode === 'existing' && !formData.organizationId) {
+      newErrors.organizationId = t('vereine:validation.organizationRequired');
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
       return;
+    }
+
+    if (mode === 'create' && organizationMode === 'new') {
+      try {
+        const createdOrganization = await organizationService.create({
+          name: formData.name?.trim() || '',
+          orgType: 'Verein',
+          aktiv: true,
+        });
+        onSubmit({ ...formData, organizationId: createdOrganization.id });
+        return;
+      } catch (error: any) {
+        const responseData = error?.response?.data;
+        const message = typeof responseData === 'string'
+          ? responseData
+          : responseData?.message || error?.message || t('vereine:messages.error');
+        setErrors((prev) => ({ ...prev, organizationId: message }));
+        return;
+      }
     }
 
     onSubmit(formData);
@@ -193,6 +262,60 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
                 required
               />
               {errors.name && <span className={styles.errorMessage}>{errors.name}</span>}
+            </div>
+
+            {/* Organization Selection */}
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+              <label htmlFor="organizationId">
+                {t('vereine:fields.organization')} <span className={styles.required}>*</span>
+              </label>
+              {mode === 'create' && (
+                <div className={styles.toggleGroup}>
+                  <label className={styles.toggleOption}>
+                    <input
+                      type="radio"
+                      name="organizationMode"
+                      value="existing"
+                      checked={organizationMode === 'existing'}
+                      onChange={handleOrganizationModeChange}
+                    />
+                    <span>{t('vereine:fields.organizationSelect')}</span>
+                  </label>
+                  <label className={styles.toggleOption}>
+                    <input
+                      type="radio"
+                      name="organizationMode"
+                      value="new"
+                      checked={organizationMode === 'new'}
+                      onChange={handleOrganizationModeChange}
+                    />
+                    <span>{t('vereine:fields.organizationCreate')}</span>
+                  </label>
+                </div>
+              )}
+
+              {organizationMode === 'existing' ? (
+                <select
+                  id="organizationId"
+                  name="organizationId"
+                  className={`${styles.selectInput} ${errors.organizationId ? styles.error : ''}`}
+                  value={formData.organizationId ?? ''}
+                  onChange={handleOrganizationSelect}
+                  required
+                >
+                  <option value="">{t('common:actions.pleaseSelect')}</option>
+                  {organizationOptions.map((org) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className={styles.helperText}>
+                  {t('vereine:fields.organizationAuto')}
+                </div>
+              )}
+              {errors.organizationId && <span className={styles.errorMessage}>{errors.organizationId}</span>}
             </div>
 
             {/* Kısa Ad */}
@@ -405,4 +528,3 @@ const VereinFormModal: React.FC<VereinFormModalProps> = ({
 };
 
 export default VereinFormModal;
-

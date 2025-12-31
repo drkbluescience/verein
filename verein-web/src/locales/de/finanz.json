@@ -644,6 +644,7 @@
       "title": "Spendenprotokolle",
       "subtitle": "Barzahlungs-Protokolle mit Zeugenunterschriften",
       "newProtokoll": "Neues Protokoll",
+      "viewProtokoll": "Protokoll anzeigen",
       "datum": "Datum",
       "betrag": "Betrag",
       "zweck": "Verwendungszweck",
@@ -664,6 +665,8 @@
       "anzahl": "Anzahl",
       "summe": "Summe",
       "gesamtbetrag": "Gesamtbetrag",
+      "addDetail": "Detail hinzufügen",
+      "bemerkungen": "Bemerkungen",
       "kategorien": {
         "allgemein": "Allgemein",
         "moschee": "Moschee",

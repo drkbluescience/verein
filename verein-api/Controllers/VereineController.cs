@@ -100,6 +100,11 @@ public class VereineController : ControllerBase
             _logger.LogWarning(ex, "Validation error while creating Verein");
             return BadRequest(ex.Message);
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Conflict while creating Verein");
+            return Conflict(ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while creating Verein");
@@ -134,6 +139,11 @@ public class VereineController : ControllerBase
         {
             _logger.LogWarning(ex, "Validation error while updating Verein with ID {Id}", id);
             return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Conflict while updating Verein with ID {Id}", id);
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {

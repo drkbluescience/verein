@@ -18,6 +18,7 @@ public class VereinService : IVereinService
     private readonly IRepository<Veranstaltung> _veranstaltungRepository;
     private readonly IRepository<Adresse> _adresseRepository;
     private readonly IRepository<Bankkonto> _bankkontoRepository;
+    private readonly IRepository<Organization> _organizationRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<VereinService> _logger;
 
@@ -27,6 +28,7 @@ public class VereinService : IVereinService
         IRepository<Veranstaltung> veranstaltungRepository,
         IRepository<Adresse> adresseRepository,
         IRepository<Bankkonto> bankkontoRepository,
+        IRepository<Organization> organizationRepository,
         IMapper mapper,
         ILogger<VereinService> logger)
     {
@@ -35,6 +37,7 @@ public class VereinService : IVereinService
         _veranstaltungRepository = veranstaltungRepository;
         _adresseRepository = adresseRepository;
         _bankkontoRepository = bankkontoRepository;
+        _organizationRepository = organizationRepository;
         _mapper = mapper;
         _logger = logger;
     }
@@ -431,6 +434,27 @@ public class VereinService : IVereinService
         {
             throw new ArgumentException("Verein name is required");
         }
+
+        if (createDto.OrganizationId <= 0)
+        {
+            throw new ArgumentException("OrganizationId is required");
+        }
+
+        var organization = await _organizationRepository.GetByIdAsync(createDto.OrganizationId, true, cancellationToken);
+        if (organization == null)
+        {
+            throw new ArgumentException($"Organization with ID {createDto.OrganizationId} not found");
+        }
+
+        if (organization.DeletedFlag == true)
+        {
+            throw new ArgumentException("Selected organization is deleted");
+        }
+
+        if (!string.Equals(organization.OrgType, "Verein", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("Organization type must be 'Verein'");
+        }
     }
 
     private async Task ValidateUpdateAsync(int id, UpdateVereinDto updateDto, CancellationToken cancellationToken)
@@ -445,6 +469,25 @@ public class VereinService : IVereinService
         if (string.IsNullOrWhiteSpace(updateDto.Name))
         {
             throw new ArgumentException("Verein name is required");
+        }
+
+        if (updateDto.OrganizationId.HasValue)
+        {
+            var organization = await _organizationRepository.GetByIdAsync(updateDto.OrganizationId.Value, true, cancellationToken);
+            if (organization == null)
+            {
+                throw new ArgumentException($"Organization with ID {updateDto.OrganizationId.Value} not found");
+            }
+
+            if (organization.DeletedFlag == true)
+            {
+                throw new ArgumentException("Selected organization is deleted");
+            }
+
+            if (!string.Equals(organization.OrgType, "Verein", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Organization type must be 'Verein'");
+            }
         }
     }
 

@@ -39,6 +39,7 @@ export interface VereinDto {
   vereinsnummer?: string;
   mandantencode?: string;
   rechtsformId?: number;
+  organizationId: number;
   adresseId?: number;
   hauptBankkontoId?: number;
   telefon?: string;
@@ -88,6 +89,7 @@ export interface CreateVereinDto {
   vereinsnummer?: string;
   steuernummer?: string;
   rechtsformId?: number;
+  organizationId: number;
   gruendungsdatum?: string;
   zweck?: string;
   adresseId?: number;
@@ -124,6 +126,7 @@ export interface UpdateVereinDto {
   vereinsnummer?: string;
   mandantencode?: string;
   rechtsformId?: number;
+  organizationId?: number;
   adresseId?: number;
   hauptBankkontoId?: number;
   telefon?: string;

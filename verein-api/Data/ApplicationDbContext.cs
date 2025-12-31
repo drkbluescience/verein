@@ -24,6 +24,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<Verein> Vereine { get; set; }
 
     /// <summary>
+    /// Organization hierarchy table
+    /// </summary>
+    public DbSet<Organization> Organizations { get; set; }
+
+    /// <summary>
     /// Adressen table
     /// </summary>
     public DbSet<Adresse> Adressen { get; set; }
@@ -344,6 +349,7 @@ public class ApplicationDbContext : DbContext
 
         // Apply entity configurations
         modelBuilder.ApplyConfiguration(new VereinConfiguration());
+        modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
         modelBuilder.ApplyConfiguration(new RechtlicheDatenConfiguration());
         modelBuilder.ApplyConfiguration(new AdresseConfiguration());
         modelBuilder.ApplyConfiguration(new BankkontoConfiguration());
@@ -456,6 +462,35 @@ public class ApplicationDbContext : DbContext
 
         foreach (var entry in entries)
         {
+            if (entry.Entity is Organization organization && entry.State == EntityState.Modified)
+            {
+                var deletedFlagProperty = entry.Property(e => e.DeletedFlag);
+                if (deletedFlagProperty.IsModified && organization.DeletedFlag == true)
+                {
+                    var activeChildIds = Organizations.IgnoreQueryFilters()
+                        .Where(o => o.ParentOrganizationId == organization.Id && o.DeletedFlag == false)
+                        .Select(o => o.Id)
+                        .ToList();
+
+                    if (activeChildIds.Count > 0)
+                    {
+                        var deletingChildIds = ChangeTracker.Entries<Organization>()
+                            .Where(childEntry => childEntry.State == EntityState.Modified
+                                && childEntry.Entity.ParentOrganizationId == organization.Id
+                                && childEntry.Property(o => o.DeletedFlag).IsModified
+                                && childEntry.Entity.DeletedFlag == true)
+                            .Select(childEntry => childEntry.Entity.Id)
+                            .ToHashSet();
+
+                        if (activeChildIds.Any(id => !deletingChildIds.Contains(id)))
+                        {
+                            throw new InvalidOperationException(
+                                $"Organization {organization.Id} has active child organizations and cannot be deleted.");
+                        }
+                    }
+                }
+            }
+
             switch (entry.State)
             {
                 case EntityState.Added:

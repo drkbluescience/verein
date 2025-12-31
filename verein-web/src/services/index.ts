@@ -61,6 +61,9 @@ export { default as keytableService } from './keytableService';
 // PageNote Service
 export { pageNoteService } from './pageNoteService';
 
+// Organization Service
+export { organizationService } from './organizationService';
+
 // Brief (Letter/Message) Services
 export { briefVorlageService, briefService } from './briefService';
 export { nachrichtService } from './nachrichtService';
@@ -76,6 +79,17 @@ export type {
   BankkontoDto,
   CreateBankkontoDto
 } from '../types/verein';
+
+export type {
+  // Organization Types
+  OrganizationDto,
+  OrganizationCreateDto,
+  OrganizationUpdateDto,
+  TreeNodeDto,
+  PathNodeDto,
+  OrganizationType,
+  FederationCode
+} from '../types/organization';
 
 export type {
   // RechtlicheDaten Types
@@ -212,4 +226,3 @@ export type {
  * import { vereinService, type VereinDto } from './services';
  * const verein: VereinDto = await vereinService.getById(1);
  */
-

@@ -40,6 +40,11 @@ public class Verein : AuditableEntity
     public int? RechtsformId { get; set; }
 
     /// <summary>
+    /// Organization identifier (foreign key to Organization table)
+    /// </summary>
+    public int OrganizationId { get; set; }
+
+    /// <summary>
     /// Date when the verein was founded
     /// </summary>
     [Column(TypeName = "date")]
@@ -176,6 +181,11 @@ public class Verein : AuditableEntity
     /// Main address of the verein (Hauptadresse)
     /// </summary>
     public virtual Adresse? HauptAdresse { get; set; }
+
+    /// <summary>
+    /// Organization entry for this verein
+    /// </summary>
+    public virtual Organization? Organization { get; set; }
 
     /// <summary>
     /// Main bank account of the verein (Hauptbankkonto)

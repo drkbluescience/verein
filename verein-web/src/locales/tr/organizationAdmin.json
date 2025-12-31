@@ -1,0 +1,32 @@
+{
+  "title": "Organization Yönetimi",
+  "filters": {
+    "orgType": "Org Tipi",
+    "federationCode": "Federation Code",
+    "includeDeleted": "Silinenleri göster"
+  },
+  "actions": {
+    "createRoot": "Üst Düzey Ekle",
+    "createChild": "Alt Birim Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "restore": "Geri Al",
+    "save": "Kaydet",
+    "cancel": "İptal"
+  },
+  "labels": {
+    "name": "Ad",
+    "orgType": "Org Tipi",
+    "federationCode": "Federation Code",
+    "parent": "Üst Birim",
+    "aktiv": "Aktif",
+    "deleted": "Silinmiş",
+    "path": "Yol"
+  },
+  "messages": {
+    "loadError": "Organization verisi yüklenemedi",
+    "saveSuccess": "Organization kaydedildi",
+    "deleteBlocked": "Önce alt birimleri taşı veya sil",
+    "restoreSuccess": "Organization geri alındı"
+  }
+}

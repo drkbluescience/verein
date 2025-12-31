@@ -98,6 +98,7 @@ const adminMenuItems: MenuItem[] = [
   { path: '/finanzen', labelKey: 'navigation.finanz', icon: <CreditCardIcon /> },
   { path: '/finanzen/kassenbuch', labelKey: 'navigation.kassenbuch', icon: <BookIcon /> },
   { path: '/admin/page-notes', labelKey: 'navigation.pageNotes', icon: <FileTextIcon /> },
+  { path: '/admin/organizations', labelKey: 'navigation.organizationAdmin', icon: <BuildingIcon /> },
   { path: '/berichte', labelKey: 'navigation.reports', icon: <BarChartIcon /> },
   { path: '/einstellungen', labelKey: 'navigation.settings', icon: <SettingsIcon /> },
 ];

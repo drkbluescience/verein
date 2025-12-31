@@ -44,6 +44,13 @@ public class CreateVereinDto
     public int? RechtsformId { get; set; }
 
     /// <summary>
+    /// Organization identifier (required)
+    /// </summary>
+    [Required(ErrorMessage = "OrganizationId is required")]
+    [JsonPropertyName("organizationId")]
+    public int OrganizationId { get; set; }
+
+    /// <summary>
     /// Date when the verein was founded
     /// </summary>
     [DataType(DataType.Date)]

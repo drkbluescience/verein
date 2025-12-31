@@ -736,6 +736,7 @@
       "title": "Bağış Protokolleri",
       "subtitle": "Şahitli nakit ödeme protokolleri",
       "newProtokoll": "Yeni Protokol",
+      "viewProtokoll": "Protokolü Görüntüle",
       "datum": "Tarih",
       "betrag": "Tutar",
       "zweck": "Kullanım Amacı",
@@ -756,6 +757,8 @@
       "anzahl": "Adet",
       "summe": "Toplam",
       "gesamtbetrag": "Genel Toplam",
+      "addDetail": "Detay Ekle",
+      "bemerkungen": "Açıklamalar",
       "kategorien": {
         "allgemein": "Genel",
         "moschee": "Cami",

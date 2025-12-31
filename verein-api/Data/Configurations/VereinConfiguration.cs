@@ -144,6 +144,10 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
         // Foreign key fields
         builder.Property(a => a.RechtsformId)
             .HasColumnName("RechtsformId");
+        
+        builder.Property(a => a.OrganizationId)
+            .IsRequired()
+            .HasColumnName("OrganizationId");
 
         // Audit fields from BaseEntity - Almanca kolon isimleri ve datetime tipi
         builder.Property(a => a.Created)
@@ -172,6 +176,9 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
         builder.HasIndex(a => a.DeletedFlag)
             .HasDatabaseName("IX_Verein_DeletedFlag");
 
+        builder.HasIndex(a => a.OrganizationId)
+            .HasDatabaseName("IX_Verein_OrganizationId");
+
         // Foreign key relationships - Almanca kolon isimleri
         builder.Property(a => a.RechtsformId)
             .HasColumnName("RechtsformId");
@@ -191,6 +198,11 @@ public class VereinConfiguration : IEntityTypeConfiguration<Verein>
             .WithMany(ba => ba.VereineAsMainBankAccount)
             .HasForeignKey(a => a.HauptBankkontoId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(a => a.Organization)
+            .WithMany()
+            .HasForeignKey(a => a.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Collection navigation properties
         builder.HasMany(v => v.Bankkonten)
