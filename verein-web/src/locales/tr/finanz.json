@@ -700,6 +700,7 @@
       "title": "Hesap Planı",
       "subtitle": "SKR49 uyumlu FiBu hesapları",
       "newKonto": "Yeni Hesap",
+      "successCreated": "Hesap basariyla olusturuldu",
       "nummer": "Hesap No",
       "bezeichnung": "Hesap Adı",
       "kategorie": "Kategori",
@@ -713,9 +714,16 @@
       "istAusgabe": "Gider Hesabı",
       "istDurchlaufend": "Gecici Hesap",
       "beschreibung": "Açıklama",
+      "beschreibungPlaceholder": "Orn: 2025 aidat gelirleri icin ana hesap",
       "aktiv": "Aktif",
       "inaktiv": "Pasif",
       "sortierung": "Sıralama",
+      "sortierungHelp": "Sayfadaki siralama onceligi - kucuk numara ustte gorunur",
+      "durchlaufendInfo": "Gecici hesaplar raporlara dahil edilmez",
+      "validation": {
+        "kontoArtRequired": "Hesap Turu secilmelidir",
+        "nummerExists": "Bu hesap numarasi zaten mevcut"
+      },
       "kategorien": {
         "ideellerBereich": "İdeolojik Alan",
         "vermoegensverwaltung": "Varlık Yönetimi",
@@ -724,8 +732,7 @@
         "durchlaufendePosten": "Gecici Kalemler"
       },
       "noKonten": "Hesap bulunamadı"
-    },
-    "spenden": {
+    },    "spenden": {
       "title": "Bağış Protokolleri",
       "subtitle": "Şahitli nakit ödeme protokolleri",
       "newProtokoll": "Yeni Protokol",

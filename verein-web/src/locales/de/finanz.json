@@ -608,6 +608,7 @@
       "title": "Kontenplan",
       "subtitle": "FiBu-Konten nach SKR49 verwalten",
       "newKonto": "Neues Konto",
+      "successCreated": "Konto wurde erfolgreich erstellt",
       "nummer": "Kontonummer",
       "bezeichnung": "Bezeichnung",
       "kategorie": "Kategorie",
@@ -621,9 +622,16 @@
       "istAusgabe": "Ausgabenkonto",
       "istDurchlaufend": "Durchlaufendes Konto",
       "beschreibung": "Beschreibung",
+      "beschreibungPlaceholder": "z.B. Hauptkonto fuer Mitgliedsbeitraege 2025",
       "aktiv": "Aktiv",
       "inaktiv": "Inaktiv",
       "sortierung": "Sortierung",
+      "sortierungHelp": "Sortierreihenfolge auf der Seite (kleinere Zahl erscheint oben)",
+      "durchlaufendInfo": "Durchlaufende Konten werden nicht in Berichten angezeigt",
+      "validation": {
+        "kontoArtRequired": "Kontotyp muss gewaehlt werden",
+        "nummerExists": "Diese Kontonummer ist bereits vorhanden"
+      },
       "kategorien": {
         "ideellerBereich": "Ideeller Bereich",
         "vermoegensverwaltung": "Vermögensverwaltung",
@@ -632,8 +640,7 @@
         "durchlaufendePosten": "Durchlaufende Posten"
       },
       "noKonten": "Keine Konten vorhanden"
-    },
-    "spenden": {
+    },    "spenden": {
       "title": "Spendenprotokolle",
       "subtitle": "Barzahlungs-Protokolle mit Zeugenunterschriften",
       "newProtokoll": "Neues Protokoll",

@@ -2,9 +2,9 @@
  * KontenModal - Modal for creating/editing FiBu Konto entries
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fiBuKontoService } from '../../../services/easyFiBuService';
 import { FiBuKontoDto, CreateFiBuKontoDto, UpdateFiBuKontoDto, FIBU_KATEGORIEN } from '../../../types/easyFiBu.types';
 
@@ -17,9 +17,19 @@ interface KontenModalProps {
 const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Form state
-  const [formData, setFormData] = useState<CreateFiBuKontoDto>({
+  const altKategorieOptions = useMemo(() => ({
+    [FIBU_KATEGORIEN.IDEELLER_BEREICH]: ['Aidat', 'Bagis', 'Kira'],
+    [FIBU_KATEGORIEN.VERMOEGENSVERWALTUNG]: ['Kira', 'Faiz', 'Yatirim'],
+    [FIBU_KATEGORIEN.ZWECKBETRIEB]: ['Etkinlik', 'Hizmet', 'Satis'],
+    [FIBU_KATEGORIEN.WIRTSCHAFTLICHER_BETRIEB]: ['Ticari Gelir', 'Ticari Gider'],
+    [FIBU_KATEGORIEN.DURCHLAUFENDE_POSTEN]: ['Emanet', 'Transfer'],
+    Gelir: ['Aidat', 'Bagis', 'Kira'],
+  }), []);
+
+
+  const defaultFormData: CreateFiBuKontoDto = {
     nummer: '',
     bezeichnung: '',
     kategorie: '',
@@ -29,8 +39,23 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
     istAusgabe: false,
     istDurchlaufend: false,
     beschreibung: '',
-    sortierung: 0,
+    sortierung: 10,
+  };
+
+  // Form state
+  const [formData, setFormData] = useState<CreateFiBuKontoDto>(defaultFormData);
+
+  const { data: existingKonten = [] } = useQuery({
+    queryKey: ['fibu-konten-all'],
+    queryFn: () => fiBuKontoService.getAll(),
+    enabled: isOpen,
   });
+
+  const handleClose = () => {
+    setFormData({ ...defaultFormData });
+    setSuccessMessage('');
+    onClose();
+  };
 
   // Create mutation
   const createMutation = useMutation({
@@ -38,7 +63,10 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fibu-konten'] });
       queryClient.invalidateQueries({ queryKey: ['fibu-konten', false] });
-      onClose();
+      setSuccessMessage(t('finanz:easyFiBu.konten.successCreated'));
+      setTimeout(() => {
+        handleClose();
+      }, 1200);
     },
   });
 
@@ -48,44 +76,65 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fibu-konten'] });
       queryClient.invalidateQueries({ queryKey: ['fibu-konten', false] });
-      onClose();
+      handleClose();
     },
   });
 
   // Initialize form with konto data
   useEffect(() => {
     if (konto) {
+      const normalizedType = konto.istDurchlaufend
+        ? 'durchlaufend'
+        : konto.istEinnahme
+          ? 'einnahme'
+          : konto.istAusgabe
+            ? 'ausgabe'
+            : '';
+
       setFormData({
         nummer: konto.nummer,
         bezeichnung: konto.bezeichnung,
         kategorie: konto.kategorie,
         unterkategorie: konto.unterkategorie || '',
         kontoTyp: konto.kontoTyp,
-        istEinnahme: konto.istEinnahme,
-        istAusgabe: konto.istAusgabe,
-        istDurchlaufend: konto.istDurchlaufend,
+        istEinnahme: normalizedType === 'einnahme',
+        istAusgabe: normalizedType === 'ausgabe',
+        istDurchlaufend: normalizedType === 'durchlaufend',
         beschreibung: konto.beschreibung || '',
-        sortierung: konto.sortierung,
+        sortierung: konto.sortierung ?? 10,
       });
     } else {
-      setFormData({
-        nummer: '',
-        bezeichnung: '',
-        kategorie: '',
-        unterkategorie: '',
-        kontoTyp: '',
-        istEinnahme: false,
-        istAusgabe: false,
-        istDurchlaufend: false,
-        beschreibung: '',
-        sortierung: 0,
-      });
+      setFormData({ ...defaultFormData });
     }
+    setSuccessMessage('');
   }, [konto]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    const kontoArt = formData.istDurchlaufend
+      ? 'durchlaufend'
+      : formData.istEinnahme
+        ? 'einnahme'
+        : formData.istAusgabe
+          ? 'ausgabe'
+          : '';
+
+    if (!kontoArt) {
+      alert(t('finanz:easyFiBu.konten.validation.kontoArtRequired'));
+      return;
+    }
+
+    if (formData.nummer) {
+      const duplicate = existingKonten.some((existing) => (
+        existing.nummer === formData.nummer && existing.id !== konto?.id
+      ));
+      if (duplicate) {
+        alert(t('finanz:easyFiBu.konten.validation.nummerExists'));
+        return;
+      }
+    }
+
     if (konto) {
       updateMutation.mutate({
         id: konto.id,
@@ -99,17 +148,30 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    
+
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({
         ...prev,
         [name]: checked,
       }));
-    } else if (name === 'sortierung') {
+    } else if (name === 'nummer') {
+      const numericValue = value.replace(/\D/g, '');
       setFormData(prev => ({
         ...prev,
-        [name]: parseInt(value) || 0,
+        [name]: numericValue,
+      }));
+    } else if (name === 'kategorie') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        unterkategorie: '',
+      }));
+    } else if (name === 'sortierung') {
+      const nextValue = value === '' ? 10 : parseInt(value) || 0;
+      setFormData(prev => ({
+        ...prev,
+        [name]: nextValue,
       }));
     } else {
       setFormData(prev => ({
@@ -122,6 +184,25 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
   if (!isOpen) return null;
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const kontoArt = formData.istDurchlaufend
+    ? 'durchlaufend'
+    : formData.istEinnahme
+      ? 'einnahme'
+      : formData.istAusgabe
+        ? 'ausgabe'
+        : '';
+  const altKategorien = formData.kategorie
+    ? altKategorieOptions[formData.kategorie as keyof typeof altKategorieOptions] || []
+    : [];
+
+  const handleAccountTypeChange = (value: 'einnahme' | 'ausgabe' | 'durchlaufend') => {
+    setFormData(prev => ({
+      ...prev,
+      istEinnahme: value === 'einnahme',
+      istAusgabe: value === 'ausgabe',
+      istDurchlaufend: value === 'durchlaufend',
+    }));
+  };
 
   return (
     <div className="modal-overlay">
@@ -133,15 +214,21 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
               : t('finanz:easyFiBu.konten.newKonto')
             }
           </h2>
-          <button className="modal-close" onClick={onClose} disabled={isSubmitting}>
-            ×
+          <button className="modal-close" onClick={handleClose} disabled={isSubmitting}>
+            X
           </button>
         </div>
+
+        {successMessage && (
+          <div className="form-success">{successMessage}</div>
+        )}
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="nummer">{t('finanz:easyFiBu.konten.nummer')}</label>
+              <label htmlFor="nummer">
+                {t('finanz:easyFiBu.konten.nummer')} <span className="required-mark">*</span>
+              </label>
               <input
                 type="text"
                 id="nummer"
@@ -150,25 +237,16 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
                 onChange={handleChange}
                 required
                 disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="kontoTyp">{t('finanz:easyFiBu.konten.kontoTyp')}</label>
-              <input
-                type="text"
-                id="kontoTyp"
-                name="kontoTyp"
-                value={formData.kontoTyp}
-                onChange={handleChange}
-                required
-                disabled={isSubmitting}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="bezeichnung">{t('finanz:easyFiBu.konten.bezeichnung')}</label>
+            <label htmlFor="bezeichnung">
+              {t('finanz:easyFiBu.konten.bezeichnung')} <span className="required-mark">*</span>
+            </label>
             <input
               type="text"
               id="bezeichnung"
@@ -182,7 +260,9 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="kategorie">{t('finanz:easyFiBu.konten.kategorie')}</label>
+              <label htmlFor="kategorie">
+                {t('finanz:easyFiBu.konten.kategorie')} <span className="required-mark">*</span>
+              </label>
               <select
                 id="kategorie"
                 name="kategorie"
@@ -202,14 +282,20 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
 
             <div className="form-group">
               <label htmlFor="unterkategorie">{t('finanz:easyFiBu.konten.unterkategorie')}</label>
-              <input
-                type="text"
+              <select
                 id="unterkategorie"
                 name="unterkategorie"
                 value={formData.unterkategorie}
                 onChange={handleChange}
-                disabled={isSubmitting}
-              />
+                disabled={isSubmitting || !formData.kategorie}
+              >
+                <option value="">{t('finanz:easyFiBu.common.select')}</option>
+                {altKategorien.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -225,43 +311,52 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
                 min="0"
                 disabled={isSubmitting}
               />
+              <div className="help-text">{t('finanz:easyFiBu.konten.sortierungHelp')}</div>
             </div>
           </div>
 
           <div className="form-group">
-            <label>{t('finanz:easyFiBu.konten.kontoArt')}</label>
-            <div className="checkbox-group">
-              <label className="checkbox-label">
+            <label>
+              {t('finanz:easyFiBu.konten.kontoArt')} <span className="required-mark">*</span>
+            </label>
+            <div className="radio-group">
+              <label className="radio-label">
                 <input
-                  type="checkbox"
-                  name="istEinnahme"
-                  checked={formData.istEinnahme}
-                  onChange={handleChange}
+                  type="radio"
+                  name="kontoArt"
+                  checked={kontoArt === 'einnahme'}
+                  onChange={() => handleAccountTypeChange('einnahme')}
                   disabled={isSubmitting}
                 />
                 {t('finanz:easyFiBu.konten.einnahme')}
               </label>
-              <label className="checkbox-label">
+              <label className="radio-label">
                 <input
-                  type="checkbox"
-                  name="istAusgabe"
-                  checked={formData.istAusgabe}
-                  onChange={handleChange}
+                  type="radio"
+                  name="kontoArt"
+                  checked={kontoArt === 'ausgabe'}
+                  onChange={() => handleAccountTypeChange('ausgabe')}
                   disabled={isSubmitting}
                 />
                 {t('finanz:easyFiBu.konten.ausgabe')}
               </label>
-              <label className="checkbox-label">
+              <label className="radio-label">
                 <input
-                  type="checkbox"
-                  name="istDurchlaufend"
-                  checked={formData.istDurchlaufend}
-                  onChange={handleChange}
+                  type="radio"
+                  name="kontoArt"
+                  checked={kontoArt === 'durchlaufend'}
+                  onChange={() => handleAccountTypeChange('durchlaufend')}
                   disabled={isSubmitting}
                 />
                 {t('finanz:easyFiBu.konten.durchlaufend')}
               </label>
             </div>
+            {kontoArt === 'durchlaufend' && (
+              <div className="info-text">
+                <span className="info-icon">i</span>
+                {t('finanz:easyFiBu.konten.durchlaufendInfo')}
+              </div>
+            )}
           </div>
 
           <div className="form-group">
@@ -273,13 +368,14 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
               onChange={handleChange}
               rows={3}
               disabled={isSubmitting}
+              placeholder={t('finanz:easyFiBu.konten.beschreibungPlaceholder')}
             />
           </div>
 
           <div className="modal-actions">
             <button 
               type="button" 
-              onClick={onClose} 
+              onClick={handleClose} 
               className="btn btn-secondary"
               disabled={isSubmitting}
             >

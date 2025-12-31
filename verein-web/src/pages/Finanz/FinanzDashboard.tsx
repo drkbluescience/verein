@@ -99,6 +99,30 @@ const UploadIcon = () => (
   </svg>
 );
 
+type ChartLegendItem = {
+  color?: string;
+  value?: string | number;
+};
+
+type ChartLegendProps = {
+  payload?: ChartLegendItem[];
+};
+
+const ChartLegend: React.FC<ChartLegendProps> = ({ payload }) => {
+  if (!payload?.length) return null;
+
+  return (
+    <div className="chart-legend">
+      {payload.map((entry, index: number) => (
+        <div key={`${entry.value}-${index}`} className="chart-legend-item">
+          <span className="chart-legend-color" style={{ backgroundColor: entry.color }}></span>
+          <span className="chart-legend-label">{entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 interface StatCardProps {
   title: string;
   value: string | number;
@@ -120,11 +144,38 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, subtitle
 
 const FinanzDashboard: React.FC = () => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['finanz', 'common']);
+  const { t, i18n } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'gelir' | 'gider'>('gelir');
+  const language = i18n.language || 'tr';
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(language, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }), [language]);
+  const currencyFormatter = useMemo(() => new Intl.NumberFormat(language, {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }), [language]);
+  const currencyFormatterDetailed = useMemo(() => new Intl.NumberFormat(language, {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }), [language]);
+  const percentFormatter = useMemo(() => new Intl.NumberFormat(language, {
+    style: 'percent',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }), [language]);
+
+  const formatNumber = (value: number) => numberFormatter.format(value);
+  const formatCurrency = (value: number) => currencyFormatter.format(value);
+  const formatCurrencyDetailed = (value: number) => currencyFormatterDetailed.format(value);
+  const formatPercent = (value: number) => percentFormatter.format(value / 100);
 
   // Get vereinId based on user type
   const vereinId = useMemo(() => {
@@ -257,6 +308,10 @@ const FinanzDashboard: React.FC = () => {
     }));
   }, [user, selectedVereinId, dashboardStats]);
 
+  const paymentMethods = dashboardStats?.gelir.paymentMethods ?? [];
+  const paymentMethodsTotal = paymentMethods.reduce((sum, method) => sum + method.amount, 0);
+  const paymentMethodColors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+
   if (statsLoading) return <Loading />;
 
   // Export to Excel function
@@ -310,329 +365,222 @@ const FinanzDashboard: React.FC = () => {
         <h1 className="page-title">{t('finanz:dashboard.title')}</h1>
       </div>
 
-      {/* Filters & Actions Bar */}
-      <div className="actions-bar" style={{ padding: '0 24px 24px', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        {/* Admin: Verein Filter */}
-        {user?.type === 'admin' && (
-          <select
-            value={selectedVereinId || ''}
-            onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
-            style={{
-              padding: '10px 16px',
-              border: '2px solid var(--color-border)',
-              borderRadius: '12px',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text-primary)',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              minWidth: '200px',
-            }}
-          >
-            <option value="">{t('common:filter.allVereine')}</option>
-            {vereine.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.name}
-              </option>
-            ))}
-          </select>
-        )}
-        <div style={{ flex: 1 }}></div>
-        {/* Show Bank Upload button only on GELİR tab */}
-        {activeTab === 'gelir' && (
-          <button className="btn btn-secondary" onClick={() => navigate('/finanzen/bank-upload')}>
-            <UploadIcon />
-            {t('finanz:bankUpload.title')}
-          </button>
-        )}
-        {/* Show DITIB Upload button only on GİDER tab */}
-        {activeTab === 'gider' && (
-          <button className="btn btn-secondary" onClick={() => navigate('/finanzen/ditib-upload')}>
-            <UploadIcon />
-            {t('finanz:dashboard.ditibUploadButton')}
-          </button>
-        )}
-        <button className="btn btn-primary" onClick={exportToExcel}>
-          <DownloadIcon />
-          {t('finanz:dashboard.exportToExcel')}
-        </button>
-      </div>
-
-      {/* Tabs: Gelir / Gider */}
-      <div style={{ padding: '0 24px', maxWidth: '1400px', margin: '0 auto', marginBottom: '1.5rem' }}>
-        <div style={{
-          display: 'flex',
-          gap: '0.5rem',
-          borderBottom: '2px solid var(--color-border)',
-          marginBottom: '1.5rem'
-        }}>
-          <button
-            onClick={() => setActiveTab('gelir')}
-            style={{
-              padding: '12px 24px',
-              background: activeTab === 'gelir' ? 'var(--color-primary)' : 'transparent',
-              color: activeTab === 'gelir' ? 'white' : 'var(--color-text)',
-              border: 'none',
-              borderRadius: '8px 8px 0 0',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              borderBottom: activeTab === 'gelir' ? '3px solid var(--color-primary)' : '3px solid transparent',
-            }}
-          >
-            💰 {t('finanz:dashboard.incomeTab')}
-          </button>
-          <button
-            onClick={() => setActiveTab('gider')}
-            style={{
-              padding: '12px 24px',
-              background: activeTab === 'gider' ? 'var(--color-primary)' : 'transparent',
-              color: activeTab === 'gider' ? 'white' : 'var(--color-text)',
-              border: 'none',
-              borderRadius: '8px 8px 0 0',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              borderBottom: activeTab === 'gider' ? '3px solid var(--color-primary)' : '3px solid transparent',
-            }}
-          >
-            📤 {t('finanz:dashboard.expenseTab')}
-          </button>
+      <div className="finanz-topbar">
+        <div className="finanz-tabs">
+          <div className="finanz-tab-buttons">
+            <button
+              type="button"
+              onClick={() => setActiveTab('gelir')}
+              className={`finanz-tab-button ${activeTab === 'gelir' ? 'active' : ''}`}
+            >
+              <span className="finanz-tab-title">{t('finanz:dashboard.incomeTab')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('gider')}
+              className={`finanz-tab-button ${activeTab === 'gider' ? 'active' : ''}`}
+            >
+              <span className="finanz-tab-title">{t('finanz:dashboard.expenseTab')}</span>
+            </button>
+          </div>
+          <p className="finanz-tab-description">
+            {activeTab === 'gelir'
+              ? t('finanz:dashboard.incomeStatistics')
+              : t('finanz:dashboard.expenseStatistics')}
+          </p>
+        </div>
+        <div className="finanz-actions">
+              {user?.type === 'admin' && (
+                <select
+                  value={selectedVereinId || ''}
+                  onChange={(e) => setSelectedVereinId(e.target.value ? Number(e.target.value) : null)}
+                  className="finanz-filter-select"
+                >
+                  <option value="">{t('common:filter.allVereine')}</option>
+                  {vereine.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+          <div className="finanz-actions-bar">
+            {activeTab === 'gelir' && (
+              <button
+                type="button"
+                className="btn btn-secondary finanz-action-btn"
+                onClick={() => navigate('/finanzen/bank-upload')}
+              >
+                <UploadIcon />
+                {t('finanz:bankUpload.title')}
+              </button>
+            )}
+            {activeTab === 'gider' && (
+              <button
+                type="button"
+                className="btn btn-secondary finanz-action-btn"
+                onClick={() => navigate('/finanzen/ditib-upload')}
+              >
+                <UploadIcon />
+                {t('finanz:dashboard.ditibUploadButton')}
+              </button>
+            )}
+            <button type="button" className="btn btn-primary finanz-action-btn" onClick={exportToExcel}>
+              <DownloadIcon />
+              {t('finanz:dashboard.exportToExcel')}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* GELİR TAB CONTENT */}
+      {/* GELIR TAB CONTENT */}
       {activeTab === 'gelir' && (
         <>
           {/* Important Metrics - 2x2 Grid */}
-          <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.incomeStatistics')}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-          <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: stats.collectionRate >= 80 ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : stats.collectionRate >= 60 ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: stats.collectionRate >= 80 ? '0 4px 12px rgba(16, 185, 129, 0.3)' : stats.collectionRate >= 60 ? '0 4px 12px rgba(245, 158, 11, 0.3)' : '0 4px 12px rgba(239, 68, 68, 0.3)'
-              }}>
-                <PercentIcon />
+          <div className="dashboard-section kpi-section">
+            <h2 className="section-title">{t('finanz:dashboard.incomeStatistics')}</h2>
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: stats.collectionRate >= 80
+                        ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                        : stats.collectionRate >= 60
+                          ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
+                          : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                      boxShadow: stats.collectionRate >= 80
+                        ? '0 4px 12px rgba(16, 185, 129, 0.3)'
+                        : stats.collectionRate >= 60
+                          ? '0 4px 12px rgba(245, 158, 11, 0.3)'
+                          : '0 4px 12px rgba(239, 68, 68, 0.3)'
+                    }}
+                  >
+                    <PercentIcon />
+                  </div>
+                </div>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.collectionRate')}</p>
+                  <p className="kpi-value">{formatPercent(stats.collectionRate)}</p>
+                  <p className="kpi-subtitle">{t('finanz:dashboard.paymentSuccessRate')}</p>
+                </div>
               </div>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.collectionRate')}</p>
-              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.collectionRate.toFixed(1)}%</p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{t('finanz:dashboard.paymentSuccessRate')}</p>
+
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: stats.overdueForderungenCount === 0
+                        ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                        : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                      boxShadow: stats.overdueForderungenCount === 0
+                        ? '0 4px 12px rgba(16, 185, 129, 0.3)'
+                        : '0 4px 12px rgba(239, 68, 68, 0.3)'
+                    }}
+                  >
+                    <AlertCircleIcon />
+                  </div>
+                </div>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.overduePayments')}</p>
+                  <p className="kpi-value">{formatNumber(stats.overdueForderungenCount)}</p>
+                  <p className="kpi-subtitle">{formatCurrency(stats.overdueForderungenBetrag)}</p>
+                </div>
+              </div>
+
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                    }}
+                  >
+                    <DollarSignIcon />
+                  </div>
+                </div>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.expectedRevenue')}</p>
+                  <p className="kpi-value">{formatCurrency(stats.expectedRevenue)}</p>
+                  <p className="kpi-subtitle">{t('finanz:dashboard.dueThisMonth')}</p>
+                </div>
+              </div>
+
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: stats.cashPosition >= 0
+                        ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                        : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                      boxShadow: stats.cashPosition >= 0
+                        ? '0 4px 12px rgba(16, 185, 129, 0.3)'
+                        : '0 4px 12px rgba(245, 158, 11, 0.3)'
+                    }}
+                  >
+                    <WalletIcon />
+                  </div>
+                </div>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.cashPosition')}</p>
+                  <p className="kpi-value">{formatCurrency(Math.abs(stats.cashPosition))}</p>
+                  <p className="kpi-subtitle">
+                    {stats.cashPosition >= 0 ? t('finanz:dashboard.positive') : t('finanz:dashboard.negative')}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: stats.overdueForderungenCount === 0 ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: stats.overdueForderungenCount === 0 ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(239, 68, 68, 0.3)'
-              }}>
-                <AlertCircleIcon />
-              </div>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.overduePayments')}</p>
-              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.overdueForderungenCount}</p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.overdueForderungenBetrag.toFixed(2)}</p>
-            </div>
-          </div>
-
-          <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-              }}>
-                <DollarSignIcon />
-              </div>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.expectedRevenue')}</p>
-              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>€ {stats.expectedRevenue.toFixed(0)}</p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{t('finanz:dashboard.dueThisMonth')}</p>
+          {/* Quick Access - Gelir */}
+          <div className="dashboard-section quick-access-section">
+            <h2 className="section-title">{t('finanz:dashboard.quickAccess')}</h2>
+            <div className="quick-access-grid">
+              <button
+                type="button"
+                className="quick-access-card"
+                onClick={() => navigate('/finanzen/forderungen')}
+              >
+                <span className="quick-access-icon quick-access-icon-primary">
+                  <CreditCardIcon />
+                </span>
+                <span className="quick-access-text">
+                  <span className="quick-access-title">{t('finanz:dashboard.forderungen')}</span>
+                  <span className="quick-access-desc">{t('finanz:dashboard.forderungenDesc')}</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                className="quick-access-card"
+                onClick={() => navigate('/finanzen/zahlungen')}
+              >
+                <span className="quick-access-icon quick-access-icon-success">
+                  <TrendingUpIcon />
+                </span>
+                <span className="quick-access-text">
+                  <span className="quick-access-title">{t('finanz:dashboard.zahlungen')}</span>
+                  <span className="quick-access-desc">{t('finanz:dashboard.zahlungenDesc')}</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                className="quick-access-card"
+                onClick={() => navigate('/finanzen/bank')}
+              >
+                <span className="quick-access-icon quick-access-icon-violet">
+                  <WalletIcon />
+                </span>
+                <span className="quick-access-text">
+                  <span className="quick-access-title">{t('finanz:dashboard.bankBuchungen')}</span>
+                  <span className="quick-access-desc">{t('finanz:dashboard.bankBuchungenDesc')}</span>
+                </span>
+              </button>
             </div>
           </div>
-
-          <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.08)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: stats.cashPosition >= 0 ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: stats.cashPosition >= 0 ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(245, 158, 11, 0.3)'
-              }}>
-                <WalletIcon />
-              </div>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.cashPosition')}</p>
-              <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>€ {Math.abs(stats.cashPosition).toFixed(0)}</p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{stats.cashPosition >= 0 ? t('finanz:dashboard.positive') : t('finanz:dashboard.negative')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Access - Gelir */}
-      <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.quickAccess')}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <button
-            onClick={() => navigate('/finanzen/forderungen')}
-            style={{
-              padding: '1.25rem',
-              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            📋 {t('finanz:dashboard.forderungenButton')}
-          </button>
-          <button
-            onClick={() => navigate('/finanzen/zahlungen')}
-            style={{
-              padding: '1.25rem',
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            💰 {t('finanz:dashboard.zahlungenButton')}
-          </button>
-          <button
-            onClick={() => navigate('/finanzen/bank')}
-            style={{
-              padding: '1.25rem',
-              background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            🏦 {t('finanz:dashboard.bankBuchungenButton')}
-          </button>
-        </div>
-      </div>
 
       {/* Verein Comparison Table (Admin only, when no filter selected) */}
       {user?.type === 'admin' && selectedVereinId === null && vereinComparisonData.length > 0 && (
@@ -788,7 +736,9 @@ const FinanzDashboard: React.FC = () => {
       <div className="charts-grid">
         {/* Monthly Revenue Trend */}
         <div className="chart-section chart-section-large">
-          <h2>{t('finanz:dashboard.monthlyRevenueTrend')}</h2>
+          <div className="chart-header">
+            <h2>{t('finanz:dashboard.monthlyRevenueTrend')}</h2>
+          </div>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyRevenueData} margin={{ bottom: 20, left: 10, right: 10 }}>
@@ -805,7 +755,7 @@ const FinanzDashboard: React.FC = () => {
                 <YAxis
                   stroke="#666"
                   style={{ fontSize: '0.875rem' }}
-                  tickFormatter={(value) => `€${value}`}
+                  tickFormatter={(value) => formatCurrency(value)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -813,15 +763,15 @@ const FinanzDashboard: React.FC = () => {
                     border: '1px solid var(--color-border)',
                     borderRadius: '8px',
                   }}
-                  formatter={(value: any) => `€${value}`}
+                  formatter={(value: number) => formatCurrencyDetailed(value)}
                 />
-                <Legend />
+                <Legend content={<ChartLegend />} />
                 <Line
                   type="monotone"
                   dataKey="gelir"
                   stroke="#10B981"
                   strokeWidth={2}
-                  name={t('dashboard.incomeChartLabel', { ns: 'finanz' })}
+                  name={t('finanz:transaction.income')}
                   dot={{ fill: '#10B981', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -830,7 +780,7 @@ const FinanzDashboard: React.FC = () => {
                   dataKey="gider"
                   stroke="#EF4444"
                   strokeWidth={2}
-                  name={t('dashboard.expenseChartLabel', { ns: 'finanz' })}
+                  name={t('finanz:transaction.expense')}
                   dot={{ fill: '#EF4444', r: 4 }}
                   activeDot={{ r: 6 }}
                 />
@@ -850,25 +800,26 @@ const FinanzDashboard: React.FC = () => {
 
         {/* Payment Methods Distribution */}
         <div className="chart-section">
-          <h2>{t('finanz:dashboard.paymentMethods')}</h2>
+          <div className="chart-header">
+            <h2>{t('finanz:dashboard.paymentMethods')}</h2>
+          </div>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={dashboardStats?.gelir.paymentMethods.map(pm => ({
+                  data={paymentMethods.map((pm) => ({
                     name: pm.method,
                     value: pm.amount
-                  })) || []}
+                  }))}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }: any) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {(dashboardStats?.gelir.paymentMethods || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'][index % 6]} />
+                  {paymentMethods.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={paymentMethodColors[index % paymentMethodColors.length]} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -877,299 +828,232 @@ const FinanzDashboard: React.FC = () => {
                     border: '1px solid var(--color-border)',
                     borderRadius: '8px',
                   }}
-                  formatter={(value: any) => `€${value.toFixed(2)}`}
+                  formatter={(value: number) => formatCurrencyDetailed(value)}
                 />
-                <Legend />
+                <Legend content={<ChartLegend />} />
               </PieChart>
             </ResponsiveContainer>
-            <div style={{ marginTop: '1rem' }}>
-              {dashboardStats?.gelir.paymentMethods.map((pm, index) => (
-                <div key={index} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '0.5rem 0',
-                  borderBottom: index < (dashboardStats?.gelir.paymentMethods.length || 0) - 1 ? '1px solid var(--color-border)' : 'none'
-                }}>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>{pm.method}</span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-text)' }}>
-                    {pm.count} ({(pm.amount).toFixed(2)} €)
-                  </span>
-                </div>
-              ))}
+            <div className="payment-methods-table">
+              <div className="payment-methods-header">
+                <span>{t('finanz:export.paymentMethod')}</span>
+                <span>%</span>
+                <span>{t('finanz:export.count')}</span>
+                <span>{t('finanz:export.amount')}</span>
+              </div>
+              {paymentMethods.map((pm, index) => {
+                const percent = paymentMethodsTotal > 0 ? (pm.amount / paymentMethodsTotal) * 100 : 0;
+
+                return (
+                  <div key={pm.method} className="payment-methods-row">
+                    <span className="payment-methods-name">
+                      <span
+                        className="payment-methods-dot"
+                        style={{ backgroundColor: paymentMethodColors[index % paymentMethodColors.length] }}
+                      ></span>
+                      {pm.method}
+                    </span>
+                    <span className="payment-methods-percent">{formatPercent(percent)}</span>
+                    <span className="payment-methods-count">{formatNumber(pm.count)}</span>
+                    <span className="payment-methods-amount">{formatCurrency(pm.amount)}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
 
       {/* Detailed Statistics - Collapsible */}
-      <details className="dashboard-section" style={{ marginBottom: '2rem' }}>
-        <summary style={{
-          fontSize: '1.125rem',
-          fontWeight: '600',
-          padding: '1.25rem 1.5rem',
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: '12px',
-          listStyle: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          color: 'var(--color-text)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'var(--color-background)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'var(--color-surface)';
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-        }}>
-          <span style={{ fontSize: '0.875rem', opacity: 0.7 }}>▼</span>
+      <details className="dashboard-section detailed-stats">
+        <summary className="detailed-stats-summary">
+          <span className="detailed-stats-icon">
+            <TrendingUpIcon />
+          </span>
           <span>{t('finanz:dashboard.detailedStatistics')}</span>
         </summary>
-        <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+        <div className="detailed-stats-grid">
           <StatCard
             title={t('finanz:dashboard.totalClaims')}
-            value={stats.totalForderungen}
+            value={formatNumber(stats.totalForderungen)}
             icon={<CreditCardIcon />}
             color="primary"
-            subtitle={`€ ${stats.totalForderungsBetrag.toFixed(2)}`}
+            subtitle={formatCurrency(stats.totalForderungsBetrag)}
           />
           <StatCard
             title={t('finanz:dashboard.paidClaims')}
-            value={stats.bezahlteForderungen}
+            value={formatNumber(stats.bezahlteForderungen)}
             icon={<CheckCircleIcon />}
             color="success"
-            subtitle={`€ ${stats.bezahlteForderungenBetrag.toFixed(2)}`}
+            subtitle={formatCurrency(stats.bezahlteForderungenBetrag)}
           />
           <StatCard
             title={t('finanz:dashboard.openClaims')}
-            value={stats.offeneForderungen}
+            value={formatNumber(stats.offeneForderungen)}
             icon={<AlertCircleIcon />}
             color={stats.offeneForderungen > 0 ? 'warning' : 'success'}
-            subtitle={`€ ${stats.offeneForderungenBetrag.toFixed(2)}`}
+            subtitle={formatCurrency(stats.offeneForderungenBetrag)}
           />
           <StatCard
             title={t('finanz:dashboard.totalPayments')}
-            value={stats.totalZahlungen}
+            value={formatNumber(stats.totalZahlungen)}
             icon={<TrendingUpIcon />}
             color="primary"
-            subtitle={`€ ${stats.totalZahlungsBetrag.toFixed(2)}`}
+            subtitle={formatCurrency(stats.totalZahlungsBetrag)}
           />
           <StatCard
             title={t('finanz:dashboard.avgPaymentDays')}
-            value={`${Math.abs(stats.avgPaymentDays).toFixed(0)}`}
+            value={formatNumber(Math.abs(stats.avgPaymentDays))}
             icon={<ClockIcon />}
             color={stats.avgPaymentDays <= 0 ? 'success' : stats.avgPaymentDays <= 7 ? 'warning' : 'error'}
             subtitle={stats.avgPaymentDays <= 0 ? t('finanz:dashboard.onTime') : t('finanz:dashboard.daysDelay')}
           />
           <StatCard
             title={t('finanz:dashboard.arpu')}
-            value={`€ ${stats.arpu.toFixed(2)}`}
+            value={formatCurrency(stats.arpu)}
             icon={<UsersIcon />}
             color="primary"
-            subtitle={`${stats.activeMitglieder} ${t('finanz:dashboard.activeMembers')}`}
+            subtitle={`${formatNumber(stats.activeMitglieder)} ${t('finanz:dashboard.activeMembers')}`}
           />
         </div>
       </details>
 
       {/* Info Message */}
-      <div style={{
-        background: stats.overdueForderungenCount > 0
-          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)'
-          : 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-        border: `1px solid ${stats.overdueForderungenCount > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
-        borderRadius: '12px',
-        padding: '1.5rem',
-        marginBottom: '2rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-          <div style={{ fontSize: '1.5rem' }}>
-            {stats.overdueForderungenCount > 0 ? '⚠️' : '✅'}
-          </div>
-          <div style={{ flex: 1 }}>
-            <p
-              style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--color-text)' }}
-              dangerouslySetInnerHTML={{
-                __html: t('finanz:dashboard.collectionRateMessage')
-                  .replace('{rate}', stats.collectionRate.toFixed(1))
-                  .replace('{overdueMessage}', stats.overdueForderungenCount > 0
-                    ? t('finanz:dashboard.overdueExists').replace('{count}', stats.overdueForderungenCount.toString())
-                    : t('finanz:dashboard.allPaymentsCurrent'))
-              }}
-            />
-            <p style={{ fontSize: '0.875rem', opacity: 0.8, color: 'var(--color-text-secondary)' }}>
-              {t('finanz:dashboard.info')}
-            </p>
-          </div>
+      <div className={`alert-banner ${stats.overdueForderungenCount > 0 ? 'alert-warning' : 'alert-success'}`}>
+        <div className="alert-icon">
+          {stats.overdueForderungenCount > 0 ? <AlertCircleIcon /> : <CheckCircleIcon />}
         </div>
+        <div className="alert-content">
+          <p
+            className="alert-title"
+            dangerouslySetInnerHTML={{
+              __html: t('finanz:dashboard.collectionRateMessage')
+                .replace('{rate}', stats.collectionRate.toFixed(1))
+                .replace('{overdueMessage}', stats.overdueForderungenCount > 0
+                  ? t('finanz:dashboard.overdueExists').replace('{count}', stats.overdueForderungenCount.toString())
+                  : t('finanz:dashboard.allPaymentsCurrent'))
+            }}
+          />
+          <p className="alert-subtitle">{t('finanz:dashboard.info')}</p>
+        </div>
+        {stats.overdueForderungenCount > 0 && (
+          <button
+            type="button"
+            className="btn btn-secondary alert-action"
+            onClick={() => navigate('/finanzen/forderungen')}
+          >
+            {t('common:view')} {t('finanz:dashboard.overdueClaims')}
+          </button>
+        )}
       </div>
-      </>
+
+        </>
       )}
 
-      {/* GİDER TAB CONTENT */}
+      {/* GIDER TAB CONTENT */}
       {activeTab === 'gider' && (
         <>
           {/* DITIB Payments Statistics */}
-          <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.expenseStatistics')}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-              {/* Total DITIB Payments */}
-              <div style={{
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: '12px',
-                padding: '1.25rem',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
-                  }}>
+          <div className="dashboard-section kpi-section">
+            <h2 className="section-title">{t('finanz:dashboard.expenseStatistics')}</h2>
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                    }}
+                  >
                     <DollarSignIcon />
                   </div>
                 </div>
-                <div>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.totalDitibPayments')}</p>
-                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.totalDitibZahlungen}</p>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.totalDitibBetrag.toFixed(2)}</p>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.totalDitibPayments')}</p>
+                  <p className="kpi-value">{formatNumber(stats.totalDitibZahlungen)}</p>
+                  <p className="kpi-subtitle">{formatCurrency(stats.totalDitibBetrag)}</p>
                 </div>
               </div>
 
-              {/* Paid DITIB Payments */}
-              <div style={{
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: '12px',
-                padding: '1.25rem',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
-                  }}>
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                    }}
+                  >
                     <CheckCircleIcon />
                   </div>
                 </div>
-                <div>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.paidDitib')}</p>
-                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.bezahlteDitibZahlungen}</p>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.bezahlteDitibBetrag.toFixed(2)}</p>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.paidDitib')}</p>
+                  <p className="kpi-value">{formatNumber(stats.bezahlteDitibZahlungen)}</p>
+                  <p className="kpi-subtitle">{formatCurrency(stats.bezahlteDitibBetrag)}</p>
                 </div>
               </div>
 
-              {/* Pending DITIB Payments */}
-              <div style={{
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: '12px',
-                padding: '1.25rem',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
-                  }}>
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                      boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                    }}
+                  >
                     <ClockIcon />
                   </div>
                 </div>
-                <div>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.pendingDitib')}</p>
-                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{stats.offeneDitibZahlungen}</p>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>€ {stats.offeneDitibBetrag.toFixed(2)}</p>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.pendingDitib')}</p>
+                  <p className="kpi-value">{formatNumber(stats.offeneDitibZahlungen)}</p>
+                  <p className="kpi-subtitle">{formatCurrency(stats.offeneDitibBetrag)}</p>
                 </div>
               </div>
 
-              {/* Current Month DITIB */}
-              <div style={{
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: '12px',
-                padding: '1.25rem',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
-                  }}>
+              <div className="kpi-card">
+                <div className="kpi-header">
+                  <div
+                    className="kpi-icon"
+                    style={{
+                      background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                      boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+                    }}
+                  >
                     <TrendingUpIcon />
                   </div>
                 </div>
-                <div>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '0.375rem', fontWeight: '500' }}>{t('finanz:dashboard.currentMonth')}</p>
-                  <p style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.25rem' }}>€ {stats.currentMonthDitibBetrag.toFixed(2)}</p>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>{t('finanz:dashboard.ditibPayment')}</p>
+                <div className="kpi-content">
+                  <p className="kpi-title">{t('finanz:dashboard.currentMonth')}</p>
+                  <p className="kpi-value">{formatCurrency(stats.currentMonthDitibBetrag)}</p>
+                  <p className="kpi-subtitle">{t('finanz:dashboard.ditibPayment')}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Quick Access - DITIB */}
-          <div className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-text)' }}>{t('finanz:dashboard.quickAccess')}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <div className="dashboard-section quick-access-section">
+            <h2 className="section-title">{t('finanz:dashboard.quickAccess')}</h2>
+            <div className="quick-access-grid">
               <button
+                type="button"
+                className="quick-access-card"
                 onClick={() => navigate('/finanzen/ditib-zahlungen')}
-                style={{
-                  padding: '1.25rem',
-                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem'
-                }}
               >
-                📤 {t('finanz:dashboard.ditibPaymentsButton')}
+                <span className="quick-access-icon quick-access-icon-danger">
+                  <DollarSignIcon />
+                </span>
+                <span className="quick-access-text">
+                  <span className="quick-access-title">{t('finanz:dashboard.ditibPaymentsButton')}</span>
+                  <span className="quick-access-desc">{t('finanz:dashboard.ditibPayment')}</span>
+                </span>
               </button>
             </div>
           </div>
+
         </>
       )}
     </div>
