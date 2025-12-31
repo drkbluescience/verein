@@ -510,6 +510,186 @@
   color: var(--text-muted);
 }
 
+.auto-field {
+  background: #f5f6f8;
+  border-color: #d0d7de;
+  color: #4b5563;
+}
+
+.auto-field[readonly] {
+  cursor: not-allowed;
+}
+
+.field-hint {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.field-hint.muted {
+  color: var(--text-muted, #6b7280);
+}
+
+.field-hint.warning {
+  color: var(--danger-color, #d14343);
+  font-weight: 600;
+}
+
+.section-title {
+  margin: 1.25rem 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary, #1f2937);
+}
+
+.audit-row .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  transform: scale(1.1);
+}
+
+.audit-radio-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.audit-radio-group .radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  min-width: 160px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.radio-legend {
+  font-weight: 700;
+  color: var(--text-secondary, #4b5563);
+  margin-bottom: 0.25rem;
+  display: inline-block;
+}
+
+.audit-radio-group input[type="radio"] {
+  transform: scale(1.05);
+}
+
+.audit-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.audit-row .form-group {
+  margin: 0;
+}
+
+.audit-row .form-group label {
+  margin-bottom: 0.35rem;
+}
+
+.audit-row .checkbox-group {
+  align-self: start;
+  padding-top: 0.25rem;
+}
+
+.audit-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.confirm-dialog {
+  background: var(--surface-color, #fff);
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: min(520px, 90%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-dialog h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.confirm-dialog p {
+  margin: 0 0 0.75rem 0;
+}
+
+.confirm-dialog ul {
+  margin: 0 0 1rem 1.2rem;
+  padding: 0;
+  color: var(--text-secondary, #4b5563);
+}
+
+@media (max-width: 768px) {
+  .audit-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+}
+
+.saldo-highlight input,
+.saldo-highlight input.readonly {
+  font-weight: 700;
+  color: var(--primary-color, #2563eb);
+}
+
+.saldo-title {
+  color: var(--primary-color, #2563eb);
+}
+
+.saldo-card {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  padding: 1rem;
+  background: #f5f7fb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.saldo-card .saldo-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary, #4b5563);
+}
+
+.saldo-card .saldo-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary, #111827);
+}
+
+.saldo-card .saldo-subtext {
+  font-size: 0.85rem;
+  color: var(--text-muted, #6b7280);
+}
+
+.saldo-card.negative .saldo-value {
+  color: var(--danger-color, #d14343);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .tab-header {

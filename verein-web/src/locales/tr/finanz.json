@@ -798,6 +798,26 @@
       "subtitle": "Yıllık kasa kapanışları",
       "newAbschluss": "Yeni Kapanış",
       "calculate": "Otomatik Hesapla",
+      "autoLockInfo": "Açılış bakiyeleri ilk yıl manuel, sonraki yıllarda önceki kapanıştan gelir. Kapanış ve toplam alanları sistem tarafından otomatik hesaplanır.",
+      "systemCalculated": "Bu alan sistem tarafından hesaplandı",
+      "calculateFirst": "Lütfen önce Kassenbuch verilerine göre otomatik hesaplama yapın.",
+      "openingAutoNote": "Açılış bakiyeleri önceki yıl kapanışından otomatik alınmıştır.",
+      "yearAlreadyClosed": "{{year}} yılı için kapanış zaten oluşturulmuş.",
+      "noAvailableYear": "Kapanışı olmayan yıl bulunamadı",
+      "sectionOpening": "📥 Açılış Bakiyeleri",
+      "sectionTotals": "📊 Yıl İçi Toplamlar",
+      "sectionClosing": "📤 Kapanış",
+      "sectionSaldo": "Toplam Bakiye",
+      "sectionAudit": "🔎 Denetim",
+      "auditStatus": "Denetim Durumu",
+      "bemerkungenPlaceholder": "Örn: 2025 yılında deprem bağışları transit hesapta bekletilmiştir.",
+      "bemerkungenHelper": "Bu açıklamalar denetçiler ve resmi raporlar için önemlidir.",
+      "closeConfirmTitle": "⚠️ Yıl Kapanışı Onayı",
+      "closeConfirmIntro": "Bu işlem {{year}} yılını kapatır.",
+      "closeConfirmImpact1": "Kassenbuch kayıtları değiştirilemez.",
+      "closeConfirmImpact2": "İlgili yıl için tüm hesaplamalar kilitlenir.",
+      "closeConfirmImpact3": "{{nextYear}} açılış bakiyeleri bu verilere göre oluşur.",
+      "closeConfirmAction": "Kapanışı Onayla",
       "calculateConfirmTitle": "Otomatik hesaplama",
       "calculateConfirmMessage": "{{year}} yili icin otomatik hesaplama yapilacak. Devam etmek istiyor musunuz?",
       "jahr": "Yıl",
@@ -813,6 +833,7 @@
       "totalEinnahmen": "Toplam Gelirler",
       "totalAusgaben": "Toplam Giderler",
       "saldo": "Bakiye",
+      "saldoSubtext": "Kasa + Banka",
       "geprueft": "Denetlendi",
       "nichtGeprueft": "Denetlenmedi",
       "geprueftVon": "Denetleyen",
@@ -843,9 +864,3 @@
     }
   }
 }
-
-
-
-
-
-

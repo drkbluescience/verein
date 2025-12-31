@@ -706,6 +706,26 @@
       "subtitle": "Jährliche Kassenabschlüsse",
       "newAbschluss": "Neuer Abschluss",
       "calculate": "Automatisch berechnen",
+      "autoLockInfo": "Anfangsbestände sind nur im ersten Jahr manuell, danach aus dem Vorjahr. Kassen-, Bank- und Summenfelder werden automatisch berechnet.",
+      "systemCalculated": "Dieses Feld wird vom System berechnet",
+      "calculateFirst": "Bitte zuerst anhand der Kassenbuch-Daten automatisch berechnen.",
+      "openingAutoNote": "Anfangsbestände wurden automatisch aus dem Vorjahresabschluss übernommen.",
+      "yearAlreadyClosed": "Für {{year}} wurde bereits ein Abschluss erstellt.",
+      "noAvailableYear": "Kein Jahr ohne Abschluss verfügbar",
+      "sectionOpening": "📥 Anfangsbestände",
+      "sectionTotals": "📊 Jahresumsätze",
+      "sectionClosing": "📤 Abschluss",
+      "sectionSaldo": "Gesamtsaldo",
+      "sectionAudit": "🔎 Prüfung",
+      "auditStatus": "Prüfstatus",
+      "bemerkungenPlaceholder": "Z.B.: 2025 wurden Erdbeben-Spenden im Transitkonto gehalten.",
+      "bemerkungenHelper": "Diese Hinweise sind wichtig für Prüfer und offizielle Berichte.",
+      "closeConfirmTitle": "⚠️ Jahresabschluss-Bestätigung",
+      "closeConfirmIntro": "Dieser Vorgang schließt das Jahr {{year}} ab.",
+      "closeConfirmImpact1": "Kassenbuch-Einträge können nicht mehr geändert werden.",
+      "closeConfirmImpact2": "Alle Berechnungen für dieses Jahr werden fixiert.",
+      "closeConfirmImpact3": "Die Anfangsbestände {{nextYear}} basieren auf diesen Werten.",
+      "closeConfirmAction": "Abschluss bestätigen",
       "calculateConfirmTitle": "Automatische Berechnung",
       "calculateConfirmMessage": "Automatische Berechnung fuer {{year}} wird gestartet. Fortfahren?",
       "jahr": "Jahr",
@@ -721,6 +741,7 @@
       "totalEinnahmen": "Gesamteinnahmen",
       "totalAusgaben": "Gesamtausgaben",
       "saldo": "Saldo",
+      "saldoSubtext": "Kasse + Bank",
       "geprueft": "Geprüft",
       "nichtGeprueft": "Nicht geprüft",
       "geprueftVon": "Geprüft von",
@@ -751,7 +772,3 @@
     }
   }
 }
-
-
-
-

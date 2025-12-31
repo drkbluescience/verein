@@ -211,6 +211,7 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
           onClose={() => setIsModalOpen(false)}
           abschluss={selectedAbschluss}
           vereinId={vereinId as number}
+          closedYears={abschluesse.map(a => a.jahr)}
         />
       )}
 
@@ -251,5 +252,4 @@ const JahresabschlussTab: React.FC<JahresabschlussTabProps> = ({ vereinId }) => 
 };
 
 export default JahresabschlussTab;
-
 
