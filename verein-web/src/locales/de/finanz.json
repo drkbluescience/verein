@@ -603,7 +603,7 @@
         "vonDatum": "Von Datum",
         "bisDatum": "Bis Datum"
       }
-    },
+},
     "konten": {
       "title": "Kontenplan",
       "subtitle": "FiBu-Konten nach SKR49 verwalten",
@@ -709,6 +709,9 @@
       "subtitle": "Jährliche Kassenabschlüsse",
       "newAbschluss": "Neuer Abschluss",
       "calculate": "Automatisch berechnen",
+      "calculateHint": "Diese Berechnung verwendet alle Kassen- und Bankbewegungen des Jahres.",
+      "calculateTooltip": "Vorhandene Abschluesse werden nicht ueberschrieben; manuelle Eingaben bleiben erhalten.",
+      "newAbschlussHint": "Manuellen Jahresabschluss fuer das Jahr erstellen.",
       "autoLockInfo": "Anfangsbestände sind nur im ersten Jahr manuell, danach aus dem Vorjahr. Kassen-, Bank- und Summenfelder werden automatisch berechnet.",
       "systemCalculated": "Dieses Feld wird vom System berechnet",
       "calculateFirst": "Bitte zuerst anhand der Kassenbuch-Daten automatisch berechnen.",
@@ -751,7 +754,16 @@
       "geprueftAm": "Geprüft am",
       "pruefen": "Als geprüft markieren",
       "bemerkungen": "Bemerkungen",
-      "noAbschluesse": "Keine Jahresabschlüsse vorhanden"
+      "noAbschluesse": "Keine Jahresabschlüsse vorhanden",
+      "noData": "Keine Daten",
+      "downloadPdf": "PDF herunterladen",
+      "exportExcel": "Excel exportieren",
+      "auditModalTitle": "Pruefung bestaetigen",
+      "auditModalHint": "Bitte den Namen des Pruefers eingeben.",
+      "auditModalNameLabel": "Geprueft von",
+      "auditModalNamePlaceholder": "z.B. Max Mustermann",
+      "auditModalAction": "Pruefung speichern",
+      "auditNameRequired": "Pruefername erforderlich."
     },
     "common": {
       "save": "Speichern",

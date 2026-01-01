@@ -537,6 +537,8 @@ public class MitgliedForderungOptimizedService : IMitgliedForderungService
         {
             "YEARLY" => 12,
             "QUARTERLY" => 3,
+            "SEMIANNUAL" => 6,
+            "HALF_YEAR" => 6,
             _ => 1 // MONTHLY default
         };
 
@@ -562,6 +564,9 @@ public class MitgliedForderungOptimizedService : IMitgliedForderungService
             var existingForderung = forderungen.FirstOrDefault(f => 
                 (mitglied.BeitragPeriodeCode?.ToUpperInvariant() == "MONTHLY" && f.Jahr == paymentDate.Year && f.Monat == paymentDate.Month) ||
                 (mitglied.BeitragPeriodeCode?.ToUpperInvariant() == "QUARTERLY" && f.Jahr == paymentDate.Year && ((f.Monat - 1) / 3) + 1 == ((paymentDate.Month - 1) / 3) + 1) ||
+                ((mitglied.BeitragPeriodeCode?.ToUpperInvariant() == "SEMIANNUAL" || mitglied.BeitragPeriodeCode?.ToUpperInvariant() == "HALF_YEAR")
+                    && f.Jahr == paymentDate.Year
+                    && ((f.Monat - 1) / 6) + 1 == ((paymentDate.Month - 1) / 6) + 1) ||
                 (mitglied.BeitragPeriodeCode?.ToUpperInvariant() == "YEARLY" && f.Jahr == paymentDate.Year));
 
             var status = "UNPAID";

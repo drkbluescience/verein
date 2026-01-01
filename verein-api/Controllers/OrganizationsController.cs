@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VereinsApi.Attributes;
 using VereinsApi.DTOs.Organization;

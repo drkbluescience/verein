@@ -36,6 +36,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
   const [duplicateYearError, setDuplicateYearError] = useState<string | null>(null);
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const currentYear = new Date().getFullYear();
+  const noDataLabel = t('finanz:easyFiBu.jahresabschluss.noData');
 
   const yearOptions = useMemo(() => {
     const years: number[] = [];
@@ -50,8 +51,10 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
     [yearOptions, currentYear]
   );
   const isAudited = !!abschluss?.geprueft;
-  const formatCurrency = (value?: number | null) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value ?? 0);
+  const formatCurrency = (value?: number | null) => {
+    const formatted = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value ?? 0);
+    return formatted.replace(/\s?\u20AC$/, '\u20AC');
+  };
 
   // Form state
   const [formData, setFormData] = useState<CreateKassenbuchJahresabschlussDto>({
@@ -484,7 +487,9 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
 
                 <h4 className="section-title saldo-title">{t('finanz:easyFiBu.jahresabschluss.sectionSaldo')}</h4>
                 <div
-                  className={`saldo-card ${formData.saldo < 0 ? 'negative' : 'positive'}`}
+                  className={`saldo-card ${
+                    formData.saldo > 0 ? 'positive' : formData.saldo < 0 ? 'negative' : 'neutral'
+                  }`}
                   title={autoFilledFields.saldo ? autoTooltip : undefined}
                   aria-label={t('finanz:easyFiBu.jahresabschluss.saldo')}
                 >
@@ -621,7 +626,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                         <label>{t('finanz:easyFiBu.jahresabschluss.geprueftVon')}</label>
                         <input
                           type="text"
-                          value={abschluss.geprueftVon || '-'}
+                          value={abschluss.geprueftVon || noDataLabel}
                           readOnly
                           className="readonly"
                         />
@@ -630,7 +635,7 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
                         <label>{t('finanz:easyFiBu.jahresabschluss.geprueftAm')}</label>
                         <input
                           type="text"
-                          value={abschluss.geprueftAm ? new Date(abschluss.geprueftAm).toLocaleDateString() : '-'}
+                          value={abschluss.geprueftAm ? new Date(abschluss.geprueftAm).toLocaleDateString() : noDataLabel}
                           readOnly
                           className="readonly"
                         />
@@ -710,7 +715,9 @@ const JahresabschlussModal: React.FC<JahresabschlussModalProps> = ({
 
                 <h4 className="section-title saldo-title">{t('finanz:easyFiBu.jahresabschluss.sectionSaldo')}</h4>
                 <div
-                  className={`saldo-card ${abschluss.saldo < 0 ? 'negative' : 'positive'}`}
+                  className={`saldo-card ${
+                    abschluss.saldo > 0 ? 'positive' : abschluss.saldo < 0 ? 'negative' : 'neutral'
+                  }`}
                   title={autoTooltip}
                 >
                   <div className="saldo-label">{t('finanz:easyFiBu.jahresabschluss.saldo')}</div>

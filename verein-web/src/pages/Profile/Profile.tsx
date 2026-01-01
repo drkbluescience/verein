@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { mitgliedService } from '../../services/mitgliedService';
 import keytableService, { Waehrung } from '../../services/keytableService';
 import Loading from '../../components/Common/Loading';
+import ProfileEditModal from '../../components/Mitglied/ProfileEditModal';
 import './Profile.css';
 
 // SVG Icons
@@ -57,6 +58,7 @@ const Profile: React.FC = () => {
   const { t } = useTranslation(['profile', 'common']);
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Fetch mitglied data if user is a member
   const { data: mitglied, isLoading: mitgliedLoading } = useQuery({
@@ -215,10 +217,20 @@ const Profile: React.FC = () => {
       <div className="actions-bar">
         <button
           className="btn-primary"
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={() => {
+            if (user?.type === 'mitglied') {
+              setIsProfileModalOpen(true);
+              return;
+            }
+            setIsEditing(!isEditing);
+          }}
         >
           <EditIcon />
-          <span>{isEditing ? t('profile:actions.cancel') : t('profile:actions.edit')}</span>
+          <span>
+            {user?.type === 'mitglied'
+              ? t('profile:actions.edit')
+              : (isEditing ? t('profile:actions.cancel') : t('profile:actions.edit'))}
+          </span>
         </button>
       </div>
 
@@ -500,6 +512,14 @@ const Profile: React.FC = () => {
           <p dangerouslySetInnerHTML={{ __html: t('profile:messages.infoMessage') }} />
         </div>
       </div>
+
+      {user?.type === 'mitglied' && mitglied && (
+        <ProfileEditModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          mitglied={mitglied}
+        />
+      )}
     </div>
   );
 };

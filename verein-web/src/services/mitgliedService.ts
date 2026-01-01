@@ -3,6 +3,7 @@ import {
   MitgliedDto,
   CreateMitgliedDto,
   UpdateMitgliedDto,
+  UpdateMitgliedSelfDto,
   MitgliedAdresseDto,
   CreateMitgliedAdresseDto,
   MitgliedFamilieDto,
@@ -53,6 +54,11 @@ export const mitgliedService = {
   // Update Mitglied
   update: async (id: number, mitglied: UpdateMitgliedDto): Promise<MitgliedDto> => {
     return await api.put<MitgliedDto>(`/api/Mitglieder/${id}`, mitglied);
+  },
+
+  // Update Mitglied (self-service limited fields)
+  updateSelf: async (id: number, mitglied: UpdateMitgliedSelfDto): Promise<MitgliedDto> => {
+    return await api.put<MitgliedDto>(`/api/Mitglieder/${id}/self`, mitglied);
   },
 
   // Delete Mitglied

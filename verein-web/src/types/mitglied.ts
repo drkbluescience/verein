@@ -86,6 +86,13 @@ export interface UpdateMitgliedDto {
   aktiv?: boolean;
 }
 
+export interface UpdateMitgliedSelfDto {
+  email?: string;
+  telefon?: string;
+  mobiltelefon?: string;
+  beitragPeriodeCode?: string;
+}
+
 // MitgliedAdresse Types
 export interface MitgliedAdresseDto {
   id: number;

@@ -695,7 +695,7 @@
         "vonDatum": "Başlangıç",
         "bisDatum": "Bitiş"
       }
-    },
+},
     "konten": {
       "title": "Hesap Planı",
       "subtitle": "SKR49 uyumlu FiBu hesapları",
@@ -801,6 +801,9 @@
       "subtitle": "Yıllık kasa kapanışları",
       "newAbschluss": "Yeni Kapanış",
       "calculate": "Otomatik Hesapla",
+      "calculateHint": "Bu islem yil icindeki tum kasa ve banka hareketlerini kullanir.",
+      "calculateTooltip": "Mevcut kapanisi degistirmez, manuel girisleri ezmez.",
+      "newAbschlussHint": "Yil sonu icin manuel kapanis olustur.",
       "autoLockInfo": "Açılış bakiyeleri ilk yıl manuel, sonraki yıllarda önceki kapanıştan gelir. Kapanış ve toplam alanları sistem tarafından otomatik hesaplanır.",
       "systemCalculated": "Bu alan sistem tarafından hesaplandı",
       "calculateFirst": "Lütfen önce Kassenbuch verilerine göre otomatik hesaplama yapın.",
@@ -843,7 +846,16 @@
       "geprueftAm": "Denetim Tarihi",
       "pruefen": "Denetlendi Olarak İşaretle",
       "bemerkungen": "Açıklamalar",
-      "noAbschluesse": "Yıl sonu kapanışı bulunamadı"
+      "noAbschluesse": "Yıl sonu kapanışı bulunamadı",
+      "noData": "Veri yok",
+      "downloadPdf": "PDF indir",
+      "exportExcel": "Excel disa aktar",
+      "auditModalTitle": "Denetimi onayla",
+      "auditModalHint": "Denetleyen ad soyad girin.",
+      "auditModalNameLabel": "Denetleyen",
+      "auditModalNamePlaceholder": "Orn: Ali Veli",
+      "auditModalAction": "Denetimi kaydet",
+      "auditNameRequired": "Denetleyen adi gerekli."
     },
     "common": {
       "save": "Kaydet",

@@ -67,7 +67,25 @@
 
 .header-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.action-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #6c757d);
+  max-width: 220px;
+}
+
+.action-hint.warning {
+  color: var(--warning-color, #ffc107);
 }
 
 /* Filters */
@@ -435,6 +453,188 @@
 }
 
 /* Jahresabschluss Grid */
+.jahresabschluss-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.jahresabschluss-list {
+  min-width: 0;
+}
+
+.jahresabschluss-detail {
+  min-width: 0;
+}
+
+.jahresabschluss-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.jahresabschluss-filter label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.jahresabschluss-filter select {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  background: var(--surface-color, #fff);
+  font-size: 0.85rem;
+  min-width: 140px;
+}
+
+.jahresabschluss-detail-panel {
+  background: var(--bg-secondary, #f8f9fa);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 420px;
+}
+
+.jahresabschluss-detail-panel.empty {
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.detail-year {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.detail-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(108, 117, 125, 0.15);
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}
+
+.detail-status.ok {
+  background: rgba(40, 167, 69, 0.15);
+  color: var(--success-color, #28a745);
+}
+
+.detail-status.pending {
+  background: rgba(255, 193, 7, 0.15);
+  color: #856404;
+}
+
+.detail-meta {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.detail-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.detail-empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.detail-empty-text {
+  margin: 0 0 1rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.detail-saldo {
+  padding: 1rem;
+  border-radius: 12px;
+  background: #f5f7fb;
+  border: 1px solid var(--border-color, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.detail-saldo-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #6c757d);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.detail-saldo-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.detail-saldo-value.positive {
+  color: var(--success-color, #28a745);
+}
+
+.detail-saldo-value.negative {
+  color: var(--danger-color, #dc3545);
+}
+
+.detail-saldo-value.neutral {
+  color: var(--text-muted, #6c757d);
+}
+
+.detail-saldo-subtext {
+  font-size: 0.8rem;
+  color: var(--text-muted, #6c757d);
+}
+
 .jahresabschluss-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -446,15 +646,22 @@
   border: 1px solid var(--border-color, #eee);
   border-radius: 8px;
   overflow: hidden;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+  cursor: pointer;
 }
 
 .abschluss-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 .abschluss-card.geprueft {
   border-color: var(--success-color);
+}
+
+.abschluss-card.selected {
+  border-color: var(--primary-color, #0d6efd);
+  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.18);
 }
 
 .abschluss-card .card-header {
@@ -466,13 +673,97 @@
   border-bottom: 1px solid var(--border-color, #eee);
 }
 
+.abschluss-card .card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .abschluss-card .card-header h3 {
   margin: 0;
   font-size: 1.25rem;
 }
 
+.audit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(108, 117, 125, 0.15);
+  color: var(--text-secondary);
+}
+
+.audit-badge.ok {
+  background: rgba(40, 167, 69, 0.15);
+  color: var(--success-color, #28a745);
+}
+
+.audit-badge.pending {
+  background: rgba(255, 193, 7, 0.18);
+  color: #856404;
+}
+
 .abschluss-card .card-body {
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.abschluss-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.summary-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #6c757d);
+}
+
+.summary-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.summary-value.positive {
+  color: var(--success-color, #28a745);
+}
+
+.summary-value.negative {
+  color: var(--danger-color, #dc3545);
+}
+
+.summary-value.neutral {
+  color: var(--text-muted, #6c757d);
+}
+
+.abschluss-section {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.abschluss-section:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.abschluss-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #6c757d);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .abschluss-row {
@@ -480,6 +771,24 @@
   justify-content: space-between;
   padding: 0.375rem 0;
   font-size: 0.875rem;
+}
+
+.abschluss-row.muted {
+  color: var(--text-muted, #6c757d);
+}
+
+.abschluss-row.einnahmen span:last-child {
+  color: var(--success-color, #28a745);
+  font-weight: 600;
+}
+
+.abschluss-row.ausgaben span:last-child {
+  color: var(--danger-color, #dc3545);
+  font-weight: 600;
+}
+
+.abschluss-row.big {
+  font-size: 1.05rem;
 }
 
 .abschluss-row.saldo {
@@ -492,10 +801,14 @@
 
 .abschluss-row.positive span:last-child { color: var(--success-color); }
 .abschluss-row.negative span:last-child { color: var(--danger-color); }
+.abschluss-row.neutral span:last-child {
+  color: var(--text-muted, #6c757d);
+  font-weight: 600;
+}
 
 .abschluss-card .card-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 0.75rem 1rem;
   background: var(--bg-secondary, #f8f9fa);
@@ -506,6 +819,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.audit-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   font-size: 0.75rem;
   color: var(--text-muted);
 }
@@ -828,6 +1149,55 @@
   color: var(--danger-color, #d14343);
 }
 
+.saldo-card.neutral .saldo-value {
+  color: var(--text-muted, #6b7280);
+}
+
+.skeleton-line,
+.skeleton-pill,
+.skeleton-circle {
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+  border-radius: 6px;
+}
+
+.skeleton-line::after,
+.skeleton-pill::after,
+.skeleton-circle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+.skeleton-line {
+  height: 10px;
+}
+
+.skeleton-pill {
+  height: 18px;
+  border-radius: 999px;
+}
+
+.skeleton-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.skeleton-card .card-body {
+  gap: 0.6rem;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .tab-header {
@@ -853,5 +1223,37 @@
   .spenden-modal .detail-row .btn-icon {
     grid-column: 1 / -1;
     justify-self: start;
+  }
+
+  .jahresabschluss-filter {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .jahresabschluss-filter select {
+    width: 100%;
+  }
+
+  .jahresabschluss-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .jahresabschluss-detail-panel {
+    min-height: 0;
+  }
+
+  .detail-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detail-actions {
+    width: 100%;
   }
 }

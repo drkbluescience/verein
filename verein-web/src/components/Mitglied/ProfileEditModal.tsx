@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { mitgliedService } from '../../services/mitgliedService';
-import { MitgliedDto, UpdateMitgliedDto } from '../../types/mitglied';
+import keytableService from '../../services/keytableService';
+import { MitgliedDto, UpdateMitgliedSelfDto } from '../../types/mitglied';
 import Modal from '../Common/Modal';
 import styles from './ProfileEditModal.module.css';
 
@@ -18,10 +19,17 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
 
+  const { data: beitragPerioden = [] } = useQuery({
+    queryKey: ['keytable', 'beitragperioden'],
+    queryFn: () => keytableService.getBeitragPerioden(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
   const [formData, setFormData] = useState({
     email: '',
     telefon: '',
-    mobiltelefon: ''
+    mobiltelefon: '',
+    beitragPeriodeCode: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -31,18 +39,20 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       setFormData({
         email: mitglied.email || '',
         telefon: mitglied.telefon || '',
-        mobiltelefon: mitglied.mobiltelefon || ''
+        mobiltelefon: mitglied.mobiltelefon || '',
+        beitragPeriodeCode: mitglied.beitragPeriodeCode || ''
       });
     }
     setErrors({});
   }, [mitglied, isOpen]);
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateMitgliedDto }) => 
-      mitgliedService.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateMitgliedSelfDto }) => 
+      mitgliedService.updateSelf(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
       queryClient.invalidateQueries({ queryKey: ['mitglied', mitglied.id] });
+      queryClient.invalidateQueries({ queryKey: ['mitglied-profile', mitglied.id] });
       onClose();
     },
     onError: (error: any) => {
@@ -69,38 +79,17 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       return;
     }
 
-    const updateData: UpdateMitgliedDto = {
-      id: mitglied.id,
-      vereinId: mitglied.vereinId,
-      mitgliedsnummer: mitglied.mitgliedsnummer,
-      mitgliedStatusId: mitglied.mitgliedStatusId,
-      mitgliedTypId: mitglied.mitgliedTypId,
-      vorname: mitglied.vorname,
-      nachname: mitglied.nachname,
+    const updateData: UpdateMitgliedSelfDto = {
       email: formData.email || undefined,
       telefon: formData.telefon || undefined,
       mobiltelefon: formData.mobiltelefon || undefined,
-      // Keep all other fields unchanged
-      geschlechtId: mitglied.geschlechtId,
-      geburtsdatum: mitglied.geburtsdatum,
-      geburtsort: mitglied.geburtsort,
-      staatsangehoerigkeitId: mitglied.staatsangehoerigkeitId,
-      eintrittsdatum: mitglied.eintrittsdatum,
-      austrittsdatum: mitglied.austrittsdatum,
-      bemerkung: mitglied.bemerkung,
-      beitragBetrag: mitglied.beitragBetrag,
-      beitragWaehrungId: mitglied.beitragWaehrungId,
-      beitragPeriodeCode: mitglied.beitragPeriodeCode,
-      beitragZahlungsTag: mitglied.beitragZahlungsTag,
-      beitragZahlungstagTypCode: mitglied.beitragZahlungstagTypCode,
-      beitragIstPflicht: mitglied.beitragIstPflicht,
-      aktiv: mitglied.aktiv
+      beitragPeriodeCode: formData.beitragPeriodeCode || undefined
     };
 
     updateMutation.mutate({ id: mitglied.id, data: updateData });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     setFormData(prev => ({
@@ -147,8 +136,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       <form id="profile-form" onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.infoBox}>
             <p className={styles.infoText}>
-              Sadece iletişim bilgilerinizi güncelleyebilirsiniz. 
-              Diğer bilgilerinizi değiştirmek için dernek yöneticinizle iletişime geçiniz.
+              Iletisim bilgilerinizi ve odeme periyodunuzu guncelleyebilirsiniz.
+              Diger bilgilerinizi degistirmek icin dernek yoneticinizle iletisime geciniz.
             </p>
           </div>
 
@@ -193,6 +182,24 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             />
           </div>
 
+          <div className={styles.formGroup}>
+            <label htmlFor="beitragPeriodeCode">Ödeme Periyodu</label>
+            <select
+              id="beitragPeriodeCode"
+              name="beitragPeriodeCode"
+              value={formData.beitragPeriodeCode}
+              onChange={handleChange}
+              disabled={isLoading}
+            >
+              <option value="">Seçiniz</option>
+              {beitragPerioden.map((period) => (
+                <option key={period.code} value={period.code}>
+                  {period.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {errors.submit && (
             <div className="profile-error-box">{errors.submit}</div>
           )}
@@ -203,6 +210,3 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 };
 
 export default ProfileEditModal;
-
-
-

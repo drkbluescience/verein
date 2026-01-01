@@ -207,6 +207,88 @@ public class MitgliederController : ControllerBase
     }
 
     /// <summary>
+    /// Update limited fields for the currently authenticated member
+    /// </summary>
+    [HttpPut("{id:int}/self")]
+    [ProducesResponseType(typeof(MitgliedDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MitgliedDto>> UpdateSelf(
+        int id,
+        [FromBody] UpdateMitgliedSelfDto updateDto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userType = User.FindFirst("UserType")?.Value;
+            var claimMitgliedId = User.FindFirst("MitgliedId")?.Value;
+
+            if (userType != "mitglied" || !int.TryParse(claimMitgliedId, out var tokenMitgliedId) || tokenMitgliedId != id)
+            {
+                return Forbid();
+            }
+
+            var existing = await _mitgliedService.GetByIdAsync(id, cancellationToken);
+            if (existing == null)
+            {
+                return NotFound($"Mitglied with ID {id} not found");
+            }
+
+            string? NormalizeOptional(string? value, string? fallback)
+            {
+                if (value == null)
+                {
+                    return fallback;
+                }
+
+                return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+            }
+
+            var updatedDto = new UpdateMitgliedDto
+            {
+                Id = existing.Id,
+                VereinId = existing.VereinId,
+                Mitgliedsnummer = existing.Mitgliedsnummer,
+                MitgliedStatusId = existing.MitgliedStatusId,
+                MitgliedTypId = existing.MitgliedTypId,
+                Vorname = existing.Vorname,
+                Nachname = existing.Nachname,
+                GeschlechtId = existing.GeschlechtId,
+                Geburtsdatum = existing.Geburtsdatum,
+                Geburtsort = existing.Geburtsort,
+                StaatsangehoerigkeitId = existing.StaatsangehoerigkeitId,
+                Email = NormalizeOptional(updateDto.Email, existing.Email),
+                Telefon = NormalizeOptional(updateDto.Telefon, existing.Telefon),
+                Mobiltelefon = NormalizeOptional(updateDto.Mobiltelefon, existing.Mobiltelefon),
+                Eintrittsdatum = existing.Eintrittsdatum,
+                Austrittsdatum = existing.Austrittsdatum,
+                Bemerkung = existing.Bemerkung,
+                BeitragBetrag = existing.BeitragBetrag,
+                BeitragWaehrungId = existing.BeitragWaehrungId,
+                BeitragPeriodeCode = NormalizeOptional(updateDto.BeitragPeriodeCode, existing.BeitragPeriodeCode),
+                BeitragZahlungsTag = existing.BeitragZahlungsTag,
+                BeitragZahlungstagTypCode = existing.BeitragZahlungstagTypCode,
+                BeitragIstPflicht = existing.BeitragIstPflicht,
+                Aktiv = existing.Aktiv
+            };
+
+            var updated = await _mitgliedService.UpdateAsync(id, updatedDto, cancellationToken);
+            return Ok(updated);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while updating member profile {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
     /// Delete Mitglied (soft delete)
     /// </summary>
     [HttpDelete("{id:int}")]
@@ -375,5 +457,3 @@ public class MitgliederController : ControllerBase
         }
     }
 }
-
-

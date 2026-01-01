@@ -17,6 +17,10 @@ namespace VereinsApi.Services;
 /// </summary>
 public class MitgliedService : IMitgliedService
 {
+    private const int BeitragZahlungTypId = 1;
+    private const int ForderungStatusPaid = 1;
+    private const int ForderungStatusUnpaid = 2;
+
     private readonly IMitgliedRepository _mitgliedRepository;
     private readonly IMitgliedAdresseRepository _mitgliedAdresseRepository;
     private readonly IMapper _mapper;
@@ -104,12 +108,27 @@ public class MitgliedService : IMitgliedService
                 throw new ArgumentException($"Mitglied with ID {id} not found");
             }
 
+            var previousPeriodeCode = existingMitglied.BeitragPeriodeCode;
+            var previousZahlungsTag = existingMitglied.BeitragZahlungsTag;
+            var previousZahlungstagTyp = existingMitglied.BeitragZahlungstagTypCode;
+
             _mapper.Map(updateDto, existingMitglied);
             existingMitglied.Modified = DateTime.UtcNow;
             existingMitglied.ModifiedBy = 1; // TODO: Get from current user context
 
             var updatedMitglied = await _mitgliedRepository.UpdateAsync(existingMitglied, cancellationToken);
-            
+
+            var planChanged = !string.Equals(previousPeriodeCode, updatedMitglied.BeitragPeriodeCode, StringComparison.OrdinalIgnoreCase)
+                || previousZahlungsTag != updatedMitglied.BeitragZahlungsTag
+                || !string.Equals(previousZahlungstagTyp, updatedMitglied.BeitragZahlungstagTypCode, StringComparison.OrdinalIgnoreCase);
+
+            if (planChanged)
+            {
+                await ReplanBeitragForderungenAsync(updatedMitglied, DateTime.UtcNow.Date, cancellationToken);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
             _logger.LogInformation("Successfully updated mitglied with ID {MitgliedId}", id);
             
             return _mapper.Map<MitgliedDto>(updatedMitglied);
@@ -549,6 +568,229 @@ public class MitgliedService : IMitgliedService
             _logger.LogError(ex, "Error getting membership statistics for verein {VereinId}", vereinId);
             throw;
         }
+    }
+
+    #endregion
+
+    #region Beitrag Replanning
+
+    private async Task ReplanBeitragForderungenAsync(Mitglied mitglied, DateTime effectiveDate, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(mitglied.BeitragPeriodeCode))
+        {
+            _logger.LogDebug("Skipping replanning for Mitglied {MitgliedId} - no period code", mitglied.Id);
+            return;
+        }
+
+        if (!mitglied.BeitragBetrag.HasValue || mitglied.BeitragBetrag.Value <= 0)
+        {
+            _logger.LogDebug("Skipping replanning for Mitglied {MitgliedId} - no amount", mitglied.Id);
+            return;
+        }
+
+        if (!mitglied.BeitragWaehrungId.HasValue)
+        {
+            _logger.LogDebug("Skipping replanning for Mitglied {MitgliedId} - no currency", mitglied.Id);
+            return;
+        }
+
+        var monthsPerPeriod = GetMonthsPerPeriod(mitglied.BeitragPeriodeCode);
+        if (monthsPerPeriod <= 0)
+        {
+            _logger.LogDebug("Skipping replanning for Mitglied {MitgliedId} - unsupported period {PeriodCode}", mitglied.Id, mitglied.BeitragPeriodeCode);
+            return;
+        }
+
+        var forderungen = await _context.MitgliedForderungen
+            .Where(f => f.MitgliedId == mitglied.Id && f.ZahlungTypId == BeitragZahlungTypId && f.DeletedFlag != true)
+            .ToListAsync(cancellationToken);
+
+        var paidThrough = forderungen
+            .Where(f => f.StatusId == ForderungStatusPaid)
+            .Select(f => f.Faelligkeit.Date)
+            .DefaultIfEmpty(DateTime.MinValue)
+            .Max();
+
+        var anchorDate = paidThrough > effectiveDate ? paidThrough : effectiveDate;
+        var paymentDay = mitglied.BeitragZahlungsTag ?? 1;
+        var useLastDay = string.Equals(mitglied.BeitragZahlungstagTypCode, "LAST_DAY", StringComparison.OrdinalIgnoreCase);
+
+        var firstDue = AlignPaymentDay(anchorDate, paymentDay, useLastDay);
+        if (firstDue < anchorDate)
+        {
+            firstDue = AlignPaymentDay(anchorDate.AddMonths(monthsPerPeriod), paymentDay, useLastDay);
+        }
+
+        if (paidThrough != DateTime.MinValue && firstDue < paidThrough)
+        {
+            firstDue = paidThrough;
+        }
+
+        var forderungIds = forderungen.Select(f => f.Id).ToList();
+        var allocatedForderungIds = await _context.MitgliedForderungZahlungen
+            .Where(fz => forderungIds.Contains(fz.ForderungId) && fz.DeletedFlag != true)
+            .Select(fz => fz.ForderungId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var directPaymentIds = await _context.MitgliedZahlungen
+            .Where(z => z.ForderungId.HasValue && forderungIds.Contains(z.ForderungId.Value) && z.DeletedFlag != true)
+            .Select(z => z.ForderungId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var allocatedSet = new HashSet<int>(allocatedForderungIds);
+        foreach (var id in directPaymentIds)
+        {
+            allocatedSet.Add(id);
+        }
+
+        var replacedForderungen = forderungen
+            .Where(f => f.StatusId != ForderungStatusPaid
+                && f.Faelligkeit.Date >= anchorDate
+                && !allocatedSet.Contains(f.Id))
+            .ToList();
+
+        foreach (var forderung in replacedForderungen)
+        {
+            forderung.DeletedFlag = true;
+            forderung.Modified = DateTime.UtcNow;
+            forderung.ModifiedBy = 1;
+        }
+
+        var existingKeys = new HashSet<string>(
+            forderungen
+                .Where(f => !replacedForderungen.Contains(f))
+                .Select(f => GetPeriodKey(f.Faelligkeit, monthsPerPeriod)));
+
+        var newForderungen = new List<MitgliedForderung>();
+        var periodsToGenerate = GetPeriodsToGenerate(monthsPerPeriod);
+        var dueDate = firstDue;
+
+        for (var i = 0; i < periodsToGenerate; i++)
+        {
+            if (i > 0)
+            {
+                dueDate = AlignPaymentDay(dueDate.AddMonths(monthsPerPeriod), paymentDay, useLastDay);
+            }
+
+            var key = GetPeriodKey(dueDate, monthsPerPeriod);
+            if (existingKeys.Contains(key))
+            {
+                continue;
+            }
+
+            var newForderung = new MitgliedForderung
+            {
+                VereinId = mitglied.VereinId,
+                MitgliedId = mitglied.Id,
+                ZahlungTypId = BeitragZahlungTypId,
+                Betrag = mitglied.BeitragBetrag.Value,
+                WaehrungId = mitglied.BeitragWaehrungId.Value,
+                Faelligkeit = dueDate.Date,
+                Beschreibung = BuildBeschreibung(dueDate, monthsPerPeriod),
+                StatusId = ForderungStatusUnpaid,
+                Created = DateTime.UtcNow,
+                CreatedBy = 1
+            };
+
+            ApplyPeriodFields(newForderung, dueDate, monthsPerPeriod);
+            newForderungen.Add(newForderung);
+            existingKeys.Add(key);
+        }
+
+        if (newForderungen.Count > 0)
+        {
+            await _context.MitgliedForderungen.AddRangeAsync(newForderungen, cancellationToken);
+        }
+
+        _logger.LogInformation(
+            "Replanned Beitrag for Mitglied {MitgliedId}: removed {RemovedCount}, added {AddedCount}",
+            mitglied.Id,
+            replacedForderungen.Count,
+            newForderungen.Count);
+    }
+
+    private static int GetMonthsPerPeriod(string? code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return 0;
+        }
+
+        return code.Trim().ToUpperInvariant() switch
+        {
+            "YEARLY" => 12,
+            "QUARTERLY" => 3,
+            "SEMIANNUAL" => 6,
+            "HALF_YEAR" => 6,
+            _ => 1
+        };
+    }
+
+    private static int GetPeriodsToGenerate(int monthsPerPeriod)
+    {
+        return monthsPerPeriod switch
+        {
+            12 => 1,
+            6 => 2,
+            3 => 4,
+            _ => 12
+        };
+    }
+
+    private static DateTime AlignPaymentDay(DateTime baseDate, int paymentDay, bool useLastDay)
+    {
+        var day = useLastDay
+            ? DateTime.DaysInMonth(baseDate.Year, baseDate.Month)
+            : Math.Min(paymentDay, DateTime.DaysInMonth(baseDate.Year, baseDate.Month));
+
+        return new DateTime(baseDate.Year, baseDate.Month, day);
+    }
+
+    private static string GetPeriodKey(DateTime dueDate, int monthsPerPeriod)
+    {
+        return monthsPerPeriod switch
+        {
+            12 => $"Y{dueDate.Year}",
+            6 => $"H{dueDate.Year}-{GetHalfYear(dueDate)}",
+            3 => $"Q{dueDate.Year}-{GetQuarter(dueDate)}",
+            _ => $"{dueDate.Year}-{dueDate.Month:D2}"
+        };
+    }
+
+    private static string BuildBeschreibung(DateTime dueDate, int monthsPerPeriod)
+    {
+        return monthsPerPeriod switch
+        {
+            12 => $"Year {dueDate.Year}",
+            6 => $"Half {GetHalfYear(dueDate)} {dueDate.Year}",
+            3 => $"Q{GetQuarter(dueDate)} {dueDate.Year}",
+            _ => $"{dueDate.Year}/{dueDate.Month:D2}"
+        };
+    }
+
+    private static int GetQuarter(DateTime date)
+    {
+        return ((date.Month - 1) / 3) + 1;
+    }
+
+    private static int GetHalfYear(DateTime date)
+    {
+        return ((date.Month - 1) / 6) + 1;
+    }
+
+    private static void ApplyPeriodFields(MitgliedForderung forderung, DateTime dueDate, int monthsPerPeriod)
+    {
+        forderung.Jahr = dueDate.Year;
+
+        if (monthsPerPeriod == 12)
+        {
+            forderung.Monat = null;
+            forderung.Quartal = null;
+            return;
+        }
+
+        forderung.Monat = dueDate.Month;
+        forderung.Quartal = monthsPerPeriod == 3 ? GetQuarter(dueDate) : null;
     }
 
     #endregion

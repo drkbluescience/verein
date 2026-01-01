@@ -524,6 +524,8 @@ public class MitgliedForderungService : IMitgliedForderungService
         {
             "YEARLY" => 12,
             "QUARTERLY" => 3,
+            "SEMIANNUAL" => 6,
+            "HALF_YEAR" => 6,
             _ => 1 // MONTHLY default
         };
 
@@ -558,6 +560,8 @@ public class MitgliedForderungService : IMitgliedForderungService
         {
             "YEARLY" => 2,      // 2 years (2 periods)
             "QUARTERLY" => 4,   // 4 quarters = 1 year
+            "SEMIANNUAL" => 2,  // 2 half-years = 1 year
+            "HALF_YEAR" => 2,   // 2 half-years = 1 year
             _ => 12             // 12 months = 1 year
         };
 
@@ -584,6 +588,14 @@ public class MitgliedForderungService : IMitgliedForderungService
                 {
                     var targetQuartal = ((paymentDate.Month - 1) / 3) + 1;
                     return f.Jahr == paymentDate.Year && f.Quartal == targetQuartal;
+                }
+                else if (beitragPlan.PeriodeCode?.ToUpperInvariant() == "SEMIANNUAL"
+                    || beitragPlan.PeriodeCode?.ToUpperInvariant() == "HALF_YEAR")
+                {
+                    var targetHalf = ((paymentDate.Month - 1) / 6) + 1;
+                    var month = f.Monat ?? f.Faelligkeit.Month;
+                    var forderungHalf = ((month - 1) / 6) + 1;
+                    return f.Jahr == paymentDate.Year && forderungHalf == targetHalf;
                 }
                 else if (beitragPlan.PeriodeCode?.ToUpperInvariant() == "YEARLY")
                 {
