@@ -8,7 +8,7 @@ IF OBJECT_ID(N'[Verein].[Organization]', 'U') IS NULL
 BEGIN
     CREATE TABLE [Verein].[Organization](
         [Id] [int] IDENTITY(1,1) NOT NULL,
-        [Created] [datetime] NULL CONSTRAINT [DF_Organization_Created] DEFAULT (GETDATE()),
+        [Created] [datetime] NOT NULL CONSTRAINT [DF_Organization_Created] DEFAULT (GETDATE()),
         [CreatedBy] [int] NULL,
         [Modified] [datetime] NULL,
         [ModifiedBy] [int] NULL,
@@ -74,37 +74,60 @@ GO
 
 IF COL_LENGTH('Verein.Verein', 'OrganizationId') IS NOT NULL
 BEGIN
+    -- Drop existing index so column can be altered safely (recreated later)
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Verein_OrganizationId' AND object_id = OBJECT_ID(N'[Verein].[Verein]'))
+    BEGIN
+        DROP INDEX [IX_Verein_OrganizationId] ON [Verein].[Verein];
+    END
+
     DECLARE @OrganizationMap TABLE (
         [OrganizationId] [int] NOT NULL,
         [VereinId] [int] NOT NULL
     );
 
-    INSERT INTO [Verein].[Organization] (
-        [Name],
-        [OrgType],
-        [ParentOrganizationId],
-        [FederationCode],
-        [Aktiv],
-        [DeletedFlag],
-        [Created],
-        [CreatedBy],
-        [Modified],
-        [ModifiedBy]
-    )
-    OUTPUT inserted.[Id], src.[Id] INTO @OrganizationMap([OrganizationId], [VereinId])
-    SELECT
-        src.[Name],
-        'Verein',
-        NULL,
-        NULL,
-        COALESCE(src.[Aktiv], 1),
-        0,
-        COALESCE(src.[Created], GETDATE()),
-        src.[CreatedBy],
-        src.[Modified],
-        src.[ModifiedBy]
-    FROM [Verein].[Verein] src
-    WHERE src.[OrganizationId] IS NULL;
+    MERGE [Verein].[Organization] AS tgt
+    USING (
+        SELECT
+            src.[Id] AS VereinId,
+            src.[Name],
+            'Verein' AS OrgType,
+            NULL AS ParentOrganizationId,
+            NULL AS FederationCode,
+            COALESCE(src.[Aktiv], 1) AS Aktiv,
+            COALESCE(src.[Created], GETDATE()) AS Created,
+            src.[CreatedBy],
+            src.[Modified],
+            src.[ModifiedBy]
+        FROM [Verein].[Verein] src
+        WHERE src.[OrganizationId] IS NULL
+    ) AS src
+    ON 1 = 0
+    WHEN NOT MATCHED THEN
+        INSERT (
+            [Name],
+            [OrgType],
+            [ParentOrganizationId],
+            [FederationCode],
+            [Aktiv],
+            [DeletedFlag],
+            [Created],
+            [CreatedBy],
+            [Modified],
+            [ModifiedBy]
+        )
+        VALUES (
+            src.[Name],
+            src.[OrgType],
+            src.[ParentOrganizationId],
+            src.[FederationCode],
+            src.[Aktiv],
+            0,
+            src.[Created],
+            src.[CreatedBy],
+            src.[Modified],
+            src.[ModifiedBy]
+        )
+    OUTPUT inserted.[Id], src.[VereinId] INTO @OrganizationMap([OrganizationId], [VereinId]);
 
     UPDATE v
     SET v.[OrganizationId] = m.[OrganizationId]

@@ -152,6 +152,24 @@
     "bundesland": "Bundesland",
     "land": "Land"
   },
+  "organization": {
+    "title": "Organisation",
+    "type": "Organisationstyp",
+    "federation": "Verband",
+    "noFederation": "Kein Verband angegeben",
+    "parent": "\u00dcbergeordnete Organisation",
+    "status": "Status",
+    "hierarchy": "Hierarchie",
+    "id": "Organisation ID: {{id}}",
+    "missing": "Keine Organisationsdaten",
+    "unknownType": "Unbekannter Typ",
+    "types": {
+      "Dachverband": "Dachverband",
+      "Landesverband": "Landesverband",
+      "Region": "Region",
+      "Verein": "Verein"
+    }
+  },
   "editVerein": "Vereinsinformationen bearbeiten",
   "createVerein": "Neuen Verein hinzufügen",
   "validation": {
