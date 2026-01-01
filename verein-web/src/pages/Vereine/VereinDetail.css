@@ -191,6 +191,121 @@
   text-decoration: underline;
 }
 
+.organization-card {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+.organization-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+}
+
+.organization-overline {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  letter-spacing: 1px;
+  margin: 0 0 4px;
+}
+
+.organization-name {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+}
+
+.organization-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.organization-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #e0ecff;
+  color: #1f4b99;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid #c7dbff;
+}
+
+.organization-pill.muted {
+  background: #f5f5f5;
+  color: #4b5563;
+  border-color: #e5e7eb;
+}
+
+.organization-federation {
+  padding: 10px 14px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  color: var(--color-text-primary);
+  min-width: 160px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.organization-grid .info-item {
+  background: #fff;
+}
+
+.organization-error {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecdd3;
+}
+
+.organization-path {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.path-label {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.path-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.path-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #fff;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+}
+
+.path-separator {
+  color: var(--color-text-secondary);
+}
+
 /* Adressen Section */
 .adressen-section {
   background: var(--color-surface);
@@ -699,4 +814,3 @@
     padding: 0.75rem 0.5rem;
   }
 }
-

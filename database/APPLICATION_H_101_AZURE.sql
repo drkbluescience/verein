@@ -1055,6 +1055,29 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+/****** Object:  Table [Verein].[Organization]    Script Date: 05.02.2026 - Organization Hierarchy ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Verein].[Organization](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Created] [datetime] NOT NULL CONSTRAINT [DF_Organization_Created] DEFAULT (GETDATE()),
+	[CreatedBy] [int] NULL,
+	[Modified] [datetime] NULL,
+	[ModifiedBy] [int] NULL,
+	[DeletedFlag] [bit] NOT NULL CONSTRAINT [DF_Organization_DeletedFlag] DEFAULT ((0)),
+	[Name] [nvarchar](200) NOT NULL,
+	[OrgType] [nvarchar](20) NOT NULL,
+	[ParentOrganizationId] [int] NULL,
+	[FederationCode] [nvarchar](20) NULL,
+	[Aktiv] [bit] NULL,
+ CONSTRAINT [PK_Organization] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 /****** Object:  Table [Verein].[Verein]    Script Date: 21.08.2025 13:03:24 ******/
 SET ANSI_NULLS ON
 GO
@@ -1072,6 +1095,7 @@ CREATE TABLE [Verein].[Verein](
 	[Vereinsnummer] [nvarchar](30) NULL,
 	[Steuernummer] [nvarchar](30) NULL,
 	[RechtsformId] [int] NULL,
+	[OrganizationId] [int] NOT NULL,
 	[Gruendungsdatum] [date] NULL,
 	[Zweck] [nvarchar](500) NULL,
 	[AdresseId] [int] NULL,
@@ -1529,10 +1553,54 @@ GO
 ALTER TABLE [Verein].[VeranstaltungBild]  WITH CHECK ADD FOREIGN KEY([VeranstaltungId])
 REFERENCES [Verein].[Veranstaltung] ([Id])
 GO
+ALTER TABLE [Verein].[Organization]  WITH CHECK ADD  CONSTRAINT [FK_Organization_ParentOrganization] FOREIGN KEY([ParentOrganizationId])
+REFERENCES [Verein].[Organization] ([Id])
+GO
+ALTER TABLE [Verein].[Organization] CHECK CONSTRAINT [FK_Organization_ParentOrganization]
+GO
+ALTER TABLE [Verein].[Organization]  WITH CHECK ADD  CONSTRAINT [CK_Organization_ParentNotSelf] CHECK  (([ParentOrganizationId] IS NULL OR [ParentOrganizationId]<>[Id]))
+GO
 ALTER TABLE [Verein].[Verein]  WITH CHECK ADD  CONSTRAINT [FK_Verein_Rechtsform] FOREIGN KEY([RechtsformId])
 REFERENCES [Keytable].[Rechtsform] ([Id])
 GO
+ALTER TABLE [Verein].[Verein]  WITH CHECK ADD  CONSTRAINT [FK_Verein_Organization] FOREIGN KEY([OrganizationId])
+REFERENCES [Verein].[Organization] ([Id])
+GO
+ALTER TABLE [Verein].[Verein] CHECK CONSTRAINT [FK_Verein_Organization]
+GO
 ALTER TABLE [Verein].[Verein] CHECK CONSTRAINT [FK_Verein_Rechtsform]
+GO
+
+-- Organization Indexes
+CREATE NONCLUSTERED INDEX [IX_Organization_ParentOrganizationId] ON [Verein].[Organization]
+(
+	[ParentOrganizationId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Organization_OrgType] ON [Verein].[Organization]
+(
+	[OrgType] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Organization_FederationCode] ON [Verein].[Organization]
+(
+	[FederationCode] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Organization_DeletedFlag] ON [Verein].[Organization]
+(
+	[DeletedFlag] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- Verein Indexes
+CREATE NONCLUSTERED INDEX [IX_Verein_OrganizationId] ON [Verein].[Verein]
+(
+	[OrganizationId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 -- Finanz Schema Foreign Keys

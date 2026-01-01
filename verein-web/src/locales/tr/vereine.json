@@ -152,6 +152,24 @@
     "bundesland": "Eyalet",
     "land": "Ülke"
   },
+  "organization": {
+    "title": "Organizasyon",
+    "type": "Organizasyon Tipi",
+    "federation": "Bağlılık",
+    "noFederation": "Bağlılık belirtilmedi",
+    "parent": "Üst Organizasyon",
+    "status": "Durum",
+    "hierarchy": "Hiyerarşi",
+    "id": "Organization ID: {{id}}",
+    "missing": "Organizasyon bilgisi bulunamadı",
+    "unknownType": "Tip bilinmiyor",
+    "types": {
+      "Dachverband": "Çatı Organizasyon",
+      "Landesverband": "Bölge Birliği",
+      "Region": "Bölge",
+      "Verein": "Dernek"
+    }
+  },
   "editVerein": "Dernek Bilgilerini Düzenle",
   "createVerein": "Yeni Dernek Ekle",
   "validation": {

@@ -10,6 +10,8 @@ import { mitgliedService } from '../../services/mitgliedService';
 import { MitgliedDto } from '../../types/mitglied';
 import { rechtlicheDatenService } from '../../services/rechtlicheDatenService';
 import { UpdateRechtlicheDatenDto } from '../../types/rechtlicheDaten';
+import { organizationService } from '../../services/organizationService';
+import { OrganizationDto, PathNodeDto } from '../../types/organization';
 import VereinFormModal from '../../components/Vereine/VereinFormModal';
 import RechtlicheDatenDetails from '../../components/Vereine/RechtlicheDatenDetails';
 import SocialMediaLinks from '../../components/Vereine/SocialMediaLinks';
@@ -94,6 +96,27 @@ const VereinDetail: React.FC = () => {
     enabled: !!id,
   });
 
+  const organizationId = verein?.organizationId;
+
+  const {
+    data: organization,
+    isLoading: organizationLoading,
+    error: organizationError,
+  } = useQuery<OrganizationDto>({
+    queryKey: ['organization', organizationId],
+    queryFn: () => organizationService.getById(Number(organizationId)),
+    enabled: !!organizationId,
+  });
+
+  const {
+    data: organizationPath = [],
+    isLoading: organizationPathLoading,
+  } = useQuery<PathNodeDto[]>({
+    queryKey: ['organization', 'path', organizationId],
+    queryFn: () => organizationService.getPath(Number(organizationId)),
+    enabled: !!organizationId,
+  });
+
   // Fetch Mitglieder data
   const {
     data: mitglieder = [],
@@ -162,6 +185,9 @@ const VereinDetail: React.FC = () => {
   const handleVereinModalClose = () => {
     setIsVereinModalOpen(false);
   };
+
+  const formatOrgType = (orgType?: string) =>
+    orgType ? t(`vereine:organization.types.${orgType}`, { defaultValue: orgType }) : t('vereine:organization.unknownType');
 
   // Yetkilendirme kontrolü - Dernek Bilgileri
   const canEditVerein = (): boolean => {
@@ -272,6 +298,68 @@ const VereinDetail: React.FC = () => {
                 <p>{verein.zweck}</p>
               </div>
             )}
+
+            <div className="organization-card">
+              <div className="organization-card__header">
+                <div>
+                  <p className="organization-overline">{t('vereine:organization.title')}</p>
+                  <h3 className="organization-name">
+                    {organizationLoading
+                      ? t('common:status.loading')
+                      : organization?.name || t('vereine:organization.missing')}
+                  </h3>
+                  <div className="organization-meta">
+                    <span className="organization-pill">
+                      {formatOrgType(organization?.orgType)}
+                    </span>
+                  </div>
+                </div>
+                <div className="organization-federation">
+                  {organizationLoading
+                    ? t('common:status.loading')
+                    : organization?.federationCode || t('vereine:organization.noFederation')}
+                </div>
+              </div>
+
+              <div className="info-grid organization-grid">
+                <div className="info-item">
+                  <label>{t('vereine:organization.type')}</label>
+                  <span>{formatOrgType(organization?.orgType)}</span>
+                </div>
+                <div className="info-item">
+                  <label>{t('vereine:organization.federation')}</label>
+                  <span>{organization?.federationCode || t('vereine:organization.noFederation')}</span>
+                </div>
+                <div className="info-item">
+                  <label>{t('vereine:organization.parent')}</label>
+                  <span>{organization?.parentOrganizationId ?? '-'}</span>
+                </div>
+                <div className="info-item">
+                  <label>{t('vereine:organization.status')}</label>
+                  <span>{organization?.aktiv === false ? t('common:status.inactive') : t('common:status.active')}</span>
+                </div>
+              </div>
+
+              {!organizationLoading && organizationError && (
+                <div className="organization-error">
+                  {t('common:errors.loadFailed')}
+                </div>
+              )}
+
+              {!organizationPathLoading && organizationPath.length > 0 && (
+                <div className="organization-path">
+                  <span className="path-label">{t('vereine:organization.hierarchy')}</span>
+                  <div className="path-chips">
+                    {organizationPath.map((node, index) => (
+                      <span key={node.id} className="path-chip">
+                        {node.name}
+                        {index < organizationPath.length - 1 && <span className="path-separator">/</span>}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="info-grid">
               <div className="info-item">
