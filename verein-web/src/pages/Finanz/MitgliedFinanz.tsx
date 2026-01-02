@@ -4,8 +4,8 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,6 +13,9 @@ import { mitgliedForderungService, mitgliedZahlungService, veranstaltungZahlungS
 import type { MitgliedZahlungDto, VeranstaltungZahlungDto } from '../../types/finanz.types';
 import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
+import keytableService from '../../services/keytableService';
+import type { UpdateMitgliedSelfDto } from '../../types/mitglied';
+import Modal from '../../components/Common/Modal';
 import Loading from '../../components/Common/Loading';
 import PaymentTrendChart from '../../components/Finanz/PaymentTrendChart';
 import PaymentInstructionCard from '../../components/PaymentInstructionCard';
@@ -132,8 +135,21 @@ const MitgliedFinanz: React.FC = () => {
   const { t, i18n } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const mitgliedId = user?.mitgliedId;
+
+  const [planForm, setPlanForm] = useState({
+    beitragPeriodeCode: ''
+  });
+  const [lastSavedPlan, setLastSavedPlan] = useState({
+    beitragPeriodeCode: ''
+  });
+  const [planErrors, setPlanErrors] = useState<Record<string, string>>({});
+  const [planMessage, setPlanMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showPlanConfirm, setShowPlanConfirm] = useState(false);
+  const [pendingPlanUpdate, setPendingPlanUpdate] = useState<UpdateMitgliedSelfDto | null>(null);
 
   // Helper function to translate payment method
   const translatePaymentMethod = (method?: string): string => {
@@ -195,6 +211,61 @@ const MitgliedFinanz: React.FC = () => {
       return await mitgliedService.getById(mitgliedId);
     },
     enabled: !!mitgliedId,
+  });
+
+  const { data: beitragPerioden = [] } = useQuery({
+    queryKey: ['keytable', 'beitragperioden'],
+    queryFn: () => keytableService.getBeitragPerioden(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    if (!mitglied) return;
+    const nextPlan = {
+      beitragPeriodeCode: mitglied.beitragPeriodeCode || ''
+    };
+    setPlanForm(nextPlan);
+    setLastSavedPlan(nextPlan);
+    setPlanErrors({});
+    setPlanMessage(null);
+  }, [mitglied]);
+
+  useEffect(() => {
+    setPlanForm(prev => ({
+      beitragPeriodeCode: prev.beitragPeriodeCode || beitragPerioden[0]?.code || ''
+    }));
+  }, [beitragPerioden]);
+
+  useEffect(() => {
+    if (!planMessage) return;
+    const timer = window.setTimeout(() => setPlanMessage(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [planMessage]);
+
+  const updatePlanMutation = useMutation({
+    mutationFn: async (data: UpdateMitgliedSelfDto) => {
+      if (!mitgliedId) throw new Error('Missing Mitglied ID');
+      return await mitgliedService.updateSelf(mitgliedId, data);
+    },
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ['mitglied-finanz-summary', mitgliedId] });
+      queryClient.invalidateQueries({ queryKey: ['mitglied', mitgliedId] });
+      queryClient.invalidateQueries({ queryKey: ['mitglied-profile', mitgliedId] });
+      const savedPlan = {
+        beitragPeriodeCode: updated.beitragPeriodeCode || ''
+      };
+      setPlanForm(savedPlan);
+      setLastSavedPlan(savedPlan);
+      setPlanErrors({});
+      setPlanMessage({ type: 'success', text: t('finanz:beitragPlan.settings.updateSuccess') });
+      setPendingPlanUpdate(null);
+      setShowPlanConfirm(false);
+    },
+    onError: () => {
+      setPlanMessage({ type: 'error', text: t('finanz:beitragPlan.settings.updateError') });
+      setPendingPlanUpdate(null);
+      setShowPlanConfirm(false);
+    }
   });
 
   // Fetch Verein data to get bank account info
@@ -332,6 +403,110 @@ const MitgliedFinanz: React.FC = () => {
     setPaymentMaxAmount('');
   };
 
+  const isPlanDirty = planForm.beitragPeriodeCode !== lastSavedPlan.beitragPeriodeCode;
+
+  const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setPlanForm(prev => ({ ...prev, [name]: value }));
+    if (planErrors[name]) {
+      setPlanErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    if (planMessage) {
+      setPlanMessage(null);
+    }
+  };
+
+  const handlePlanUndo = () => {
+    setPlanForm(lastSavedPlan);
+    setPlanErrors({});
+    setPlanMessage(null);
+  };
+
+  const validatePlan = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!planForm.beitragPeriodeCode) {
+      errors.beitragPeriodeCode = t('finanz:beitragPlan.settings.validation.periodRequired');
+    }
+
+    setPlanErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handlePlanSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePlan()) return;
+
+    const updateData: UpdateMitgliedSelfDto = {
+      beitragPeriodeCode: planForm.beitragPeriodeCode || undefined
+    };
+
+    setPendingPlanUpdate(updateData);
+    setShowPlanConfirm(true);
+  };
+
+  const handlePlanConfirm = () => {
+    if (!pendingPlanUpdate) return;
+    updatePlanMutation.mutate(pendingPlanUpdate);
+  };
+
+  const handlePlanCancel = () => {
+    setPendingPlanUpdate(null);
+    setShowPlanConfirm(false);
+  };
+
+  const formatShortDate = (dateString?: string) => {
+    if (!dateString) return '-';
+    return formatPaymentDate(dateString);
+  };
+
+  const getBeitragStatus = () => {
+    if (summary?.overdueCount && summary.overdueCount > 0) {
+      return 'overdue';
+    }
+
+    if (summary?.nextPayment) {
+      return 'upcoming';
+    }
+
+    return 'current';
+  };
+
+  const getPeriodsPerYear = (code?: string) => {
+    switch (code?.toUpperCase()) {
+      case 'YEARLY':
+      case 'ANNUAL':
+        return 1;
+      case 'SEMIANNUAL':
+      case 'HALF_YEAR':
+        return 2;
+      case 'QUARTERLY':
+        return 4;
+      case 'MONTHLY':
+        return 12;
+      default:
+        return 1;
+    }
+  };
+
+  const getAnnualTotal = (amount: number, periodCode?: string) => {
+    return amount * getPeriodsPerYear(periodCode);
+  };
+
+  const getPeriodKey = (code?: string) => {
+    return code ? code.toLowerCase() : 'yearly';
+  };
+
+  const getPaymentRowStatus = (payment: { status: string; date: string }) => {
+    if (payment.status === 'PAID') return 'current';
+    const paymentDate = new Date(payment.date);
+    const today = new Date();
+    if (payment.status === 'OVERDUE' || paymentDate < today) {
+      return 'overdue';
+    }
+    return 'upcoming';
+  };
+
   // Export payments to Excel
   const exportPaymentsToExcel = () => {
     const data = filteredZahlungen.map(z => ({
@@ -378,7 +553,16 @@ const MitgliedFinanz: React.FC = () => {
   }
 
   if (isLoading) {
-    return <Loading />;
+    return (
+      <div className="mitglied-finanz">
+        <div className="page-header">
+          <div className="skeleton skeleton-title" />
+        </div>
+        <div className="skeleton skeleton-card" />
+        <div className="skeleton skeleton-card" />
+        <div className="skeleton skeleton-card" />
+      </div>
+    );
   }
 
   // Format currency
@@ -421,6 +605,31 @@ const MitgliedFinanz: React.FC = () => {
     },
     { id: 'history', icon: <HistoryIcon />, labelKey: 'finanz:paymentHistory.title' }
   ];
+
+  const beitragStatus = getBeitragStatus();
+  const lastPaymentDate = summary.paidClaims.reduce((latest, claim) => {
+    const candidate = claim.bezahltAm || claim.faelligkeit;
+    if (!candidate) return latest;
+    if (!latest) return candidate;
+    return new Date(candidate) > new Date(latest) ? candidate : latest;
+  }, '');
+  const lastUpdatedDate = mitglied?.modified || mitglied?.created || '';
+  const annualTotal = summary.beitragPlan
+    ? getAnnualTotal(summary.beitragPlan.betrag, summary.beitragPlan.periodeCode)
+    : 0;
+  const currentPeriodCode = lastSavedPlan.beitragPeriodeCode || summary.beitragPlan?.periodeCode || '';
+  const currentPeriodLabel = t(`finanz:beitragPlan.period.${getPeriodKey(currentPeriodCode)}`);
+  const selectedPeriodCode = planForm.beitragPeriodeCode || currentPeriodCode;
+  const selectedPeriodLabel = t(`finanz:beitragPlan.period.${getPeriodKey(selectedPeriodCode)}`);
+  const selectedPeriodShort = t(`finanz:beitragPlan.periodShort.${getPeriodKey(selectedPeriodCode)}`);
+  const installmentBase = getPeriodsPerYear(selectedPeriodCode);
+  const installmentAmount = installmentBase > 0
+    ? Math.round((annualTotal / installmentBase) * 100) / 100
+    : annualTotal;
+  const previewFirstPaymentDate = summary.beitragPlan?.nextPaymentDates?.[0]?.date
+    || summary.nextPayment?.faelligkeit
+    || '';
+  const paymentRows = summary.beitragPlan?.nextPaymentDates || [];
 
   return (
     <div className="mitglied-finanz">
@@ -565,109 +774,236 @@ const MitgliedFinanz: React.FC = () => {
         {/* ===== BEITRAG TAB ===== */}
         {activeTab === 'beitrag' && (
           <>
-      {/* Beitrag Plan Section - Aidat Planı */}
-      {summary.beitragPlan ? (
-        <div className="beitrag-plan-section">
-          <div className="section-header">
-            <h2>📋 {t('finanz:beitragPlan.title')}</h2>
-          </div>
-          <div className="beitrag-plan-card">
-            <div className="beitrag-info">
-              <div className="beitrag-amount">
-                <span className="amount-value">{formatCurrency(summary.beitragPlan.betrag)}</span>
-                <span className="amount-period">
-                  / {t(`finanz:beitragPlan.period.${summary.beitragPlan.periodeCode?.toLowerCase() || 'monthly'}`)}
-                </span>
-              </div>
-              <div className="beitrag-details">
-                <div className="detail-item">
-                  <span className="detail-label">{t('finanz:beitragPlan.paymentDay')}:</span>
-                  <span className="detail-value">
-                    {summary.beitragPlan.zahlungstagTypCode === 'LAST_DAY'
-                      ? t('finanz:beitragPlan.lastDayOfMonth')
-                      : `${summary.beitragPlan.zahlungsTag}. ${t('finanz:beitragPlan.dayOfMonth')}`}
-                  </span>
+            {summary.beitragPlan ? (
+              <div className="beitrag-plan-section">
+                <div className="section-header">
+                  <h2><BeitragIcon /> {t('finanz:beitragPlan.title')}</h2>
                 </div>
-                {summary.beitragPlan.istPflicht && (
-                  <div className="detail-item mandatory">
-                    <span className="mandatory-badge">⚠️ {t('finanz:beitragPlan.mandatory')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* Payment Calendar */}
-            <div className="beitrag-calendar">
-              <h4>{t('finanz:beitragPlan.paymentCalendar')}</h4>
-              <div className="calendar-grid">
-                {summary.beitragPlan.nextPaymentDates.map((payment, index) => (
-                  <div
-                    key={index}
-                    className={`calendar-item status-${payment.status.toLowerCase()}`}
-                    onClick={() => payment.forderungId && navigate(`/meine-finanzen/forderungen/${payment.forderungId}`)}
-                    role={payment.forderungId ? 'button' : undefined}
-                    tabIndex={payment.forderungId ? 0 : undefined}
-                  >
-                    <div className="calendar-month">{payment.monthName}</div>
-                    <div className="calendar-year">{payment.year}</div>
-                    <div className="calendar-amount">{formatCurrency(payment.amount)}</div>
-                    <div className={`calendar-status ${payment.status.toLowerCase()}`}>
-                      {payment.status === 'PAID' && '✓'}
-                      {payment.status === 'OVERDUE' && '!'}
-                      {payment.status === 'UNPAID' && '○'}
+
+                <div className="beitrag-summary">
+                  <h3>{t('finanz:beitragPlan.overview.title')}</h3>
+                  <div className="beitrag-summary-grid">
+                    <div className="summary-item">
+                      <span className="summary-label">{t('finanz:beitragPlan.overview.annualTotal')}</span>
+                      <span className="summary-value">{formatCurrency(annualTotal)}</span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="summary-label">{t('finanz:beitragPlan.overview.period')}</span>
+                      <span className="summary-value">{currentPeriodLabel}</span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="summary-label">{t('finanz:beitragPlan.overview.lastPayment')}</span>
+                      <span className="summary-value">
+                        {lastPaymentDate ? formatShortDate(lastPaymentDate) : t('finanz:beitragPlan.overview.notAvailable')}
+                      </span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="summary-label">{t('finanz:beitragPlan.overview.status')}</span>
+                      <span className={`summary-value status-text status-${beitragStatus}`}>
+                        {t(`finanz:beitragPlan.overview.statusValues.${beitragStatus}`)}
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-              <div className="calendar-legend">
-                <span className="legend-item paid">✓ {t('finanz:beitragPlan.status.paid')}</span>
-                <span className="legend-item unpaid">○ {t('finanz:beitragPlan.status.unpaid')}</span>
-                <span className="legend-item overdue">! {t('finanz:beitragPlan.status.overdue')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="empty-state">
-          <div className="empty-icon">📋</div>
-          <p>{t('finanz:beitragPlan.noPlan')}</p>
-        </div>
-      )}
+                </div>
 
-      {/* Upcoming Payments Section */}
-      {summary.upcomingPayments && summary.upcomingPayments.length > 0 && (
-        <div className="upcoming-payments-section">
-          <div className="section-header">
-            <h2>📅 {t('finanz:mitgliedFinanz.upcomingPayments')}</h2>
-          </div>
-          <div className="upcoming-payments-list">
-            {summary.upcomingPayments.map((payment, index) => (
-              <div
-                key={index}
-                className={`upcoming-payment-item ${payment.daysUntil <= 7 ? 'urgent' : payment.daysUntil <= 14 ? 'soon' : ''}`}
-                onClick={() => payment.forderungId && navigate(`/meine-finanzen/forderungen/${payment.forderungId}`)}
-                role={payment.forderungId ? 'button' : undefined}
-                tabIndex={payment.forderungId ? 0 : undefined}
-              >
-                <div className="payment-date">
-                  <span className="day">{new Date(payment.dueDate).getDate()}</span>
-                  <span className="month">{new Date(payment.dueDate).toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'tr-TR', { month: 'short' })}</span>
+                <div className="beitrag-settings-card">
+                  <button
+                    type="button"
+                    className={`accordion-toggle ${isSettingsOpen ? 'open' : ''}`}
+                    onClick={() => setIsSettingsOpen(prev => !prev)}
+                    aria-expanded={isSettingsOpen}
+                  >
+                    <div className="accordion-text">
+                      <span className="accordion-title">{t('finanz:beitragPlan.settings.title')}</span>
+                      <span className="accordion-hint">{t('finanz:beitragPlan.settings.closedHint')}</span>
+                    </div>
+                    <span className="accordion-icon">{isSettingsOpen ? '-' : '+'}</span>
+                  </button>
+
+                  {isSettingsOpen && (
+                    <div className="beitrag-settings-body">
+                      <form className="beitrag-settings-form" onSubmit={handlePlanSubmit}>
+                        <div className="settings-block">
+                          <h4>{t('finanz:beitragPlan.settings.constitutionTitle')}</h4>
+                          <div className="settings-grid">
+                            <div className="readonly-field">
+                              <span className="field-label">{t('finanz:beitragPlan.settings.annualTotal')}</span>
+                              <span className="field-value">{formatCurrency(annualTotal)}</span>
+                            </div>
+                            <div className="readonly-field">
+                              <span className="field-label">{t('finanz:beitragPlan.settings.feeType')}</span>
+                              <span className="field-value">
+                                {summary.beitragPlan.istPflicht
+                                  ? t('finanz:beitragPlan.settings.feeTypeMandatory')
+                                  : t('finanz:beitragPlan.settings.feeTypeOptional')}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="field-note">{t('finanz:beitragPlan.settings.constitutionNote')}</p>
+                        </div>
+
+                        <div className="settings-block">
+                          <h4>{t('finanz:beitragPlan.settings.periodTitle')}</h4>
+                          <div className="plan-form-group">
+                            <label htmlFor="plan-beitragPeriodeCode">{t('finanz:beitragPlan.settings.periodLabel')}</label>
+                            <select
+                              id="plan-beitragPeriodeCode"
+                              name="beitragPeriodeCode"
+                              value={planForm.beitragPeriodeCode}
+                              onChange={handlePlanChange}
+                              disabled={updatePlanMutation.isPending}
+                            >
+                              <option value="">{t('finanz:beitragPlan.settings.selectPeriod')}</option>
+                              {beitragPerioden.map((period) => (
+                                <option key={period.code} value={period.code}>
+                                  {period.name || period.code}
+                                </option>
+                              ))}
+                            </select>
+                            {planErrors.beitragPeriodeCode && (
+                              <span className="plan-error">{planErrors.beitragPeriodeCode}</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="settings-block">
+                          <h4>{t('finanz:beitragPlan.preview.title')}</h4>
+                          <div className="preview-card">
+                            <div className="preview-row">
+                              <span className="preview-label">{t('finanz:beitragPlan.preview.annualTotal')}</span>
+                              <span className="preview-value">{formatCurrency(annualTotal)}</span>
+                            </div>
+                            <div className="preview-row">
+                              <span className="preview-label">{t('finanz:beitragPlan.preview.selectedPeriod')}</span>
+                              <span className="preview-value">{selectedPeriodLabel}</span>
+                            </div>
+                            <div className="preview-row">
+                              <span className="preview-label">{t('finanz:beitragPlan.preview.installment')}</span>
+                              <span className="preview-value">{formatCurrency(installmentAmount)} / {selectedPeriodShort}</span>
+                            </div>
+                            <div className="preview-row">
+                              <span className="preview-label">{t('finanz:beitragPlan.preview.firstPayment')}</span>
+                              <span className="preview-value">
+                                {previewFirstPaymentDate
+                                  ? formatShortDate(previewFirstPaymentDate)
+                                  : t('finanz:beitragPlan.overview.notAvailable')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="beitrag-plan-actions">
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handlePlanUndo}
+                            disabled={!isPlanDirty || updatePlanMutation.isPending}
+                          >
+                            {t('finanz:beitragPlan.settings.cancel')}
+                          </button>
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={!isPlanDirty || updatePlanMutation.isPending}
+                          >
+                            {updatePlanMutation.isPending
+                              ? t('common:loading')
+                              : t('finanz:beitragPlan.settings.save')}
+                          </button>
+                        </div>
+                      </form>
+                      {planMessage && (
+                        <div className={`beitrag-plan-message ${planMessage.type}`}>
+                          {planMessage.text}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="payment-info">
-                  <div className="payment-description">{payment.description}</div>
-                  <div className="payment-days">
-                    {payment.daysUntil === 0
-                      ? t('finanz:mitgliedFinanz.dueToday')
-                      : payment.daysUntil === 1
-                        ? t('finanz:mitgliedFinanz.dueTomorrow')
-                        : `${payment.daysUntil} ${t('finanz:mitgliedFinanz.daysLeft')}`}
+
+                <div className="beitrag-status-section">
+                  <div className="section-header">
+                    <h3>{t('finanz:beitragPlan.paymentStatus.title')}</h3>
                   </div>
+                  {paymentRows.length > 0 ? (
+                    <div className="beitrag-status-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>{t('finanz:beitragPlan.paymentStatus.period')}</th>
+                            <th>{t('finanz:beitragPlan.paymentStatus.amount')}</th>
+                            <th>{t('finanz:beitragPlan.paymentStatus.dueDate')}</th>
+                            <th>{t('finanz:beitragPlan.paymentStatus.status')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paymentRows.map((payment, index) => {
+                            const rowStatus = getPaymentRowStatus(payment);
+                            const periodLabel = payment.monthName
+                              ? `${payment.monthName} ${payment.year}`
+                              : `${payment.year}`;
+                            return (
+                              <tr key={index}>
+                                <td>{periodLabel}</td>
+                                <td>{formatCurrency(payment.amount)}</td>
+                                <td>{formatShortDate(payment.date)}</td>
+                                <td>
+                                  <span className={`status-text status-${rowStatus}`}>
+                                    {t(`finanz:beitragPlan.paymentStatus.statusValues.${rowStatus}`)}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="beitrag-status-empty">{t('finanz:beitragPlan.paymentStatus.empty')}</div>
+                  )}
+                  <p className="section-note">{t('finanz:beitragPlan.paymentStatus.note')}</p>
                 </div>
-                <div className="payment-amount">{formatCurrency(payment.amount)}</div>
+
+                <div className="beitrag-info-notes">
+                  <p>{t('finanz:beitragPlan.infoNotes.authorized')}</p>
+                  <p>{t('finanz:beitragPlan.infoNotes.bylaw')}</p>
+                  <p>
+                    {t('finanz:beitragPlan.infoNotes.lastUpdated', {
+                      date: lastUpdatedDate ? formatShortDate(lastUpdatedDate) : t('finanz:beitragPlan.overview.notAvailable')
+                    })}
+                  </p>
+                </div>
+
+                <Modal
+                  isOpen={showPlanConfirm}
+                  onClose={handlePlanCancel}
+                  title={t('finanz:beitragPlan.settings.confirmTitle')}
+                  footer={
+                    <div className="modal-actions">
+                      <button type="button" className="btn btn-secondary" onClick={handlePlanCancel}>
+                        {t('finanz:beitragPlan.settings.confirmCancel')}
+                      </button>
+                      <button type="button" className="btn btn-primary" onClick={handlePlanConfirm}>
+                        {t('finanz:beitragPlan.settings.confirmApprove')}
+                      </button>
+                    </div>
+                  }
+                >
+                  <p>
+                    {t('finanz:beitragPlan.settings.confirmBody', {
+                      from: currentPeriodLabel,
+                      to: selectedPeriodLabel
+                    })}
+                  </p>
+                  <div className="confirm-note">{t('finanz:beitragPlan.settings.confirmNote')}</div>
+                </Modal>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon"><BeitragIcon /></div>
+                <p>{t('finanz:beitragPlan.noPlan')}</p>
+              </div>
+            )}
           </>
         )}
 

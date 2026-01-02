@@ -612,7 +612,22 @@
     "noBankAccount": "Banka hesap bilgileri mevcut değil"
   },
   "beitragPlan": {
-    "title": "Aidat Planım",
+    "updateTitle": "Aidat Planını Güncelle",
+    "updateHint": "Seçilen periyoda göre tutar yeniden hesaplanır.",
+    "periodLabel": "Ödeme Periyodu",
+    "dayTypeLabel": "Ödeme Günü Tipi",
+    "dayLabel": "Ayın Günü",
+    "updateButton": "Güncelle",
+    "updateSuccess": "Aidat planınız güncellendi.",
+    "updateError": "Aidat planınız güncellenemedi.",
+    "selectPeriod": "Seçiniz",
+    "selectDayType": "Seçiniz",
+    "validation": {
+      "periodRequired": "Ödeme periyodu seçiniz.",
+      "dayTypeRequired": "Ödeme günü tipini seçiniz.",
+      "dayRequired": "Ödeme günü 1-31 arasında olmalı."
+    },
+    "title": "Aidat Planı",
     "paymentDay": "Ödeme Günü",
     "dayOfMonth": "günü",
     "lastDayOfMonth": "Ayın son günü",
@@ -621,14 +636,118 @@
     "period": {
       "monthly": "Aylık",
       "quarterly": "3 Aylık",
-      "yearly": "Yıllık"
+      "semiannual": "6 Aylık",
+      "half_year": "6 Aylık",
+      "yearly": "Yıllık",
+      "annual": "Yıllık"
     },
     "status": {
       "paid": "Ödendi",
       "unpaid": "Ödenmedi",
-      "overdue": "Gecikmiş"
+      "overdue": "Gecikmiş",
+      "upcoming": "Yaklaşıyor"
     },
-    "noPlan": "Henüz bir aidat planınız bulunmuyor."
+    "noPlan": "Henüz bir aidat planınız bulunmuyor.",
+    "planTitle": "Aidat Planı",
+    "planSubtitle": "Plan ve ödeme günü bilgileri",
+    "overview": {
+      "title": "Finansal Durum Özeti",
+      "annualTotal": "Yıllık Toplam Aidat",
+      "period": "Seçili Ödeme Periyodu",
+      "lastPayment": "Son Ödeme Tarihi",
+      "status": "Genel Durum",
+      "notAvailable": "Bilinmiyor",
+      "statusValues": {
+        "overdue": "Gecikmiş",
+        "upcoming": "Yaklaşıyor",
+        "current": "Güncel"
+      }
+    },
+    "security": {
+      "authorized": "Bu bilgiler yalnızca yetkili kullanıcılar tarafından görüntülenir.",
+      "bylaw": "Aidatlar dernek tüzüğüne göre belirlenmiştir.",
+      "lastAction": "Son işlem tarihi",
+      "lastActionBy": "İşlemi yapan"
+    },
+    "settings": {
+      "title": "Aidat Ayarlarını Değiştir",
+      "closedHint": "Yıllık toplam aidat sabittir. Ödeme periyodunu seçerek tahsilat planını değiştirebilirsiniz.",
+      "constitutionTitle": "Tüzük Bilgisi",
+      "annualTotal": "Yıllık Toplam Aidat",
+      "feeType": "Aidat Türü",
+      "feeTypeMandatory": "Zorunlu",
+      "feeTypeOptional": "İsteğe bağlı",
+      "constitutionNote": "Bu bilgiler dernek tüzüğüne göre belirlenmiştir.",
+      "periodTitle": "Ödeme Periyodu Seçimi",
+      "periodLabel": "Ödeme Periyodu",
+      "selectPeriod": "Seçiniz",
+      "save": "Kaydet",
+      "cancel": "Vazgeç",
+      "updateSuccess": "Ödeme periyodu güncellendi.",
+      "updateError": "Ödeme periyodu güncellenemedi.",
+      "confirmTitle": "Ödeme Periyodu Güncellemesi",
+      "confirmBody": "Ödeme periyodunu {{from}} → {{to}} olarak değiştiriyorsunuz.",
+      "confirmNote": "Değişiklikler yalnızca gelecekteki ödemeleri etkiler.",
+      "confirmApprove": "Onayla",
+      "confirmCancel": "Vazgeç",
+      "validation": {
+        "periodRequired": "Ödeme periyodu seçiniz."
+      }
+    },
+    "mandatoryHelp": "Zorunlu Aidat nedir?",
+    "calendar": {
+      "title": "Ödemeler",
+      "empty": "Henüz ödeme bulunmuyor.",
+      "reminderTitle": "Aidat ödemesi - {{month}} {{year}}"
+    },
+    "actions": {
+      "pay": "Öde",
+      "remind": "Hatırlat",
+      "receipt": "Makbuz"
+    },
+    "upcoming": {
+      "title": "Yaklaşan Ödeme",
+      "empty": "Yaklaşan ödeme bulunmuyor.",
+      "payNow": "Şimdi Öde",
+      "setReminder": "Hatırlatıcı Kur",
+      "details": "Detay Gör",
+      "reminderSet": "Hatırlatıcı indirildi.",
+      "noDetail": "Detay bulunamadı."
+    },
+    "preview": {
+      "title": "Yeni Ödeme Planı (Önizleme)",
+      "annualTotal": "Yıllık Toplam Aidat",
+      "selectedPeriod": "Seçilen Periyot",
+      "installment": "Taksit Tutarı",
+      "firstPayment": "İlk Ödeme Tarihi"
+    },
+    "periodShort": {
+      "monthly": "ay",
+      "quarterly": "3 ay",
+      "semiannual": "6 ay",
+      "half_year": "6 ay",
+      "yearly": "yıl",
+      "annual": "yıl"
+    },
+    "paymentStatus": {
+      "title": "Ödeme Durumları",
+      "period": "Dönem",
+      "amount": "Tutar",
+      "dueDate": "Vade",
+      "status": "Durum",
+      "statusValues": {
+        "overdue": "Gecikmiş",
+        "upcoming": "Yaklaşıyor",
+        "current": "Güncel"
+      },
+      "empty": "Henüz ödeme kaydı bulunmuyor.",
+      "note": "Ödemeler dernek tarafından tahsil edilir."
+    },
+    "infoNotes": {
+      "authorized": "🔒 Bu bilgiler yalnızca yetkili kullanıcılar tarafından görüntülenir",
+      "bylaw": "📜 Aidatlar dernek tüzüğüne göre belirlenmiştir",
+      "lastUpdated": "🕒 Son Güncelleme Tarihi: {{date}}"
+    }
   },
   "veranstaltungen": {
     "title": "Etkinlik Katılımlarım",
@@ -695,7 +814,7 @@
         "vonDatum": "Başlangıç",
         "bisDatum": "Bitiş"
       }
-},
+    },
     "konten": {
       "title": "Hesap Planı",
       "subtitle": "SKR49 uyumlu FiBu hesapları",
@@ -732,7 +851,8 @@
         "durchlaufendePosten": "Gecici Kalemler"
       },
       "noKonten": "Hesap bulunamadı"
-    },    "spenden": {
+    },
+    "spenden": {
       "title": "Bağış Protokolleri",
       "subtitle": "Şahitli nakit ödeme protokolleri",
       "newProtokoll": "Yeni Protokol",

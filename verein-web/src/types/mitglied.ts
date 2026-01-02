@@ -91,6 +91,8 @@ export interface UpdateMitgliedSelfDto {
   telefon?: string;
   mobiltelefon?: string;
   beitragPeriodeCode?: string;
+  beitragZahlungsTag?: number;
+  beitragZahlungstagTypCode?: string;
 }
 
 // MitgliedAdresse Types

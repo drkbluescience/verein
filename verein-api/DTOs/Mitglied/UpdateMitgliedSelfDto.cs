@@ -36,4 +36,18 @@ public class UpdateMitgliedSelfDto
     [MaxLength(20, ErrorMessage = "BeitragPeriodeCode darf maximal 20 Zeichen lang sein")]
     [JsonPropertyName("beitragPeriodeCode")]
     public string? BeitragPeriodeCode { get; set; }
+
+    /// <summary>
+    /// Payment day of the period
+    /// </summary>
+    [Range(1, 31, ErrorMessage = "BeitragZahlungsTag muss zwischen 1 und 31 liegen")]
+    [JsonPropertyName("beitragZahlungsTag")]
+    public int? BeitragZahlungsTag { get; set; }
+
+    /// <summary>
+    /// Payment day type code
+    /// </summary>
+    [MaxLength(20, ErrorMessage = "BeitragZahlungstagTypCode darf maximal 20 Zeichen lang sein")]
+    [JsonPropertyName("beitragZahlungstagTypCode")]
+    public string? BeitragZahlungstagTypCode { get; set; }
 }

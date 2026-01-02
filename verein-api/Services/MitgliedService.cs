@@ -111,10 +111,25 @@ public class MitgliedService : IMitgliedService
             var previousPeriodeCode = existingMitglied.BeitragPeriodeCode;
             var previousZahlungsTag = existingMitglied.BeitragZahlungsTag;
             var previousZahlungstagTyp = existingMitglied.BeitragZahlungstagTypCode;
+            var previousBetrag = existingMitglied.BeitragBetrag;
 
             _mapper.Map(updateDto, existingMitglied);
             existingMitglied.Modified = DateTime.UtcNow;
             existingMitglied.ModifiedBy = 1; // TODO: Get from current user context
+
+            var periodChanged = !string.Equals(previousPeriodeCode, existingMitglied.BeitragPeriodeCode, StringComparison.OrdinalIgnoreCase);
+            if (periodChanged && previousBetrag.HasValue && previousBetrag.Value > 0)
+            {
+                var previousMonths = GetMonthsPerPeriod(previousPeriodeCode);
+                var nextMonths = GetMonthsPerPeriod(existingMitglied.BeitragPeriodeCode);
+                var amountUnchanged = !updateDto.BeitragBetrag.HasValue || updateDto.BeitragBetrag == previousBetrag;
+
+                if (previousMonths > 0 && nextMonths > 0 && amountUnchanged)
+                {
+                    var newAmount = previousBetrag.Value * nextMonths / previousMonths;
+                    existingMitglied.BeitragBetrag = decimal.Round(newAmount, 2, MidpointRounding.AwayFromZero);
+                }
+            }
 
             var updatedMitglied = await _mitgliedRepository.UpdateAsync(existingMitglied, cancellationToken);
 

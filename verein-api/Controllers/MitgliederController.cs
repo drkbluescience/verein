@@ -272,8 +272,8 @@ public class MitgliederController : ControllerBase
                 BeitragBetrag = existing.BeitragBetrag,
                 BeitragWaehrungId = existing.BeitragWaehrungId,
                 BeitragPeriodeCode = NormalizeOptional(updateDto.BeitragPeriodeCode, existing.BeitragPeriodeCode),
-                BeitragZahlungsTag = existing.BeitragZahlungsTag,
-                BeitragZahlungstagTypCode = existing.BeitragZahlungstagTypCode,
+                BeitragZahlungsTag = updateDto.BeitragZahlungsTag ?? existing.BeitragZahlungsTag,
+                BeitragZahlungstagTypCode = NormalizeOptional(updateDto.BeitragZahlungstagTypCode, existing.BeitragZahlungstagTypCode),
                 BeitragIstPflicht = existing.BeitragIstPflicht,
                 Aktiv = existing.Aktiv
             };
