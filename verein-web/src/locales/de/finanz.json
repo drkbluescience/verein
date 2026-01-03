@@ -302,7 +302,22 @@
     "totalPaidThisYear": "Dieses Jahr bezahlt",
     "avgPaymentTime": "Durchschn. Zahlungszeit",
     "preferredMethod": "Bevorzugte Methode",
-    "upcomingPayments": "Anstehende Zahlungen"
+    "upcomingPayments": "Anstehende Zahlungen",
+    "cardDescriptions": {
+      "totalDebt": "Summe aller offenen Forderungen",
+      "overdue": "Forderungen mit überfälligem Zahlungstermin",
+      "paidThisYear": "Im ausgewählten Jahr geleistete Zahlungen",
+      "creditBalance": "Restbetrag aus Überzahlungen"
+    },
+    "yearlySummary": {
+      "title": "Jahresübersicht",
+      "totalPayment": "Gesamtzahlung",
+      "paymentCount": "{{count}} Zahlungen",
+      "emptyState": "Für dieses Jahr wurden noch keine Zahlungen erfasst."
+    },
+    "paymentTrendTitle": "Zahlungstrend ({year})",
+    "guidanceLink": "Beitrags- und Forderungsdetails anzeigen →",
+    "cardRedirectLabel": "Die Karte {cardTitle} führt Sie zum Tab {tab}."
   },
   "bankUpload": {
     "title": "Bankzahlungen hochladen",
@@ -459,6 +474,19 @@
     "afterPayment": "Nach der Zahlung",
     "afterPaymentInfo": "Nachdem Ihre Zahlung von der Bank verarbeitet wurde (normalerweise 1-2 Werktage), wird sie automatisch Ihrem Konto gutgeschrieben."
   },
+  "paymentTrend": {
+    "title": "Zahlungstrend",
+    "subtitle": "Analyse der Zahlungen und Forderungen der letzten 12 Monate",
+    "avgMonthlyPayment": "Durchschnittliche Monatszahlung",
+    "avgMonthlyClaim": "Durchschnittliche Monatsforderung",
+    "totalLast12Months": "Summe der letzten 12 Monate",
+    "payments": "Zahlungen",
+    "claims": "Forderungen",
+    "actual": "Realisierte Zahlungen",
+    "planned": "Geplante Zahlungen",
+    "emptyState": "Für dieses Jahr sind noch keine Zahlungen erfasst."
+  },
+
   "paymentHistory": {
     "title": "Meine Zahlungshistorie",
     "subtitle": "Sehen Sie alle Ihre Zahlungen ein und filtern Sie sie",
@@ -673,7 +701,15 @@
       "abgelehnt": "Abgelehnt",
       "warteliste": "Warteliste"
     },
-    "noEvents": "Sie haben noch keine Veranstaltungsanmeldungen."
+    "filters": {
+      "all": "Alle",
+      "paid": "Bezahlt",
+      "pending": "Ausstehend"
+    },
+    "summaryLine": "Gesamtteilnahmen: {{total}} · Bezahlt: {{paid}} · Ausstehend: {{pending}}",
+    "infoNote": "Veranstaltungsgebühren und Zahlungen werden vom Verein eingezogen. Detaillierte Zahlungsinformationen finden Sie im Bereich Forderungen.",
+    "emptyState": "Sie haben bisher an keiner Veranstaltung teilgenommen.",
+    "noEventsFiltered": "Für diesen Filter sind keine Veranstaltungen verfügbar."
   },
   "easyFiBu": {
     "tabs": {

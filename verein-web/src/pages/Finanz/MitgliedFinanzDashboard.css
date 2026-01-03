@@ -1,0 +1,241 @@
+/* Mitglied Finanz Dashboard (Summary) Styles */
+
+.mitglied-finanz-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg) var(--spacing-2xl);
+  position: relative;
+  --summary-card-bg: #fffdf7;
+  --summary-card-border: #e6e2d9;
+  --summary-text-strong: #1f2937;
+  --summary-text-muted: #6b7280;
+  --summary-accent-debt: #b45309;
+  --summary-accent-overdue: #b91c1c;
+  --summary-accent-paid: #15803d;
+  --summary-accent-credit: #2563eb;
+  --payment-trend-actual: #16a34a;
+  --payment-trend-planned: #9ca3af;
+}
+
+.mitglied-finanz-dashboard::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: 0;
+  right: 0;
+  height: 240px;
+  background:
+    radial-gradient(circle at 8% 20%, rgba(37, 99, 235, 0.08), transparent 55%),
+    radial-gradient(circle at 92% 10%, rgba(16, 185, 129, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+.mitglied-finanz-dashboard .page-header {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.dashboard-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.summary-card {
+  border: 1px solid var(--summary-card-border);
+  border-left: 4px solid var(--summary-accent);
+  border-radius: var(--radius-lg);
+  background: var(--summary-card-bg);
+  padding: var(--spacing-md);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-md);
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  animation: riseIn 0.5s ease forwards;
+}
+
+.summary-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.summary-card:nth-child(1) { animation-delay: 0.05s; }
+.summary-card:nth-child(2) { animation-delay: 0.1s; }
+.summary-card:nth-child(3) { animation-delay: 0.15s; }
+.summary-card:nth-child(4) { animation-delay: 0.2s; }
+
+.summary-card--debt { --summary-accent: var(--summary-accent-debt); }
+.summary-card--overdue { --summary-accent: var(--summary-accent-overdue); }
+.summary-card--paid { --summary-accent: var(--summary-accent-paid); }
+.summary-card--credit { --summary-accent: var(--summary-accent-credit); }
+
+.summary-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: #f4f3ef;
+  color: var(--summary-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-card-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--summary-text-muted);
+  font-weight: 600;
+}
+
+.summary-card-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--summary-text-strong);
+}
+
+.summary-card-note {
+  font-size: 0.8rem;
+  color: var(--summary-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yearly-summary-section .section-header h2 {
+  margin: 0 0 var(--spacing-md);
+  font-size: 1rem;
+  color: var(--summary-text-strong);
+}
+
+.yearly-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+.yearly-summary-item {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: #f7f6f2;
+  border: 1px solid var(--summary-card-border);
+  text-align: left;
+}
+
+.yearly-summary-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--summary-text-strong);
+}
+
+.yearly-summary-label {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--summary-text-muted);
+}
+
+.yearly-summary-empty {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--summary-card-border);
+  color: var(--summary-text-muted);
+  background: #fbfaf6;
+}
+
+.chart-section .payment-trend-chart {
+  margin: 0;
+}
+
+.chart-section {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dashboard-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 var(--spacing-sm);
+}
+
+.dashboard-link {
+  font-size: 0.9rem;
+  color: var(--summary-text-muted);
+  transition: color 0.2s ease;
+}
+
+.dashboard-link:hover {
+  color: var(--summary-text-strong);
+}
+
+@media (max-width: 1024px) {
+  .summary-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .yearly-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yearly-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card-icon {
+    width: 36px;
+    height: 36px;
+  }
+}

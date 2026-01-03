@@ -105,63 +105,6 @@
   height: 18px;
 }
 
-/* Filter Tabs */
-.filter-tabs {
-  max-width: 1400px;
-  margin: 0 auto 24px;
-  display: flex;
-  gap: 8px;
-  background: var(--color-surface);
-  padding: 6px;
-  border-radius: 12px;
-  width: fit-content;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.filter-tab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.filter-tab:hover {
-  background: var(--color-surface-secondary);
-  color: var(--color-text-primary);
-}
-
-.filter-tab.active {
-  background: #3b82f6;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.tab-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.filter-tab.active .tab-count {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 /* Filter Select */
 .filter-select {
   min-width: 250px;
@@ -530,17 +473,6 @@
     margin-left: auto;
   }
 
-  .filter-tabs {
-    width: calc(100% - 48px);
-    margin-left: 24px;
-    margin-right: 24px;
-  }
-
-  .filter-tab {
-    flex: 1;
-    padding: 10px 12px;
-  }
-
   .mitglied-grid {
     grid-template-columns: 1fr;
     padding: 0 16px 24px;
@@ -594,15 +526,6 @@
     padding-right: 16px;
   }
 
-  .filter-tabs {
-    width: calc(100% - 32px);
-    margin-left: 16px;
-    margin-right: 16px;
-  }
-
-  .tab-count {
-    display: none;
-  }
 }
 
 /* Table View Styles */

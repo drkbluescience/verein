@@ -1,8 +1,8 @@
 {
-  "title": "Organization Yönetimi",
+  "title": "Organizasyon Yönetimi",
   "filters": {
     "orgType": "Org Tipi",
-    "federationCode": "Federation Code",
+    "federationCode": "Federasyon Kodu",
     "includeDeleted": "Silinenleri göster"
   },
   "actions": {
@@ -17,16 +17,19 @@
   "labels": {
     "name": "Ad",
     "orgType": "Org Tipi",
-    "federationCode": "Federation Code",
+    "federationCode": "Federasyon Kodu",
     "parent": "Üst Birim",
     "aktiv": "Aktif",
     "deleted": "Silinmiş",
-    "path": "Yol"
+    "path": "Yer",
+    "hierarchy": "Hiyerarşi"
   },
   "messages": {
     "loadError": "Organization verisi yüklenemedi",
     "saveSuccess": "Organization kaydedildi",
     "deleteBlocked": "Önce alt birimleri taşı veya sil",
-    "restoreSuccess": "Organization geri alındı"
+    "restoreSuccess": "Organization geri alındı",
+    "selectOrganization": "Detayları görüntülemek için soldan bir organizasyon seçin.",
+    "deleteWarning": "Bu organizasyon soft delete olarak silinecek ve geri alınabilir."
   }
 }

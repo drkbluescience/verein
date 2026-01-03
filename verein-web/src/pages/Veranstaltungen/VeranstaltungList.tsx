@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { vereinService } from '../../services/vereinService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
+import FilterChipBar, { FilterChipOption } from '../../components/Common/FilterChipBar';
 import { VeranstaltungDto } from '../../types/veranstaltung';
 import { VereinDto } from '../../types/verein';
 import VeranstaltungFormModal from '../../components/Veranstaltung/VeranstaltungFormModal';
@@ -255,11 +256,13 @@ const VeranstaltungCard: React.FC<VeranstaltungCardProps> = ({ veranstaltung, on
   );
 };
 
+type EventFilter = 'all' | 'upcoming' | 'past';
+
 const VeranstaltungList: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t } = useTranslation(['veranstaltungen', 'common']);
   const { user } = useAuth();
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
+  const [filter, setFilter] = useState<EventFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -296,6 +299,18 @@ const VeranstaltungList: React.FC = () => {
     },
     enabled: !!user && (user.type === 'admin' || (user.type === 'dernek' && !!user.vereinId)),
   });
+
+  const eventFilterOptions = useMemo<FilterChipOption[]>(() => {
+    const events = veranstaltungen || [];
+    const upcomingCount = events.filter((event) => veranstaltungUtils.isUpcoming(event.startdatum)).length;
+    const pastCount = events.filter((event) => veranstaltungUtils.isPast(event.startdatum, event.enddatum)).length;
+
+    return [
+      { id: 'all', label: t('veranstaltungen:listPage.filters.all'), count: events.length },
+      { id: 'upcoming', label: t('veranstaltungen:listPage.filters.upcoming'), count: upcomingCount },
+      { id: 'past', label: t('veranstaltungen:listPage.filters.past'), count: pastCount },
+    ];
+  }, [veranstaltungen, t]);
 
   // Filter events based on search and filter criteria
   const filteredVeranstaltungen = veranstaltungen?.filter(veranstaltung => {
@@ -446,27 +461,12 @@ const VeranstaltungList: React.FC = () => {
         </button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button
-          className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          {t('veranstaltungen:listPage.filters.all')} <span className="tab-count">{veranstaltungen?.length || 0}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'upcoming' ? 'active' : ''}`}
-          onClick={() => setFilter('upcoming')}
-        >
-          {t('veranstaltungen:listPage.filters.upcoming')} <span className="tab-count">{veranstaltungen?.filter(v => veranstaltungUtils.isUpcoming(v.startdatum)).length || 0}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'past' ? 'active' : ''}`}
-          onClick={() => setFilter('past')}
-        >
-          {t('veranstaltungen:listPage.filters.past')} <span className="tab-count">{veranstaltungen?.filter(v => veranstaltungUtils.isPast(v.startdatum, v.enddatum)).length || 0}</span>
-        </button>
-      </div>
+      <FilterChipBar
+        className="filter-chip-bar--centered"
+        options={eventFilterOptions}
+        activeId={filter}
+        onSelect={(nextId) => setFilter(nextId as EventFilter)}
+      />
 
       {/* Event Content - Grid or Table */}
       {sortedVeranstaltungen.length === 0 ? (

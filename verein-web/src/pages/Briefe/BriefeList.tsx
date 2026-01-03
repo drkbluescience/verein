@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { BriefDto, BriefStatus, StatusLabels } from '../../types/brief.types';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import './BriefeList.css';
+import FilterChipBar, { FilterChipOption } from '../../components/Common/FilterChipBar';
 
 // SVG Icons
 const ViewIcon = () => (
@@ -107,6 +108,14 @@ const BriefeList: React.FC = () => {
     const status = getReadStatus(b);
     return status && !status.allRead;
   }).length;
+
+  const letterFilterOptions = useMemo<FilterChipOption[]>(() => ([
+    { id: 'all', label: t('briefe:tabs.all'), count: allBriefe.length },
+    { id: 'drafts', label: t('briefe:tabs.drafts'), count: draftsCount },
+    { id: 'sent', label: t('briefe:tabs.sent'), count: sentCount },
+    { id: 'read', label: t('briefe:tabs.read'), count: readCount },
+    { id: 'unread', label: t('briefe:tabs.unread'), count: unreadCount },
+  ]), [t, allBriefe.length, draftsCount, sentCount, readCount, unreadCount]);
 
   // Fetch members for send modal
   const { data: mitglieder = [] } = useQuery({
@@ -224,28 +233,12 @@ const BriefeList: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button className={`filter-tab ${activeTab === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveTab('all')}>
-          {t('briefe:tabs.all')} <span className="tab-count">{allBriefe.length}</span>
-        </button>
-        <button className={`filter-tab ${activeTab === 'drafts' ? 'active' : ''}`}
-          onClick={() => setActiveTab('drafts')}>
-          {t('briefe:tabs.drafts')} <span className="tab-count">{draftsCount}</span>
-        </button>
-        <button className={`filter-tab ${activeTab === 'sent' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sent')}>
-          {t('briefe:tabs.sent')} <span className="tab-count">{sentCount}</span>
-        </button>
-        <button className={`filter-tab ${activeTab === 'read' ? 'active' : ''}`}
-          onClick={() => setActiveTab('read')}>
-          {t('briefe:tabs.read')} <span className="tab-count">{readCount}</span>
-        </button>
-        <button className={`filter-tab ${activeTab === 'unread' ? 'active' : ''}`}
-          onClick={() => setActiveTab('unread')}>
-          {t('briefe:tabs.unread')} <span className="tab-count">{unreadCount}</span>
-        </button>
-      </div>
+      <FilterChipBar
+        className="filter-chip-bar--centered"
+        options={letterFilterOptions}
+        activeId={activeTab}
+        onSelect={(nextId) => setActiveTab(nextId as TabType)}
+      />
 
       {/* Content */}
       {isLoading ? (
@@ -423,4 +416,3 @@ const BriefeList: React.FC = () => {
 };
 
 export default BriefeList;
-

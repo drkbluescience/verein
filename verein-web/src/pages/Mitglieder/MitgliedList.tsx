@@ -10,6 +10,7 @@ import { MitgliedDto } from '../../types/mitglied';
 import { VereinDto } from '../../types/verein';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
+import FilterChipBar, { FilterChipOption } from '../../components/Common/FilterChipBar';
 import MitgliedFormModal from '../../components/Mitglied/MitgliedFormModal';
 import DeleteConfirmDialog from '../../components/Mitglied/DeleteConfirmDialog';
 import './MitgliedList.css';
@@ -216,6 +217,12 @@ const MitgliedList: React.FC = () => {
     return { total, active, inactive };
   }, [mitglieder]);
 
+  const memberFilterOptions = useMemo<FilterChipOption[]>(() => ([
+    { id: 'all', label: t('mitglieder:listPage.filters.all'), count: stats.total },
+    { id: 'active', label: t('mitglieder:listPage.filters.active'), count: stats.active },
+    { id: 'inactive', label: t('mitglieder:listPage.filters.inactive'), count: stats.inactive },
+  ]), [t, stats.total, stats.active, stats.inactive]);
+
   if (isLoading) {
     return <Loading text={t('mitglieder:listPage.loading')} />;
   }
@@ -311,26 +318,12 @@ const MitgliedList: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button
-          className={`filter-tab ${statusFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setStatusFilter('all')}
-        >
-          {t('mitglieder:listPage.filters.all')} <span className="tab-count">{stats.total}</span>
-        </button>
-        <button
-          className={`filter-tab ${statusFilter === 'active' ? 'active' : ''}`}
-          onClick={() => setStatusFilter('active')}
-        >
-          {t('mitglieder:listPage.filters.active')} <span className="tab-count">{stats.active}</span>
-        </button>
-        <button
-          className={`filter-tab ${statusFilter === 'inactive' ? 'active' : ''}`}
-          onClick={() => setStatusFilter('inactive')}
-        >
-          {t('mitglieder:listPage.filters.inactive')} <span className="tab-count">{stats.inactive}</span>
-        </button>
-      </div>
+      <FilterChipBar
+        className="filter-chip-bar--centered"
+        options={memberFilterOptions}
+        activeId={statusFilter}
+        onSelect={(nextId) => setStatusFilter(nextId as 'all' | 'active' | 'inactive')}
+      />
 
       {/* Mitglied Content - Grid or Table */}
       {filteredMitglieder.length === 0 ? (

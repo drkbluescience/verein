@@ -2,12 +2,12 @@
   "title": "Organisationsverwaltung",
   "filters": {
     "orgType": "Org Typ",
-    "federationCode": "Federation Code",
+    "federationCode": "Föderationscode",
     "includeDeleted": "Gelöschte anzeigen"
   },
   "actions": {
     "createRoot": "Oberste Ebene hinzufügen",
-    "createChild": "Untergeordnet hinzufügen",
+    "createChild": "Untergeordneten hinzufügen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "restore": "Wiederherstellen",
@@ -17,16 +17,19 @@
   "labels": {
     "name": "Name",
     "orgType": "Org Typ",
-    "federationCode": "Federation Code",
+    "federationCode": "Föderationscode",
     "parent": "Übergeordnet",
     "aktiv": "Aktiv",
     "deleted": "Gelöscht",
-    "path": "Pfad"
+    "path": "Pfad",
+    "hierarchy": "Hierarchie"
   },
   "messages": {
     "loadError": "Organisationen konnten nicht geladen werden",
     "saveSuccess": "Organisation gespeichert",
     "deleteBlocked": "Bitte zuerst Untereinheiten verschieben oder löschen",
-    "restoreSuccess": "Organisation wiederhergestellt"
+    "restoreSuccess": "Organisation wiederhergestellt",
+    "selectOrganization": "Wählen Sie links eine Organisation, um Details anzuzeigen.",
+    "deleteWarning": "Diese Organisation wird soft gelöscht und kann wiederhergestellt werden."
   }
 }

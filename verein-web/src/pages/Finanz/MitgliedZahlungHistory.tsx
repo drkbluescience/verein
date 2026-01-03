@@ -4,8 +4,8 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -57,6 +57,7 @@ const MitgliedZahlungHistory: React.FC = () => {
   const { t, i18n } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -146,6 +147,15 @@ const MitgliedZahlungHistory: React.FC = () => {
     setMinAmount('');
     setMaxAmount('');
   };
+
+  useEffect(() => {
+    const yearParam = searchParams.get('year');
+    if (!yearParam) return;
+    const parsedYear = Number(yearParam);
+    if (Number.isNaN(parsedYear)) return;
+    setStartDate(new Date(parsedYear, 0, 1));
+    setEndDate(new Date(parsedYear, 11, 31));
+  }, [searchParams]);
 
   // Export to Excel
   const exportToExcel = () => {
@@ -369,4 +379,3 @@ const MitgliedZahlungHistory: React.FC = () => {
 };
 
 export default MitgliedZahlungHistory;
-

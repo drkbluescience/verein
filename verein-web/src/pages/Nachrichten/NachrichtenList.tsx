@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { nachrichtService } from '../../services';
 import { NachrichtDto } from '../../types/brief.types';
 import { useAuth } from '../../contexts/AuthContext';
 import './NachrichtenList.css';
+import FilterChipBar, { FilterChipOption } from '../../components/Common/FilterChipBar';
 
 // SVG Icons
 const SearchIcon = () => (
@@ -95,6 +96,11 @@ const NachrichtenList: React.FC = () => {
 
   const unreadCountNum = unreadCount?.count || 0;
   const readCountNum = nachrichten.filter((n: NachrichtDto) => n.gelesenDatum).length;
+  const messageFilterOptions = useMemo<FilterChipOption[]>(() => ([
+    { id: 'all', label: t('briefe:nachrichten.filters.all'), count: nachrichten.length },
+    { id: 'unread', label: t('briefe:nachrichten.filters.unread'), count: unreadCountNum },
+    { id: 'read', label: t('briefe:nachrichten.filters.read'), count: readCountNum },
+  ]), [t, nachrichten.length, unreadCountNum, readCountNum]);
 
   return (
     <div className="nachrichten-page">
@@ -131,26 +137,12 @@ const NachrichtenList: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button
-          className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          {t('briefe:nachrichten.filters.all')} <span className="tab-count">{nachrichten.length}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'unread' ? 'active' : ''}`}
-          onClick={() => setFilter('unread')}
-        >
-          {t('briefe:nachrichten.filters.unread')} <span className="tab-count">{unreadCountNum}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'read' ? 'active' : ''}`}
-          onClick={() => setFilter('read')}
-        >
-          {t('briefe:nachrichten.filters.read')} <span className="tab-count">{readCountNum}</span>
-        </button>
-      </div>
+      <FilterChipBar
+        className="filter-chip-bar--centered"
+        options={messageFilterOptions}
+        activeId={filter}
+        onSelect={(nextId) => setFilter(nextId as 'all' | 'read' | 'unread')}
+      />
 
       {/* Messages Table */}
       {isLoading ? (
@@ -230,4 +222,3 @@ const NachrichtenList: React.FC = () => {
 };
 
 export default NachrichtenList;
-

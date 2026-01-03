@@ -7,6 +7,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { TiptapEditor } from '../../components/Brief';
 import './BriefVorlagenList.css';
+import FilterChipBar, { FilterChipOption } from '../../components/Common/FilterChipBar';
 
 const BriefVorlagenList: React.FC = () => {
   // @ts-ignore - i18next type definitions
@@ -192,6 +193,25 @@ const BriefVorlagenList: React.FC = () => {
     return counts;
   }, [vorlagen]);
 
+  const categoryFilterOptions = useMemo<FilterChipOption[]>(() => {
+    const options: FilterChipOption[] = [
+      { id: 'all', label: t('common:all'), count: kategorieCount.all },
+    ];
+
+    Object.values(BriefVorlageKategorie).forEach((kat) => {
+      const count = kategorieCount[kat];
+      if (count > 0) {
+        options.push({
+          id: kat,
+          label: getKategorieLabel(kat),
+          count,
+        });
+      }
+    });
+
+    return options;
+  }, [kategorieCount, t, i18n.language]);
+
   // Insert placeholder into content
   const insertPlaceholder = (placeholder: string) => {
     setFormData(prev => ({
@@ -227,27 +247,12 @@ const BriefVorlagenList: React.FC = () => {
 
       {/* Category Filter Tabs */}
       {vorlagen.length > 0 && (
-        <div className="filter-tabs-container">
-          <div className="filter-tabs">
-            <button
-              className={`filter-tab ${selectedKategorie === 'all' ? 'active' : ''}`}
-              onClick={() => setSelectedKategorie('all')}
-            >
-              {t('common:all')} <span className="tab-count">{kategorieCount.all}</span>
-            </button>
-            {Object.values(BriefVorlageKategorie).map(kat => (
-              kategorieCount[kat] > 0 && (
-                <button
-                  key={kat}
-                  className={`filter-tab ${selectedKategorie === kat ? 'active' : ''}`}
-                  onClick={() => setSelectedKategorie(kat)}
-                >
-                  {getKategorieLabel(kat)} <span className="tab-count">{kategorieCount[kat]}</span>
-                </button>
-              )
-            ))}
-          </div>
-        </div>
+        <FilterChipBar
+          className="filter-chip-bar--centered"
+          options={categoryFilterOptions}
+          activeId={selectedKategorie}
+          onSelect={(nextId) => setSelectedKategorie(nextId === 'all' ? 'all' : (nextId as BriefVorlageKategorie))}
+        />
       )}
 
       {isLoading ? (

@@ -4,17 +4,18 @@
  * Accessible by: Mitglied (member) only
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import { mitgliedForderungService, mitgliedZahlungService, veranstaltungZahlungService } from '../../services/finanzService';
-import type { MitgliedZahlungDto, VeranstaltungZahlungDto } from '../../types/finanz.types';
 import { vereinService } from '../../services/vereinService';
 import { mitgliedService } from '../../services/mitgliedService';
 import keytableService from '../../services/keytableService';
 import type { UpdateMitgliedSelfDto } from '../../types/mitglied';
+import type { MitgliedVeranstaltungDto } from '../../types/finanz.types';
 import Modal from '../../components/Common/Modal';
 import Loading from '../../components/Common/Loading';
 import PaymentTrendChart from '../../components/Finanz/PaymentTrendChart';
@@ -29,6 +30,17 @@ import './FinanzList.css';
 
 // Tab Types
 type TabType = 'overview' | 'beitrag' | 'events' | 'claims' | 'history';
+type ClaimsFilter = 'all' | 'overdue' | 'upcoming' | 'partial' | 'waiting';
+type EventFilter = 'all' | 'paid' | 'pending';
+type DueStatus = 'overdue' | 'upcoming' | 'waiting';
+type InstructionData = {
+  title: string;
+  amount: number;
+  dueDate?: string;
+  reference: string;
+  descriptionExample: string;
+  typeLabel: string;
+};
 
 // Card Icons (Professional SVG)
 const DebtIcon = () => (
@@ -86,15 +98,21 @@ const HistoryIcon = () => (
   </svg>
 );
 
-const ChartIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-  </svg>
-);
-
 const CalendarIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
+const CopyIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+  </svg>
+);
+
+const InfoIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 
@@ -102,12 +120,6 @@ const CalendarIcon = () => (
 const SearchIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-  </svg>
-);
-
-const EyeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
   </svg>
 );
 
@@ -134,16 +146,21 @@ const MitgliedFinanz: React.FC = () => {
   // @ts-ignore - i18next type definitions
   const { t, i18n } = useTranslation(['finanz', 'common']);
   const { user } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const mitgliedId = user?.mitgliedId;
 
   const [planForm, setPlanForm] = useState({
-    beitragPeriodeCode: ''
+    beitragPeriodeCode: '',
+    beitragZahlungstagTypCode: '',
+    beitragZahlungsTag: ''
   });
   const [lastSavedPlan, setLastSavedPlan] = useState({
-    beitragPeriodeCode: ''
+    beitragPeriodeCode: '',
+    beitragZahlungstagTypCode: '',
+    beitragZahlungsTag: ''
   });
   const [planErrors, setPlanErrors] = useState<Record<string, string>>({});
   const [planMessage, setPlanMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -169,6 +186,9 @@ const MitgliedFinanz: React.FC = () => {
 
   // Copied reference state
   const [copiedReference, setCopiedReference] = useState<number | null>(null);
+  const [claimsFilter, setClaimsFilter] = useState<ClaimsFilter>('all');
+  const [eventFilter, setEventFilter] = useState<EventFilter>('all');
+  const [activeInstruction, setActiveInstruction] = useState<InstructionData | null>(null);
 
   // Payment history states
   const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
@@ -186,11 +206,18 @@ const MitgliedFinanz: React.FC = () => {
   const [selectedPaymentWithBank, setSelectedPaymentWithBank] = useState<any>(null);
 
   // Copy to clipboard function
-  const copyToClipboard = (text: string, forderungId: number) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedReference(forderungId);
-      setTimeout(() => setCopiedReference(null), 2000);
-    });
+  const copyToClipboard = async (text: string, markerId?: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (typeof markerId === 'number') {
+        setCopiedReference(markerId);
+        setTimeout(() => setCopiedReference(null), 2000);
+      }
+      showToast(t('finanz:paymentInstruction.copySuccess'), 'success');
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      showToast(t('common:errors.copyFailed'), 'error');
+    }
   };
 
   // Fetch financial summary (single API call)
@@ -219,10 +246,18 @@ const MitgliedFinanz: React.FC = () => {
     staleTime: 24 * 60 * 60 * 1000,
   });
 
+  const { data: beitragZahlungstagTypen = [] } = useQuery({
+    queryKey: ['keytable', 'beitragzahlungstagtypen'],
+    queryFn: () => keytableService.getBeitragZahlungstagTypen(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
   useEffect(() => {
     if (!mitglied) return;
     const nextPlan = {
-      beitragPeriodeCode: mitglied.beitragPeriodeCode || ''
+      beitragPeriodeCode: mitglied.beitragPeriodeCode || '',
+      beitragZahlungstagTypCode: mitglied.beitragZahlungstagTypCode || '',
+      beitragZahlungsTag: mitglied.beitragZahlungsTag ? mitglied.beitragZahlungsTag.toString() : ''
     };
     setPlanForm(nextPlan);
     setLastSavedPlan(nextPlan);
@@ -232,7 +267,9 @@ const MitgliedFinanz: React.FC = () => {
 
   useEffect(() => {
     setPlanForm(prev => ({
-      beitragPeriodeCode: prev.beitragPeriodeCode || beitragPerioden[0]?.code || ''
+      beitragPeriodeCode: prev.beitragPeriodeCode || beitragPerioden[0]?.code || '',
+      beitragZahlungstagTypCode: prev.beitragZahlungstagTypCode,
+      beitragZahlungsTag: prev.beitragZahlungsTag
     }));
   }, [beitragPerioden]);
 
@@ -252,7 +289,9 @@ const MitgliedFinanz: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['mitglied', mitgliedId] });
       queryClient.invalidateQueries({ queryKey: ['mitglied-profile', mitgliedId] });
       const savedPlan = {
-        beitragPeriodeCode: updated.beitragPeriodeCode || ''
+        beitragPeriodeCode: updated.beitragPeriodeCode || '',
+        beitragZahlungstagTypCode: updated.beitragZahlungstagTypCode || '',
+        beitragZahlungsTag: updated.beitragZahlungsTag ? updated.beitragZahlungsTag.toString() : ''
       };
       setPlanForm(savedPlan);
       setLastSavedPlan(savedPlan);
@@ -403,7 +442,49 @@ const MitgliedFinanz: React.FC = () => {
     setPaymentMaxAmount('');
   };
 
-  const isPlanDirty = planForm.beitragPeriodeCode !== lastSavedPlan.beitragPeriodeCode;
+  type PaymentDayOption = 'DAY_1' | 'DAY_15' | 'LAST_DAY';
+
+  const lastDayTypeCode = beitragZahlungstagTypen.find((typ) => typ.code?.toUpperCase() === 'LAST_DAY')?.code || 'LAST_DAY';
+  const defaultDayTypeCode = beitragZahlungstagTypen.find((typ) => typ.code?.toUpperCase() !== 'LAST_DAY')?.code || 'DAY';
+
+  const getPaymentDayOption = (typeCode?: string, dayValue?: string): PaymentDayOption | '' => {
+    if (typeCode?.toUpperCase() === 'LAST_DAY') return 'LAST_DAY';
+    const day = Number(dayValue);
+    if (day === 1) return 'DAY_1';
+    if (day === 15) return 'DAY_15';
+    return '';
+  };
+
+  const paymentDayOption = getPaymentDayOption(planForm.beitragZahlungstagTypCode, planForm.beitragZahlungsTag);
+
+  const handlePaymentDayOptionChange = (option: PaymentDayOption) => {
+    if (option === 'LAST_DAY') {
+      setPlanForm(prev => ({
+        ...prev,
+        beitragZahlungstagTypCode: lastDayTypeCode,
+        beitragZahlungsTag: ''
+      }));
+    } else {
+      const dayValue = option === 'DAY_1' ? '1' : '15';
+      setPlanForm(prev => ({
+        ...prev,
+        beitragZahlungstagTypCode: defaultDayTypeCode,
+        beitragZahlungsTag: dayValue
+      }));
+    }
+
+    if (planErrors.paymentDayOption) {
+      setPlanErrors(prev => ({ ...prev, paymentDayOption: '' }));
+    }
+
+    if (planMessage) {
+      setPlanMessage(null);
+    }
+  };
+
+  const isPlanDirty = planForm.beitragPeriodeCode !== lastSavedPlan.beitragPeriodeCode
+    || planForm.beitragZahlungstagTypCode !== lastSavedPlan.beitragZahlungstagTypCode
+    || (planForm.beitragZahlungsTag || '') !== lastSavedPlan.beitragZahlungsTag;
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -429,6 +510,10 @@ const MitgliedFinanz: React.FC = () => {
       errors.beitragPeriodeCode = t('finanz:beitragPlan.settings.validation.periodRequired');
     }
 
+    if (!paymentDayOption) {
+      errors.paymentDayOption = t('finanz:beitragPlan.settings.validation.paymentDayRequired');
+    }
+
     setPlanErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -437,8 +522,14 @@ const MitgliedFinanz: React.FC = () => {
     e.preventDefault();
     if (!validatePlan()) return;
 
+    const dayOption = paymentDayOption as PaymentDayOption;
+    const isLastDay = dayOption === 'LAST_DAY';
+    const selectedDay = dayOption === 'DAY_1' ? 1 : 15;
+
     const updateData: UpdateMitgliedSelfDto = {
-      beitragPeriodeCode: planForm.beitragPeriodeCode || undefined
+      beitragPeriodeCode: planForm.beitragPeriodeCode || undefined,
+      beitragZahlungstagTypCode: isLastDay ? lastDayTypeCode : defaultDayTypeCode,
+      beitragZahlungsTag: isLastDay ? undefined : selectedDay
     };
 
     setPendingPlanUpdate(updateData);
@@ -459,6 +550,58 @@ const MitgliedFinanz: React.FC = () => {
     if (!dateString) return '-';
     return formatPaymentDate(dateString);
   };
+
+  const getEventPaymentState = useCallback((event: MitgliedVeranstaltungDto): 'paid' | 'pending' => {
+    const hasPrice = typeof event.preis === 'number' && event.preis > 0;
+    if (!hasPrice) return 'paid';
+    const status = event.zahlungStatus?.toUpperCase();
+    return status === 'PAID' ? 'paid' : 'pending';
+  }, []);
+
+  const veranstaltungen = useMemo(() => summary?.veranstaltungAnmeldungen || [], [
+    summary?.veranstaltungAnmeldungen,
+  ]);
+
+  const eventFilterOptions: { id: EventFilter; label: string }[] = useMemo(
+    () => [
+      { id: 'all', label: t('finanz:veranstaltungen.filters.all') },
+      { id: 'paid', label: t('finanz:veranstaltungen.filters.paid') },
+      { id: 'pending', label: t('finanz:veranstaltungen.filters.pending') },
+    ],
+    [t]
+  );
+
+  const eventsSummary = useMemo(() => {
+    let paidCount = 0;
+    let pendingCount = 0;
+    veranstaltungen.forEach((event) => {
+      const state = getEventPaymentState(event);
+      if (state === 'paid') {
+        paidCount += 1;
+      } else {
+        pendingCount += 1;
+      }
+    });
+
+    return {
+      total: veranstaltungen.length,
+      paid: paidCount,
+      pending: pendingCount,
+    };
+  }, [veranstaltungen, getEventPaymentState]);
+
+  const filteredEventRegistrations = useMemo(() => {
+    const list =
+      eventFilter === 'all'
+        ? [...veranstaltungen]
+        : veranstaltungen.filter((event) => getEventPaymentState(event) === eventFilter);
+
+    return list.sort((a, b) => {
+      const aTime = a.startdatum ? new Date(a.startdatum).getTime() : 0;
+      const bTime = b.startdatum ? new Date(b.startdatum).getTime() : 0;
+      return bTime - aTime;
+    });
+  }, [eventFilter, veranstaltungen, getEventPaymentState]);
 
   const getBeitragStatus = () => {
     if (summary?.overdueCount && summary.overdueCount > 0) {
@@ -489,12 +632,40 @@ const MitgliedFinanz: React.FC = () => {
     }
   };
 
+  const getMonthsPerPeriod = (code?: string) => {
+    switch (code?.toUpperCase()) {
+      case 'YEARLY':
+      case 'ANNUAL':
+        return 12;
+      case 'SEMIANNUAL':
+      case 'HALF_YEAR':
+        return 6;
+      case 'QUARTERLY':
+        return 3;
+      default:
+        return 1;
+    }
+  };
+
   const getAnnualTotal = (amount: number, periodCode?: string) => {
     return amount * getPeriodsPerYear(periodCode);
   };
 
   const getPeriodKey = (code?: string) => {
     return code ? code.toLowerCase() : 'yearly';
+  };
+
+  const getPaymentDayLabel = (option: PaymentDayOption | '') => {
+    switch (option) {
+      case 'DAY_1':
+        return t('finanz:beitragPlan.paymentDay.options.first');
+      case 'DAY_15':
+        return t('finanz:beitragPlan.paymentDay.options.fifteenth');
+      case 'LAST_DAY':
+        return t('finanz:beitragPlan.paymentDay.options.lastDay');
+      default:
+        return t('finanz:beitragPlan.overview.notAvailable');
+    }
   };
 
   const getPaymentRowStatus = (payment: { status: string; date: string }) => {
@@ -533,17 +704,78 @@ const MitgliedFinanz: React.FC = () => {
     return format(date, 'dd.MM.yyyy', { locale });
   };
 
-  // Get payment urgency class
-  const getPaymentUrgency = (dueDate: string): 'overdue' | 'urgent' | 'upcoming' | 'normal' => {
+  // Due status helpers for claims
+  const getDueStatus = (dueDate: string): DueStatus => {
     const today = new Date();
     const due = new Date(dueDate);
     const diffTime = due.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return 'overdue'; // Vadesi geçmiş
-    if (diffDays <= 7) return 'urgent'; // 1-7 gün kaldı
-    if (diffDays <= 30) return 'upcoming'; // 7-30 gün kaldı
-    return 'normal'; // 30+ gün kaldı
+    if (diffDays < 0) return 'overdue';
+    if (diffDays <= 30) return 'upcoming';
+    return 'waiting';
+  };
+
+  const getDueStatusRank = (status: DueStatus) => {
+    switch (status) {
+      case 'overdue':
+        return 0;
+      case 'upcoming':
+        return 1;
+      default:
+        return 2;
+    }
+  };
+
+  const buildReference = (prefix: 'F' | 'E', id: number, date: string) => {
+    return `${prefix}${id}-${new Date(date).getFullYear()}`;
+  };
+
+  const formatIban = (iban: string) => {
+    return iban.replace(/(.{4})/g, '$1 ').trim();
+  };
+
+  const getPeriodLabel = (claim: { jahr?: number; quartal?: number; monat?: number }) => {
+    if (claim.quartal && claim.jahr) return `Q${claim.quartal} ${claim.jahr}`;
+    if (claim.monat && claim.jahr) return `M${claim.monat} ${claim.jahr}`;
+    if (claim.jahr) return `${claim.jahr}`;
+    return '';
+  };
+
+  const getRemainingAmount = (claim: { remainingAmount?: number; betrag: number; paidAmount?: number }) => {
+    if (typeof claim.remainingAmount === 'number') return claim.remainingAmount;
+    return claim.betrag - (claim.paidAmount || 0);
+  };
+
+  const isPartiallyPaid = (claim: { paidAmount?: number; remainingAmount?: number; betrag: number }) => {
+    const remaining = getRemainingAmount(claim);
+    return (claim.paidAmount || 0) > 0 && remaining > 0;
+  };
+
+  const matchesClaimsFilter = (dueStatus: DueStatus, partial: boolean) => {
+    switch (claimsFilter) {
+      case 'overdue':
+        return dueStatus === 'overdue';
+      case 'upcoming':
+        return dueStatus === 'upcoming';
+      case 'waiting':
+        return dueStatus === 'waiting';
+      case 'partial':
+        return partial;
+      default:
+        return true;
+    }
+  };
+
+  const getDueStatusLabel = (status: DueStatus) => {
+    switch (status) {
+      case 'overdue':
+        return t('finanz:mitgliedFinanz.statusOverdue');
+      case 'upcoming':
+        return t('finanz:mitgliedFinanz.statusUpcoming');
+      default:
+        return t('finanz:mitgliedFinanz.statusWaiting');
+    }
   };
 
   // Redirect if not a member
@@ -587,6 +819,48 @@ const MitgliedFinanz: React.FC = () => {
     return <Loading />;
   }
 
+  const bankAccount = verein?.hauptBankkonto;
+  const recipientName = verein?.name ?? '';
+
+  const claimsTotalDebt = summary.totalDebt || 0;
+  const claimsTotalOverdue = summary.totalOverdue || 0;
+  const claimsUpcomingAmount = [
+    ...summary.unpaidClaims,
+    ...(summary.unpaidEventClaims || []),
+  ].reduce((sum, item) => {
+    const dueDate = 'faelligkeit' in item ? item.faelligkeit : item.startdatum;
+    const amount = 'faelligkeit' in item ? getRemainingAmount(item) : (item.preis || 0);
+    return getDueStatus(dueDate) === 'upcoming' ? sum + amount : sum;
+  }, 0);
+
+  const filteredUnpaidClaims = [...summary.unpaidClaims]
+    .filter((claim) => matchesClaimsFilter(getDueStatus(claim.faelligkeit), isPartiallyPaid(claim)))
+    .sort((a, b) => {
+      const aStatus = getDueStatus(a.faelligkeit);
+      const bStatus = getDueStatus(b.faelligkeit);
+      const rankDiff = getDueStatusRank(aStatus) - getDueStatusRank(bStatus);
+      if (rankDiff !== 0) return rankDiff;
+      return new Date(a.faelligkeit).getTime() - new Date(b.faelligkeit).getTime();
+    });
+
+  const filteredUnpaidEventClaims = [...(summary.unpaidEventClaims || [])]
+    .filter((event) => matchesClaimsFilter(getDueStatus(event.startdatum), false))
+    .sort((a, b) => {
+      const aStatus = getDueStatus(a.startdatum);
+      const bStatus = getDueStatus(b.startdatum);
+      const rankDiff = getDueStatusRank(aStatus) - getDueStatusRank(bStatus);
+      if (rankDiff !== 0) return rankDiff;
+      return new Date(a.startdatum).getTime() - new Date(b.startdatum).getTime();
+    });
+
+  const claimFilterOptions: { id: ClaimsFilter; label: string }[] = [
+    { id: 'all', label: t('finanz:mitgliedFinanz.filterAll') },
+    { id: 'overdue', label: t('finanz:mitgliedFinanz.filterOverdue') },
+    { id: 'upcoming', label: t('finanz:mitgliedFinanz.filterUpcoming') },
+    { id: 'partial', label: t('finanz:mitgliedFinanz.filterPartial') },
+    { id: 'waiting', label: t('finanz:mitgliedFinanz.filterWaiting') },
+  ];
+
   // Tab configuration with badges
   const tabs: { id: TabType; icon: React.ReactNode; labelKey: string; badge?: number }[] = [
     { id: 'overview', icon: <OverviewIcon />, labelKey: 'finanz:tabs.overview' },
@@ -629,7 +903,118 @@ const MitgliedFinanz: React.FC = () => {
   const previewFirstPaymentDate = summary.beitragPlan?.nextPaymentDates?.[0]?.date
     || summary.nextPayment?.faelligkeit
     || '';
+  const previewPaymentDayLabel = getPaymentDayLabel(paymentDayOption);
+  const previewFirstPaymentAdjusted = (() => {
+    if (!previewFirstPaymentDate) return '';
+    if (!paymentDayOption) return previewFirstPaymentDate;
+    const baseDate = new Date(previewFirstPaymentDate);
+    let day = paymentDayOption === 'DAY_1' ? 1 : 15;
+    if (paymentDayOption === 'LAST_DAY') {
+      day = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0).getDate();
+    }
+    let candidate = new Date(baseDate.getFullYear(), baseDate.getMonth(), day);
+    if (candidate < baseDate) {
+      const monthsPerPeriod = getMonthsPerPeriod(selectedPeriodCode);
+      const nextMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + monthsPerPeriod, 1);
+      if (paymentDayOption === 'LAST_DAY') {
+        candidate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0);
+      } else {
+        candidate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), day);
+      }
+    }
+    return candidate.toISOString();
+  })();
   const paymentRows = summary.beitragPlan?.nextPaymentDates || [];
+  const yearStats = summary.yearlyStats;
+  const overviewYear = yearStats?.year || new Date().getFullYear();
+  const hasYearlySummary = Boolean(yearStats && yearStats.totalAmount > 0);
+  const paymentTrendTitle = t('finanz:mitgliedFinanz.paymentTrendTitle', { year: overviewYear });
+  const chartData = (summary.last12MonthsTrend || []).map((entry) => ({
+    monthName: entry.monthName,
+    actual: entry.amount,
+    planned: 0,
+  }));
+
+  type OverviewCard = {
+    id: string;
+    title: string;
+    description: string;
+    value: string;
+    icon: React.ReactNode;
+    borderColor: string;
+    iconColor: string;
+    amountColor: string;
+    targetTab: TabType;
+    tabLabelKey: string;
+  };
+
+  const overviewCards: OverviewCard[] = [
+    {
+      id: 'totalDebt',
+      title: t('finanz:mitgliedFinanz.totalDebt'),
+      description: t('finanz:mitgliedFinanz.cardDescriptions.totalDebt'),
+      value: formatCurrency(summary.totalDebt || 0),
+      icon: <DebtIcon />,
+      borderColor: '#f97316',
+      iconColor: summary.totalDebt > 0 ? '#b91c1c' : 'var(--color-text-primary)',
+      amountColor: summary.totalDebt > 0 ? '#b91c1c' : 'var(--color-text-primary)',
+      targetTab: 'claims' as TabType,
+      tabLabelKey: 'finanz:tabs.claims',
+    },
+    {
+      id: 'overdue',
+      title: t('finanz:mitgliedFinanz.overdueClaims'),
+      description: t('finanz:mitgliedFinanz.cardDescriptions.overdue'),
+      value: formatCurrency(summary.totalOverdue || 0),
+      icon: <OverdueIcon />,
+      borderColor: '#dc2626',
+      iconColor: summary.overdueCount > 0 ? '#dc2626' : '#6b7280',
+      amountColor: summary.overdueCount > 0 ? '#dc2626' : '#6b7280',
+      targetTab: 'claims' as TabType,
+      tabLabelKey: 'finanz:tabs.claims',
+    },
+    {
+      id: 'paidThisYear',
+      title: t('finanz:mitgliedFinanz.paidThisYear'),
+      description: t('finanz:mitgliedFinanz.cardDescriptions.paidThisYear'),
+      value: formatCurrency(yearStats?.totalAmount || 0),
+      icon: <PaidIcon />,
+      borderColor: '#16a34a',
+      iconColor: '#16a34a',
+      amountColor: '#16a34a',
+      targetTab: 'history',
+      tabLabelKey: 'finanz:paymentHistory.title',
+    },
+    {
+      id: 'creditBalance',
+      title: t('finanz:mitgliedFinanz.creditBalance'),
+      description: t('finanz:mitgliedFinanz.cardDescriptions.creditBalance'),
+      value: formatCurrency(summary.creditBalance || 0),
+      icon: <WalletIcon />,
+      borderColor: '#2563eb',
+      iconColor: '#2563eb',
+      amountColor: summary.creditBalance > 0 ? '#2563eb' : 'var(--color-text-primary)',
+      targetTab: 'beitrag',
+      tabLabelKey: 'finanz:tabs.beitrag',
+    },
+  ];
+
+  const yearlySummaryCards = hasYearlySummary && yearStats
+    ? [
+        {
+          label: t('finanz:mitgliedFinanz.yearlySummary.totalPayment'),
+          value: formatCurrency(yearStats.totalAmount),
+        },
+        {
+          label: t('finanz:mitgliedFinanz.paidThisYear'),
+          value: t('finanz:mitgliedFinanz.yearlySummary.paymentCount', { count: yearStats.totalPayments }),
+        },
+        {
+          label: t('finanz:mitgliedFinanz.avgPaymentTime'),
+          value: `${yearStats.averagePaymentDays} ${t('finanz:mitgliedFinanz.days')}`,
+        },
+      ]
+    : [];
 
   return (
     <div className="mitglied-finanz">
@@ -662,115 +1047,74 @@ const MitgliedFinanz: React.FC = () => {
         {/* ===== OVERVIEW TAB ===== */}
         {activeTab === 'overview' && (
           <>
-            {/* Summary Cards Section - 4 Cards */}
-            <div className="finance-summary-cards four-cards">
-              {/* 1. Ödenmemiş Borç (Unpaid Debt) */}
-              <div className={`summary-card ${summary.totalDebt > 0 ? 'card-warning' : 'card-success'}`}>
-                <div className="card-icon"><DebtIcon /></div>
-                <div className="card-content">
-                  <h3>{t('finanz:mitgliedFinanz.totalDebt')}</h3>
-                  <div className={`card-amount ${summary.totalDebt > 0 ? 'warning' : 'success'}`}>
-                    {formatCurrency(summary.totalDebt)}
-                  </div>
-                  {summary.unpaidClaims && summary.unpaidClaims.length > 0 && (
-                    <div className="card-subtitle muted">
-                      {summary.unpaidClaims.length} {t('finanz:mitgliedFinanz.unpaidClaims')}
+            <section className="overview-summary-section">
+              <div className="overview-summary-cards">
+                {overviewCards.map((card) => (
+                  <button
+                    key={card.id}
+                    type="button"
+                    className="overview-summary-card"
+                    style={{ borderLeftColor: card.borderColor }}
+                    onClick={() => setActiveTab(card.targetTab)}
+                    aria-label={t('finanz:mitgliedFinanz.cardRedirectLabel', {
+                      cardTitle: card.title,
+                      tab: t(card.tabLabelKey),
+                    })}
+                  >
+                    <div className="overview-card-icon" style={{ color: card.iconColor }}>
+                      {card.icon}
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* 2. Vadesi Geçmiş (Overdue) */}
-              <div className={`summary-card ${summary.overdueCount > 0 ? 'card-danger' : 'card-success'}`}>
-                <div className="card-icon"><OverdueIcon /></div>
-                <div className="card-content">
-                  <h3>{t('finanz:mitgliedFinanz.overdueClaims')}</h3>
-                  <div className={`card-amount ${summary.overdueCount > 0 ? 'danger' : 'success'}`}>
-                    {formatCurrency(summary.totalOverdue)}
-                  </div>
-                  {summary.overdueCount > 0 && (
-                    <div className="card-subtitle danger">
-                      {summary.overdueCount} {t('finanz:mitgliedFinanz.overdueItems')}
+                    <div className="overview-card-content">
+                      <span className="overview-card-title">{card.title}</span>
+                      <span className="overview-card-amount" style={{ color: card.amountColor }}>
+                        {card.value}
+                      </span>
+                      <p className="overview-card-description">{card.description}</p>
                     </div>
-                  )}
-                </div>
+                  </button>
+                ))}
               </div>
+            </section>
 
-              {/* 3. Bu Yıl Ödediğim (Paid This Year) */}
-              <div className={`summary-card card-positive`}>
-                <div className="card-icon"><PaidIcon /></div>
-                <div className="card-content">
-                  <h3>{t('finanz:mitgliedFinanz.paidThisYear')}</h3>
-                  <div className="card-amount positive">
-                    {formatCurrency(summary.yearlyStats?.totalAmount || 0)}
-                  </div>
-                  {summary.yearlyStats && summary.yearlyStats.totalPayments > 0 && (
-                    <div className="card-subtitle muted">
-                      {summary.yearlyStats.totalPayments} {t('finanz:mitgliedFinanz.payments')}
-                    </div>
-                  )}
+            <section className="overview-yearly-section">
+              <div className="overview-section-header">
+                <h2>{t('finanz:mitgliedFinanz.yearlySummary.title')}</h2>
+                <span className="overview-section-year">{overviewYear}</span>
+              </div>
+              {hasYearlySummary && yearlySummaryCards.length > 0 ? (
+                <div className="overview-yearly-grid">
+                  {yearlySummaryCards.map((card) => (
+                    <article className="overview-yearly-card" key={card.label}>
+                      <span className="overview-yearly-label">{card.label}</span>
+                      <span className="overview-yearly-value">{card.value}</span>
+                    </article>
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <p className="overview-yearly-empty">{t('finanz:mitgliedFinanz.yearlySummary.emptyState')}</p>
+              )}
+            </section>
 
-              {/* 4. Kredi Bakiyesi (Credit Balance) */}
-              <div className={`summary-card ${summary.creditBalance > 0 ? 'card-info' : 'card-neutral'}`}>
-                <div className="card-icon"><WalletIcon /></div>
-                <div className="card-content">
-                  <h3>{t('finanz:mitgliedFinanz.creditBalance')}</h3>
-                  <div className={`card-amount ${summary.creditBalance > 0 ? 'info' : 'muted'}`}>
-                    {formatCurrency(summary.creditBalance)}
-                  </div>
-                  {summary.creditBalance > 0 && (
-                    <div className="card-subtitle info">
-                      {t('finanz:mitgliedFinanz.availableCredit')}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <section className="overview-payment-trend-section">
+              <PaymentTrendChart data={chartData} title={paymentTrendTitle} />
+            </section>
 
-      {/* Yearly Stats Section */}
-      {summary.yearlyStats && (
-        <div className="yearly-stats-section">
-          <div className="section-header">
-            <h2><ChartIcon /> {t('finanz:mitgliedFinanz.yearlyStats')} ({summary.yearlyStats.year})</h2>
-          </div>
-          <div className="yearly-stats-grid">
-            <div className="stat-item">
-              <div className="stat-value">{summary.yearlyStats.totalPayments}</div>
-              <div className="stat-label">{t('finanz:mitgliedFinanz.totalPaymentsCount')}</div>
+            <div
+              className="overview-guidance"
+              role="link"
+              tabIndex={0}
+              onClick={() => setActiveTab('claims')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setActiveTab('claims');
+                }
+              }}
+            >
+              {t('finanz:mitgliedFinanz.guidanceLink')}
             </div>
-            <div className="stat-item">
-              <div className="stat-value">{formatCurrency(summary.yearlyStats.totalAmount)}</div>
-              <div className="stat-label">{t('finanz:mitgliedFinanz.totalPaidThisYear')}</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">
-                {summary.yearlyStats.averagePaymentDays > 0
-                  ? `${summary.yearlyStats.averagePaymentDays} ${t('finanz:mitgliedFinanz.days')}`
-                  : '-'}
-              </div>
-              <div className="stat-label">{t('finanz:mitgliedFinanz.avgPaymentTime')}</div>
-            </div>
-            {summary.yearlyStats.preferredPaymentMethod && (
-              <div className="stat-item">
-                <div className="stat-value">{translatePaymentMethod(summary.yearlyStats.preferredPaymentMethod)}</div>
-                <div className="stat-label">
-                  {t('finanz:mitgliedFinanz.preferredMethod')} ({summary.yearlyStats.preferredMethodPercentage}%)
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Payment Trend Chart */}
-      {summary.last12MonthsTrend.length > 0 && (
-        <PaymentTrendChart data={summary.last12MonthsTrend} />
-      )}
           </>
         )}
-
         {/* ===== BEITRAG TAB ===== */}
         {activeTab === 'beitrag' && (
           <>
@@ -867,6 +1211,48 @@ const MitgliedFinanz: React.FC = () => {
                         </div>
 
                         <div className="settings-block">
+                          <h4>{t('finanz:beitragPlan.paymentDay.title')}</h4>
+                          <div className="radio-group" role="radiogroup" aria-label={t('finanz:beitragPlan.paymentDay.title')}>
+                            <label className="radio-option">
+                              <input
+                                type="radio"
+                                name="paymentDayOption"
+                                value="DAY_1"
+                                checked={paymentDayOption === 'DAY_1'}
+                                onChange={() => handlePaymentDayOptionChange('DAY_1')}
+                                disabled={updatePlanMutation.isPending}
+                              />
+                              <span>{t('finanz:beitragPlan.paymentDay.options.first')}</span>
+                            </label>
+                            <label className="radio-option">
+                              <input
+                                type="radio"
+                                name="paymentDayOption"
+                                value="DAY_15"
+                                checked={paymentDayOption === 'DAY_15'}
+                                onChange={() => handlePaymentDayOptionChange('DAY_15')}
+                                disabled={updatePlanMutation.isPending}
+                              />
+                              <span>{t('finanz:beitragPlan.paymentDay.options.fifteenth')}</span>
+                            </label>
+                            <label className="radio-option">
+                              <input
+                                type="radio"
+                                name="paymentDayOption"
+                                value="LAST_DAY"
+                                checked={paymentDayOption === 'LAST_DAY'}
+                                onChange={() => handlePaymentDayOptionChange('LAST_DAY')}
+                                disabled={updatePlanMutation.isPending}
+                              />
+                              <span>{t('finanz:beitragPlan.paymentDay.options.lastDay')}</span>
+                            </label>
+                          </div>
+                          {planErrors.paymentDayOption && (
+                            <span className="plan-error">{planErrors.paymentDayOption}</span>
+                          )}
+                        </div>
+
+                        <div className="settings-block">
                           <h4>{t('finanz:beitragPlan.preview.title')}</h4>
                           <div className="preview-card">
                             <div className="preview-row">
@@ -882,10 +1268,14 @@ const MitgliedFinanz: React.FC = () => {
                               <span className="preview-value">{formatCurrency(installmentAmount)} / {selectedPeriodShort}</span>
                             </div>
                             <div className="preview-row">
+                              <span className="preview-label">{t('finanz:beitragPlan.preview.paymentDay')}</span>
+                              <span className="preview-value">{previewPaymentDayLabel}</span>
+                            </div>
+                            <div className="preview-row">
                               <span className="preview-label">{t('finanz:beitragPlan.preview.firstPayment')}</span>
                               <span className="preview-value">
-                                {previewFirstPaymentDate
-                                  ? formatShortDate(previewFirstPaymentDate)
+                                {previewFirstPaymentAdjusted
+                                  ? formatShortDate(previewFirstPaymentAdjusted)
                                   : t('finanz:beitragPlan.overview.notAvailable')}
                               </span>
                             </div>
@@ -989,12 +1379,8 @@ const MitgliedFinanz: React.FC = () => {
                     </div>
                   }
                 >
-                  <p>
-                    {t('finanz:beitragPlan.settings.confirmBody', {
-                      from: currentPeriodLabel,
-                      to: selectedPeriodLabel
-                    })}
-                  </p>
+                  <p>{t('finanz:beitragPlan.settings.confirmBodyPeriod', { from: currentPeriodLabel, to: selectedPeriodLabel })}</p>
+                  <p>{t('finanz:beitragPlan.settings.confirmBodyDay', { day: previewPaymentDayLabel })}</p>
                   <div className="confirm-note">{t('finanz:beitragPlan.settings.confirmNote')}</div>
                 </Modal>
               </div>
@@ -1009,193 +1395,289 @@ const MitgliedFinanz: React.FC = () => {
 
         {/* ===== EVENTS TAB ===== */}
         {activeTab === 'events' && (
-          <>
-      {/* Veranstaltung Anmeldungen Section - Etkinlik Katılımları */}
-      {summary.veranstaltungAnmeldungen && summary.veranstaltungAnmeldungen.length > 0 ? (
-        <div className="veranstaltung-section">
-          <div className="section-header">
-            <h2>🎫 {t('finanz:veranstaltungen.title')}</h2>
-            <span className="badge badge-info">{summary.veranstaltungAnmeldungen.length}</span>
-          </div>
-          <div className="veranstaltung-list">
-            {summary.veranstaltungAnmeldungen.map(event => (
-              <div key={event.id} className={`veranstaltung-item status-${event.zahlungStatus?.toLowerCase() || 'unpaid'}`}>
-                <div className="veranstaltung-date">
-                  <span className="day">{new Date(event.startdatum).getDate()}</span>
-                  <span className="month">
-                    {new Date(event.startdatum).toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'tr-TR', { month: 'short' })}
-                  </span>
-                  <span className="year">{new Date(event.startdatum).getFullYear()}</span>
+          <div className="veranstaltung-section">
+            {eventsSummary.total > 0 ? (
+              <>
+                <div className="veranstaltung-summary-line">
+                  {t('finanz:veranstaltungen.summaryLine', {
+                    total: eventsSummary.total,
+                    paid: eventsSummary.paid,
+                    pending: eventsSummary.pending,
+                  })}
                 </div>
-                <div className="veranstaltung-info">
-                  <h4 className="veranstaltung-title">{event.titel}</h4>
-                  {event.ort && <div className="veranstaltung-location">📍 {event.ort}</div>}
-                  <div className="veranstaltung-status">
-                    <span className={`status-badge ${event.anmeldungStatus?.toLowerCase() || 'pending'}`}>
-                      {t(`finanz:veranstaltungen.status.${event.anmeldungStatus?.toLowerCase() || 'pending'}`)}
-                    </span>
-                  </div>
+                <div className="veranstaltungen-filter-bar">
+                  {eventFilterOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={`claims-filter-chip ${eventFilter === option.id ? 'active' : ''}`}
+                      onClick={() => setEventFilter(option.id)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
-                <div className="veranstaltung-payment">
-                  {event.preis && event.preis > 0 ? (
-                    <>
-                      <div className="payment-amount">{formatCurrency(event.preis)}</div>
-                      <div className={`payment-status ${event.zahlungStatus?.toLowerCase() || 'unpaid'}`}>
-                        {event.zahlungStatus === 'PAID' && <span className="paid">✓ {t('finanz:veranstaltungen.paid')}</span>}
-                        {event.zahlungStatus === 'PENDING' && <span className="pending">⏳ {t('finanz:veranstaltungen.pending')}</span>}
-                        {event.zahlungStatus === 'UNPAID' && <span className="unpaid">○ {t('finanz:veranstaltungen.unpaid')}</span>}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="free-event">🎁 {t('finanz:veranstaltungen.free')}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="empty-state">
-          <div className="empty-icon">🎫</div>
-          <p>{t('finanz:veranstaltungen.noEvents')}</p>
-        </div>
-      )}
-          </>
-        )}
+                {filteredEventRegistrations.length > 0 ? (
+                  <div className="veranstaltung-list">
+                    {filteredEventRegistrations.map((event) => {
+                      const paymentState = getEventPaymentState(event);
+                      const hasAmount = typeof event.preis === 'number' && event.preis > 0;
+                      const amountLabel = hasAmount
+                        ? formatCurrency(event.preis!)
+                        : t('finanz:veranstaltungen.free');
+                      const attendanceKey = (event.anmeldungStatus || 'pending').toLowerCase();
+                      const attendanceLabel = t(`finanz:veranstaltungen.status.${attendanceKey}`, {
+                        defaultValue: event.anmeldungStatus || t('finanz:veranstaltungen.status.pending'),
+                      });
 
+                      return (
+                        <div key={`event-${event.id}`} className="veranstaltung-row">
+                          <div className="veranstaltung-content">
+                            <h4 className="veranstaltung-title">{event.titel}</h4>
+                            <div className="veranstaltung-detail-row">
+                              <span className="veranstaltung-date-inline">
+                                <CalendarIcon />
+                                <span>{event.startdatum ? formatPaymentDate(event.startdatum) : '-'}</span>
+                              </span>
+                              {event.ort && (
+                                <span className="veranstaltung-location-inline">{event.ort}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="veranstaltung-status-block">
+                            <span className={`veranstaltung-status-chip status-${attendanceKey}`}>
+                              {attendanceLabel}
+                            </span>
+                          </div>
+                          <div className="veranstaltung-finance-block">
+                            <span className="veranstaltung-amount">{amountLabel}</span>
+                            {hasAmount && (
+                              <span className={`veranstaltung-payment-status ${paymentState}`}>
+                                {paymentState === 'paid'
+                                  ? `✓ ${t('finanz:veranstaltungen.paid')}`
+                                  : `⏳ ${t('finanz:veranstaltungen.pending')}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="veranstaltung-empty-filter">
+                    <p>{t('finanz:veranstaltungen.noEventsFiltered')}</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="empty-state events-empty-state">
+                <div className="empty-icon"><EventsIcon /></div>
+                <p>{t('finanz:veranstaltungen.emptyState')}</p>
+              </div>
+            )}
+            <p className="veranstaltung-note">{t('finanz:veranstaltungen.infoNote')}</p>
+          </div>
+        )}
         {/* ===== CLAIMS TAB ===== */}
         {activeTab === 'claims' && (
           <>
+      {/* Claims Summary Line */}
+      <div className="claims-summary-line">
+        <span>
+          {t('finanz:mitgliedFinanz.claimsSummaryTotal')}: <strong>{formatCurrency(claimsTotalDebt)}</strong>
+        </span>
+        <span className="summary-dot">{'\u00b7'}</span>
+        <span>
+          {t('finanz:mitgliedFinanz.claimsSummaryOverdue')}: <strong>{formatCurrency(claimsTotalOverdue)}</strong>
+        </span>
+        <span className="summary-dot">{'\u00b7'}</span>
+        <span>
+          {t('finanz:mitgliedFinanz.claimsSummaryUpcoming')}: <strong>{formatCurrency(claimsUpcomingAmount)}</strong>
+        </span>
+      </div>
+
+      <div className="claims-filter-bar">
+        {claimFilterOptions.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            className={`claims-filter-chip ${claimsFilter === option.id ? 'active' : ''}`}
+            onClick={() => setClaimsFilter(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
       {/* Unpaid Claims Section */}
-      {summary.unpaidClaims.length > 0 && (
+      {filteredUnpaidClaims.length > 0 && (
         <div className="finance-section">
           <div className="section-header">
             <h2>{t('finanz:mitgliedFinanz.unpaidClaimsTitle')}</h2>
-            <span className="badge badge-info">{summary.unpaidClaims.length}</span>
+            <span className="badge badge-info">{filteredUnpaidClaims.length}</span>
           </div>
-          <div className="claims-grid">
-            {summary.unpaidClaims.map(forderung => {
-                const urgency = getPaymentUrgency(forderung.faelligkeit);
-                return (
-                  <div
-                    key={forderung.id}
-                    className={`claim-item claim-${urgency}`}
-                  >
-                    <div
-                      className="claim-content clickable"
-                      onClick={() => navigate(`/meine-finanzen/forderungen/${forderung.id}`)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') navigate(`/meine-finanzen/forderungen/${forderung.id}`);
+          <div className="claims-grid claims-grid-standard">
+            {filteredUnpaidClaims.map(forderung => {
+              const dueStatus = getDueStatus(forderung.faelligkeit);
+              const partial = isPartiallyPaid(forderung);
+              const remainingAmount = getRemainingAmount(forderung);
+              const periodLabel = getPeriodLabel(forderung);
+              const reference = buildReference('F', forderung.id, forderung.faelligkeit);
+              const statusLabel = partial
+                ? t('finanz:mitgliedFinanz.partiallyPaid')
+                : getDueStatusLabel(dueStatus);
+
+              return (
+                <div key={forderung.id} className={`claim-row status-${partial ? 'partial' : dueStatus}`}>
+                  <div className="claim-left">
+                    <div className="claim-title">{forderung.beschreibung || t('finanz:claims.title')}</div>
+                    <div className="claim-subline">
+                      <span>{t('finanz:mitgliedFinanz.dueDateLabel', { date: formatDate(forderung.faelligkeit) })}</span>
+                      {periodLabel && <span className="claim-sub-divider">?</span>}
+                      {periodLabel && <span>{periodLabel}</span>}
+                    </div>
+                    <div className="claim-meta">{t('finanz:mitgliedFinanz.typeMembership')}</div>
+                    {forderung.forderungsnummer && (
+                      <div className="claim-record">
+                        {t('finanz:mitgliedFinanz.recordLabel')}: {forderung.forderungsnummer}
+                      </div>
+                    )}
+                  </div>
+                  <div className="claim-amount-block">
+                    <span className="claim-amount-label">{t('finanz:mitgliedFinanz.remainingLabel')}</span>
+                    <span className="claim-amount-main">{formatCurrency(remainingAmount)}</span>
+                    {partial && (
+                      <span className="claim-amount-meta">
+                        {t('finanz:mitgliedFinanz.totalLabel')}: {formatCurrency(forderung.betrag)}{' \u00b7 '}{t('finanz:mitgliedFinanz.paidLabel')}: {formatCurrency(forderung.paidAmount)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="claim-right">
+                    <div className="claim-status-row">
+                      <span className={`status-chip status-${partial ? 'partial' : dueStatus}`}>{statusLabel}</span>
+                      {!partial && dueStatus === 'waiting' && (
+                        <span className="status-tooltip" title={t('finanz:mitgliedFinanz.waitingTooltip')}>
+                          <InfoIcon />
+                        </span>
+                      )}
+                    </div>
+                    {partial && dueStatus === 'overdue' && (
+                      <div className="claim-warning">
+                        {t('finanz:mitgliedFinanz.overdueNotice', { date: formatDate(forderung.faelligkeit) })}
+                      </div>
+                    )}
+                    <div className="claim-reference">
+                      <span className="claim-reference-label">{t('finanz:mitgliedFinanz.referenceLabel')}:</span>
+                      <span className="claim-reference-value">{reference}</span>
+                      <button
+                        type="button"
+                        className={`claim-copy-btn ${copiedReference === forderung.id ? 'copied' : ''}`}
+                        onClick={() => copyToClipboard(reference, forderung.id)}
+                        title={t('finanz:paymentInstruction.copyReference')}
+                      >
+                        <CopyIcon />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="claim-action"
+                      onClick={() => {
+                        setActiveInstruction({
+                          title: forderung.beschreibung || t('finanz:claims.title'),
+                          amount: remainingAmount,
+                          dueDate: forderung.faelligkeit,
+                          reference,
+                          descriptionExample: `${forderung.beschreibung || t('finanz:claims.title')} - ${reference}`,
+                          typeLabel: t('finanz:mitgliedFinanz.typeMembership'),
+                        });
                       }}
+                      title={t('finanz:mitgliedFinanz.viewPaymentInstruction')}
                     >
-                      <div className="claim-main">
-                        <h4>{forderung.beschreibung || t('finanz:claims.title')}</h4>
-                        <span className="claim-id">#{forderung.forderungsnummer || forderung.id}</span>
-                      </div>
-                      <div className="claim-details">
-                        <div className="claim-date">
-                          <CalendarIcon />
-                          <span>{formatDate(forderung.faelligkeit)}</span>
-                          {urgency === 'overdue' && (
-                            <span className="urgency-badge overdue">{t('finanz:mitgliedFinanz.overdue')}</span>
-                          )}
-                          {urgency === 'urgent' && (
-                            <span className="urgency-badge urgent">{t('finanz:mitgliedFinanz.urgent')}</span>
-                          )}
-                        </div>
-                        <div className="claim-amount">
-                          {forderung.paidAmount > 0 ? (
-                            <>
-                              <span className="remaining-amount">{formatCurrency(forderung.remainingAmount)}</span>
-                              <span className="original-amount">({formatCurrency(forderung.betrag)})</span>
-                            </>
-                          ) : (
-                            formatCurrency(forderung.betrag)
-                          )}
-                        </div>
-                        <div className="claim-status">
-                          {forderung.statusId === 1 ? (
-                            <span className="status-badge status-paid">✓ {t('finanz:mitgliedFinanz.paid')}</span>
-                          ) : forderung.paidAmount > 0 ? (
-                            <span className="status-badge status-partial">{t('finanz:mitgliedFinanz.partiallyPaid')}</span>
-                          ) : (
-                            <span className="status-badge status-unpaid">{t('finanz:mitgliedFinanz.unpaid')}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {forderung.statusId === 2 && (
-                      <div className="claim-reference-section">
-                        <span className="reference-label">{t('finanz:mitgliedFinanz.paymentReference')}:</span>
-                        <span className="reference-value">F{forderung.id}-{new Date(forderung.faelligkeit).getFullYear()}</span>
-                        <button
-                          className="copy-reference-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyToClipboard(`F${forderung.id}-${new Date(forderung.faelligkeit).getFullYear()}`, forderung.id);
-                          }}
-                          title={t('finanz:bankPayment.copyReference')}
-                        >
-                          {copiedReference === forderung.id ? '✓' : '📋'}
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Payment Instruction Card */}
-                    {forderung.statusId === 2 && verein?.hauptBankkonto?.iban && (
-                      <PaymentInstructionCard
-                        iban={verein.hauptBankkonto.iban}
-                        bic={verein.hauptBankkonto.bic}
-                        recipient={verein.name}
-                        amount={forderung.betrag}
-                        currency="EUR"
-                        reference={`F${forderung.id}-${new Date(forderung.faelligkeit).getFullYear()}`}
-                        dueDate={forderung.faelligkeit}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      )}
-
-      {/* Unpaid Event Claims Section - Etkinlik Borçları */}
-      {summary.unpaidEventClaims && summary.unpaidEventClaims.length > 0 && (
-        <div className="finance-section">
-          <div className="section-header">
-            <h2>🎫 {t('finanz:mitgliedFinanz.unpaidEventClaimsTitle')}</h2>
-            <span className="badge badge-warning">{summary.unpaidEventClaims.length}</span>
-          </div>
-          <div className="claims-grid">
-            {summary.unpaidEventClaims.map(event => (
-              <div
-                key={`event-${event.id}`}
-                className="claim-item claim-event"
-              >
-                <div className="claim-content">
-                  <div className="claim-main">
-                    <h4>{event.titel}</h4>
-                    <span className="claim-type-badge event">{t('finanz:paymentHistory.eventPayment')}</span>
-                  </div>
-                  <div className="claim-details">
-                    <div className="claim-date">
-                      <CalendarIcon />
-                      <span>{formatDate(event.startdatum)}</span>
-                    </div>
-                    <div className="claim-amount">{formatCurrency(event.preis || 0)}</div>
-                    <div className="claim-status">
-                      <span className="status-badge status-pending">⏳ {t('finanz:veranstaltungen.pending')}</span>
-                    </div>
+                      <InfoIcon />
+                      <span>{t('finanz:mitgliedFinanz.viewPaymentInstruction')}</span>
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
+
+      {/* Unpaid Event Claims Section */}
+      {filteredUnpaidEventClaims.length > 0 && (
+        <div className="finance-section">
+          <div className="section-header">
+            <h2>{t('finanz:mitgliedFinanz.unpaidEventClaimsTitle')}</h2>
+            <span className="badge badge-warning">{filteredUnpaidEventClaims.length}</span>
+          </div>
+          <div className="claims-grid claims-grid-standard">
+            {filteredUnpaidEventClaims.map(event => {
+              const dueStatus = getDueStatus(event.startdatum);
+              const reference = buildReference('E', event.id, event.startdatum);
+              const statusLabel = getDueStatusLabel(dueStatus);
+              const amount = event.preis || 0;
+
+              return (
+                <div key={`event-${event.id}`} className={`claim-row status-${dueStatus}`}>
+                  <div className="claim-left">
+                    <div className="claim-title">{event.titel}</div>
+                    <div className="claim-subline">
+                      <span>{t('finanz:mitgliedFinanz.dueDateLabel', { date: formatDate(event.startdatum) })}</span>
+                    </div>
+                    <div className="claim-meta">{t('finanz:mitgliedFinanz.typeEvent')}</div>
+                  </div>
+                  <div className="claim-amount-block">
+                    <span className="claim-amount-label">{t('finanz:mitgliedFinanz.remainingLabel')}</span>
+                    <span className="claim-amount-main">{formatCurrency(amount)}</span>
+                  </div>
+                  <div className="claim-right">
+                    <div className="claim-status-row">
+                      <span className={`status-chip status-${dueStatus}`}>{statusLabel}</span>
+                      {dueStatus === 'waiting' && (
+                        <span className="status-tooltip" title={t('finanz:mitgliedFinanz.waitingTooltip')}>
+                          <InfoIcon />
+                        </span>
+                      )}
+                    </div>
+                    <div className="claim-reference">
+                      <span className="claim-reference-label">{t('finanz:mitgliedFinanz.referenceLabel')}:</span>
+                      <span className="claim-reference-value">{reference}</span>
+                      <button
+                        type="button"
+                        className="claim-copy-btn"
+                        onClick={() => copyToClipboard(reference)}
+                        title={t('finanz:paymentInstruction.copyReference')}
+                      >
+                        <CopyIcon />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="claim-action"
+                      onClick={() => {
+                        setActiveInstruction({
+                          title: event.titel,
+                          amount,
+                          dueDate: event.startdatum,
+                          reference,
+                          descriptionExample: `${event.titel} - ${reference}`,
+                          typeLabel: t('finanz:mitgliedFinanz.typeEvent'),
+                        });
+                      }}
+                      title={t('finanz:mitgliedFinanz.viewPaymentInstruction')}
+                    >
+                      <InfoIcon />
+                      <span>{t('finanz:mitgliedFinanz.viewPaymentInstruction')}</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
 
       {/* Paid Claims Section - Collapsible */}
       {summary.paidClaims.length > 0 && (
@@ -1228,7 +1710,11 @@ const MitgliedFinanz: React.FC = () => {
                   >
                     <div className="claim-main">
                       <h4>{forderung.beschreibung || t('finanz:claims.title')}</h4>
-                      <span className="claim-id">#{forderung.forderungsnummer || forderung.id}</span>
+                      {forderung.forderungsnummer && (
+                        <span className="claim-id">
+                          {t('finanz:mitgliedFinanz.recordLabel')}: {forderung.forderungsnummer}
+                        </span>
+                      )}
                     </div>
                     <div className="claim-details">
                       <div className="claim-date">
@@ -1447,6 +1933,115 @@ const MitgliedFinanz: React.FC = () => {
         )}
 
       </div>
+
+      {/* Payment Instruction Modal */}
+      <Modal
+        isOpen={!!activeInstruction}
+        onClose={() => setActiveInstruction(null)}
+        title={t('finanz:mitgliedFinanz.paymentInfoTitle')}
+        size="lg"
+        className="payment-instruction-modal"
+      >
+        {activeInstruction && bankAccount?.iban ? (
+          <div className="payment-info-modal">
+            <div className="payment-info-header">
+              <div>
+                <div className="payment-info-title">{activeInstruction.title}</div>
+                <div className="payment-info-meta">
+                  {activeInstruction.typeLabel}
+                  {activeInstruction.dueDate && (
+                    <span>{' \u00b7 '}{t('finanz:mitgliedFinanz.dueDateLabel', { date: formatDate(activeInstruction.dueDate) })}</span>
+                  )}
+                </div>
+              </div>
+              <div className="payment-info-amount">{formatCurrency(activeInstruction.amount)}</div>
+            </div>
+
+            <div className="payment-info-grid">
+              <div className="payment-info-field">
+                <span className="payment-info-label">{t('finanz:paymentInstruction.recipient')}</span>
+                <div className="payment-info-value">
+                  <span>{recipientName}</span>
+                  <button
+                    type="button"
+                    className="payment-copy-btn"
+                    onClick={() => copyToClipboard(recipientName)}
+                    title={t('finanz:mitgliedFinanz.copyRecipient')}
+                  >
+                    <CopyIcon />
+                  </button>
+                </div>
+              </div>
+
+              <div className="payment-info-field">
+                <span className="payment-info-label">{t('finanz:paymentInstruction.iban')}</span>
+                <div className="payment-info-value">
+                  <span className="mono">{formatIban(bankAccount.iban!)}</span>
+                  <button
+                    type="button"
+                    className="payment-copy-btn"
+                    onClick={() => copyToClipboard(bankAccount.iban!)}
+                    title={t('finanz:paymentInstruction.copyIban')}
+                  >
+                    <CopyIcon />
+                  </button>
+                </div>
+              </div>
+
+              {bankAccount.bic && (
+                <div className="payment-info-field">
+                  <span className="payment-info-label">{t('finanz:paymentInstruction.bic')}</span>
+                  <div className="payment-info-value">
+                    <span className="mono">{bankAccount.bic}</span>
+                    <button
+                      type="button"
+                      className="payment-copy-btn"
+                      onClick={() => copyToClipboard(bankAccount.bic!)}
+                      title={t('finanz:paymentInstruction.copyBic')}
+                    >
+                      <CopyIcon />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="payment-info-field">
+                <span className="payment-info-label">{t('finanz:paymentInstruction.reference')}</span>
+                <div className="payment-info-value">
+                  <span className="mono">{activeInstruction.reference}</span>
+                  <button
+                    type="button"
+                    className="payment-copy-btn"
+                    onClick={() => copyToClipboard(activeInstruction.reference)}
+                    title={t('finanz:paymentInstruction.copyReference')}
+                  >
+                    <CopyIcon />
+                  </button>
+                </div>
+              </div>
+
+              <div className="payment-info-field">
+                <span className="payment-info-label">{t('finanz:mitgliedFinanz.descriptionExampleLabel')}</span>
+                <div className="payment-info-value">
+                  <span className="mono">{activeInstruction.descriptionExample}</span>
+                  <button
+                    type="button"
+                    className="payment-copy-btn"
+                    onClick={() => copyToClipboard(activeInstruction.descriptionExample)}
+                    title={t('finanz:mitgliedFinanz.copyDescription')}
+                  >
+                    <CopyIcon />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="no-bank-info">
+            <p>{t('finanz:paymentHistory.noBankInfo')}</p>
+          </div>
+        )}
+      </Modal>
 
       {/* Payment Detail Modal */}
       {showPaymentDetailModal && selectedPayment && (

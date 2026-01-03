@@ -253,7 +253,10 @@
     "avgMonthlyClaim": "Ortalama Aylık Borç",
     "totalLast12Months": "Son 12 Ay Toplam",
     "payments": "Ödemeler",
-    "claims": "Borçlar"
+    "claims": "Borçlar",
+    "actual": "Gerçekleşen",
+    "planned": "Planlanan",
+    "emptyState": "Bu yıl henüz gerçekleşmiş ödeme kaydı yok."
   },
   "filters": {
     "searchPlaceholder": "Açıklama, tutar veya referans numarası ile ara...",
@@ -389,12 +392,53 @@
     "paid": "Ödendi",
     "unpaid": "Ödenmedi",
     "partiallyPaid": "Kısmi Ödendi",
+    "claimsSummaryTotal": "Toplam Borç",
+    "claimsSummaryOverdue": "Vadesi Geçmiş",
+    "claimsSummaryUpcoming": "Yaklaşan (30 gün)",
+    "filterAll": "Tümü",
+    "filterOverdue": "Vadesi Geçmiş",
+    "filterUpcoming": "Yaklaşıyor",
+    "filterPartial": "Kısmi Ödendi",
+    "filterWaiting": "Tahsilat Bekliyor",
+    "statusOverdue": "Vadesi Geçmiş",
+    "statusUpcoming": "Yaklaşıyor",
+    "statusWaiting": "Tahsilat Bekliyor",
+    "remainingLabel": "Kalan",
+    "totalLabel": "Toplam",
+    "paidLabel": "Ödenen",
+    "referenceLabel": "Referans",
+    "recordLabel": "Kayıt No",
+    "typeMembership": "Aidat",
+    "typeEvent": "Etkinlik Ücreti",
+    "dueDateLabel": "Vade: {{date}}",
+    "overdueNotice": "Vade geçti ({{date}})",
+    "waitingTooltip": "Bu kayıt henüz tahsilata açılmamış olabilir.",
+    "viewPaymentInstruction": "Ödeme Talimatını Gör",
+    "paymentInfoTitle": "Ödeme Bilgileri",
+    "descriptionExampleLabel": "Açıklama Örneği",
+    "copyRecipient": "Alıcıyı Kopyala",
+    "copyDescription": "Açıklamayı Kopyala",
     "yearlyStats": "Bu Yıl Özeti",
     "totalPaymentsCount": "Toplam Ödeme",
     "totalPaidThisYear": "Bu Yıl Ödenen",
     "avgPaymentTime": "Ort. Ödeme Süresi",
     "preferredMethod": "Tercih Edilen Yöntem",
-    "upcomingPayments": "Yaklaşan Ödemeler"
+    "upcomingPayments": "Yaklaşan Ödemeler",
+    "cardDescriptions": {
+      "totalDebt": "Tüm açık borçların toplamı",
+      "overdue": "Son ödeme tarihi geçmiş borçlar",
+      "paidThisYear": "Seçili yılda yapılan ödemeler",
+      "creditBalance": "Fazla ödemelerden kalan tutar"
+    },
+    "yearlySummary": {
+      "title": "Bu Yıl Özeti",
+      "totalPayment": "Toplam Ödeme",
+      "paymentCount": "{{count}} ödeme",
+      "emptyState": "Bu yıl henüz ödeme yapılmamıştır."
+    },
+    "paymentTrendTitle": "Ödeme Trendi ({year})",
+    "guidanceLink": "Aidat ve borç detaylarını görüntüle →",
+    "cardRedirectLabel": "{cardTitle} kartını tıkladığınızda {tab} sekmesine gidersiniz."
   },
   "bankUpload": {
     "title": "Banka Ödemeleri Yükle",
@@ -765,7 +809,15 @@
       "abgelehnt": "Reddedildi",
       "warteliste": "Bekleme Listesinde"
     },
-    "noEvents": "Henüz bir etkinlik kaydınız bulunmuyor."
+    "filters": {
+      "all": "Tümü",
+      "paid": "Ödenen",
+      "pending": "Ödeme Bekleyen"
+    },
+    "summaryLine": "Toplam Katılım: {{total}} · Ödenen: {{paid}} · Ödeme Bekleyen: {{pending}}",
+    "infoNote": "Etkinlik ücretleri ve ödemeler dernek tarafından tahsil edilir. Detaylı ödeme bilgileri için Borçlarım bölümünü inceleyebilirsiniz.",
+    "emptyState": "Henüz katıldığınız bir etkinlik bulunmamaktadır.",
+    "noEventsFiltered": "Seçilen filtreyle eşleşen etkinlik bulunmuyor."
   },
   "easyFiBu": {
     "tabs": {

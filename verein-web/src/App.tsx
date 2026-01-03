@@ -22,6 +22,7 @@ import Landing from './pages/Landing/Landing';
 import Reports from './pages/Reports/Reports';
 import FinanzDashboard from './pages/Finanz/FinanzDashboard';
 import MitgliedFinanz from './pages/Finanz/MitgliedFinanz';
+import MitgliedFinanzDashboard from './pages/Finanz/MitgliedFinanzDashboard';
 import MitgliedForderungList from './pages/Finanz/MitgliedForderungList';
 import MitgliedForderungDetail from './pages/Finanz/MitgliedForderungDetail';
 import MitgliedZahlungList from './pages/Finanz/MitgliedZahlungList';
@@ -285,6 +286,11 @@ const AppContent: React.FC = () => {
           <Route path="/meine-finanzen" element={
             <Layout>
               <MitgliedFinanz />
+            </Layout>
+          } />
+          <Route path="/meine-finanzen/ozet" element={
+            <Layout>
+              <MitgliedFinanzDashboard />
             </Layout>
           } />
           <Route path="/meine-finanzen/forderungen" element={

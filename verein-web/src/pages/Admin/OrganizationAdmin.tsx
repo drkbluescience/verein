@@ -42,8 +42,15 @@ const OrganizationAdmin: React.FC = () => {
     federationCode: null,
     aktiv: true
   });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const selectedNode = organizations.find((org) => org.id === selectedId) || null;
+  const selectedParentName = selectedNode?.parentOrganizationId
+    ? organizations.find((org) => org.id === selectedNode.parentOrganizationId)?.name || '-'
+    : '-';
+  const selectedStatusLabel = selectedNode?.aktiv
+    ? t('common:status.active')
+    : t('common:status.inactive');
 
   const getErrorMessage = (error: any, fallback: string) => {
     const responseData = error?.response?.data;
@@ -234,6 +241,11 @@ const OrganizationAdmin: React.FC = () => {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    setIsDeleteModalOpen(false);
+    await handleDelete();
+  };
+
   const handleRestore = async () => {
     if (!selectedNode) {
       return;
@@ -253,13 +265,14 @@ const OrganizationAdmin: React.FC = () => {
     const hasChildren = node.children.length > 0;
     const isExpanded = expandedIds.has(node.id);
     const isSelected = selectedId === node.id;
-
     return (
-      <div key={node.id}>
-        <div
-          className={`org-tree-node ${isSelected ? 'selected' : ''}`}
-          style={{ paddingLeft: `${depth * 16}px` }}
-        >
+      <div
+        key={node.id}
+        className="org-tree-row"
+        data-depth={depth}
+        style={{ '--depth-level': depth } as React.CSSProperties}
+      >
+        <div className={`org-tree-node ${isSelected ? 'selected' : ''}`}>
           {hasChildren ? (
             <button
               type="button"
@@ -267,21 +280,31 @@ const OrganizationAdmin: React.FC = () => {
               onClick={() => toggleExpand(node.id)}
               aria-label={isExpanded ? 'Collapse' : 'Expand'}
             >
-              {isExpanded ? '–' : '+'}
+              {isExpanded ? '▼' : '▶'}
             </button>
           ) : (
-            <span className="org-tree-spacer" />
+            <span className="org-tree-toggle placeholder" aria-hidden="true" />
           )}
           <button
             type="button"
             className="org-tree-label"
             onClick={() => setSelectedId(node.id)}
           >
-            <span className="org-type-pill">{node.orgType}</span>
-            <span className="org-name">{node.name}</span>
-            {node.deletedFlag && (
-              <span className="org-deleted">{t('organizationAdmin:labels.deleted')}</span>
-            )}
+            <div className="org-tree-label-main">
+              <span className="org-name">{node.name}</span>
+              <span className="org-type-chip">{node.orgType}</span>
+            </div>
+            <div className="org-tree-label-meta">
+              {node.deletedFlag ? (
+                <span className="org-status-chip deleted">
+                  {t('organizationAdmin:labels.deleted')}
+                </span>
+              ) : node.aktiv === false ? (
+                <span className="org-status-chip inactive">
+                  {t('common:status.inactive')}
+                </span>
+              ) : null}
+            </div>
           </button>
         </div>
         {hasChildren && isExpanded && (
@@ -292,7 +315,6 @@ const OrganizationAdmin: React.FC = () => {
       </div>
     );
   };
-
   const parentOptions = organizations.filter((org) => !org.deletedFlag && org.id !== selectedId);
 
   return (
@@ -302,44 +324,47 @@ const OrganizationAdmin: React.FC = () => {
       </div>
 
       <div className="org-toolbar">
-        <div className="org-filters">
-          <div className="org-filter">
-            <label>{t('organizationAdmin:filters.orgType')}</label>
-            <select
-              value={filters.orgType}
-              onChange={(e) => setFilters((prev) => ({ ...prev, orgType: e.target.value }))}
-            >
-              <option value="all">{t('common:all')}</option>
-              {orgTypeOptions.map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
+        <div className="org-toolbar-card">
+          <div className="org-filters">
+            <div className="org-filter">
+              <label>{t('organizationAdmin:filters.orgType')}</label>
+              <select
+                value={filters.orgType}
+                onChange={(e) => setFilters((prev) => ({ ...prev, orgType: e.target.value }))}
+              >
+                <option value="all">{t('common:all')}</option>
+                {orgTypeOptions.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+            <div className="org-filter">
+              <label>{t('organizationAdmin:filters.federationCode')}</label>
+              <select
+                value={filters.federationCode}
+                onChange={(e) => setFilters((prev) => ({ ...prev, federationCode: e.target.value }))}
+              >
+                <option value="all">{t('common:all')}</option>
+                {federationOptions.map((code) => (
+                  <option key={code} value={code}>{code}</option>
+                ))}
+              </select>
+            </div>
+            <label className="org-toggle">
+              <input
+                type="checkbox"
+                checked={includeDeleted}
+                onChange={(e) => setIncludeDeleted(e.target.checked)}
+              />
+              {t('organizationAdmin:filters.includeDeleted')}
+            </label>
           </div>
-          <div className="org-filter">
-            <label>{t('organizationAdmin:filters.federationCode')}</label>
-            <select
-              value={filters.federationCode}
-              onChange={(e) => setFilters((prev) => ({ ...prev, federationCode: e.target.value }))}
-            >
-              <option value="all">{t('common:all')}</option>
-              {federationOptions.map((code) => (
-                <option key={code} value={code}>{code}</option>
-              ))}
-            </select>
+          <div className="org-toolbar-actions">
+            <button type="button" className="org-primary-btn" onClick={openCreateRoot}>
+              {t('organizationAdmin:actions.createRoot')}
+            </button>
           </div>
-          <label className="org-toggle">
-            <input
-              type="checkbox"
-              checked={includeDeleted}
-              onChange={(e) => setIncludeDeleted(e.target.checked)}
-            />
-            {t('organizationAdmin:filters.includeDeleted')}
-          </label>
         </div>
-
-        <button type="button" className="org-primary-btn" onClick={openCreateRoot}>
-          {t('organizationAdmin:actions.createRoot')}
-        </button>
       </div>
 
       <div className="org-content">
@@ -363,59 +388,80 @@ const OrganizationAdmin: React.FC = () => {
           </div>
           {selectedNode ? (
             <div className="org-details">
-              <div className="org-details-section">
-                <h3>{selectedNode.name}</h3>
-                <p>{t('organizationAdmin:labels.orgType')}: {selectedNode.orgType}</p>
-                <p>{t('organizationAdmin:labels.federationCode')}: {selectedNode.federationCode || '-'}</p>
-                <p>
-                  {t('organizationAdmin:labels.parent')}: {
-                    selectedNode.parentOrganizationId
-                      ? (organizations.find((org) => org.id === selectedNode.parentOrganizationId)?.name || selectedNode.parentOrganizationId)
-                      : '-'
-                  }
-                </p>
-                <p>{t('organizationAdmin:labels.aktiv')}: {selectedNode.aktiv ? t('common:status.active') : t('common:status.inactive')}</p>
-                {selectedNode.deletedFlag && (
-                  <span className="org-deleted">{t('organizationAdmin:labels.deleted')}</span>
-                )}
-              </div>
-
-              <div className="org-details-section">
-                <h4>{t('organizationAdmin:labels.path')}</h4>
-                {path.length > 0 ? (
-                  <div className="org-path">
-                    {path.map((node, index) => (
-                      <span key={node.id}>
-                        {node.name}
-                        {index < path.length - 1 && <span className="org-path-sep">/</span>}
-                      </span>
-                    ))}
+              <div className="org-details-card">
+                <div className="org-details-heading">
+                  <h3>{selectedNode.name}</h3>
+                  <span className="org-type-chip detail">{selectedNode.orgType}</span>
+                </div>
+                <div className="org-details-group">
+                  <p className="org-details-label">
+                    {t('organizationAdmin:labels.parent')}
+                  </p>
+                  <p className="org-details-value">{selectedParentName}</p>
+                  <p className="org-details-label">
+                    {t('organizationAdmin:labels.federationCode')}
+                  </p>
+                  <p className="org-details-value">{selectedNode.federationCode || '-'}</p>
+                </div>
+                <div className="org-details-group">
+                  <p className="org-details-label">
+                    {t('organizationAdmin:labels.aktiv')}
+                  </p>
+                  <p className="org-details-value">{selectedStatusLabel}</p>
+                  {selectedNode.deletedFlag && (
+                    <span className="org-status-chip deleted">
+                      {t('organizationAdmin:labels.deleted')}
+                    </span>
+                  )}
+                </div>
+                <div className="org-details-hierarchy">
+                  <p className="org-details-label">
+                    {t('organizationAdmin:labels.hierarchy')}
+                  </p>
+                  <div className="org-hierarchy-path">
+                    {path.length > 0 ? (
+                      path.map((node, index) => (
+                        <span key={node.id}>
+                          {node.name}
+                          {index < path.length - 1 && (
+                            <span className="org-path-sep">›</span>
+                          )}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="org-hierarchy-empty">-</span>
+                    )}
                   </div>
-                ) : (
-                  <div className="org-path">-</div>
-                )}
+                </div>
+                <p className="org-details-id">ID: {selectedNode.id}</p>
               </div>
-
               <div className="org-actions">
-                <button type="button" onClick={openCreateChild}>
+                <button type="button" className="primary" onClick={openCreateChild}>
                   {t('organizationAdmin:actions.createChild')}
                 </button>
-                <button type="button" onClick={openEdit}>
+                <button type="button" className="secondary" onClick={openEdit}>
                   {t('organizationAdmin:actions.edit')}
                 </button>
                 {!selectedNode.deletedFlag ? (
-                  <button type="button" className="danger" onClick={handleDelete}>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() => setIsDeleteModalOpen(true)}
+                  >
                     {t('organizationAdmin:actions.delete')}
                   </button>
                 ) : (
-                  <button type="button" className="success" onClick={handleRestore}>
+                  <button type="button" className="secondary" onClick={handleRestore}>
                     {t('organizationAdmin:actions.restore')}
                   </button>
                 )}
               </div>
             </div>
           ) : (
-            <div className="org-empty">{t('common:noResults')}</div>
+            <div className="org-empty-state">
+              <span className="org-empty-icon" aria-hidden="true">🧭</span>
+              <p>{t('organizationAdmin:messages.selectOrganization')}</p>
+            </div>
           )}
         </div>
       </div>
@@ -500,6 +546,26 @@ const OrganizationAdmin: React.FC = () => {
             {t('organizationAdmin:labels.aktiv')}
           </label>
         </div>
+      </Modal>
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title={t('organizationAdmin:actions.delete')}
+        size="sm"
+        footer={(
+          <div className="org-modal-footer">
+            <button type="button" className="secondary" onClick={() => setIsDeleteModalOpen(false)}>
+              {t('organizationAdmin:actions.cancel')}
+            </button>
+            <button type="button" className="danger" onClick={handleConfirmDelete}>
+              {t('organizationAdmin:actions.delete')}
+            </button>
+          </div>
+        )}
+      >
+        <p className="org-modal-delete-text">
+          {t('organizationAdmin:messages.deleteWarning')}
+        </p>
       </Modal>
     </div>
   );

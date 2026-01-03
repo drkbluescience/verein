@@ -4,8 +4,8 @@
  * Accessible by: Admin, Dernek (organization admin)
  */
 
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -61,7 +61,9 @@ const MitgliedForderungList: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'open'>('all');
+  const [searchParams] = useSearchParams();
+  const initialStatusFilter = searchParams.get('filter') === 'overdue' ? 'overdue' : 'all';
+  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'open' | 'overdue'>(initialStatusFilter);
   const [selectedVereinId, setSelectedVereinId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedForderung, setSelectedForderung] = useState<MitgliedForderungDto | null>(null);
@@ -94,6 +96,18 @@ const MitgliedForderungList: React.FC = () => {
     enabled: !!user,
   });
 
+  useEffect(() => {
+    const filterParam = searchParams.get('filter');
+    if (filterParam === 'overdue') {
+      setStatusFilter('overdue');
+    }
+  }, [searchParams]);
+
+  const isOverdue = (faelligkeit: string, statusId: number) => {
+    if (statusId === ZahlungStatus.BEZAHLT) return false;
+    return new Date(faelligkeit) < new Date();
+  };
+
   // Filter and search
   const filteredForderungen = useMemo(() => {
     return forderungen.filter(f => {
@@ -103,6 +117,7 @@ const MitgliedForderungList: React.FC = () => {
       // Status filter
       if (statusFilter === 'paid' && f.statusId !== ZahlungStatus.BEZAHLT) return false;
       if (statusFilter === 'open' && f.statusId !== ZahlungStatus.OFFEN) return false;
+      if (statusFilter === 'overdue' && !isOverdue(f.faelligkeit, f.statusId)) return false;
 
       // Search filter
       if (searchTerm) {
@@ -132,11 +147,6 @@ const MitgliedForderungList: React.FC = () => {
     }
 
     return <span className="badge badge-warning">{t('finanz:status.open')}</span>;
-  };
-
-  const isOverdue = (faelligkeit: string, statusId: number) => {
-    if (statusId === ZahlungStatus.BEZAHLT) return false;
-    return new Date(faelligkeit) < new Date();
   };
 
   // Export to Excel
@@ -229,6 +239,7 @@ const MitgliedForderungList: React.FC = () => {
             <option value="all">{t('finanz:filter.allStatus')}</option>
             <option value="paid">{t('finanz:status.paid')}</option>
             <option value="open">{t('finanz:status.open')}</option>
+            <option value="overdue">{t('finanz:status.overdue')}</option>
           </select>
         </div>
       </div>
@@ -325,4 +336,3 @@ const MitgliedForderungList: React.FC = () => {
 };
 
 export default MitgliedForderungList;
-

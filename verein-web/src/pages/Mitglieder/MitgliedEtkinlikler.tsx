@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import { veranstaltungService, veranstaltungAnmeldungService, veranstaltungUtils
 import { useAuth } from '../../contexts/AuthContext';
 import Loading from '../../components/Common/Loading';
 import ErrorMessage from '../../components/Common/ErrorMessage';
+import FilterChipBar, { FilterChipOption } from '../../components/Common/FilterChipBar';
 import { VeranstaltungDto } from '../../types/veranstaltung';
 import { getCurrencySymbol } from '../../utils/currencyUtils';
 import '../Veranstaltungen/VeranstaltungList.css';
@@ -82,6 +83,8 @@ const CheckIcon = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
+
+type MitgliedEventFilter = 'all' | 'upcoming' | 'past' | 'registered' | 'not-registered';
 
 const CalendarDaysIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -256,7 +259,7 @@ const MitgliedEtkinlikler: React.FC = () => {
   const { t } = useTranslation(['mitglieder', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past' | 'registered' | 'not-registered'>('all');
+  const [filter, setFilter] = useState<MitgliedEventFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
@@ -345,6 +348,14 @@ const MitgliedEtkinlikler: React.FC = () => {
     notRegistered: veranstaltungen?.filter(v => !registeredEventIds.has(v.id)).length || 0
   };
 
+  const eventFilterOptions = useMemo<FilterChipOption[]>(() => ([
+    { id: 'all', label: t('mitglieder:eventsPage.filters.all'), count: stats.total },
+    { id: 'upcoming', label: t('mitglieder:eventsPage.filters.upcoming'), count: stats.upcoming },
+    { id: 'past', label: t('mitglieder:eventsPage.filters.past'), count: stats.past },
+    { id: 'registered', label: t('mitglieder:eventsPage.filters.registered'), count: stats.registered },
+    { id: 'not-registered', label: t('mitglieder:eventsPage.filters.notRegistered'), count: stats.notRegistered },
+  ]), [t, stats.total, stats.upcoming, stats.past, stats.registered, stats.notRegistered]);
+
   if (!user?.vereinId) {
     return (
       <div className="veranstaltung-list">
@@ -422,39 +433,12 @@ const MitgliedEtkinlikler: React.FC = () => {
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button
-          className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          {t('mitglieder:eventsPage.filters.all')} <span className="tab-count">{stats.total}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'upcoming' ? 'active' : ''}`}
-          onClick={() => setFilter('upcoming')}
-        >
-          {t('mitglieder:eventsPage.filters.upcoming')} <span className="tab-count">{stats.upcoming}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'past' ? 'active' : ''}`}
-          onClick={() => setFilter('past')}
-        >
-          {t('mitglieder:eventsPage.filters.past')} <span className="tab-count">{stats.past}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'registered' ? 'active' : ''}`}
-          onClick={() => setFilter('registered')}
-        >
-          {t('mitglieder:eventsPage.filters.registered')} <span className="tab-count">{stats.registered}</span>
-        </button>
-        <button
-          className={`filter-tab ${filter === 'not-registered' ? 'active' : ''}`}
-          onClick={() => setFilter('not-registered')}
-        >
-          {t('mitglieder:eventsPage.filters.notRegistered')} <span className="tab-count">{stats.notRegistered}</span>
-        </button>
-      </div>
+      <FilterChipBar
+        className="filter-chip-bar--centered"
+        options={eventFilterOptions}
+        activeId={filter}
+        onSelect={(nextId) => setFilter(nextId as MitgliedEventFilter)}
+      />
 
       {/* Events Content - Grid or Table */}
       {sortedVeranstaltungen.length === 0 ? (
