@@ -11,8 +11,15 @@ namespace VereinsApi.Services;
 /// </summary>
 public class OrganizationService : IOrganizationService
 {
-    private static readonly string[] AllowedOrgTypes = { "Dachverband", "Landesverband", "Region", "Verein" };
-    private static readonly string[] AllowedFederationCodes = { "DITIB", "Independent", "Other" };
+    private static readonly string[] AllowedOrgTypes = { "Landesverband", "Region", "Verein" };
+    private static readonly string[] AllowedFederationCodes = { "DITIB" };
+    private const string TopFederationCode = "DITIB";
+    private static readonly Dictionary<string, string?> RequiredParentTypeByOrgType = new()
+    {
+        { "Landesverband", null },
+        { "Region", "Landesverband" },
+        { "Verein", "Region" }
+    };
 
     private readonly ApplicationDbContext _context;
     private readonly ILogger<OrganizationService> _logger;
@@ -80,12 +87,14 @@ public class OrganizationService : IOrganizationService
         }
 
         var normalizedOrgType = NormalizeOrgType(createDto.OrgType);
-        var normalizedFederationCode = NormalizeFederationCode(createDto.FederationCode);
+        var normalizedFederationCode = NormalizeFederationCode(createDto.FederationCode) ?? TopFederationCode;
 
-        if (createDto.ParentOrganizationId.HasValue)
-        {
-            await ValidateParentAsync(null, createDto.ParentOrganizationId.Value, cancellationToken);
-        }
+        await ValidateHierarchyAsync(
+            null,
+            normalizedOrgType,
+            createDto.ParentOrganizationId,
+            normalizedFederationCode,
+            cancellationToken);
 
         var organization = new Organization
         {
@@ -128,21 +137,47 @@ public class OrganizationService : IOrganizationService
             organization.Name = updateDto.Name.Trim();
         }
 
+        var nextOrgType = organization.OrgType;
         if (updateDto.OrgType != null)
         {
-            organization.OrgType = NormalizeOrgType(updateDto.OrgType);
+            nextOrgType = NormalizeOrgType(updateDto.OrgType);
+        }
+
+        var nextParentId = organization.ParentOrganizationId;
+        if (updateDto.ParentOrganizationId.HasValue)
+        {
+            nextParentId = updateDto.ParentOrganizationId.Value;
+        }
+
+        var nextFederationCode = organization.FederationCode;
+        if (updateDto.FederationCode != null)
+        {
+            nextFederationCode = NormalizeFederationCode(updateDto.FederationCode);
+        }
+
+        var hierarchyTouched = updateDto.OrgType != null
+            || updateDto.ParentOrganizationId.HasValue
+            || updateDto.FederationCode != null;
+
+        if (hierarchyTouched)
+        {
+            await ValidateHierarchyAsync(id, nextOrgType, nextParentId, nextFederationCode, cancellationToken);
         }
 
         if (updateDto.ParentOrganizationId.HasValue && updateDto.ParentOrganizationId != organization.ParentOrganizationId)
         {
-            await ValidateParentAsync(id, updateDto.ParentOrganizationId.Value, cancellationToken);
             await EnsureNoCycleAsync(id, updateDto.ParentOrganizationId.Value, cancellationToken);
             organization.ParentOrganizationId = updateDto.ParentOrganizationId;
         }
 
         if (updateDto.FederationCode != null)
         {
-            organization.FederationCode = NormalizeFederationCode(updateDto.FederationCode);
+            organization.FederationCode = nextFederationCode;
+        }
+
+        if (updateDto.OrgType != null)
+        {
+            organization.OrgType = nextOrgType;
         }
 
         if (updateDto.Aktiv.HasValue)
@@ -369,7 +404,7 @@ public class OrganizationService : IOrganizationService
         return match;
     }
 
-    private async Task ValidateParentAsync(int? organizationId, int parentId, CancellationToken cancellationToken)
+    private async Task<Organization> GetValidatedParentAsync(int? organizationId, int parentId, CancellationToken cancellationToken)
     {
         if (parentId <= 0)
         {
@@ -393,6 +428,52 @@ public class OrganizationService : IOrganizationService
         if (parent.DeletedFlag == true)
         {
             throw new InvalidOperationException("Parent organization is deleted.");
+        }
+
+        return parent;
+    }
+
+    private async Task ValidateHierarchyAsync(
+        int? organizationId,
+        string orgType,
+        int? parentId,
+        string? federationCode,
+        CancellationToken cancellationToken)
+    {
+        var normalizedOrgType = NormalizeOrgType(orgType);
+        if (!string.Equals(federationCode, TopFederationCode, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"FederationCode must be {TopFederationCode}.");
+        }
+
+        if (!RequiredParentTypeByOrgType.TryGetValue(normalizedOrgType, out var requiredParentType))
+        {
+            throw new ArgumentException($"OrgType must be one of: {string.Join(", ", AllowedOrgTypes)}");
+        }
+
+        if (!parentId.HasValue)
+        {
+            if (requiredParentType != null)
+            {
+                throw new InvalidOperationException($"Parent organization is required for {normalizedOrgType}.");
+            }
+
+            return;
+        }
+
+        if (requiredParentType == null)
+        {
+            throw new InvalidOperationException("Landesverband cannot have a parent.");
+        }
+
+        var parent = await GetValidatedParentAsync(organizationId, parentId.Value, cancellationToken);
+        if (!string.Equals(parent.FederationCode, TopFederationCode, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"Parent organization must have FederationCode {TopFederationCode}.");
+        }
+        if (!string.Equals(parent.OrgType, requiredParentType, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"{normalizedOrgType} must have parent type {requiredParentType}.");
         }
     }
 

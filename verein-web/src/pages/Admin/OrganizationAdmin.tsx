@@ -13,12 +13,25 @@ import './OrganizationAdmin.css';
 
 type OrganizationNode = OrganizationDto & { children: OrganizationNode[] };
 
-const orgTypeOptions = ['Dachverband', 'Landesverband', 'Region', 'Verein'];
-const federationOptions = ['DITIB', 'Independent', 'Other'];
+const topFederationCode = 'DITIB';
+const orgTypeOptions = ['Landesverband', 'Region', 'Verein'];
+const orgTypeParentMap: Record<string, string | null> = {
+  Landesverband: null,
+  Region: 'Landesverband',
+  Verein: 'Region'
+};
+const orgTypeChildMap: Record<string, string | null> = {
+  Landesverband: 'Region',
+  Region: 'Verein',
+  Verein: null
+};
+
+const getParentTypeForOrgType = (orgType: string) => orgTypeParentMap[orgType] ?? null;
+const getChildTypeForParent = (orgType?: string | null) => (orgType ? orgTypeChildMap[orgType] ?? null : null);
 
 const OrganizationAdmin: React.FC = () => {
   // @ts-ignore - i18next type definitions
-  const { t } = useTranslation(['organizationAdmin', 'common']);
+  const { t } = useTranslation(['organizationAdmin', 'common', 'vereine']);
   const { showToast } = useToast();
 
   const [organizations, setOrganizations] = useState<OrganizationDto[]>([]);
@@ -30,7 +43,6 @@ const OrganizationAdmin: React.FC = () => {
 
   const [filters, setFilters] = useState({
     orgType: 'all',
-    federationCode: 'all',
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +51,6 @@ const OrganizationAdmin: React.FC = () => {
     name: '',
     orgType: 'Verein',
     parentOrganizationId: null,
-    federationCode: null,
     aktiv: true
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -51,6 +62,35 @@ const OrganizationAdmin: React.FC = () => {
   const selectedStatusLabel = selectedNode?.aktiv
     ? t('common:status.active')
     : t('common:status.inactive');
+  const findAncestorName = (type: string) => {
+    const pathNode = path.find((node) => node.orgType === type);
+    if (pathNode?.name) {
+      return pathNode.name;
+    }
+
+    let current = selectedNode;
+    while (current != null) {
+      const parentId = current.parentOrganizationId;
+      if (!parentId) {
+        break;
+      }
+      const parent = organizations.find((org) => org.id === parentId);
+      if (!parent) {
+        break;
+      }
+      if (parent.orgType === type) {
+        return parent.name;
+      }
+      current = parent;
+    }
+
+    return '-';
+  };
+  const selectedStateName = findAncestorName('Landesverband');
+  const selectedRegionName = findAncestorName('Region');
+
+  const getTranslatedOrgType = (orgType?: string | null) =>
+    orgType ? t(`vereine:organization.types.${orgType}`, { defaultValue: orgType }) : '-';
 
   const getErrorMessage = (error: any, fallback: string) => {
     const responseData = error?.response?.data;
@@ -123,8 +163,7 @@ const OrganizationAdmin: React.FC = () => {
     const roots = buildTree(organizations);
     const matchesFilters = (node: OrganizationNode) => {
       const matchesOrgType = filters.orgType === 'all' || node.orgType === filters.orgType;
-      const matchesFederation = filters.federationCode === 'all' || (node.federationCode || '') === filters.federationCode;
-      return matchesOrgType && matchesFederation;
+      return matchesOrgType;
     };
 
     const filterNode = (node: OrganizationNode): OrganizationNode | null => {
@@ -159,9 +198,8 @@ const OrganizationAdmin: React.FC = () => {
     setFormMode('create');
     setFormData({
       name: '',
-      orgType: 'Dachverband',
+      orgType: 'Landesverband',
       parentOrganizationId: null,
-      federationCode: null,
       aktiv: true
     });
     setIsModalOpen(true);
@@ -171,12 +209,17 @@ const OrganizationAdmin: React.FC = () => {
     if (!selectedNode) {
       return;
     }
+
+    const childOrgType = getChildTypeForParent(selectedNode.orgType);
+    if (!childOrgType) {
+      return;
+    }
+
     setFormMode('create');
     setFormData({
       name: '',
-      orgType: 'Verein',
+      orgType: childOrgType,
       parentOrganizationId: selectedNode.id,
-      federationCode: selectedNode.federationCode ?? null,
       aktiv: true
     });
     setIsModalOpen(true);
@@ -191,7 +234,6 @@ const OrganizationAdmin: React.FC = () => {
       name: selectedNode.name,
       orgType: selectedNode.orgType,
       parentOrganizationId: selectedNode.parentOrganizationId ?? null,
-      federationCode: selectedNode.federationCode ?? null,
       aktiv: selectedNode.aktiv ?? true
     });
     setIsModalOpen(true);
@@ -204,14 +246,21 @@ const OrganizationAdmin: React.FC = () => {
         return;
       }
 
+      const resolvedFederationCode = topFederationCode;
+
       if (formMode === 'create') {
-        await organizationService.create(formData);
+        const createPayload: OrganizationCreateDto = {
+          ...formData,
+          federationCode: resolvedFederationCode,
+          parentOrganizationId: isRootSelection ? null : formData.parentOrganizationId
+        };
+        await organizationService.create(createPayload);
       } else if (selectedNode) {
         const updatePayload: OrganizationUpdateDto = {
           name: formData.name,
           orgType: formData.orgType,
           parentOrganizationId: formData.parentOrganizationId ?? undefined,
-          federationCode: formData.federationCode ?? undefined,
+          federationCode: resolvedFederationCode ?? undefined,
           aktiv: formData.aktiv
         };
         await organizationService.update(selectedNode.id, updatePayload);
@@ -292,7 +341,7 @@ const OrganizationAdmin: React.FC = () => {
           >
             <div className="org-tree-label-main">
               <span className="org-name">{node.name}</span>
-              <span className="org-type-chip">{node.orgType}</span>
+              <span className="org-type-chip">{getTranslatedOrgType(node.orgType)}</span>
             </div>
             <div className="org-tree-label-meta">
               {node.deletedFlag ? (
@@ -315,7 +364,13 @@ const OrganizationAdmin: React.FC = () => {
       </div>
     );
   };
-  const parentOptions = organizations.filter((org) => !org.deletedFlag && org.id !== selectedId);
+  const requiredParentType = getParentTypeForOrgType(formData.orgType);
+  const parentOptions = organizations.filter((org) => (
+    !org.deletedFlag
+    && org.id !== selectedId
+    && org.orgType === requiredParentType
+  ));
+  const isRootSelection = requiredParentType === null && !formData.parentOrganizationId;
 
   return (
     <div className="organization-admin">
@@ -334,19 +389,9 @@ const OrganizationAdmin: React.FC = () => {
               >
                 <option value="all">{t('common:all')}</option>
                 {orgTypeOptions.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-            <div className="org-filter">
-              <label>{t('organizationAdmin:filters.federationCode')}</label>
-              <select
-                value={filters.federationCode}
-                onChange={(e) => setFilters((prev) => ({ ...prev, federationCode: e.target.value }))}
-              >
-                <option value="all">{t('common:all')}</option>
-                {federationOptions.map((code) => (
-                  <option key={code} value={code}>{code}</option>
+                  <option key={type} value={type}>
+                    {getTranslatedOrgType(type)}
+                  </option>
                 ))}
               </select>
             </div>
@@ -370,7 +415,7 @@ const OrganizationAdmin: React.FC = () => {
       <div className="org-content">
         <div className="org-tree-panel">
           <div className="org-panel-header">
-            <h2>Tree</h2>
+            <h2>{t('organizationAdmin:treeTitle')}</h2>
             {loading && <span className="org-loading">{t('common:status.loading')}</span>}
           </div>
           <div className="org-tree">
@@ -384,14 +429,14 @@ const OrganizationAdmin: React.FC = () => {
 
         <div className="org-details-panel">
           <div className="org-panel-header">
-            <h2>Details</h2>
+            <h2>{t('organizationAdmin:detailsTitle')}</h2>
           </div>
           {selectedNode ? (
             <div className="org-details">
               <div className="org-details-card">
                 <div className="org-details-heading">
                   <h3>{selectedNode.name}</h3>
-                  <span className="org-type-chip detail">{selectedNode.orgType}</span>
+                  <span className="org-type-chip detail">{getTranslatedOrgType(selectedNode.orgType)}</span>
                 </div>
                 <div className="org-details-group">
                   <p className="org-details-label">
@@ -399,9 +444,13 @@ const OrganizationAdmin: React.FC = () => {
                   </p>
                   <p className="org-details-value">{selectedParentName}</p>
                   <p className="org-details-label">
-                    {t('organizationAdmin:labels.federationCode')}
+                    {t('organizationAdmin:labels.state')}
                   </p>
-                  <p className="org-details-value">{selectedNode.federationCode || '-'}</p>
+                  <p className="org-details-value">{selectedStateName}</p>
+                  <p className="org-details-label">
+                    {t('organizationAdmin:labels.region')}
+                  </p>
+                  <p className="org-details-value">{selectedRegionName}</p>
                 </div>
                 <div className="org-details-group">
                   <p className="org-details-label">
@@ -433,12 +482,17 @@ const OrganizationAdmin: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <p className="org-details-id">ID: {selectedNode.id}</p>
               </div>
               <div className="org-actions">
-                <button type="button" className="primary" onClick={openCreateChild}>
-                  {t('organizationAdmin:actions.createChild')}
-                </button>
+                {selectedNode.orgType !== 'Verein' && (
+                  <button
+                    type="button"
+                    className="primary"
+                    onClick={openCreateChild}
+                  >
+                    {t('organizationAdmin:actions.createChild')}
+                  </button>
+                )}
                 <button type="button" className="secondary" onClick={openEdit}>
                   {t('organizationAdmin:actions.edit')}
                 </button>
@@ -501,22 +555,31 @@ const OrganizationAdmin: React.FC = () => {
             {t('organizationAdmin:labels.orgType')}
             <select
               value={formData.orgType}
-              onChange={(e) => setFormData((prev) => ({ ...prev, orgType: e.target.value }))}
+              onChange={(e) => {
+                const nextOrgType = e.target.value;
+                const nextRequiredParent = getParentTypeForOrgType(nextOrgType);
+                setFormData((prev) => {
+                  let nextParentId = prev.parentOrganizationId ?? null;
+                  if (nextRequiredParent === null) {
+                    nextParentId = null;
+                  } else if (nextParentId) {
+                    const parent = organizations.find((org) => org.id === nextParentId);
+                    if (!parent || parent.orgType !== nextRequiredParent) {
+                      nextParentId = null;
+                    }
+                  }
+                  return {
+                    ...prev,
+                    orgType: nextOrgType,
+                    parentOrganizationId: nextParentId
+                  };
+                });
+              }}
             >
               {orgTypeOptions.map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {t('organizationAdmin:labels.federationCode')}
-            <select
-              value={formData.federationCode ?? ''}
-              onChange={(e) => setFormData((prev) => ({ ...prev, federationCode: e.target.value || null }))}
-            >
-              <option value="">-</option>
-              {federationOptions.map((code) => (
-                <option key={code} value={code}>{code}</option>
+                <option key={type} value={type}>
+                  {getTranslatedOrgType(type)}
+                </option>
               ))}
             </select>
           </label>
@@ -524,10 +587,27 @@ const OrganizationAdmin: React.FC = () => {
             {t('organizationAdmin:labels.parent')}
             <select
               value={formData.parentOrganizationId ?? ''}
-              onChange={(e) => setFormData((prev) => ({
-                ...prev,
-                parentOrganizationId: e.target.value ? Number(e.target.value) : null
-              }))}
+              onChange={(e) => {
+                const nextParentId = e.target.value ? Number(e.target.value) : null;
+                setFormData((prev) => {
+                  if (!nextParentId) {
+                    return {
+                      ...prev,
+                      parentOrganizationId: null,
+                      orgType: 'Landesverband'
+                    };
+                  }
+
+                  const parent = organizations.find((org) => org.id === nextParentId);
+                  const childType = getChildTypeForParent(parent?.orgType);
+                  return {
+                    ...prev,
+                    parentOrganizationId: nextParentId,
+                    orgType: childType ?? prev.orgType
+                  };
+                });
+              }}
+              disabled={requiredParentType === null}
             >
               <option value="">{t('common:actions.pleaseSelect')}</option>
               {parentOptions.map((org) => (

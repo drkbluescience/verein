@@ -7,6 +7,20 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fiBuKontoService } from '../../../services/easyFiBuService';
 import { FiBuKontoDto, CreateFiBuKontoDto, UpdateFiBuKontoDto, FIBU_KATEGORIEN } from '../../../types/easyFiBu.types';
+import { getKategorieOptions } from './kontenUtils';
+
+const DEFAULT_FORM_DATA: CreateFiBuKontoDto = {
+  nummer: '',
+  bezeichnung: '',
+  kategorie: '',
+  unterkategorie: '',
+  kontoTyp: '',
+  istEinnahme: false,
+  istAusgabe: false,
+  istDurchlaufend: false,
+  beschreibung: '',
+  sortierung: 10,
+};
 
 interface KontenModalProps {
   isOpen: boolean;
@@ -16,6 +30,7 @@ interface KontenModalProps {
 
 const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => {
   const { t } = useTranslation();
+  const kategorienOptions = useMemo(() => getKategorieOptions(t), [t]);
   const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -29,21 +44,8 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
   }), []);
 
 
-  const defaultFormData: CreateFiBuKontoDto = {
-    nummer: '',
-    bezeichnung: '',
-    kategorie: '',
-    unterkategorie: '',
-    kontoTyp: '',
-    istEinnahme: false,
-    istAusgabe: false,
-    istDurchlaufend: false,
-    beschreibung: '',
-    sortierung: 10,
-  };
-
   // Form state
-  const [formData, setFormData] = useState<CreateFiBuKontoDto>(defaultFormData);
+  const [formData, setFormData] = useState<CreateFiBuKontoDto>(DEFAULT_FORM_DATA);
 
   const { data: existingKonten = [] } = useQuery({
     queryKey: ['fibu-konten-all'],
@@ -52,7 +54,7 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
   });
 
   const handleClose = () => {
-    setFormData({ ...defaultFormData });
+    setFormData({ ...DEFAULT_FORM_DATA });
     setSuccessMessage('');
     onClose();
   };
@@ -104,7 +106,7 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
         sortierung: konto.sortierung ?? 10,
       });
     } else {
-      setFormData({ ...defaultFormData });
+      setFormData({ ...DEFAULT_FORM_DATA });
     }
     setSuccessMessage('');
   }, [konto]);
@@ -272,9 +274,9 @@ const KontenModal: React.FC<KontenModalProps> = ({ isOpen, onClose, konto }) => 
                 disabled={isSubmitting}
               >
                 <option value="">{t('finanz:easyFiBu.common.select')}</option>
-                {Object.entries(FIBU_KATEGORIEN).map(([key, value]) => (
-                  <option key={key} value={value}>
-                    {value}
+                {kategorienOptions.map((option) => (
+                  <option key={option.key} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>

@@ -1,8 +1,16 @@
 {
   "title": "Organisationsverwaltung",
+  "treeTitle": "Organisationsbaum",
+  "detailsTitle": "Einzelheiten",
+  "values": {
+    "federationCodes": {
+      "DITIB": "DITIB",
+      "Independent": "Unabhängig",
+      "Other": "Andere"
+    }
+  },
   "filters": {
     "orgType": "Org Typ",
-    "federationCode": "Föderationscode",
     "includeDeleted": "Gelöschte anzeigen"
   },
   "actions": {
@@ -17,8 +25,9 @@
   "labels": {
     "name": "Name",
     "orgType": "Org Typ",
-    "federationCode": "Föderationscode",
     "parent": "Übergeordnet",
+    "state": "Landesverband",
+    "region": "Region",
     "aktiv": "Aktiv",
     "deleted": "Gelöscht",
     "path": "Pfad",

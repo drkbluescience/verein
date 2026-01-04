@@ -3,13 +3,14 @@
  * Manage FiBu accounts according to SKR49
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { fiBuKontoService } from '../../../services/easyFiBuService';
-import { FiBuKontoDto, CreateFiBuKontoDto, UpdateFiBuKontoDto, FIBU_KATEGORIEN } from '../../../types/easyFiBu.types';
+import { FiBuKontoDto } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
 import KontenModal from './KontenModal';
+import { getKategorieLabelByValue, getKategorieOptions, getLocalizedKontoName } from './kontenUtils';
 import './easyFiBu.css';
 
 // Icons
@@ -36,25 +37,30 @@ interface KontenTabProps {
 }
 
 const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const kategorienOptions = useMemo(() => getKategorieOptions(t), [t]);
   const [searchTerm, setSearchTerm] = useState('');
   const [kategorieFilter, setKategorieFilter] = useState<string>('all');
   const [showInactive, setShowInactive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedKonto, setSelectedKonto] = useState<FiBuKontoDto | null>(null);
+  const hasVerein = !!vereinId;
 
   // Fetch FiBu accounts
   const { data: konten = [], isLoading } = useQuery({
-    queryKey: ['fibu-konten', showInactive],
+    queryKey: ['fibu-konten', showInactive, hasVerein ? vereinId : 'none'],
     queryFn: () => fiBuKontoService.getAll(showInactive),
+    enabled: hasVerein,
   });
 
   // Filter accounts
   const filteredKonten = useMemo(() => {
     return konten.filter(konto => {
-      const matchesSearch = searchTerm === '' || 
+      const localizedName = getLocalizedKontoName(konto, i18n.language).toLowerCase();
+      const matchesSearch = searchTerm === '' ||
         konto.nummer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        konto.bezeichnung.toLowerCase().includes(searchTerm.toLowerCase());
+        konto.bezeichnung.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        localizedName.includes(searchTerm.toLowerCase());
       const matchesKategorie = kategorieFilter === 'all' || konto.kategorie === kategorieFilter;
       return matchesSearch && matchesKategorie;
     });
@@ -82,6 +88,16 @@ const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
     setIsModalOpen(true);
   };
 
+  if (!hasVerein) {
+    return (
+      <div className="easyfibu-tab konten-tab">
+        <div className="empty-state">
+          {t('common:filter.selectVerein')}
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) return <Loading />;
 
   return (
@@ -106,14 +122,14 @@ const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <select 
-          value={kategorieFilter} 
+        <select
+          value={kategorieFilter}
           onChange={(e) => setKategorieFilter(e.target.value)}
           className="filter-select"
         >
           <option value="all">{t('finanz:easyFiBu.common.all')}</option>
-          {Object.entries(FIBU_KATEGORIEN).map(([key, value]) => (
-            <option key={key} value={value}>{value}</option>
+          {kategorienOptions.map((option) => (
+            <option key={option.key} value={option.value}>{option.label}</option>
           ))}
         </select>
         <label className="checkbox-label">
@@ -127,9 +143,9 @@ const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
       </div>
 
       <div className="konten-list">
-        {Object.entries(groupedKonten).map(([kategorie, kontenList]) => (
-          <div key={kategorie} className="kategorie-group">
-            <h3 className="kategorie-title">{kategorie}</h3>
+          {Object.entries(groupedKonten).map(([kategorie, kontenList]) => (
+            <div key={kategorie} className="kategorie-group">
+            <h3 className="kategorie-title">{getKategorieLabelByValue(t, kategorie)}</h3>
             <table className="data-table">
               <thead>
                 <tr>
@@ -144,7 +160,7 @@ const KontenTab: React.FC<KontenTabProps> = ({ vereinId }) => {
                 {kontenList.map(konto => (
                   <tr key={konto.id} className={!konto.aktiv ? 'inactive-row' : ''}>
                     <td className="konto-nummer">{konto.nummer}</td>
-                    <td>{konto.bezeichnung}</td>
+                    <td>{getLocalizedKontoName(konto, i18n.language)}</td>
                     <td>
                       <span className={`type-badge ${konto.istEinnahme ? 'einnahme' : konto.istAusgabe ? 'ausgabe' : 'durchlaufend'}`}>
                         {konto.istEinnahme ? 'E' : konto.istAusgabe ? 'A' : 'D'}

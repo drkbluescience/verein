@@ -26,6 +26,12 @@ public class FiBuKontoDto
     public string Bezeichnung { get; set; } = string.Empty;
 
     /// <summary>
+    /// Account description in Turkish (optional)
+    /// </summary>
+    [JsonPropertyName("bezeichnungTr")]
+    public string? BezeichnungTr { get; set; }
+
+    /// <summary>
     /// Main business area: A=Ideeller Bereich, B=Vermögensverwaltung, C=Zweckbetrieb, D=Geschäftsbetrieb
     /// </summary>
     [JsonPropertyName("hauptbereich")]

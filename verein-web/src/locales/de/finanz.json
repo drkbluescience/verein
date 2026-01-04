@@ -724,6 +724,7 @@
       "title": "Kassenbuch",
       "subtitle": "Kasse und Bankbuchungen verwalten",
       "newEntry": "Neue Buchung",
+      "editEntry": "Buchung bearbeiten",
       "belegNr": "Beleg-Nr.",
       "belegDatum": "Belegdatum",
       "buchungstext": "Buchungstext",
@@ -763,6 +764,7 @@
       "title": "Kontenplan",
       "subtitle": "FiBu-Konten nach SKR49 verwalten",
       "newKonto": "Neues Konto",
+      "editKonto": "Konto bearbeiten",
       "successCreated": "Konto wurde erfolgreich erstellt",
       "nummer": "Kontonummer",
       "bezeichnung": "Bezeichnung",
@@ -838,6 +840,8 @@
       "title": "Durchlaufende Posten",
       "subtitle": "Einnahmen für Dritte verwalten",
       "newPosten": "Neuer Posten",
+      "editPosten": "Posten bearbeiten",
+      "konto": "FiBu-Konto",
       "bezeichnung": "Bezeichnung",
       "empfaenger": "Empfänger",
       "einnahmenDatum": "Einnahmedatum",
@@ -846,6 +850,7 @@
       "ausgabenBetrag": "Ausgabebetrag",
       "referenz": "Referenz",
       "status": "Status",
+      "bemerkungen": "Bemerkungen",
       "offenerBetrag": "Offener Betrag",
       "statusValues": {
         "offen": "Offen",
@@ -853,6 +858,8 @@
         "abgeschlossen": "Abgeschlossen"
       },
       "close": "Abschließen",
+      "closePosten": "Posten schließen",
+      "closing": "Wird geschlossen...",
       "closeConfirm": "Posten wirklich abschließen?",
       "summary": {
         "totalOffen": "Gesamt offen",
@@ -923,6 +930,8 @@
     },
     "common": {
       "save": "Speichern",
+      "update": "Aktualisieren",
+      "saving": "Speichert...",
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
       "delete": "Löschen",

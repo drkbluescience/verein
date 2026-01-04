@@ -4,6 +4,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { durchlaufendePostenService, fiBuKontoService } from '../../../services/easyFiBuService';
 import {
@@ -12,6 +15,10 @@ import {
   UpdateDurchlaufendePostenDto,
   DURCHLAUFENDE_POSTEN_STATUS
 } from '../../../types/easyFiBu.types';
+import { getLocalizedKontoName } from './kontenUtils';
+
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 interface TransitModalProps {
   isOpen: boolean;
@@ -26,7 +33,7 @@ const TransitModal: React.FC<TransitModalProps> = ({
   posten, 
   vereinId 
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
 
   // Form state
@@ -52,6 +59,9 @@ const TransitModal: React.FC<TransitModalProps> = ({
     kassenbuchAusgabeId: undefined,
     bemerkungen: '',
   });
+
+  const [incomeDate, setIncomeDate] = useState<Date | null>(new Date());
+  const [payoutDate, setPayoutDate] = useState<Date | null>(null);
 
   // Fetch FiBu accounts
   const { data: konten = [] } = useQuery({
@@ -111,13 +121,16 @@ const TransitModal: React.FC<TransitModalProps> = ({
         kassenbuchAusgabeId: posten.kassenbuchAusgabeId,
         bemerkungen: posten.bemerkungen || '',
       });
+      setIncomeDate(posten.einnahmenDatum ? new Date(posten.einnahmenDatum) : null);
+      setPayoutDate(posten.ausgabenDatum ? new Date(posten.ausgabenDatum) : null);
     } else {
+      const today = new Date();
       setFormData({
         vereinId,
         fiBuNummer: '',
         bezeichnung: '',
         empfaenger: '',
-        einnahmenDatum: new Date().toISOString().split('T')[0],
+        einnahmenDatum: today.toISOString().split('T')[0],
         einnahmenBetrag: 0,
         bemerkungen: '',
       });
@@ -132,6 +145,8 @@ const TransitModal: React.FC<TransitModalProps> = ({
         kassenbuchAusgabeId: undefined,
         bemerkungen: '',
       });
+      setIncomeDate(today);
+      setPayoutDate(null);
     }
   }, [posten, vereinId]);
 
@@ -212,7 +227,7 @@ const TransitModal: React.FC<TransitModalProps> = ({
                       .filter(k => k.istDurchlaufend)
                       .map(konto => (
                         <option key={konto.id} value={konto.nummer}>
-                          {konto.nummer} - {konto.bezeichnung}
+                          {konto.nummer} - {getLocalizedKontoName(konto, i18n.language)}
                         </option>
                       ))}
                   </select>
@@ -220,12 +235,19 @@ const TransitModal: React.FC<TransitModalProps> = ({
 
                 <div className="form-group">
                   <label htmlFor="einnahmenDatum">{t('finanz:easyFiBu.transit.einnahmenDatum')}</label>
-                  <input
-                    type="date"
-                    id="einnahmenDatum"
-                    name="einnahmenDatum"
-                    value={formData.einnahmenDatum}
-                    onChange={handleCreateChange}
+                  <DatePicker
+                    selected={incomeDate}
+                    onChange={(date) => {
+                      setIncomeDate(date);
+                      setFormData(prev => ({
+                        ...prev,
+                        einnahmenDatum: date ? date.toISOString().split('T')[0] : '',
+                      }));
+                    }}
+                    locale={i18n.language}
+                    dateFormat="dd.MM.yyyy"
+                    placeholderText={t('finanz:easyFiBu.transit.einnahmenDatum')}
+                    className="date-picker-input"
                     required
                     disabled={isSubmitting}
                   />
@@ -361,12 +383,19 @@ const TransitModal: React.FC<TransitModalProps> = ({
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="ausgabenDatum">{t('finanz:easyFiBu.transit.ausgabenDatum')}</label>
-                    <input
-                      type="date"
-                      id="ausgabenDatum"
-                      name="ausgabenDatum"
-                      value={updateData.ausgabenDatum}
-                      onChange={handleUpdateChange}
+                    <DatePicker
+                      selected={payoutDate}
+                      onChange={(date) => {
+                        setPayoutDate(date);
+                        setUpdateData(prev => ({
+                          ...prev,
+                          ausgabenDatum: date ? date.toISOString().split('T')[0] : '',
+                        }));
+                      }}
+                      locale={i18n.language}
+                      dateFormat="dd.MM.yyyy"
+                      placeholderText={t('finanz:easyFiBu.transit.ausgabenDatum')}
+                      className="date-picker-input"
                       disabled={isSubmitting}
                     />
                   </div>

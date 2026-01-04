@@ -17,7 +17,7 @@ public class OrganizationCreateDto
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Organization type (Dachverband, Landesverband, Region, Verein)
+    /// Organization type (Landesverband, Region, Verein)
     /// </summary>
     [Required(ErrorMessage = "OrgType is required")]
     [MaxLength(20, ErrorMessage = "OrgType cannot exceed 20 characters")]
@@ -31,7 +31,7 @@ public class OrganizationCreateDto
     public int? ParentOrganizationId { get; set; }
 
     /// <summary>
-    /// Federation code (DITIB, Independent, Other)
+    /// Federation code (DITIB)
     /// </summary>
     [MaxLength(20, ErrorMessage = "FederationCode cannot exceed 20 characters")]
     [JsonPropertyName("federationCode")]

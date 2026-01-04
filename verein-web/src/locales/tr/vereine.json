@@ -155,6 +155,8 @@
   "organization": {
     "title": "Organizasyon",
     "type": "Organizasyon Tipi",
+    "state": "Eyalet",
+    "region": "Bolge",
     "federation": "Bağlılık",
     "noFederation": "Bağlılık belirtilmedi",
     "parent": "Üst Organizasyon",
@@ -165,7 +167,7 @@
     "unknownType": "Tip bilinmiyor",
     "types": {
       "Dachverband": "Çatı Organizasyon",
-      "Landesverband": "Bölge Birliği",
+      "Landesverband": "Eyalet Birligi",
       "Region": "Bölge",
       "Verein": "Dernek"
     }

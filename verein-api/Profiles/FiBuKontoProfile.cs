@@ -16,6 +16,7 @@ public class FiBuKontoProfile : Profile
             .ForMember(dest => dest.Sortierung, opt => opt.MapFrom(src => src.Reihenfolge))
             .ForMember(dest => dest.Kategorie, opt => opt.MapFrom(src => ResolveKategorie(src)))
             .ForMember(dest => dest.KontoTyp, opt => opt.MapFrom(src => src.Bereich))
+            .ForMember(dest => dest.BezeichnungTr, opt => opt.MapFrom(src => src.BezeichnungTR))
             .ForMember(dest => dest.IstEinnahme, opt => opt.MapFrom(src => IsEinnahme(src.Typ)))
             .ForMember(dest => dest.IstAusgabe, opt => opt.MapFrom(src => IsAusgabe(src.Typ)))
             .ForMember(dest => dest.IstDurchlaufend, opt => opt.MapFrom(src => IsDurchlaufend(src)))
@@ -30,7 +31,7 @@ public class FiBuKontoProfile : Profile
             .ForMember(dest => dest.HauptbereichName, opt => opt.MapFrom(src => ResolveHauptbereichName(src)))
             .ForMember(dest => dest.Bereich, opt => opt.MapFrom(src => ResolveBereich(src)))
             .ForMember(dest => dest.Typ, opt => opt.MapFrom(src => ResolveTyp(src)))
-            .ForMember(dest => dest.BezeichnungTR, opt => opt.MapFrom(src => ResolveBeschreibung(src)))
+            .ForMember(dest => dest.BezeichnungTR, opt => opt.MapFrom(src => src.BezeichnungTr ?? ResolveBeschreibung(src)))
             .ForMember(dest => dest.IsAktiv, opt => opt.MapFrom(src => ResolveIsAktiv(src)))
             .ForMember(dest => dest.Created, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
@@ -50,7 +51,7 @@ public class FiBuKontoProfile : Profile
             .ForMember(dest => dest.HauptbereichName, opt => opt.MapFrom(src => ResolveHauptbereichName(src)))
             .ForMember(dest => dest.Bereich, opt => opt.MapFrom(src => ResolveBereich(src)))
             .ForMember(dest => dest.Typ, opt => opt.MapFrom(src => ResolveTyp(src)))
-            .ForMember(dest => dest.BezeichnungTR, opt => opt.MapFrom(src => ResolveBeschreibung(src)))
+            .ForMember(dest => dest.BezeichnungTR, opt => opt.MapFrom(src => src.BezeichnungTr ?? ResolveBeschreibung(src)))
             .ForMember(dest => dest.IsAktiv, opt =>
             {
                 opt.PreCondition(src => src.Aktiv.HasValue || src.IsAktiv.HasValue);

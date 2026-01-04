@@ -10,6 +10,7 @@ import { kassenbuchService, fiBuKontoService } from '../../../services/easyFiBuS
 import { KassenbuchDto, CreateKassenbuchDto, FiBuKontoDto } from '../../../types/easyFiBu.types';
 import Loading from '../../../components/Common/Loading';
 import KassenbuchModal from './KassenbuchModal';
+import { getLocalizedKontoName } from './kontenUtils';
 import './easyFiBu.css';
 
 // Icons
@@ -36,7 +37,7 @@ interface KassenbuchTabProps {
 }
 
 const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const [selectedJahr, setSelectedJahr] = useState(currentYear);
@@ -184,7 +185,9 @@ const KassenbuchTab: React.FC<KassenbuchTabProps> = ({ vereinId }) => {
         >
           <option value="all">{t('finanz:easyFiBu.common.all')}</option>
           {konten.map(konto => (
-            <option key={konto.id} value={konto.nummer}>{konto.nummer} - {konto.bezeichnung}</option>
+            <option key={konto.id} value={konto.nummer}>
+              {konto.nummer} - {getLocalizedKontoName(konto, i18n.language)}
+            </option>
           ))}
         </select>
       </div>

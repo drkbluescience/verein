@@ -1,8 +1,16 @@
 {
   "title": "Organizasyon Yönetimi",
+  "treeTitle": "Organizasyon Ağacı",
+  "detailsTitle": "Detaylar",
+  "values": {
+    "federationCodes": {
+      "DITIB": "DITIB",
+      "Independent": "Bağımsız",
+      "Other": "Diğer"
+    }
+  },
   "filters": {
     "orgType": "Org Tipi",
-    "federationCode": "Federasyon Kodu",
     "includeDeleted": "Silinenleri göster"
   },
   "actions": {
@@ -17,8 +25,9 @@
   "labels": {
     "name": "Ad",
     "orgType": "Org Tipi",
-    "federationCode": "Federasyon Kodu",
     "parent": "Üst Birim",
+    "state": "Eyalet",
+    "region": "Bolge",
     "aktiv": "Aktif",
     "deleted": "Silinmiş",
     "path": "Yer",

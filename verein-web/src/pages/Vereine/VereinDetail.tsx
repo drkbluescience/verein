@@ -188,6 +188,14 @@ const VereinDetail: React.FC = () => {
 
   const formatOrgType = (orgType?: string) =>
     orgType ? t(`vereine:organization.types.${orgType}`, { defaultValue: orgType }) : t('vereine:organization.unknownType');
+  const stateNode = organizationPath.find((node) => node.orgType === 'Landesverband');
+  const regionNode = organizationPath.find((node) => node.orgType === 'Region');
+  const parentNode = organizationPath.length > 1 ? organizationPath[organizationPath.length - 2] : undefined;
+  const locationLoading = organizationLoading || organizationPathLoading;
+  const formatLocationValue = (value: string) => (locationLoading ? t('common:status.loading') : value);
+  const stateName = formatLocationValue(stateNode?.name ?? '-');
+  const regionName = formatLocationValue(regionNode?.name ?? '-');
+  const parentName = formatLocationValue(parentNode?.name ?? '-');
 
   // Yetkilendirme kontrolü - Dernek Bilgileri
   const canEditVerein = (): boolean => {
@@ -308,32 +316,41 @@ const VereinDetail: React.FC = () => {
                       ? t('common:status.loading')
                       : organization?.name || t('vereine:organization.missing')}
                   </h3>
-                  <div className="organization-meta">
-                    <span className="organization-pill">
-                      {formatOrgType(organization?.orgType)}
-                    </span>
-                  </div>
-                </div>
-                <div className="organization-federation">
-                  {organizationLoading
-                    ? t('common:status.loading')
-                    : organization?.federationCode || t('vereine:organization.noFederation')}
+                <div className="organization-meta">
+                  <span className="organization-pill">
+                    {formatOrgType(organization?.orgType)}
+                  </span>
                 </div>
               </div>
+              <div className="organization-location">
+                <div className="organization-location-item">
+                  <span className="organization-location-label">{t('vereine:organization.state')}</span>
+                  <span className="organization-location-value">{stateName}</span>
+                </div>
+                <div className="organization-location-item">
+                  <span className="organization-location-label">{t('vereine:organization.region')}</span>
+                  <span className="organization-location-value">{regionName}</span>
+                </div>
+              </div>
+            </div>
 
-              <div className="info-grid organization-grid">
-                <div className="info-item">
-                  <label>{t('vereine:organization.type')}</label>
-                  <span>{formatOrgType(organization?.orgType)}</span>
-                </div>
-                <div className="info-item">
-                  <label>{t('vereine:organization.federation')}</label>
-                  <span>{organization?.federationCode || t('vereine:organization.noFederation')}</span>
-                </div>
-                <div className="info-item">
-                  <label>{t('vereine:organization.parent')}</label>
-                  <span>{organization?.parentOrganizationId ?? '-'}</span>
-                </div>
+            <div className="info-grid organization-grid">
+              <div className="info-item">
+                <label>{t('vereine:organization.type')}</label>
+                <span>{formatOrgType(organization?.orgType)}</span>
+              </div>
+              <div className="info-item">
+                <label>{t('vereine:organization.state')}</label>
+                <span>{stateName}</span>
+              </div>
+              <div className="info-item">
+                <label>{t('vereine:organization.region')}</label>
+                <span>{regionName}</span>
+              </div>
+              <div className="info-item">
+                <label>{t('vereine:organization.parent')}</label>
+                <span>{parentName}</span>
+              </div>
                 <div className="info-item">
                   <label>{t('vereine:organization.status')}</label>
                   <span>{organization?.aktiv === false ? t('common:status.inactive') : t('common:status.active')}</span>

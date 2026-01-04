@@ -4,9 +4,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { de, tr } from 'date-fns/locale';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { kassenbuchService, fiBuKontoService } from '../../../services/easyFiBuService';
 import { KassenbuchDto, CreateKassenbuchDto, UpdateKassenbuchDto } from '../../../types/easyFiBu.types';
+import { getLocalizedKontoName } from './kontenUtils';
+
+registerLocale('de', de);
+registerLocale('tr', tr);
 
 interface KassenbuchModalProps {
   isOpen: boolean;
@@ -23,8 +30,9 @@ const KassenbuchModal: React.FC<KassenbuchModalProps> = ({
   vereinId, 
   jahr 
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
+  const [belegDate, setBelegDate] = useState<Date | null>(new Date());
 
   // Form state
   const [formData, setFormData] = useState<CreateKassenbuchDto>({
@@ -69,6 +77,7 @@ const KassenbuchModal: React.FC<KassenbuchModalProps> = ({
   // Initialize form with entry data
   useEffect(() => {
     if (entry) {
+      setBelegDate(new Date(entry.belegDatum));
       setFormData({
         vereinId,
         jahr,
@@ -82,10 +91,12 @@ const KassenbuchModal: React.FC<KassenbuchModalProps> = ({
         notiz: entry.notiz || '',
       });
     } else {
+      const today = new Date();
+      setBelegDate(today);
       setFormData({
         vereinId,
         jahr,
-        belegDatum: new Date().toISOString().split('T')[0],
+        belegDatum: today.toISOString().split('T')[0],
         buchungstext: '',
         fiBuNummer: '',
         kasseEinnahme: 0,
@@ -162,18 +173,25 @@ const KassenbuchModal: React.FC<KassenbuchModalProps> = ({
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="belegDatum">{t('finanz:easyFiBu.kassenbuch.belegDatum')}</label>
-              <input
-                type="date"
-                id="belegDatum"
-                name="belegDatum"
-                value={formData.belegDatum}
-                onChange={handleChange}
-                required
-                disabled={isSubmitting}
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="belegDatum">{t('finanz:easyFiBu.kassenbuch.belegDatum')}</label>
+            <DatePicker
+              selected={belegDate}
+              onChange={(date) => {
+                setBelegDate(date);
+                setFormData(prev => ({
+                  ...prev,
+                  belegDatum: date ? date.toISOString().split('T')[0] : '',
+                }));
+              }}
+              locale={i18n.language}
+              dateFormat="dd.MM.yyyy"
+              placeholderText={t('finanz:easyFiBu.kassenbuch.belegDatum')}
+              className="date-picker-input"
+              required
+              disabled={isSubmitting}
+            />
+          </div>
 
             <div className="form-group">
               <label htmlFor="fiBuNummer">{t('finanz:easyFiBu.kassenbuch.konto')}</label>
@@ -188,7 +206,7 @@ const KassenbuchModal: React.FC<KassenbuchModalProps> = ({
                 <option value="">{t('finanz:easyFiBu.common.select')}</option>
                 {konten.map(konto => (
                   <option key={konto.id} value={konto.nummer}>
-                    {konto.nummer} - {konto.bezeichnung}
+                    {konto.nummer} - {getLocalizedKontoName(konto, i18n.language)}
                   </option>
                 ))}
               </select>

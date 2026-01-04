@@ -16,7 +16,7 @@ public class OrganizationUpdateDto
     public string? Name { get; set; }
 
     /// <summary>
-    /// Organization type (Dachverband, Landesverband, Region, Verein)
+    /// Organization type (Landesverband, Region, Verein)
     /// </summary>
     [MaxLength(20, ErrorMessage = "OrgType cannot exceed 20 characters")]
     [JsonPropertyName("orgType")]
@@ -29,7 +29,7 @@ public class OrganizationUpdateDto
     public int? ParentOrganizationId { get; set; }
 
     /// <summary>
-    /// Federation code (DITIB, Independent, Other)
+    /// Federation code (DITIB)
     /// </summary>
     [MaxLength(20, ErrorMessage = "FederationCode cannot exceed 20 characters")]
     [JsonPropertyName("federationCode")]

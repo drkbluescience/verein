@@ -32,6 +32,13 @@ public class UpdateFiBuKontoDto
     public string Bezeichnung { get; set; } = string.Empty;
 
     /// <summary>
+    /// Account description in Turkish (optional)
+    /// </summary>
+    [MaxLength(200, ErrorMessage = "BezeichnungTR darf maximal 200 Zeichen lang sein")]
+    [JsonPropertyName("bezeichnungTr")]
+    public string? BezeichnungTr { get; set; }
+
+    /// <summary>
     /// Main business area: A=Ideeller Bereich, B=Vermögensverwaltung, C=Zweckbetrieb, D=Geschäftsbetrieb
     /// </summary>
     [MaxLength(1, ErrorMessage = "Hauptbereich muss ein einzelnes Zeichen sein")]

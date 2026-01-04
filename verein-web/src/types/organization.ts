@@ -1,5 +1,5 @@
-export type OrganizationType = 'Dachverband' | 'Landesverband' | 'Region' | 'Verein';
-export type FederationCode = 'DITIB' | 'Independent' | 'Other';
+export type OrganizationType = 'Landesverband' | 'Region' | 'Verein';
+export type FederationCode = 'DITIB';
 
 export interface OrganizationDto {
   id: number;

@@ -17,7 +17,7 @@ public class Organization : AuditableEntity
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Organization type (Dachverband, Landesverband, Region, Verein)
+    /// Organization type (Landesverband, Region, Verein)
     /// </summary>
     [Required]
     [MaxLength(20)]
@@ -29,7 +29,7 @@ public class Organization : AuditableEntity
     public int? ParentOrganizationId { get; set; }
 
     /// <summary>
-    /// Federation code (DITIB, Independent, Other)
+    /// Federation code (DITIB)
     /// </summary>
     [MaxLength(20)]
     public string? FederationCode { get; set; }

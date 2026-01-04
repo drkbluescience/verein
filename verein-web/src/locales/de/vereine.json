@@ -155,6 +155,8 @@
   "organization": {
     "title": "Organisation",
     "type": "Organisationstyp",
+    "state": "Landesverband",
+    "region": "Region",
     "federation": "Verband",
     "noFederation": "Kein Verband angegeben",
     "parent": "\u00dcbergeordnete Organisation",

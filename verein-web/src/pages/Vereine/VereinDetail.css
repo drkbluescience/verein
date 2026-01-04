@@ -248,14 +248,33 @@
   border-color: #e5e7eb;
 }
 
-.organization-federation {
+.organization-location {
   padding: 10px 14px;
   background: #fff;
   border-radius: var(--radius-md);
   border: 1px dashed var(--color-border);
   color: var(--color-text-primary);
-  min-width: 160px;
-  text-align: center;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.organization-location-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.organization-location-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+.organization-location-value {
   font-weight: 600;
 }
 

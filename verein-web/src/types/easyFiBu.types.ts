@@ -12,6 +12,7 @@ export interface FiBuKontoDto {
   id: number;
   nummer: string;
   bezeichnung: string;
+  bezeichnungTr?: string;
   kategorie: string;
   unterkategorie?: string;
   kontoTyp: string;

@@ -677,6 +677,72 @@ GO
 
 PRINT '1. Dernekler ekleniyor...';
 
+-- Organizasyon kaydı (Verein.OrganizationId zorunlu)
+DECLARE @DefaultLandesverbandId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE DeletedFlag = 0 AND OrgType = 'Landesverband' AND FederationCode = 'DITIB'
+    ORDER BY Id
+);
+IF @DefaultLandesverbandId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'DITIB Eyalet Birligi (Demo)', 'Landesverband', 'DITIB', NULL, 0, GETDATE(), 1, 1);
+    SET @DefaultLandesverbandId = SCOPE_IDENTITY();
+END
+
+DECLARE @DefaultRegionId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE DeletedFlag = 0 AND OrgType = 'Region' AND FederationCode = 'DITIB'
+    ORDER BY Id
+);
+IF @DefaultRegionId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'DITIB Bolge (Demo)', 'Region', 'DITIB', @DefaultLandesverbandId, 0, GETDATE(), 1, 1);
+    SET @DefaultRegionId = SCOPE_IDENTITY();
+END
+
+DECLARE @MunichOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'TÇ¬rkisch-Deutscher Kulturverein MÇ¬nchen'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @MunichOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'TÇ¬rkisch-Deutscher Kulturverein MÇ¬nchen', 'Verein', 'DITIB', @DefaultRegionId, 0, GETDATE(), 1, 1);
+    SET @MunichOrgId = SCOPE_IDENTITY();
+END
+
+DECLARE @BerlinOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'Deutsch-TÇ¬rkische Freundschaft Berlin'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @BerlinOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'Deutsch-TÇ¬rkische Freundschaft Berlin', 'Verein', 'DITIB', @DefaultRegionId, 0, GETDATE(), 1, 1);
+    SET @BerlinOrgId = SCOPE_IDENTITY();
+END
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM [Verein].[Organization]
+    WHERE Name = N'DITIB Dernek (Demo)' AND OrgType = 'Verein' AND FederationCode = 'DITIB' AND ParentOrganizationId = @DefaultRegionId
+)
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'DITIB Dernek (Demo)', 'Verein', 'DITIB', @DefaultRegionId, 0, GETDATE(), 1, 1);
+    PRINT '  ? Demo Organization kaydi olusturuldu';
+END
+
 -- Önce adresleri ekle
 INSERT INTO [Verein].[Adresse] (
     Strasse, Hausnummer, PLZ, Ort, Bundesland, Land,
@@ -699,7 +765,7 @@ INSERT INTO [Verein].[Verein] (
     Name, Kurzname, Zweck, Telefon, Fax, Email, VertreterEmail, Webseite,
     Gruendungsdatum, Mitgliederzahl, Vereinsnummer, Steuernummer,
     Vorstandsvorsitzender, Geschaeftsfuehrer, Kontaktperson,
-    SocialMediaLinks, AdresseId,
+    SocialMediaLinks, OrganizationId, AdresseId,
     DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -719,6 +785,7 @@ INSERT INTO [Verein].[Verein] (
     N'Dr. Mehmet Öztürk',
     N'Fatma Özkan',
     N'{"facebook":"https://www.facebook.com/tdkv.muenchen","instagram":"https://www.instagram.com/tdkv_muenchen","twitter":"https://twitter.com/tdkv_muenchen","linkedin":"https://www.linkedin.com/company/tdkv-muenchen","youtube":"https://www.youtube.com/@tdkvmuenchen"}',
+    @MunichOrgId,
     @AdressMuenchen,
     0,
     GETDATE(),
@@ -741,6 +808,7 @@ INSERT INTO [Verein].[Verein] (
     N'Ayşe Yıldırım',
     N'Ayşe Kaya',
     N'{"facebook":"https://facebook.com/dtf.berlin","instagram":"https://instagram.com/dtf_berlin","linkedin":"https://linkedin.com/company/dtf-berlin"}',
+    @BerlinOrgId,
     @AdressBerlin,
     0,
     GETDATE(),
@@ -763,50 +831,65 @@ PRINT '1.1 Dernek yasal verileri ekleniyor...';
 DECLARE @MuenchenVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'TDKV München');
 DECLARE @BerlinVereinId INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = N'DTF Berlin');
 
-INSERT INTO [Verein].[RechtlicheDaten] (
-    VereinId,
-    RegistergerichtName, RegistergerichtNummer, RegistergerichtOrt, RegistergerichtEintragungsdatum,
-    FinanzamtName, FinanzamtNummer, FinanzamtOrt,
-    Steuerpflichtig, Steuerbefreit, GemeinnuetzigAnerkannt, GemeinnuetzigkeitBis,
-    SteuererklaerungJahr,
-    DeletedFlag, Created, CreatedBy
-) VALUES
-(
-    @MuenchenVereinId,
-    N'Amtsgericht München',
-    N'VR 12345',
-    N'München',
-    '1985-03-15',
-    N'Finanzamt München',
-    N'143/123/45678',
-    N'München',
-    0,
-    1,
-    1,
-    '2025-12-31',
-    2024,
-    0,
-    GETDATE(),
-    1
-),
-(
-    @BerlinVereinId,
-    N'Amtsgericht Charlottenburg',
-    N'VR 67890',
-    N'Berlin',
-    '1992-08-22',
-    N'Finanzamt Berlin-Charlottenburg',
-    N'27/456/78901',
-    N'Berlin',
-    0,
-    1,
-    1,
-    '2025-12-31',
-    2024,
-    0,
-    GETDATE(),
-    1
-);
+IF NOT EXISTS (SELECT 1 FROM [Verein].[RechtlicheDaten] WHERE VereinId = @MuenchenVereinId)
+BEGIN
+    INSERT INTO [Verein].[RechtlicheDaten] (
+        VereinId,
+        RegistergerichtName, RegistergerichtNummer, RegistergerichtOrt, RegistergerichtEintragungsdatum,
+        FinanzamtName, FinanzamtNummer, FinanzamtOrt,
+        Steuerpflichtig, Steuerbefreit, GemeinnuetzigAnerkannt, GemeinnuetzigkeitBis,
+        SteuererklaerungJahr,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (
+        @MuenchenVereinId,
+        N'Amtsgericht München',
+        N'VR 12345',
+        N'München',
+        '1985-03-15',
+        N'Finanzamt München',
+        N'143/123/45678',
+        N'München',
+        0,
+        1,
+        1,
+        '2025-12-31',
+        2024,
+        0,
+        GETDATE(),
+        1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Verein].[RechtlicheDaten] WHERE VereinId = @BerlinVereinId)
+BEGIN
+    INSERT INTO [Verein].[RechtlicheDaten] (
+        VereinId,
+        RegistergerichtName, RegistergerichtNummer, RegistergerichtOrt, RegistergerichtEintragungsdatum,
+        FinanzamtName, FinanzamtNummer, FinanzamtOrt,
+        Steuerpflichtig, Steuerbefreit, GemeinnuetzigAnerkannt, GemeinnuetzigkeitBis,
+        SteuererklaerungJahr,
+        DeletedFlag, Created, CreatedBy
+    ) VALUES
+    (
+        @BerlinVereinId,
+        N'Amtsgericht Charlottenburg',
+        N'VR 67890',
+        N'Berlin',
+        '1992-08-22',
+        N'Finanzamt Berlin-Charlottenburg',
+        N'27/456/78901',
+        N'Berlin',
+        0,
+        1,
+        1,
+        '2025-12-31',
+        2024,
+        0,
+        GETDATE(),
+        1
+    );
+END
 
 PRINT '  ✓ 2 Dernek yasal verisi eklendi';
 GO
@@ -824,6 +907,8 @@ DECLARE @VollmitgliedTypId INT = (SELECT TOP 1 Id FROM [Keytable].[MitgliedTyp] 
 DECLARE @GeschlechtM INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE Code = 'M');
 DECLARE @GeschlechtF INT = (SELECT TOP 1 Id FROM [Keytable].[Geschlecht] WHERE Code = 'F');
 
+IF NOT EXISTS (SELECT 1 FROM [Mitglied].[Mitglied] WHERE Mitgliedsnummer IN ('M001','M002','M003','M004','M005','M006','B001','B002','B003','B004'))
+BEGIN
 -- München Derneği Üyeleri
 -- NOT: Ahmet Yılmaz dernek başkanıdır, üye değildir - User tablosunda tanımlanacak
 -- Aidat bilgileri: BeitragBetrag, BeitragWaehrungId (1=EUR), BeitragPeriodeCode, BeitragZahlungsTag, BeitragIstPflicht
@@ -1055,6 +1140,12 @@ INSERT INTO [Mitglied].[Mitglied] (
     GETDATE(),
     1
 );
+
+END
+ELSE
+BEGIN
+    PRINT '  ? Üye verileri zaten mevcut - atlandı';
+END
 
 PRINT '  ✓ 10 Üye eklendi (6 München, 4 Berlin)';
 GO
@@ -2052,13 +2143,116 @@ BEGIN
 END
 
 PRINT '  ✓ Üye avans ödemeleri tamamlandı';
+
+-- =============================================
+-- 5.2. KASA DEFTERİ VE HESAP PLANI (Kassenbuch & FiBuKonto)
+-- =============================================
+
+PRINT '5.2. Kasa defteri ve hesap planı demo verileri ekleniyor...';
+
+-- FiBu hesap planı kayıtları (varsa ekleme atlanır)
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '1000')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '1000', N'Kasse', N'Kasa', 'KASSE', 'EIN_AUSG', 'A', N'Ideeller Bereich',
+        1, 1, 0, GETDATE(), 1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '1200')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '1200', N'Bank', N'Banka', 'BANK', 'EIN_AUSG', 'A', N'Ideeller Bereich',
+        2, 1, 0, GETDATE(), 1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '2000')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '2000', N'Mitgliedsbeiträge', N'Üyelik aidat gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'A', N'Ideeller Bereich',
+        10, 1, 0, GETDATE(), 1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '2100')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '2100', N'Spenden', N'Bağış gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'A', N'Ideeller Bereich',
+        11, 1, 0, GETDATE(), 1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '3000')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '3000', N'Raummiete', N'Kira giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', N'Ideeller Bereich',
+        20, 1, 0, GETDATE(), 1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '3100')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '3100', N'Veranstaltungskosten', N'Etkinlik giderleri', 'KASSE_BANK', 'AUSGABEN', 'A', N'Ideeller Bereich',
+        21, 1, 0, GETDATE(), 1
+    );
+END
+
+IF NOT EXISTS (SELECT 1 FROM [Finanz].[FiBuKonto] WHERE Nummer = '4200')
+BEGIN
+    INSERT INTO [Finanz].[FiBuKonto] (
+        Nummer, Bezeichnung, BezeichnungTR, Bereich, Typ, Hauptbereich, HauptbereichName,
+        Reihenfolge, IsAktiv, DeletedFlag, Created, CreatedBy
+    ) VALUES (
+        '4200', N'Veranstaltungserlöse', N'Etkinlik gelirleri', 'KASSE_BANK', 'EINNAHMEN', 'A', N'Ideeller Bereich',
+        30, 1, 0, GETDATE(), 1
+    );
+END
+
+-- MÜNCHEN için 2026 Kassenbuch verilerini temizle ve ekle
+DELETE FROM [Finanz].[Kassenbuch]
+WHERE VereinId = @MuenchenVereinId AND Jahr = 2026;
+
+INSERT INTO [Finanz].[Kassenbuch] (
+    VereinId, BelegNr, BelegDatum, FiBuNummer, Verwendungszweck,
+    EinnahmeKasse, AusgabeKasse, EinnahmeBank, AusgabeBank,
+    Zahlungsweg, Bemerkung, MitgliedId, Jahr,
+    DeletedFlag, Created, CreatedBy
+) VALUES
+(@MuenchenVereinId, 1, '2026-01-05', '2000', N'Üyelik aidatı - Ocak 2026 (nakit)', 180.00, NULL, NULL, NULL, 'BAR', N'Kasa tahsilatı', @FatmaId, 2026, 0, GETDATE(), 1),
+(@MuenchenVereinId, 2, '2026-01-08', '2100', N'Bağış makbuzu - kültür etkinliği', NULL, NULL, 500.00, NULL, 'UEBERWEISUNG', N'Banka girişi', @CanId, 2026, 0, GETDATE(), 1),
+(@MuenchenVereinId, 3, '2026-01-12', '3000', N'Kültür merkezi kira ödemesi', NULL, NULL, NULL, 850.00, 'UEBERWEISUNG', N'Ocak kira ödemesi', NULL, 2026, 0, GETDATE(), 1),
+(@MuenchenVereinId, 4, '2026-01-15', '3100', N'Etkinlik ikram ve lojistik gideri', NULL, 220.00, NULL, NULL, 'BAR', N'Kültür gecesi hazırlığı', @ZeynepId, 2026, 0, GETDATE(), 1),
+(@MuenchenVereinId, 5, '2026-01-18', '4200', N'Kültür gecesi bilet satışı', 320.00, NULL, NULL, NULL, 'BAR', N'Bilet ve stand satışları', @EmreId, 2026, 0, GETDATE(), 1),
+(@MuenchenVereinId, 6, '2026-01-22', '1200', N'Kasa -> banka transferi', NULL, 300.00, 300.00, NULL, 'UEBERWEISUNG', N'Kasa bakiyesi bankaya aktarıldı', NULL, 2026, 0, GETDATE(), 1);
+
+PRINT '  ✓ Kasa defteri ve FiBu hesap planı demo verileri eklendi (München, 2026)';
 GO
 
 -- =============================================
--- 5.2. SAYFA NOTLARI (PageNote)
+-- 5.3. SAYFA NOTLARI (PageNote)
 -- =============================================
 
-PRINT '5.2. Sayfa notları ekleniyor...';
+PRINT '5.3. Sayfa notları ekleniyor...';
 
 -- Dernek ID'lerini al
 DECLARE @MuenchenVereinIdNote INT = (SELECT TOP 1 Id FROM [Verein].[Verein] WHERE Kurzname = 'TDKV München');
@@ -2179,6 +2373,115 @@ GO
 PRINT '';
 PRINT '6. Pasif dernekler ekleniyor...';
 
+DECLARE @DefaultLandesverbandPassiveId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE DeletedFlag = 0 AND OrgType = 'Landesverband' AND FederationCode = 'DITIB'
+      AND Name = N'DITIB Eyalet Birligi (Demo Pasif)'
+    ORDER BY Id
+);
+IF @DefaultLandesverbandPassiveId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'DITIB Eyalet Birligi (Demo Pasif)', 'Landesverband', 'DITIB', NULL, 0, GETDATE(), 1, 1);
+    SET @DefaultLandesverbandPassiveId = SCOPE_IDENTITY();
+END
+
+DECLARE @DefaultRegionPassiveId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE DeletedFlag = 0 AND OrgType = 'Region' AND FederationCode = 'DITIB'
+      AND Name = N'DITIB Bolge (Demo Pasif)'
+    ORDER BY Id
+);
+IF @DefaultRegionPassiveId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'DITIB Bolge (Demo Pasif)', 'Region', 'DITIB', @DefaultLandesverbandPassiveId, 0, GETDATE(), 1, 1);
+    SET @DefaultRegionPassiveId = SCOPE_IDENTITY();
+END
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM [Verein].[Organization]
+    WHERE Name = N'DITIB Dernek (Demo Pasif)' AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB' AND ParentOrganizationId = @DefaultRegionPassiveId
+)
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'DITIB Dernek (Demo Pasif)', 'Verein', 'DITIB', @DefaultRegionPassiveId, 0, GETDATE(), 1, 1);
+END
+
+DECLARE @HamburgOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'Türkişch-Deutscher Sportverein Hamburg (Kapatıldı)'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @HamburgOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'Türkişch-Deutscher Sportverein Hamburg (Kapatıldı)', 'Verein', 'DITIB', @DefaultRegionPassiveId, 0, GETDATE(), 1, 0);
+    SET @HamburgOrgId = SCOPE_IDENTITY();
+END
+
+DECLARE @FrankfurtOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'Anadolu Kültür Derneği Frankfurt'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @FrankfurtOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'Anadolu Kültür Derneği Frankfurt', 'Verein', 'DITIB', @DefaultRegionPassiveId, 0, GETDATE(), 1, 0);
+    SET @FrankfurtOrgId = SCOPE_IDENTITY();
+END
+
+DECLARE @KoelnOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'Köln Türk Gençlik Birliği (Birleşti)'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @KoelnOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'Köln Türk Gençlik Birliği (Birleşti)', 'Verein', 'DITIB', @DefaultRegionPassiveId, 0, GETDATE(), 1, 0);
+    SET @KoelnOrgId = SCOPE_IDENTITY();
+END
+
+DECLARE @StuttgartOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'Stuttgart Anadolu Kültür ve Sanat Derneği'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @StuttgartOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'Stuttgart Anadolu Kültür ve Sanat Derneği', 'Verein', 'DITIB', @DefaultRegionPassiveId, 0, GETDATE(), 1, 0);
+    SET @StuttgartOrgId = SCOPE_IDENTITY();
+END
+
+DECLARE @DuesseldorfOrgId INT = (
+    SELECT TOP 1 Id
+    FROM [Verein].[Organization]
+    WHERE Name = N'Düsseldorf Türk Toplumu Derneği'
+      AND OrgType = 'Verein'
+      AND FederationCode = 'DITIB'
+);
+IF @DuesseldorfOrgId IS NULL
+BEGIN
+    INSERT INTO [Verein].[Organization] (Name, OrgType, FederationCode, ParentOrganizationId, DeletedFlag, Created, CreatedBy, Aktiv)
+    VALUES (N'Düsseldorf Türk Toplumu Derneği', 'Verein', 'DITIB', @DefaultRegionPassiveId, 0, GETDATE(), 1, 0);
+    SET @DuesseldorfOrgId = SCOPE_IDENTITY();
+END
+
 -- Mevcut dernekleri aktif olarak işaretle
 UPDATE [Verein].[Verein]
 SET Aktiv = 1,
@@ -2211,7 +2514,7 @@ INSERT INTO [Verein].[Verein] (
     Name, Kurzname, Zweck, Telefon, Fax, Email, VertreterEmail, Webseite,
     Gruendungsdatum, Mitgliederzahl, Vereinsnummer, Steuernummer,
     Vorstandsvorsitzender, Geschaeftsfuehrer, Kontaktperson,
-    SocialMediaLinks, AdresseId,
+    SocialMediaLinks, OrganizationId, AdresseId,
     Aktiv, DeletedFlag, Created, CreatedBy
 ) VALUES
 (
@@ -2231,6 +2534,7 @@ INSERT INTO [Verein].[Verein] (
     NULL,
     N'Zeynep Arslan',
     NULL,
+    @HamburgOrgId,
     @AdressHamburg,
     0,
     0,
@@ -2254,6 +2558,7 @@ INSERT INTO [Verein].[Verein] (
     N'Zehra Demir',
     N'Elif Şahin',
     N'{"facebook":"https://facebook.com/akd.frankfurt","youtube":"https://youtube.com/@akdfrankfurt"}',
+    @FrankfurtOrgId,
     @AdressFrankfurt,
     0,
     0,
@@ -2277,6 +2582,7 @@ INSERT INTO [Verein].[Verein] (
     NULL,
     N'Selin Aydın',
     NULL,
+    @KoelnOrgId,
     @AdressKoeln,
     0,
     0,
@@ -2300,6 +2606,7 @@ INSERT INTO [Verein].[Verein] (
     N'Murat Yılmaz',
     N'Aylin Koç',
     N'{"instagram":"https://instagram.com/saksd_stuttgart","twitter":"https://twitter.com/saksd_stuttgart"}',
+    @StuttgartOrgId,
     @AdressStuttgart,
     0,
     0,
@@ -2323,6 +2630,7 @@ INSERT INTO [Verein].[Verein] (
     NULL,
     N'Gül Yılmaz',
     N'{"facebook":"https://facebook.com/dttd.duesseldorf"}',
+    @DuesseldorfOrgId,
     @AdressDuesseldorf,
     0,
     0,
